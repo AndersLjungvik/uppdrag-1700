@@ -15,6 +15,7 @@
     paper:{name:'Papper',icon:'▱',detail:'Använd på tryckpressen.'},
     type:{name:'Blytyper',icon:'Aa',detail:'Använd på tryckpressen.'},
     proof:{name:'Provtryck',icon:'▤',detail:'Visa för Noor i kaffehuset.'},
+    seeds:{name:'Fröpåse',icon:'❦',detail:'Ge till Karin i byn för en extra ledtråd.'},
     bread:{name:'Bröd',icon:'▰',detail:'Klicka igen för att äta. Ger +3 mättnad.'},
     nature:{name:'Pressad linnea',icon:'❧',detail:'Arbetsintyg från trädgården.'},
     farm:{name:'Kornax',icon:'♧',detail:'Arbetsintyg från gården.'},
@@ -25,6 +26,7 @@
     king:{name:'Kungligt brev',icon:'♛',detail:'Arbetsintyg från slottet.'}
   };
   const DAY_MS=86400000;
+  const PLANT_LABELS=[{id:'canina',name:'Rosa canina',genus:'Rosa'},{id:'tricolor',name:'Viola tricolor',genus:'Viola'},{id:'gallica',name:'Rosa gallica',genus:'Rosa'},{id:'odorata',name:'Viola odorata',genus:'Viola'}];
   const BOOK_GUIDES={
     nature:'Leta efter avsnittet om Linné, namngivning och vetenskap.',
     farm:'Leta efter avsnittet om livet på landsbygden, jordbruk och missväxt.',
@@ -99,7 +101,7 @@
     return !!allowance&&candidates.some(a=>a.length>=6&&!/\d/.test(a)&&editDistance(a,clean)<=allowance);
   }
   function gradeQuestion(q,value){return q.type==='chain'?Array.isArray(value)&&q.steps.every((s,i)=>s.answer===value[i]):gradeShort(q,value)}
-  function blankState(){return{version:2,name:'',scene:'square',heroX:44,coins:0,food:2,maxFood:5,day:1,time:0,breadBought:false,breadEaten:false,completed:[],failedToday:[],inventory:{},working:null,answers:{},gaps:[],history:[],won:false,started:false,collapseCount:0,visits:{},practice:{},rehearsal:null,reviewHistory:[],lastAppleAt:null,hintCredits:{},workshop:{collected:[],placed:[],printed:false,delivered:false}}}
+  function blankState(){return{version:2,name:'',scene:'square',heroX:44,coins:0,food:2,maxFood:5,day:1,time:0,breadBought:false,breadEaten:false,completed:[],failedToday:[],inventory:{},working:null,answers:{},gaps:[],history:[],won:false,started:false,collapseCount:0,visits:{},practice:{},rehearsal:null,reviewHistory:[],lastAppleAt:null,hintCredits:{},workshop:{collected:[],placed:[],printed:false,delivered:false},botany:{placements:{},solved:false,delivered:false}}}
   let state=blankState();
   function loadState(value){
     const fresh=blankState();if(!value||value.version!==2)return fresh;
@@ -114,6 +116,8 @@
     merged.lastAppleAt=Number.isFinite(value.lastAppleAt)?value.lastAppleAt:null;
     const w=value.workshop||{};
     merged.workshop={collected:Array.isArray(w.collected)?[...new Set(w.collected.filter(id=>['ink','paper','type'].includes(id)))]:[],placed:Array.isArray(w.placed)?[...new Set(w.placed.filter(id=>['ink','paper','type'].includes(id)))]:[],printed:w.printed===true,delivered:w.delivered===true};
+    const b=value.botany||{};
+    merged.botany={placements:Object.fromEntries(PLANT_LABELS.filter(p=>['Rosa','Viola'].includes(b.placements?.[p.id])).map(p=>[p.id,b.placements[p.id]])),solved:b.solved===true,delivered:b.delivered===true};
     const allowed=allCards().filter(q=>q.type==='short'&&merged.completed.includes(q.missionId)).map(q=>q.id);
     const r=value.rehearsal;
     merged.rehearsal=r&&Array.isArray(r.ids)&&r.ids.length>0&&r.ids.length<=6&&new Set(r.ids).size===r.ids.length&&r.ids.every(id=>allowed.includes(id))&&Number.isInteger(r.index)&&r.index>=0&&r.index<r.ids.length&&Number.isInteger(r.correct)&&r.correct>=0&&r.correct<=r.index?{ids:r.ids,index:r.index,correct:r.correct,startedAt:Number(r.startedAt)||Date.now()}:null;
@@ -238,6 +242,20 @@
     if(!state.inventory.proof||state.workshop.delivered)return{ok:false};
     removeItem('proof');state.workshop.delivered=true;state.hintCredits.ideas=(state.hintCredits.ideas||0)+1;save();return{ok:true};
   }
+  function logicPlantPlacement(id,genus){
+    if(state.botany.solved||!PLANT_LABELS.some(p=>p.id===id)||!['','Rosa','Viola'].includes(genus))return{ok:false};
+    if(genus)state.botany.placements[id]=genus;else delete state.botany.placements[id];save();return{ok:true};
+  }
+  function logicSortPlants(){
+    const b=state.botany;if(b.solved)return{ok:false,reason:'solved'};
+    if(PLANT_LABELS.some(p=>!b.placements[p.id]))return{ok:false,reason:'incomplete'};
+    if(PLANT_LABELS.some(p=>b.placements[p.id]!==p.genus))return{ok:false,reason:'order'};
+    b.solved=true;addItem('seeds');save();return{ok:true};
+  }
+  function logicDeliverSeeds(){
+    if(!state.inventory.seeds||state.botany.delivered||state.completed.includes('farm'))return{ok:false};
+    removeItem('seeds');state.botany.delivered=true;state.hintCredits.farm=(state.hintCredits.farm||0)+1;save();return{ok:true};
+  }
   function logicNewDay({collapsed=false}={}){state.day++;state.time=0;state.failedToday=[];state.working=null;state.food=Math.max(state.food,2);if(collapsed){state.coins=Math.max(0,state.coins-2);state.collapseCount++}save();return state}
   function reportRows(){return allCards().map(q=>({q,s:state.answers[q.id]||{attempts:0,correct:0,missed:0,supported:0}}))}
   function csvCell(value){let s=String(value??'');if(/^[=+@\-\t\r]/.test(s))s="'"+s;return `"${s.replace(/"/g,'""')}"`}
@@ -259,7 +277,7 @@
     ]},
     garden:{title:'Botaniska trädgården',subtitle:'Ordning bland blad och latinska ord',start:12,mission:'nature',hotspots:[
       {id:'natureNpc',label:'trädgårdslärlingen Sam',kind:'npc',mission:'nature',defaultVerb:'talk',x:61,y:40,w:11,h:43,walk:64},
-      {id:'flower',label:'den mycket självsäkra växten',kind:'object',defaultVerb:'look',x:35,y:55,w:13,h:25,walk:41},
+      {id:'flower',label:'växtetiketterna',kind:'object',defaultVerb:'look',x:42,y:69,w:17,h:21,walk:49},
       {id:'greenhouse',label:'orangeriet',kind:'object',defaultVerb:'look',x:14,y:20,w:30,h:54,walk:32},
       {id:'gardenExit',label:'grinden till Stortorget',kind:'exit',to:'square',defaultVerb:'use',x:89,y:31,w:10,h:55,walk:90}
     ]},
@@ -327,6 +345,11 @@
   function drawHarbor(ctx,t,s){sky(ctx,'#72898d','#d1b88b');rect(ctx,0,500,1280,220,'#88745a');for(let x=0;x<1280;x+=55)line(ctx,x,500,x,720,'#594b3b55',3);rect(ctx,760,325,520,175,'#4f777b');for(let y=350;y<500;y+=24)line(ctx,760,y+Math.sin(t/550+y)*4,1280,y,'#b0c4b055',3);ship(ctx,860,420,.95);for(let i=0;i<5;i++)crate(ctx,350+(i%3)*74,510+Math.floor(i/3)*52,.95);building(ctx,-30,270,300,230,'#a2815e','#6c4135');text(ctx,'MAGASIN',118,326,21,'#f1ddb1','center');const failed=s.failedToday.includes('trade');person(ctx,705,575,'#566c67',failed,'J');rect(ctx,650,557,120,28,'#987143');rect(ctx,670,530,73,27,'#d8c59c');rect(ctx,0,260,74,340,'#342f2a')}
   function drawPalace(ctx,t,s){room(ctx,'#a0896b','#837058');for(let x=120;x<1200;x+=180){rect(ctx,x,80,66,390,'#d9c79d');ellipse(ctx,x+33,80,36,19,'#e7d9b7');ellipse(ctx,x+33,470,40,16,'#64523d')}rect(ctx,415,70,250,270,'#5b4737');rect(ctx,430,85,220,240,'#9b7551');ellipse(ctx,540,185,65,83,'#c99c6e');polygon(ctx,[[480,300],[600,300],[570,220],[510,220]],'#5a765d');ellipse(ctx,540,98,55,20,'#372f27');text(ctx,'GUSTAV III',540,365,18,'#e9d5aa','center');rect(ctx,920,135,250,335,'#43372f');for(let x=950;x<1140;x+=47)rect(ctx,x,160,18,260,'#d2b574');text(ctx,'KUNGLIG PORT',1045,120,18,'#eed8a9','center');const failed=s.failedToday.includes('king');person(ctx,800,567,'#725148',failed,'A');rect(ctx,0,225,95,345,'#3c342d');ellipse(ctx,805,450,70,15,'#e3c98733')}
   function drawExtras(ctx,id,s,t){
+    if(id==='garden'){
+      rect(ctx,551,580,180,17,'#70563a');rect(ctx,565,597,10,63,'#5e4932');rect(ctx,708,597,10,63,'#5e4932');
+      for(let i=0;i<4;i++){rect(ctx,561+i*42,550,35,24,'#ead8ac');text(ctx,i%2?'Viola':'Rosa',578+i*42,566,10,'#443f2c','center')}
+      text(ctx,s.botany.solved?'ETIKETTERNA ÄR ORDNADE':'VÄXTETIKETTER',641,680,15,'#f1e7c5','center');
+    }
     if(id==='square'){
       person(ctx,407,563,'#514b72',false,'R');text(ctx,'LÄROMÄSTARE',402,462,14,'#f0d8a2','center');
       rect(ctx,47,550,93,20,'#715539');rect(ctx,71,531,43,19,'#e8d8b3');text(ctx,'SO-BOKEN',94,510,13,'#eed7a0','center');
@@ -343,7 +366,7 @@
 
   const coreApi={
     get state(){return state},get data(){return data},blankState,loadState,validBank,applyBank,allCards,mission,
-    bookGuide,eligibleReviewCards,reviewSelection,logicBeginReview,reviewQuestion,logicReviewAnswer,logicCancelReview,logicOfferApple,logicJobHint,logicCollect,logicPlace,logicPrint,logicDeliverProof,
+    bookGuide,eligibleReviewCards,reviewSelection,logicBeginReview,reviewQuestion,logicReviewAnswer,logicCancelReview,logicOfferApple,logicJobHint,logicCollect,logicPlace,logicPrint,logicDeliverProof,logicPlantPlacement,logicSortPlants,logicDeliverSeeds,
     normalize,gradeShort,gradeQuestion,logicBeginJob,logicAnswer,logicCompleteJob,logicBuyBread,logicEatBread,logicNewDay,
     reportCSV,reportRows,csvCell,renderScene,
     setState(value){state=loadState(value)},resetData(){data=clone(BASE)}
@@ -357,7 +380,7 @@
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const VERBS={look:'Titta på',talk:'Prata med',take:'Ta',use:'Använd'};
   const OBJECT_TEXT={
-    flower:'Den ser ut att veta exakt vilken art den tillhör. Den tänker inte berätta det gratis.',
+    flower:'Fyra växtetiketter väntar på ordning vid Sams bord.',
     greenhouse:'Glasrutorna fångar solen. Där inne ordnas naturen i raka rader, trots naturens tydliga protester.',
     sack:'Säcken innehåller tre korn, två strån och en oroande mängd luft.',
     mill:'Vingarna går runt. Det gör inte skörden.',
@@ -419,10 +442,12 @@
     if(h.kind==='exit'&&(verb==='use'||verb==='look')){if(h.to)travel(h.to);else showMap();return}
     if(h.id==='master'){talkMaster();return}
     if(h.id==='oracle'){showOracle();return}
+    if(h.id==='flower'){showPlantPuzzle();return}
     if(h.id==='pressMachine'){if(verb==='use'&&item){const r=logicPlace(item);updateHUD();narrate(r.ok?ITEM_INFO[item].name+' är på plats. Pressen gnisslar uppskattande.':'Pressen behöver blytyper, papper och trycksvärta.');return}showPressPuzzle();return}
     if(h.collect){if(verb==='take'){const r=logicCollect(h.collect);updateHUD();narrate(r.ok?'Du lägger '+ITEM_INFO[h.collect].name.toLowerCase()+' i ränseln. Använd det på pressen.':'Det föremålet är redan hämtat.');return}narrate('Det här kan du faktiskt ta. Välj Ta och stoppa det i ränseln.');return}
     if(h.mission&&item==='apple'){const r=logicOfferApple(h.mission);updateHUD();showDialogue(mission(h.mission).npc,r.ok?'”Ett äpple! Jag erbjuder en extra ledtråd i ditt nästa arbetsmoment. Du måste fortfarande svara själv.”':'”Spara äpplet till ett arbete som återstår.”',[{label:'Då pratar vi om jobbet.',fn:()=>talkJob(h.mission),reply:true}]);return}
     if(h.mission==='ideas'&&item==='proof'){const r=logicDeliverProof();updateHUD();showDialogue(mission('ideas').npc,r.ok?'”Ditt provtryck kan sätta fart på ett samtal. Du får en extra ledtråd här i kaffehuset.”':'”Jag har redan fått ditt provtryck.”',[{label:'Vad är ditt uppdrag?',fn:()=>talkJob('ideas'),reply:true}]);return}
+    if(h.mission==='farm'&&item==='seeds'){const r=logicDeliverSeeds();updateHUD();showDialogue(mission('farm').npc,r.ok?'”Frön från Sams trädgård! Tack. Jag erbjuder en extra ledtråd när du arbetar här. Du måste fortfarande svara själv.”':'”Mitt arbete är redan klart. Behåll fröpåsen som ett minne från trädgården.”',[{label:'Prata om arbetet.',fn:()=>talkJob('farm'),reply:true}]);return}
     if(h.id==='cart'){showMap();return}
     if(h.id==='baker'){if(verb==='take')narrate('Marta flyttar brödet exakt en handlängd längre bort. ”Tre daler.”');else talkBaker();return}
     if(h.id==='archive'){if(verb==='use'&&item&&mission(item))tryFinish();else talkArchive();return}
@@ -446,6 +471,15 @@
   $('dialogueClose').onclick=closeDialogue;
   function keysOff(){activeVerb=null;selectedItem=null;updateVerbButtons();renderInventory()}
 
+  function showPlantPuzzle(message=''){
+    const b=state.botany;
+    if(b.solved){openModal('SAMS ETIKETTBORD','Ordning bland växterna', '<p class="lead">Rosa canina och Rosa gallica hör till släktet <b>Rosa</b>. Viola tricolor och Viola odorata hör till släktet <b>Viola</b>.</p><p>De två orden tillsammans är artens vetenskapliga namn. Två arter kan alltså tillhöra samma släkte.</p><p>'+ (b.delivered?'Karin fick fröpåsen och erbjöd en extra ledtråd i sitt arbete.':state.completed.includes('farm')?'Fröpåsen ligger i ränseln som ett minne. Karins arbete är redan klart.':'Fröpåsen ligger i ränseln. Välj den och använd den på Karin i byn för en extra ledtråd.')+'</p><div class="button-row"><button id="leavePlants" class="primary">Tillbaka till trädgården</button></div>','botany');$('leavePlants').onclick=closeModal;return}
+    openModal('FRIVILLIGT MILJÖPUSSEL','Sams växtetiketter', '<p>Vinden har blandat fyra etiketter. Välj rätt släkte för varje växt. <b>Första ordet anger släktet.</b> De två orden tillsammans är artens vetenskapliga namn.</p><div class="plant-labels">'+PLANT_LABELS.map(p=>'<label class="plant-row" for="plant-'+p.id+'"><i>'+p.name+'</i><select id="plant-'+p.id+'" aria-label="Släkte för '+p.name+'"><option value="">Välj släkte …</option>'+['Rosa','Viola'].map(g=>'<option value="'+g+'"'+(b.placements[p.id]===g?' selected':'')+'>'+g+'</option>').join('')+'</select></label>').join('')+'</div><p id="plantFeedback" role="status">'+esc(message)+'</p><div class="button-row"><button id="sortPlants" class="primary">Kontrollera etiketterna</button><button id="plantHint" class="secondary">En tydligare ledtråd</button><button id="leavePlants" class="text-button">Jag gör det senare</button></div><p class="small">Du får en fröpåse att ge till Karin. Pusslet kostar ingen mat, låser inga jobb och räknas inte i kunskapsrapporten. Dina val sparas.</p>','botany');
+    for(const p of PLANT_LABELS)$('plant-'+p.id).onchange=()=>logicPlantPlacement(p.id,$('plant-'+p.id).value);
+    $('sortPlants').onclick=()=>{for(const p of PLANT_LABELS)logicPlantPlacement(p.id,$('plant-'+p.id).value);const r=logicSortPlants();updateHUD();if(r.ok)showPlantPuzzle();else $('plantFeedback').textContent=r.reason==='incomplete'?'Välj ett släkte för alla fyra etiketter först.':'Någon etikett hamnade fel. Jämför första ordet i namnet med släktet du valde. Du kan ändra och prova igen.'};
+    $('plantHint').onclick=()=>{$('plantFeedback').textContent='Sam säger: ”Etiketter som börjar med Rosa ska till Rosa. De som börjar med Viola ska till Viola. Läs båda orden: canina och gallica skiljer de två Rosa-arterna åt.”'};
+    $('leavePlants').onclick=closeModal;
+  }
   function showOracle(){
     openModal('BOKORAKLET','Den stora kunskapsboken finns hos dig', '<p class="lead">”Sök i din SO-bok. Jag visar vart du ska leta — svaret måste du finna själv.”</p><div class="quest-list">'+data.missions.map(m=>'<div class="quest-row"><span class="seal">'+m.symbol+'</span><span><b>'+esc(m.title)+'</b><small>'+esc(bookGuide(m.id))+'</small></span></div>').join('')+'</div><p class="small">Avsnitt anges tills läraren lagt in den riktiga bokens sidnummer. Hänvisningarna är gratis.</p>','oracle');
   }
@@ -578,7 +612,7 @@
   function download(filename,text,type){const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2500)}
 
   function showMenu(){if(state.rehearsal){showReviewQuestion();return}if(state.working){resumeWork();return}openModal('SPELMENY','Pausa äventyret',`<div class="rules"><button id="menuNotebook" class="rule"><b>Anteckningar</b><span>Kunskapsluckor utan facit</span></button><button id="menuReport" class="rule"><b>Rapport</b><span>Försök och arbetsintyg</span></button><button id="menuHelp" class="rule"><b>Så spelar du</b><span>Handlingar, hunger och dagar</span></button><button id="menuTeacher" class="rule"><b>För läraren</b><span>Frågebank och elevfil</span></button></div><div class="button-row"><button id="menuContinue" class="primary">Fortsätt spela</button><button id="menuReset" class="text-button">Börja om hela äventyret</button></div>`,'menu');$('menuNotebook').onclick=showNotebook;$('menuReport').onclick=showReport;$('menuHelp').onclick=showHelp;$('menuTeacher').onclick=showTeacher;$('menuContinue').onclick=closeModal;$('menuReset').onclick=confirmReset}
-  function showHelp(){openModal('SÅ SPELAR DU','Kunskap är spelmekaniken',`<div class="rules"><div class="rule"><b>1. Utforska</b><span>Välj Titta, Prata, Ta eller Använd. Tryckeriet har lösa föremål och ett frivilligt pussel.</span></div><div class="rule"><b>2. Arbeta</b><span>Varje jobb kostar 1 mättnad och för tiden framåt.</span></div><div class="rule"><b>3. Minns</b><span>Svara utan alternativ. Ett fel stänger jobbet för dagen.</span></div><div class="rule"><b>4. Överlev</b><span>Tjäna daler, köp bröd och ät ur ränseln.</span></div></div><p>Det finns ingen snabb gissningsloop: ett fel visar inte facit och kräver en ny speldag. Sambandspusslen har däremot färdiga delar och ger därför visst stöd.</p><p>Besök läromästaren Rut på Stortorget för att repetera avslutade uppdrag. Minst 70 procent rätt kan ge ett äpple en gång per verkligt dygn. Äpplet ger extra stöd i ett nytt jobb och stödet markeras i rapporten. Bokoraklets hänvisningar är alltid gratis.</p><div class="warning">Spelet är gjort för att spelas efter undervisning. Det är inte tänkt att lära ut hela området på egen hand.</div>`,'help')}
+  function showHelp(){openModal('SÅ SPELAR DU','Kunskap är spelmekaniken',`<div class="rules"><div class="rule"><b>1. Utforska</b><span>Välj Titta, Prata, Ta eller Använd. Tryckeriet och trädgården har frivilliga pussel med föremål att använda.</span></div><div class="rule"><b>2. Arbeta</b><span>Varje jobb kostar 1 mättnad och för tiden framåt.</span></div><div class="rule"><b>3. Minns</b><span>Svara utan alternativ. Ett fel stänger jobbet för dagen.</span></div><div class="rule"><b>4. Överlev</b><span>Tjäna daler, köp bröd och ät ur ränseln.</span></div></div><p>Det finns ingen snabb gissningsloop: ett fel visar inte facit och kräver en ny speldag. Sambandspusslen har däremot färdiga delar och ger därför visst stöd.</p><p>Besök läromästaren Rut på Stortorget för att repetera avslutade uppdrag. Minst 70 procent rätt kan ge ett äpple en gång per verkligt dygn. Äpplet ger extra stöd i ett nytt jobb och stödet markeras i rapporten. Bokoraklets hänvisningar är alltid gratis.</p><div class="warning">Spelet är gjort för att spelas efter undervisning. Det är inte tänkt att lära ut hela området på egen hand.</div>`,'help')}
   function showTeacher(){openModal('FÖR LÄRAREN','En prototyp att pröva kritiskt',`<div class="segmented"><button id="teacherGuide" class="active">Upplägg</button><button id="teacherBank">Frågebank</button><button id="teacherSources">Källor</button></div><div id="teacherContent"></div>`,'teacher');$('teacherGuide').onclick=()=>teacherTab('guide');$('teacherBank').onclick=()=>teacherTab('bank');$('teacherSources').onclick=()=>teacherTab('sources');teacherTab('guide')}
   function teacherTab(tab){
     for(const [id,key]of[['teacherGuide','guide'],['teacherBank','bank'],['teacherSources','sources']])$(id).classList.toggle('active',tab===key);const el=$('teacherContent');

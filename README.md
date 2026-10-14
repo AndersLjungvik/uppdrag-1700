@@ -48,6 +48,10 @@ Minst 70 procent rätt ger ett äpple, högst en belöning per 24 verkliga timma
 
 Tryckeriet har blytyper, papper och trycksvärta att ta och lägga i pressen. Dra i handtaget när allt är på plats. Provtrycket kan lämnas till Noor i kaffehuset för en extra ledtråd. Pusslet är frivilligt, kostar ingen mat och räknas inte som kunskapsresultat. Föremål och pussel sparas tillsammans med äventyret.
 
+Trädgårdens etikettbord har fyra vetenskapliga artnamn att sortera i släktena Rosa och Viola. Första ordet anger släktet; båda orden tillsammans är artnamnet. Valen sparas även innan pusslet är klart. Fel går att ändra utan kostnad eller låst jobb. En fröpåse belönar sorteringen en gång och kan erbjudas Karin i byn för en extra ledtråd i jordbruksjobbet. Om jobbet redan är klart behålls fröpåsen. Pusslet är frivilligt och räknas inte i kunskapsrapporten.
+
+Artetiketterna är kontrollerade mot Kews Plants of the World Online: [Rosa canina](https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:731955-1), [Rosa gallica](https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:732569-1), [Viola tricolor](https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:869428-1) och [Viola odorata](https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:868828-1). Pusslet illustrerar namngivning, inte en rekonstruktion av en historisk trädgård.
+
 Frågebanken stöder bookReference per uppdrag och learningHint per kortsvarsfråga. Utan riktigt SO-material används avsnittsnamn, inte påhittade sidnummer. De sju uppdragen är fortfarande fria att besöka; deras ordning knyts till boken när materialet finns.
 
 Google-synkning är förberedd men avstängd. Den här spelversionen fungerar med lokal sparning på samma webbplats, webbläsare och enhet. Kontokonfiguration finns i arbetsversionen och behöver ett skolägt Firebase-projekt innan den kan aktiveras.

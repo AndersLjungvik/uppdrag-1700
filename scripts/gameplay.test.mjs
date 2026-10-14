@@ -21,6 +21,7 @@ test('old saved adventures gain new fields without losing harbor pay or seals',(
   const e=engine(), old={version:2,started:true,scene:'harbor',coins:8,completed:['trade'],inventory:{trade:1}};
   e.setState(old);assert.equal(e.state.coins,8);assert.equal(e.state.inventory.trade,1);assert.equal(e.state.scene,'harbor');
   assert.equal(e.state.lastAppleAt,null);assert.equal(e.state.workshop.printed,false);assert.equal(e.state.rehearsal,null);
+  assert.equal(e.state.botany.solved,false);assert.equal(Object.keys(e.state.botany.placements).length,0);
 });
 test('retrieval uses only studied short questions, with a unique bounded session',()=>{
   const e=engine();assert.equal(e.logicBeginReview(NOW).reason,'no-topics');studied(e);
@@ -82,4 +83,30 @@ test('book references and tailored hints can be imported without inventing page 
 test('year clues narrow the decade without revealing the full year',()=>{
   const e=engine();assert(e.logicBeginJob('press').ok);e.state.inventory.apple=1;
   const hint=e.logicJobHint().hint;assert(hint.includes('1760-talet'));assert(!hint.includes('1766'));
+});
+
+test('plant sorting saves drafts, permits retries and awards and delivers seeds once',()=>{
+  const e=engine();assert.equal(e.logicSortPlants().reason,'incomplete');
+  assert(e.logicPlantPlacement('canina','Viola').ok);
+  assert.equal(e.logicPlantPlacement('unknown','Rosa').ok,false);
+  assert.equal(e.logicPlantPlacement('tricolor','bad').ok,false);
+  for(const [id,g] of [['tricolor','Viola'],['gallica','Rosa'],['odorata','Viola']])e.logicPlantPlacement(id,g);
+  e.setState(JSON.parse(JSON.stringify(e.state)));
+  assert.equal(e.state.botany.placements.canina,'Viola');assert.equal(e.logicSortPlants().reason,'order');
+  assert.equal(e.state.failedToday.length,0);assert.equal(e.state.food,2);assert.equal(e.state.time,0);
+  e.logicPlantPlacement('canina','');assert.equal(e.logicSortPlants().reason,'incomplete');
+  e.logicPlantPlacement('canina','Rosa');assert(e.logicSortPlants().ok);assert.equal(e.state.inventory.seeds,1);
+  e.setState(JSON.parse(JSON.stringify(e.state)));assert.equal(e.logicSortPlants().reason,'solved');
+  assert.equal(e.logicPlantPlacement('canina','Viola').ok,false);assert(e.logicDeliverSeeds().ok);
+  assert(!e.state.inventory.seeds);assert.equal(e.state.hintCredits.farm,1);
+  e.setState(JSON.parse(JSON.stringify(e.state)));assert.equal(e.logicDeliverSeeds().ok,false);
+  assert(e.logicBeginJob('farm').ok);assert(e.logicJobHint().ok);
+  const q=e.mission('farm').cards[0];e.logicAnswer(q,q.answer,false);assert(e.state.answers[q.id].lastSupported);
+});
+
+test('garden reward preserves finished farm jobs and sanitizes saved choices',()=>{
+  const e=engine(),s=e.blankState();s.completed=['farm'];s.inventory.seeds=1;
+  s.botany={placements:{canina:'Rosa',odorata:'bad',unknown:'Viola'},solved:true,delivered:false};e.setState(s);
+  assert.equal(Object.keys(e.state.botany.placements).length,1);assert.equal(e.logicDeliverSeeds().ok,false);
+  assert.equal(e.state.inventory.seeds,1);assert.equal(Object.keys(e.state.answers).length,0);
 });
