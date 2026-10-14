@@ -6,7 +6,7 @@ Status: adapter och spelkoppling implementerade i utvecklingsgren. Inte publicer
 
 `google-sync.mjs` använder Googles modulära Firebase-SDK för explicit kontoval, inloggning, hämtning och transaktionsskyddad sparning. `firestore.rules` är ett förslag som begränsar åtkomst till det egna kontots sparläge och rätt skolkontodomän. Klientens domänkontroll ersätter inte databasregler. Namnfältet utelämnas ur spelkopian; svarshistorik och övriga speldata kan fortfarande vara personuppgifter när de kopplas till ett konto.
 
-`practice` kan bära senaste övningstid per kunskapsområde och kommande repetitionsdatum. Modulen väljer ännu inga repetitionsfrågor och mäter ännu inte aktiv speltid. Den sparar första och senaste molnsparning, inte första historiska spelbesöket. Spelets lokala tillstånd registrerar nu besök och frågevisa övningstider.
+`practice` kan bära senaste övningstid per kunskapsområde och kommande repetitionsdatum. Spelets läromästare väljer nu repetitionsfrågor från avslutade uppdrag och prioriterar förfallna frågor. Aktiv speltid mäts ännu inte. Den sparar första och senaste molnsparning, inte första historiska spelbesöket. Spelets lokala tillstånd registrerar nu besök och frågevisa övningstider.
 
 ## Aktivering och integration
 
@@ -53,14 +53,14 @@ Arbetsgrenen har nu `dist/cloud-ui.mjs`, en kontodialog och `cloud-config.js` me
 
 `practice.js` registrerar första och senaste besök samt frågevisa övningstider och föreslagna repetitionsdatum. Endast ett rätt svar utan stöd efter minst ett verkligt dygn höjer repetitionsnivån. Detta är ett enkelt startförslag, ingen validerad optimal algoritm. Datum på enheten är ännu källan till övningstiderna; det är inget säkert bedömningsunderlag.
 
-Följande idéer är bevarade som nästa spelutveckling, inte redan implementerade funktioner:
+Spelversion 0.2 innehåller nu läromästaren, äpplen, gratis bokorakel och ett frivilligt miljöpussel i tryckeriet. Följande lista anger vad som finns och vad som återstår:
 
-- Läromästare med korta förhör från studerade avsnitt, prioritering av förfallna frågor och tidigare fel samt återkoppling och bokhänvisning.
-- Äpplen som belöning för repetition och som extra ledtrådar vid nästa jobb. Grundläggande hjälp ska finnas även utan äpplen.
-- Bokens ordning styr uppdragen. Föremål från ett uppdrag används för att introducera nästa; inga faktiska sidnummer införs innan SO-materialet är tillgängligt.
-- Klickbara miljöföremål, korta pussel och reaktioner i bland annat tryckeriet. Pussel behöver ledtrådar eller möjlighet att gå vidare.
+- Implementerat: läromästare med högst sex fria frågor från avslutade uppdrag, prioritering av förfallna frågor och tidigare fel samt återkoppling och bokhänvisning.
+- Implementerat: äpplen som belöning vid minst 70 procent rätt, högst en gång per 24 verkliga timmar, och som extra ledtrådar i ett jobb. Gratis bokhänvisningar finns för alla.
+- Planerat efter att SO-materialet finns: bokens ordning styr uppdragen, och föremål från ett uppdrag introducerar nästa. Bokhänvisningar stöds redan i frågebanken; inga faktiska sidnummer införs innan materialet är tillgängligt.
+- Implementerat i tryckeriet: blytyper, papper och bläck kan tas och användas på pressen. Provtrycket kan lämnas i kaffehuset. Pusslet har gratis hjälp och behöver inte lösas för att arbeta. Fler miljöpussel återstår.
 - Gemensamt klassäventyr på projektorn som introduktion. Varje elev får tänka innan klassen svarar.
 - Textbundna frågor om uttrycklig information, sammanhang och slutsatser; läsning i uppdragen och försök utan bok hos läromästaren.
 - Lekfull körning med hästdroska är en separat framtida idé.
 
-Molnkonfigurationen behöver fortfarande kompletteras och integrationen behöver testas med riktiga skolkonton innan den aktiveras. Arbetsgrenen samlar koden och planen; den publicerade versionen är ännu oförändrad.
+Molnkonfigurationen behöver fortfarande kompletteras och integrationen behöver testas med riktiga skolkonton innan den aktiveras. Spelutvidgningarna fungerar lokalt och ingår i publiceringsversionen; Google-synkning är fortfarande avstängd.
