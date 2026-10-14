@@ -28,7 +28,8 @@ const body=new Element('body'),document={
   querySelector:selector=>selector==='.brand'?null:null,
   createElement:tag=>new Element(tag),body,documentElement:new Element('html')
 };
-const window={matchMedia:()=>({matches:true}),addEventListener:(type,fn)=>listeners.set(type,fn),devicePixelRatio:1,print(){}};
+const soundEvents=[];
+const window={UPPDRAG_SOUND:{enabled:true,play:id=>soundEvents.push(id),stop:()=>soundEvents.push('stop')},matchMedia:()=>({matches:true}),addEventListener:(type,fn)=>listeners.set(type,fn),devicePixelRatio:1,print(){}};
 const context=vm.createContext({window,document,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},requestAnimationFrame:()=>1,setTimeout:fn=>{fn();return ++serial},clearTimeout(){},Blob,URL,console,Date,Math,JSON,Object,Array,Set,Map,Number,String});
 vm.runInContext(fs.readFileSync(path.join(root,'dist/practice.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'dist/curriculum.js'),'utf8'),context);
@@ -89,6 +90,7 @@ for(const [target,object] of [['inkPot','ink'],['paperStack','paper'],['typeCase
 }
 hotspot('pressMachine').click();elements.get('dialogueAction0').click();
 assert.equal(game.state.inventory.proof,1);elements.get('dialogueAction0').click();
+for(const cue of ['ink','paper','type','press'])assert(soundEvents.includes(cue),'successful printing action triggers '+cue);
 elements.get('mapBtn').click();
 [...new Set(elements.values())].find(el=>el.dataset?.travel==='garden').click();
 hotspot('flower').click();elements.get('sortPlants').click();
@@ -110,6 +112,7 @@ elements.get('mapBtn').click();
 [...new Set(elements.values())].find(el=>el.dataset?.travel==='palace').click();
 item('apple').click();hotspot('kingNpc').click();elements.get('dialogueAction0').click();elements.get('dialogueAction0').click();
 elements.get('appleHint').click();assert(game.state.working.hintUsed);
+assert.equal(soundEvents.at(-1),'stop','knowledge question silences effects');
 elements.get('jobAnswer').value=game.mission('king').cards[0].answer;elements.get('submitJobAnswer').click();
 assert(game.state.answers['king-name'].lastSupported);
 process.stdout.write('PASS gameplay UI: rehearse → earn apple → collect and print → offer apple → supported answer\\n');

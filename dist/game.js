@@ -443,8 +443,8 @@
     if(h.id==='master'){talkMaster();return}
     if(h.id==='oracle'){showOracle();return}
     if(h.id==='flower'){showPlantPuzzle();return}
-    if(h.id==='pressMachine'){if(verb==='use'&&item){const r=logicPlace(item);updateHUD();narrate(r.ok?ITEM_INFO[item].name+' är på plats. Pressen gnisslar uppskattande.':'Pressen behöver blytyper, papper och trycksvärta.');return}showPressPuzzle();return}
-    if(h.collect){if(verb==='take'){const r=logicCollect(h.collect);updateHUD();narrate(r.ok?'Du lägger '+ITEM_INFO[h.collect].name.toLowerCase()+' i ränseln. Använd det på pressen.':'Det föremålet är redan hämtat.');return}narrate('Det här kan du faktiskt ta. Välj Ta och stoppa det i ränseln.');return}
+    if(h.id==='pressMachine'){if(verb==='use'&&item){const r=logicPlace(item);if(r.ok)window.UPPDRAG_SOUND?.play(item==='type'?'type':item==='paper'?'paper':'ink');updateHUD();narrate(r.ok?ITEM_INFO[item].name+' är på plats. Pressen gnisslar uppskattande.':'Pressen behöver blytyper, papper och trycksvärta.');return}showPressPuzzle();return}
+    if(h.collect){if(verb==='take'){const r=logicCollect(h.collect);if(r.ok)window.UPPDRAG_SOUND?.play(h.collect==='type'?'type':h.collect==='paper'?'paper':'ink');updateHUD();narrate(r.ok?'Du lägger '+ITEM_INFO[h.collect].name.toLowerCase()+' i ränseln. Använd det på pressen.':'Det föremålet är redan hämtat.');return}narrate('Det här kan du faktiskt ta. Välj Ta och stoppa det i ränseln.');return}
     if(h.mission&&item==='apple'){const r=logicOfferApple(h.mission);updateHUD();showDialogue(mission(h.mission).npc,r.ok?'”Ett äpple! Jag erbjuder en extra ledtråd i ditt nästa arbetsmoment. Du måste fortfarande svara själv.”':'”Spara äpplet till ett arbete som återstår.”',[{label:'Då pratar vi om jobbet.',fn:()=>talkJob(h.mission),reply:true}]);return}
     if(h.mission==='ideas'&&item==='proof'){const r=logicDeliverProof();updateHUD();showDialogue(mission('ideas').npc,r.ok?'”Ditt provtryck kan sätta fart på ett samtal. Du får en extra ledtråd här i kaffehuset.”':'”Jag har redan fått ditt provtryck.”',[{label:'Vad är ditt uppdrag?',fn:()=>talkJob('ideas'),reply:true}]);return}
     if(h.mission==='farm'&&item==='seeds'){const r=logicDeliverSeeds();updateHUD();showDialogue(mission('farm').npc,r.ok?'”Frön från Sams trädgård! Tack. Jag erbjuder en extra ledtråd när du arbetar här. Du måste fortfarande svara själv.”':'”Mitt arbete är redan klart. Behåll fröpåsen som ett minne från trädgården.”',[{label:'Prata om arbetet.',fn:()=>talkJob('farm'),reply:true}]);return}
@@ -458,7 +458,7 @@
     if(verb==='use'&&item){narrate(`${ITEM_INFO[item]?.name||'Föremålet'} och ${h.label} verkar inte ha något att säga varandra.`);return}
     narrate(OBJECT_TEXT[h.id]||`Du betraktar ${h.label}. Det betraktar inte dig tillbaka.`);
   }
-  function travel(id){if(state.rehearsal){showReviewQuestion();return}if(state.working){resumeWork();return}if(!LOCATIONS[id])return;closeDialogue();closeModal();state.scene=id;state.heroX=LOCATIONS[id].start;activeVerb=null;selectedItem=null;save();updateVerbButtons();updateHUD();showSceneName();}
+  function travel(id){window.UPPDRAG_SOUND?.stop();if(state.rehearsal){showReviewQuestion();return}if(state.working){resumeWork();return}if(!LOCATIONS[id])return;closeDialogue();closeModal();state.scene=id;state.heroX=LOCATIONS[id].start;activeVerb=null;selectedItem=null;save();updateVerbButtons();updateHUD();showSceneName();}
   function showSceneName(){$('sceneTitle').animate?.([{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'translateY(0)'}],{duration:350});}
   function showHint(message){$('hint').textContent=message;$('hint').hidden=false;clearTimeout(hintTimer);hintTimer=setTimeout(()=>$('hint').hidden=true,3800)}
   function narrate(message,duration=3000){$('narrationText').textContent=message;$('narration').hidden=false;clearTimeout(narrationTimer);narrationTimer=setTimeout(()=>$('narration').hidden=true,duration)}
@@ -495,7 +495,7 @@
       {label:'Jag återkommer.',fn:closeDialogue,reply:true}
     ]);
   }
-  function showReviewQuestion(){
+  function showReviewQuestion(){window.UPPDRAG_SOUND?.stop();
     const q=reviewQuestion(),r=state.rehearsal;if(!q||!r){talkMaster();return}activeReviewId=q.id;
     state.scene='square';updateHUD();
     showDialogue('Läromästaren Rut','<span class="eyebrow">REPETITION '+(r.index+1)+' AV '+r.ids.length+'</span><b>'+esc(q.question)+'</b><p class="small">Försök ur minnet innan du öppnar boken. Fel låser inte förhöret.</p>',[]);
@@ -515,8 +515,9 @@
   function showPressPuzzle(){
     const w=state.workshop,missing=['type','ink','paper'].filter(id=>!w.placed.includes(id));
     showDialogue('Den mycket högljudda pressen',w.printed?'Ditt första provtryck är klart. Visa det för Noor i kaffehuset för en extra ledtråd.':'Pressen behöver tre saker: blytyper, papper och trycksvärta. Ta dem i rummet, välj dem i ränseln och använd dem på pressen.<br><br>Återstår: <b>'+(missing.length?missing.map(id=>esc(ITEM_INFO[id].name)).join(', '):'ingenting — dra i handtaget')+'</b>.<p class="small">Det här är ett frivilligt miljöpussel. Du kan prata med Brita och arbeta direkt.</p>',[
-      ...(!w.printed?[{label:'Dra i pressens handtag.',fn:()=>{const r=logicPrint();updateHUD();if(r.ok){narrate('DUNK! Pressen spottar ut ett provtryck.');showDialogue('Boktryckaren Brita','”Det blev ett blad! Ta det till Noor i kaffehuset. Och undvik att använda mer bläck än papper.”',[{label:'Provtrycket ligger i ränseln.',fn:closeDialogue,reply:true}])}else{showHint('Lägg blytyper, papper och trycksvärta i pressen först.');showPressPuzzle()}},reply:true}]:[]),
+      ...(!w.printed?[{label:'Dra i pressens handtag.',fn:()=>{const r=logicPrint();updateHUD();if(r.ok){window.UPPDRAG_SOUND?.play('press');narrate('DUNK! Pressen spottar ut ett provtryck.');showDialogue('Boktryckaren Brita','”Det blev ett blad! Ta det till Noor i kaffehuset. Och undvik att använda mer bläck än papper.”',[{label:'Provtrycket ligger i ränseln.',fn:()=>{window.UPPDRAG_SOUND?.play('paper');closeDialogue()},reply:true}])}else{showHint('Lägg blytyper, papper och trycksvärta i pressen först.');showPressPuzzle()}},reply:true}]:[]),
       {label:'Jag fortsätter utforska.',fn:closeDialogue,reply:true},
+      {label:'Provlyssna på pressljudet.',fn:async()=>{const audio=window.UPPDRAG_SOUND;if(!audio||!await audio.setEnabled(true)){showHint('Webbläsaren kunde inte starta ljudet.');return}refreshSoundButton();audio.stop();audio.play('press');showHint('Ljudskiss: träknarr, presslag och papper. Högtalarknappen stänger av ljudet.');},reply:true},
       {label:'Ge mig en tydlig ledtråd.',fn:()=>showDialogue('Boktryckaren Brita','”Ta blytyperna ur kasten, bläckburken och pappershögen. Klicka på ett föremål i ränseln och sedan på pressen. När alla tre är på plats drar du i handtaget.”',[{label:'Nu provar jag.',fn:closeDialogue,reply:true}]),reply:true}
     ]);
   }
@@ -539,7 +540,7 @@
   }
   function beginJobUI(id){const result=logicBeginJob(id);if(!result.ok){closeDialogue();talkJob(id);return}updateHUD();showJobQuestion(id,0)}
   function resumeWork(){const work=state.working;if(!work)return false;state.scene=SCENE_FOR[work.missionId]||state.scene;state.heroX=LOCATIONS[state.scene].start;updateHUD();showJobQuestion(work.missionId,work.index);showHint('Slutför momentet eller välj ”Jag kan inte detta än”.');return true}
-  function showJobQuestion(id,index){
+  function showJobQuestion(id,index){window.UPPDRAG_SOUND?.stop();
     const m=mission(id),q=m.cards[index];activeQuestion={id,index,q};const lead=JOB_LINES[id]?.[index]||'Arbetet fortsätter.';
     showDialogue(m.npc,`<span class="eyebrow">ARBETSMOMENT ${index+1} AV ${m.cards.length}</span>${esc(lead)}<br><br><b>${esc(q.question)}</b>`,[]);
     if(q.type==='short'){
@@ -632,6 +633,9 @@
   }
   function foodInfo(){openModal('MÄTTNAD','Kunskap kräver lunch',`<p>Du har <b>${state.food} av ${state.maxFood}</b> mättnad. Ett nytt arbete kostar 1. Ett bröd kostar 3 daler och ger tillbaka 3.</p><p>Om du misslyckas utan mat, pengar eller bröd tar dagen slut. Färdiga arbetsintyg finns kvar.</p>`,'food')}
 
+  function refreshSoundButton(){const on=window.UPPDRAG_SOUND?.enabled===true,btn=$('soundBtn');btn.textContent=on?'🔊':'🔇';btn.ariaLabel=on?'Stäng av miljöljud':'Slå på miljöljud';btn.ariaPressed=String(on);btn.title=on?'Miljöljud på':'Miljöljud av'}
+  $('soundBtn').onclick=async()=>{const audio=window.UPPDRAG_SOUND;if(!audio){showHint('Ljud stöds inte i den här webbläsaren.');return}const wanted=!audio.enabled;await audio.setEnabled(wanted);refreshSoundButton();if(wanted&&!audio.enabled)showHint('Webbläsaren kunde inte starta ljudet. Spelet fungerar ändå.');else if(audio.enabled&&state.scene==='print'&&!state.working&&!state.rehearsal)audio.play('type')};
+  refreshSoundButton();
   $('mapBtn').onclick=showMap;$('menuBtn').onclick=showMenu;$('titleBtn').onclick=showIntro;$('foodBtn').onclick=foodInfo;
   window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('dialogue').hidden)closeDialogue();else if($('modal').open)closeModal()}if(e.key.toLowerCase()==='m'&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))showMap()});
   window.addEventListener('pagehide',save);

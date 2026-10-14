@@ -9,6 +9,7 @@ html=html.replace('<script src="curriculum.js"></script>',()=>'<script id="custo
 html=html.replace('<script src="cloud-config.js"></script>', '');
 html=html.replace('<script type="module" src="cloud-ui.mjs"></script>', '');
 html=html.replace('<script src="practice.js"></script>',()=>'<script>'+fs.readFileSync(path.join(dist,'practice.js'),'utf8')+'</script>');
+html=html.replace('<script src="sound.js"></script>',()=>'<script>'+fs.readFileSync(path.join(dist,'sound.js'),'utf8')+'</script>');
 html=html.replace('<script src="game.js"></script>',()=>'<script>'+fs.readFileSync(path.join(dist,'game.js'),'utf8').replace(/<\/script/gi,'<\\/script')+'</script>');
 html=html.replace('<button class="round-btn" id="accountBtn"', '<button hidden class="round-btn" id="accountBtn"');
 fs.writeFileSync(path.join(dist,'uppdrag-1700.html'),html);

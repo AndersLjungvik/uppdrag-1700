@@ -87,7 +87,7 @@ test('The interface exposes verbs, inventory, dialogue, resources and map access
 const offline=fs.readFileSync(path.join(root,'dist/uppdrag-1700.html'),'utf8');
 test('Standalone pupil file embeds CSS and scripts',()=>{
   assert(!/<script\s+src=/.test(offline));assert(!/href="style.css"/.test(offline));
-  const scripts=[...offline.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];assert.equal(scripts.length,4);for(const script of scripts)new vm.Script(script[1]);assert(offline.includes('window.CUSTOM_BANK=null;'));
+  const scripts=[...offline.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];assert.equal(scripts.length,5);for(const script of scripts)new vm.Script(script[1]);assert(offline.includes('window.CUSTOM_BANK=null;'));assert(offline.includes('window.UPPDRAG_SOUND='));
 });
 
 test('Question attempts record real review times and due dates',()=>{

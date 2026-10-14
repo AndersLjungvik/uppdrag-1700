@@ -42,6 +42,10 @@ För att spela lokalt öppnar du `dist/index.html` eller `dist/uppdrag-1700.html
 
 ## Repetition och föremål (v0.2)
 
+Tryckeriets handlingar har en första ljudskiss: metallrassel för blytyper, pappersprassel, ett dämpat ljud för bläck samt träknarr och ett tungt presslag när handtaget dras. Effekterna är egna syntetiska ljud, inte dokumentära inspelningar. Slå på dem med högtalarknappen i överkanten; valet sparas på enheten. Ljud är av från början, stoppas vid platsbyte och kunskapsfrågor och kan stängas av när som helst. Effekterna ingår även i elevfilen och behöver inga ljudnedladdningar. Musik och löpande miljöbakgrunder återstår.
+
+Historisk grund för ljudvalet: [Penn Libraries om tryckning 1776](https://www.library.upenn.edu/events/printing-1776-ink-balls) beskriver färgbollar före färgvalsarnas införande på 1800-talet. Skissen använder därför ingen motor- eller färgvalsslinga.
+
 På Stortorget finns läromästaren Rut och bokoraklets skrivbord. Rut ger högst sex fria frågor från avslutade uppdrag, prioriterar förfallna frågor och tidigare fel och blandar in sådant spelaren lyckats med. Fel ger återkoppling utan att låsa förhöret. Ett förhör kostar varken mat eller speldagstid.
 
 Minst 70 procent rätt ger ett äpple, högst en belöning per 24 verkliga timmar. Repetition kan alltid göras utan belöning. Äpplen erbjuds till arbetsgivare eller används i en kortsvarsfråga för en extra ledtråd; svar med sådan hjälp markeras som stöd. Grundläggande bokhänvisningar är alltid gratis. Datumen och belöningarna bygger på enhetens klocka och är inga säkra bedömningsdata.
