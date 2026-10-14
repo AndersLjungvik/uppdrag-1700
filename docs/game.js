@@ -435,9 +435,9 @@
   window.UPPDRAG_GAME_CLOUD={
     snapshot:()=>clone(state),
     pause:()=>{if(state.working){showHint('Avsluta arbetet före kontobyte.');return false}playing=false;return true},
-    resume:()=>{playing=state.started},
-    enter:(uid,value)=>{closeDialogue();activeQuestion=null;cloudAccount=uid;state=loadState(value||readStorage(saveKey()));state.name='';if(window.UPPDRAG_PRACTICE)state.visits=window.UPPDRAG_PRACTICE.visit(state.visits);activeVerb=null;selectedItem=null;updateHUD();if(state.started){closeModal();if(state.working)resumeWork()}else showIntro();playing=false},
-    leave:()=>{closeDialogue();activeQuestion=null;cloudAccount=null;state=loadState(readStorage(SAVE_KEY));activeVerb=null;selectedItem=null;updateHUD();if(state.started)closeModal();else showIntro();playing=false}
+    resume:()=>{playing=state.started;if(!state.started)showIntro();else if(state.working)resumeWork()},
+    enter:(uid,value)=>{closeDialogue();activeQuestion=null;cloudAccount=uid;const cached=readStorage(saveKey());if(value&&cached&&JSON.stringify(value)!==JSON.stringify(cached)){try{localStorage.setItem(`${saveKey()}.backup`,JSON.stringify(cached))}catch{}}state=loadState(value||cached);state.name='';if(window.UPPDRAG_PRACTICE)state.visits=window.UPPDRAG_PRACTICE.visit(state.visits);activeVerb=null;selectedItem=null;updateHUD();closeModal();playing=false},
+    leave:()=>{closeDialogue();activeQuestion=null;cloudAccount=null;state=loadState(readStorage(SAVE_KEY));activeVerb=null;selectedItem=null;updateHUD();closeModal();playing=false}
   };
   updateHUD();requestAnimationFrame(animate);if(state.started){playing=true;if(state.working)resumeWork();else travel(state.scene)}else showIntro();
 })();
