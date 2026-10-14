@@ -10,10 +10,10 @@ Status: adapter och spelkoppling implementerade i utvecklingsgren. Inte publicer
 
 ## Aktivering och integration
 
-1. Skolan bekräftar lämplig tjänst, ansvarig projektägare och hantering av elevdata. Kontrollera den faktiska domänen för elevkonton; här finns bara exempel, inga antagna elevdomäner.
+1. Skolan bekräftar lämplig tjänst, ansvarig projektägare och hantering av elevdata. Elevkontodomänen är bekräftad av projektägaren: `edu.lerum.se`. Domänen är införd i klientkonfigurationen och databasreglerna; Firebase-projekt och skolans appåtkomst återstår.
 2. Skapa skolägt Firebase-projekt, registrera webbapp, aktivera Google-inloggning och skapa Firestore-databas med vald region. Aktivera inte Analytics för detta ändamål. Kontrollera aktuella kostnadsgränser och kvoter före lansering.
 3. Lägg till `andersljungvik.github.io` som auktoriserad domän. Kontrollera skolans Workspace-inställningar för elevernas åtkomst till appen.
-4. Ersätt domänplatshållaren i reglerna med den verifierade och regex-escapade elevdomänen. Prova reglerna med Firebase Emulator: fel användare, fel domän, ej verifierad e-post, listning och otillåtna fält ska nekas. Publicera först efter dessa tester.
+4. Reglerna använder den bekräftade elevdomänen `edu.lerum.se`, med escapade punkter och fullständig domänmatchning. Prova reglerna med Firebase Emulator: fel användare, fel domän, ej verifierad e-post, listning och otillåtna fält ska nekas. Publicera först efter dessa tester.
 5. Adaptern är kopplad via kontodialogen och spelets save-funktion. Konfigurationen är `enabled: false`. Ladda SDK först när molnfunktionen konfigurerats och eleven väljer inloggning. Web-appens Firebase-konfiguration är publik; lägg aldrig servicekontonycklar eller andra serverhemligheter i repot.
 6. Efter explicit inloggning: hämta molnsparläget innan spelstart. Validiera det med spelets `loadState`. Finns en lokal gästhistorik, fråga innan den importeras till kontot. Håll gästsparning och varje UID:s lokala cache åtskilda. Vid utloggning ska elevens tillstånd lämna gränssnittet; nästa elev får inte ärva det.
 7. Serialisera sparningar, fördröj täta HUD-uppdateringar och behåll lokal kö vid nätfel. Adaptern avvisar revisionskonflikter i stället för att skriva över en annan enhets nyare sparläge. Visa ett val att hämta nyare sparläge eller behålla en separat lokal kopia; skriv aldrig automatiskt över.
