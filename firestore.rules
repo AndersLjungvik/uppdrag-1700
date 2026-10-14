@@ -2,11 +2,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function owner(uid) {
-      // Replace the sentinel with the verified student-account domain before deployment.
+      // Verified student-account domain: edu.lerum.se.
       return request.auth != null && request.auth.uid == uid
         && request.auth.token.firebase.sign_in_provider == 'google.com'
         && request.auth.token.email_verified == true
-        && request.auth.token.email.matches('.*@REPLACE_WITH_STUDENT_DOMAIN');
+        && request.auth.token.email.matches('^[^@]+@edu\\.lerum\\.se$');
     }
     match /players/{uid}/saves/adventure-v2 {
       allow get: if owner(uid);
