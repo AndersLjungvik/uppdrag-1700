@@ -38,3 +38,16 @@ npm test
 `npm run build` uppdaterar både den fristående elevfilen och `docs/`. Checka in uppdaterade `dist/` och `docs/` tillsammans. Testerna kontrollerar spellogik, svar, alla scener, hamnuppdragets sparning och en simulerad gränssnittsrutt. De ersätter inte provspelning i en riktig webbläsare.
 
 För att spela lokalt öppnar du `dist/index.html` eller `dist/uppdrag-1700.html` i webbläsaren.
+
+
+## Repetition och föremål (v0.2)
+
+På Stortorget finns läromästaren Rut och bokoraklets skrivbord. Rut ger högst sex fria frågor från avslutade uppdrag, prioriterar förfallna frågor och tidigare fel och blandar in sådant spelaren lyckats med. Fel ger återkoppling utan att låsa förhöret. Ett förhör kostar varken mat eller speldagstid.
+
+Minst 70 procent rätt ger ett äpple, högst en belöning per 24 verkliga timmar. Repetition kan alltid göras utan belöning. Äpplen erbjuds till arbetsgivare eller används i en kortsvarsfråga för en extra ledtråd; svar med sådan hjälp markeras som stöd. Grundläggande bokhänvisningar är alltid gratis. Datumen och belöningarna bygger på enhetens klocka och är inga säkra bedömningsdata.
+
+Tryckeriet har blytyper, papper och trycksvärta att ta och lägga i pressen. Dra i handtaget när allt är på plats. Provtrycket kan lämnas till Noor i kaffehuset för en extra ledtråd. Pusslet är frivilligt, kostar ingen mat och räknas inte som kunskapsresultat. Föremål och pussel sparas tillsammans med äventyret.
+
+Frågebanken stöder bookReference per uppdrag och learningHint per kortsvarsfråga. Utan riktigt SO-material används avsnittsnamn, inte påhittade sidnummer. De sju uppdragen är fortfarande fria att besöka; deras ordning knyts till boken när materialet finns.
+
+Google-synkning är förberedd men avstängd. Den här spelversionen fungerar med lokal sparning på samma webbplats, webbläsare och enhet. Kontokonfiguration finns i arbetsversionen och behöver ett skolägt Firebase-projekt innan den kan aktiveras.

@@ -30,6 +30,7 @@ const body=new Element('body'),document={
 };
 const window={matchMedia:()=>({matches:true}),addEventListener:(type,fn)=>listeners.set(type,fn),devicePixelRatio:1,print(){}};
 const context=vm.createContext({window,document,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},requestAnimationFrame:()=>1,setTimeout:fn=>{fn();return ++serial},clearTimeout(){},Blob,URL,console,Date,Math,JSON,Object,Array,Set,Map,Number,String});
+vm.runInContext(fs.readFileSync(path.join(root,'dist/practice.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'dist/curriculum.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'dist/game.js'),'utf8'),context);
 const game=window.__adventure;
@@ -68,3 +69,30 @@ bridge.leave();
 assert.equal(game.state.coins,guestCoins);
 assert.equal(game.state.name,'Testlärlingen');
 process.stdout.write('PASS account switch isolates pupil and guest save states\n');
+
+bridge.resume();
+function hotspot(id){return [...new Set(elements.values())].find(el=>el.dataset?.hotspot===id)}
+function item(id){return [...new Set(elements.values())].find(el=>el.dataset?.item===id)}
+hotspot('master').click();elements.get('dialogueAction0').click();
+assert(game.state.rehearsal);
+while(game.state.rehearsal){
+ const q=game.reviewQuestion();elements.get('reviewAnswer').value=q.answer;elements.get('submitReviewAnswer').click();
+ elements.get('dialogueAction0').click();
+}
+elements.get('dialogueAction0').click();
+assert.equal(game.state.inventory.apple,1);
+elements.get('mapBtn').click();
+[...new Set(elements.values())].find(el=>el.dataset?.travel==='print').click();
+for(const [target,object] of [['inkPot','ink'],['paperStack','paper'],['typeCase','type']]){
+ hotspot(target).click();assert.equal(game.state.inventory[object],1);
+ item(object).click();hotspot('pressMachine').click();assert(!game.state.inventory[object]);
+}
+hotspot('pressMachine').click();elements.get('dialogueAction0').click();
+assert.equal(game.state.inventory.proof,1);elements.get('dialogueAction0').click();
+elements.get('mapBtn').click();
+[...new Set(elements.values())].find(el=>el.dataset?.travel==='palace').click();
+item('apple').click();hotspot('kingNpc').click();elements.get('dialogueAction0').click();elements.get('dialogueAction0').click();
+elements.get('appleHint').click();assert(game.state.working.hintUsed);
+elements.get('jobAnswer').value=game.mission('king').cards[0].answer;elements.get('submitJobAnswer').click();
+assert(game.state.answers['king-name'].lastSupported);
+process.stdout.write('PASS gameplay UI: rehearse → earn apple → collect and print → offer apple → supported answer\\n');
