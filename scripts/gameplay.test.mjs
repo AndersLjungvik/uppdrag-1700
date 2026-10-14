@@ -45,10 +45,10 @@ test('a wrong retrieval answer gives a recorded gap without costing food or lock
 test('a saved review resumes at the next question and can award only once per real day',()=>{
   const e=engine();studied(e);e.logicBeginReview(NOW);e.logicReviewAnswer(e.reviewQuestion().answer,NOW);
   const saved=JSON.parse(JSON.stringify(e.state));e.setState(saved);assert.equal(e.state.rehearsal.index,1);
-  assert(solve(e,NOW).rewarded);assert.equal(e.state.inventory.apple,1);
+  assert(solve(e,NOW).rewarded);assert.equal(e.state.inventory.apple,1);assert.equal(e.state.coins,1);
   e.setState(JSON.parse(JSON.stringify(e.state)));e.logicBeginReview(NOW+1000);assert.equal(solve(e,NOW+1000).rewarded,false);
   for(let i=0;i<5;i++)e.logicNewDay();e.logicBeginReview(NOW+2000);assert.equal(solve(e,NOW+2000).rewarded,false);
-  e.logicBeginReview(NOW+DAY);assert(solve(e,NOW+DAY).rewarded);assert.equal(e.state.inventory.apple,2);
+  assert.equal(e.state.coins,1);e.logicBeginReview(NOW+DAY);assert(solve(e,NOW+DAY).rewarded);assert.equal(e.state.inventory.apple,2);assert.equal(e.state.coins,2);
   assert.equal(e.logicReviewAnswer('import',NOW+DAY).ok,false);
 });
 test('poor performance and cancellation do not yield apples; rehearsal blocks concurrent jobs',()=>{
@@ -109,4 +109,35 @@ test('garden reward preserves finished farm jobs and sanitizes saved choices',()
   s.botany={placements:{canina:'Rosa',odorata:'bad',unknown:'Viola'},solved:true,delivered:false};e.setState(s);
   assert.equal(Object.keys(e.state.botany.placements).length,1);assert.equal(e.logicDeliverSeeds().ok,false);
   assert.equal(e.state.inventory.seeds,1);assert.equal(Object.keys(e.state.answers).length,0);
+});
+
+test('repeat printing charges once, limits holdings and daily delivery and resumes after reload',()=>{
+  const e=engine();for(const id of ['ink','paper','type']){e.logicCollect(id);e.logicPlace(id)}
+  assert(e.logicPrint().ok);assert.equal(e.state.coins,0);assert.equal(e.logicPrint().reason,'holding');
+  assert(e.logicDeliverProof().ok);assert.equal(e.logicPrint().reason,'daily');
+  e.logicNewDay();assert.equal(e.logicPrint().reason,'money');e.state.coins=2;
+  assert(e.logicPrint().ok);assert.equal(e.state.coins,1);assert.equal(e.logicPrint().reason,'holding');
+  e.setState(JSON.parse(JSON.stringify(e.state)));assert(e.logicDeliverProof().ok);assert.equal(e.state.hintCredits.ideas,2);
+  assert.equal(e.state.workshop.printCount,2);assert.equal(e.logicDeliverProof().ok,false);
+  e.logicBeginJob('ideas');assert(e.logicJobHint().ok);assert.equal(e.state.hintCredits.ideas,1);
+  const q=e.mission('ideas').cards[0];e.logicAnswer(q,q.answer,false);assert(e.state.answers[q.id].lastSupported);
+});
+
+test('old delivered proofs retain today limit and finished cafe rejects repeat printing',()=>{
+  const e=engine();e.setState({version:2,day:4,coins:9,workshop:{printed:true,delivered:true}});
+  assert.equal(e.state.workshop.lastDeliveredDay,4);assert.equal(e.state.workshop.printCount,1);
+  assert.equal(e.logicPrint().reason,'daily');e.logicNewDay();e.state.completed=['ideas'];
+  assert.equal(e.logicPrint().reason,'finished');e.state.inventory.proof=1;
+  assert.equal(e.logicDeliverProof().reason,'finished');assert.equal(e.state.inventory.proof,1);assert.equal(e.state.coins,9);
+});
+
+test('paper errands preserve packages on reload and pay once per game day without knowledge credit',()=>{
+  const e=engine();assert.equal(e.logicTakePaperParcel().ok,false);assert(e.logicBeginPaperErrand().ok);
+  assert(e.logicTakePaperParcel().ok);assert.equal(e.logicTakePaperParcel().ok,false);
+  e.setState(JSON.parse(JSON.stringify(e.state)));assert(e.logicDeliverPaperParcel().ok);
+  assert.equal(e.state.coins,1);assert(!e.state.inventory.paperParcel);assert.equal(e.state.food,2);assert.equal(e.state.time,0);
+  assert.equal(e.logicBeginPaperErrand().reason,'daily');assert.equal(e.logicDeliverPaperParcel().ok,false);
+  e.setState(JSON.parse(JSON.stringify(e.state)));assert.equal(e.logicBeginPaperErrand().reason,'daily');
+  e.logicNewDay();assert(e.logicBeginPaperErrand().ok);assert(e.logicTakePaperParcel().ok);assert(e.logicDeliverPaperParcel().ok);
+  assert.equal(e.state.coins,2);assert.equal(Object.keys(e.state.answers).length,0);
 });

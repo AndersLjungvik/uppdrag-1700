@@ -48,7 +48,7 @@ Historisk grund för ljudvalet: [Penn Libraries om tryckning 1776](https://www.l
 
 På Stortorget finns läromästaren Rut och bokoraklets skrivbord. Rut ger högst sex fria frågor från avslutade uppdrag, prioriterar förfallna frågor och tidigare fel och blandar in sådant spelaren lyckats med. Fel ger återkoppling utan att låsa förhöret. Ett förhör kostar varken mat eller speldagstid.
 
-Minst 70 procent rätt ger ett äpple, högst en belöning per 24 verkliga timmar. Repetition kan alltid göras utan belöning. Äpplen erbjuds till arbetsgivare eller används i en kortsvarsfråga för en extra ledtråd; svar med sådan hjälp markeras som stöd. Grundläggande bokhänvisningar är alltid gratis. Datumen och belöningarna bygger på enhetens klocka och är inga säkra bedömningsdata.
+Minst 70 procent rätt ger ett äpple och 1 daler, högst en belöning per 24 verkliga timmar. Repetition kan alltid göras utan belöning. Äpplen erbjuds till arbetsgivare eller används i en kortsvarsfråga för en extra ledtråd; svar med sådan hjälp markeras som stöd. Grundläggande bokhänvisningar är alltid gratis. Datumen och belöningarna bygger på enhetens klocka och är inga säkra bedömningsdata.
 
 Tryckeriet har blytyper, papper och trycksvärta att ta och lägga i pressen. Dra i handtaget när allt är på plats. Provtrycket kan lämnas till Noor i kaffehuset för en extra ledtråd. Pusslet är frivilligt, kostar ingen mat och räknas inte som kunskapsresultat. Föremål och pussel sparas tillsammans med äventyret.
 
@@ -59,3 +59,11 @@ Artetiketterna är kontrollerade mot Kews Plants of the World Online: [Rosa cani
 Frågebanken stöder bookReference per uppdrag och learningHint per kortsvarsfråga. Utan riktigt SO-material används avsnittsnamn, inte påhittade sidnummer. De sju uppdragen är fortfarande fria att besöka; deras ordning knyts till boken när materialet finns.
 
 Google-synkning är förberedd men avstängd. Den här spelversionen fungerar med lokal sparning på samma webbplats, webbläsare och enhet. Kontokonfiguration finns i arbetsversionen och behöver ett skolägt Firebase-projekt innan den kan aktiveras.
+
+## Återkommande stöd och ekonomi
+
+Första provtrycket är gratis när pressens tre delar är på plats. Därefter kostar varje nytt ark 1 daler. Spelaren kan bara ha ett provtryck åt gången. Noor tar emot högst ett per speldag medan idéuppdraget återstår. När dagens ark har lämnats kan nästa köpas följande speldag. Varje inlämnat ark ger en ledtråd som förbrukas vid användning; svaret markeras som hjälpt. Pressens inställning och dagsgräns sparas. Gamla sparningar med redan lämnat provtryck räknas som levererade på den aktuella speldagen.
+
+Britas pappersärende finns vid pressen: ta ärendet, hämta paketet vid bokoraklets skrivbord på Stortorget och använd det på Brita. Leveransen betalar 1 daler högst en gång per speldag, kostar ingen mat och kräver inga kunskapsfrågor. Paketet är ett separat föremål från pusslets papper. Ärendet kan göras även efter tryckeriets kunskapsjobb och när repetitionsbelöningen är låst.
+
+Repetition betalar 1 daler tillsammans med äpplet, högst en gång per 24 verkliga timmar. Speldagar öppnar inte belöningen. Befintliga belöningstider gäller även efter uppdateringen. Priser och gränser är val för spelbalansen, inte forskningsbaserade mått på lärande.

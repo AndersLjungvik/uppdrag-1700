@@ -91,6 +91,15 @@ for(const [target,object] of [['inkPot','ink'],['paperStack','paper'],['typeCase
 hotspot('pressMachine').click();elements.get('dialogueAction0').click();
 assert.equal(game.state.inventory.proof,1);elements.get('dialogueAction0').click();
 for(const cue of ['ink','paper','type','press'])assert(soundEvents.includes(cue),'successful printing action triggers '+cue);
+const beforeErrand=game.state.coins;
+hotspot('pressMachine').click();elements.get('dialogueAction0').click();assert(game.state.paperErrand.active);
+elements.get('dialogueAction0').click();elements.get('mapBtn').click();
+[...new Set(elements.values())].find(el=>el.dataset?.travel==='square').click();
+hotspot('oracle').click();elements.get('takePaperParcel').click();assert.equal(game.state.inventory.paperParcel,1);
+elements.get('mapBtn').click();[...new Set(elements.values())].find(el=>el.dataset?.travel==='print').click();
+item('paperParcel').click();hotspot('pressNpc').click();assert.equal(game.state.coins,beforeErrand+1);
+assert(!game.state.inventory.paperParcel);elements.get('dialogueAction0').click();
+process.stdout.write('PASS earning UI: accept paper errand → collect at oracle → deliver to Brita → earn 1 daler\n');
 elements.get('mapBtn').click();
 [...new Set(elements.values())].find(el=>el.dataset?.travel==='garden').click();
 hotspot('flower').click();elements.get('sortPlants').click();

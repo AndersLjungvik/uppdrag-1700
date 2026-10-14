@@ -14,6 +14,7 @@
     ink:{name:'Trycksvärta',icon:'◕',detail:'Använd på tryckpressen.'},
     paper:{name:'Papper',icon:'▱',detail:'Använd på tryckpressen.'},
     type:{name:'Blytyper',icon:'Aa',detail:'Använd på tryckpressen.'},
+    paperParcel:{name:'Papperspaket',icon:'▱',detail:'Leverera till Brita i tryckeriet för 1 daler.'},
     proof:{name:'Provtryck',icon:'▤',detail:'Visa för Noor i kaffehuset.'},
     seeds:{name:'Fröpåse',icon:'❦',detail:'Ge till Karin i byn för en extra ledtråd.'},
     bread:{name:'Bröd',icon:'▰',detail:'Klicka igen för att äta. Ger +3 mättnad.'},
@@ -101,7 +102,7 @@
     return !!allowance&&candidates.some(a=>a.length>=6&&!/\d/.test(a)&&editDistance(a,clean)<=allowance);
   }
   function gradeQuestion(q,value){return q.type==='chain'?Array.isArray(value)&&q.steps.every((s,i)=>s.answer===value[i]):gradeShort(q,value)}
-  function blankState(){return{version:2,name:'',scene:'square',heroX:44,coins:0,food:2,maxFood:5,day:1,time:0,breadBought:false,breadEaten:false,completed:[],failedToday:[],inventory:{},working:null,answers:{},gaps:[],history:[],won:false,started:false,collapseCount:0,visits:{},practice:{},rehearsal:null,reviewHistory:[],lastAppleAt:null,hintCredits:{},workshop:{collected:[],placed:[],printed:false,delivered:false},botany:{placements:{},solved:false,delivered:false}}}
+  function blankState(){return{version:2,name:'',scene:'square',heroX:44,coins:0,food:2,maxFood:5,day:1,time:0,breadBought:false,breadEaten:false,completed:[],failedToday:[],inventory:{},working:null,answers:{},gaps:[],history:[],won:false,started:false,collapseCount:0,visits:{},practice:{},rehearsal:null,reviewHistory:[],lastAppleAt:null,hintCredits:{},workshop:{collected:[],placed:[],printed:false,delivered:false,printCount:0,lastDeliveredDay:0},paperErrand:{active:false,lastPaidDay:0},botany:{placements:{},solved:false,delivered:false}}}
   let state=blankState();
   function loadState(value){
     const fresh=blankState();if(!value||value.version!==2)return fresh;
@@ -115,7 +116,8 @@
     merged.reviewHistory=Array.isArray(value.reviewHistory)?value.reviewHistory.slice(-50):[];
     merged.lastAppleAt=Number.isFinite(value.lastAppleAt)?value.lastAppleAt:null;
     const w=value.workshop||{};
-    merged.workshop={collected:Array.isArray(w.collected)?[...new Set(w.collected.filter(id=>['ink','paper','type'].includes(id)))]:[],placed:Array.isArray(w.placed)?[...new Set(w.placed.filter(id=>['ink','paper','type'].includes(id)))]:[],printed:w.printed===true,delivered:w.delivered===true};
+    merged.workshop={collected:Array.isArray(w.collected)?[...new Set(w.collected.filter(id=>['ink','paper','type'].includes(id)))]:[],placed:Array.isArray(w.placed)?[...new Set(w.placed.filter(id=>['ink','paper','type'].includes(id)))]:[],printed:w.printed===true,delivered:w.delivered===true,printCount:Number.isSafeInteger(w.printCount)&&w.printCount>=0?w.printCount:w.printed?1:0,lastDeliveredDay:Number.isSafeInteger(w.lastDeliveredDay)&&w.lastDeliveredDay>=0?w.lastDeliveredDay:w.delivered?merged.day:0};
+    const pe=value.paperErrand||{};merged.paperErrand={active:pe.active===true,lastPaidDay:Number.isSafeInteger(pe.lastPaidDay)&&pe.lastPaidDay>=0?pe.lastPaidDay:0};
     const b=value.botany||{};
     merged.botany={placements:Object.fromEntries(PLANT_LABELS.filter(p=>['Rosa','Viola'].includes(b.placements?.[p.id])).map(p=>[p.id,b.placements[p.id]])),solved:b.solved===true,delivered:b.delivered===true};
     const allowed=allCards().filter(q=>q.type==='short'&&merged.completed.includes(q.missionId)).map(q=>q.id);
@@ -199,7 +201,7 @@
     if(r.index<r.ids.length){save();return{ok:true,correct,q,finished:false}}
     const total=r.ids.length,score=r.correct,passed=score>=Math.ceil(total*.7);
     const rewarded=passed&&(state.lastAppleAt===null||now-state.lastAppleAt>=DAY_MS);
-    if(rewarded){addItem('apple');state.lastAppleAt=now}
+    if(rewarded){addItem('apple');state.coins+=1;state.lastAppleAt=now}
     state.reviewHistory.push({at:now,correct:score,total,rewarded});state.reviewHistory=state.reviewHistory.slice(-50);
     state.rehearsal=null;save();return{ok:true,correct,q,finished:true,total,score,passed,rewarded};
   }
@@ -234,13 +236,36 @@
     removeItem(id);state.workshop.placed.push(id);save();return{ok:true};
   }
   function logicPrint(){
-    const w=state.workshop;if(w.printed)return{ok:false,reason:'printed'};
-    if(!['ink','paper','type'].every(id=>w.placed.includes(id)))return{ok:false,reason:'missing'};
-    w.printed=true;addItem('proof');save();return{ok:true};
+    const w=state.workshop;
+    if(state.inventory.proof)return{ok:false,reason:'holding'};
+    if(!w.printed&&!['ink','paper','type'].every(id=>w.placed.includes(id)))return{ok:false,reason:'missing'};
+    if(w.printed){
+      if(state.completed.includes('ideas'))return{ok:false,reason:'finished'};
+      if(w.lastDeliveredDay===state.day)return{ok:false,reason:'daily'};
+      if(state.coins<1)return{ok:false,reason:'money'};
+      state.coins-=1;
+    }
+    w.printed=true;w.printCount++;addItem('proof');save();return{ok:true};
   }
   function logicDeliverProof(){
-    if(!state.inventory.proof||state.workshop.delivered)return{ok:false};
-    removeItem('proof');state.workshop.delivered=true;state.hintCredits.ideas=(state.hintCredits.ideas||0)+1;save();return{ok:true};
+    if(!state.inventory.proof)return{ok:false,reason:'missing'};
+    if(state.completed.includes('ideas'))return{ok:false,reason:'finished'};
+    if(state.workshop.lastDeliveredDay===state.day)return{ok:false,reason:'daily'};
+    removeItem('proof');state.workshop.delivered=true;state.workshop.lastDeliveredDay=state.day;state.hintCredits.ideas=(state.hintCredits.ideas||0)+1;save();return{ok:true};
+  }
+  function logicBeginPaperErrand(){
+    if(state.working||state.rehearsal)return{ok:false,reason:'busy'};
+    if(state.paperErrand.lastPaidDay===state.day)return{ok:false,reason:'daily'};
+    state.paperErrand.active=true;save();return{ok:true};
+  }
+  function logicTakePaperParcel(){
+    if(!state.paperErrand.active||state.inventory.paperParcel)return{ok:false};
+    addItem('paperParcel');save();return{ok:true};
+  }
+  function logicDeliverPaperParcel(){
+    const e=state.paperErrand;
+    if(!e.active||!state.inventory.paperParcel||e.lastPaidDay===state.day)return{ok:false};
+    removeItem('paperParcel');e.active=false;e.lastPaidDay=state.day;state.coins+=1;save();return{ok:true};
   }
   function logicPlantPlacement(id,genus){
     if(state.botany.solved||!PLANT_LABELS.some(p=>p.id===id)||!['','Rosa','Viola'].includes(genus))return{ok:false};
@@ -357,7 +382,7 @@
     if(id==='print'){
       if(!s.workshop.collected.includes('ink')){ellipse(ctx,587,576,24,11,'#221f24');rect(ctx,565,553,44,22,'#383438');text(ctx,'BLÄCK',586,543,11,'#e8d3a5','center')}
       if(!s.workshop.collected.includes('paper')){for(let i=0;i<4;i++)rect(ctx,692+i*2,578-i*5,96,6,'#f0dfb7');text(ctx,'PAPPER',739,546,11,'#e8d3a5','center')}
-      const n=s.workshop.placed.length;text(ctx,s.workshop.printed?'PROVTRYCKET ÄR KLART':n+' / 3 DELAR I PRESSEN',470,650,17,'#f0d8a2','center');
+      const n=s.workshop.placed.length;text(ctx,s.workshop.printed?(s.inventory.proof?'PROVTRYCKET ÄR KLART':'PRESSEN ÄR REDO'):n+' / 3 DELAR I PRESSEN',470,650,17,'#f0d8a2','center');
       if(n)rect(ctx,394,330,97,55,'#d9c59c');
       if(s.workshop.printed)text(ctx,'TRYCKFRIHET',443,363,13,'#342b24','center');
     }
@@ -366,7 +391,7 @@
 
   const coreApi={
     get state(){return state},get data(){return data},blankState,loadState,validBank,applyBank,allCards,mission,
-    bookGuide,eligibleReviewCards,reviewSelection,logicBeginReview,reviewQuestion,logicReviewAnswer,logicCancelReview,logicOfferApple,logicJobHint,logicCollect,logicPlace,logicPrint,logicDeliverProof,logicPlantPlacement,logicSortPlants,logicDeliverSeeds,
+    bookGuide,eligibleReviewCards,reviewSelection,logicBeginReview,reviewQuestion,logicReviewAnswer,logicCancelReview,logicOfferApple,logicJobHint,logicCollect,logicPlace,logicPrint,logicDeliverProof,logicBeginPaperErrand,logicTakePaperParcel,logicDeliverPaperParcel,logicPlantPlacement,logicSortPlants,logicDeliverSeeds,
     normalize,gradeShort,gradeQuestion,logicBeginJob,logicAnswer,logicCompleteJob,logicBuyBread,logicEatBread,logicNewDay,
     reportCSV,reportRows,csvCell,renderScene,
     setState(value){state=loadState(value)},resetData(){data=clone(BASE)}
@@ -446,8 +471,9 @@
     if(h.id==='pressMachine'){if(verb==='use'&&item){const r=logicPlace(item);if(r.ok)window.UPPDRAG_SOUND?.play(item==='type'?'type':item==='paper'?'paper':'ink');updateHUD();narrate(r.ok?ITEM_INFO[item].name+' är på plats. Pressen gnisslar uppskattande.':'Pressen behöver blytyper, papper och trycksvärta.');return}showPressPuzzle();return}
     if(h.collect){if(verb==='take'){const r=logicCollect(h.collect);if(r.ok)window.UPPDRAG_SOUND?.play(h.collect==='type'?'type':h.collect==='paper'?'paper':'ink');updateHUD();narrate(r.ok?'Du lägger '+ITEM_INFO[h.collect].name.toLowerCase()+' i ränseln. Använd det på pressen.':'Det föremålet är redan hämtat.');return}narrate('Det här kan du faktiskt ta. Välj Ta och stoppa det i ränseln.');return}
     if(h.mission&&item==='apple'){const r=logicOfferApple(h.mission);updateHUD();showDialogue(mission(h.mission).npc,r.ok?'”Ett äpple! Jag erbjuder en extra ledtråd i ditt nästa arbetsmoment. Du måste fortfarande svara själv.”':'”Spara äpplet till ett arbete som återstår.”',[{label:'Då pratar vi om jobbet.',fn:()=>talkJob(h.mission),reply:true}]);return}
-    if(h.mission==='ideas'&&item==='proof'){const r=logicDeliverProof();updateHUD();showDialogue(mission('ideas').npc,r.ok?'”Ditt provtryck kan sätta fart på ett samtal. Du får en extra ledtråd här i kaffehuset.”':'”Jag har redan fått ditt provtryck.”',[{label:'Vad är ditt uppdrag?',fn:()=>talkJob('ideas'),reply:true}]);return}
+    if(h.mission==='ideas'&&item==='proof'){const r=logicDeliverProof();updateHUD();showDialogue(mission('ideas').npc,r.ok?'”Ditt provtryck kan sätta fart på ett samtal. Du får en extra ledtråd här i kaffehuset.”':r.reason==='daily'?'”Jag tar bara emot ett provtryck per speldag. Behåll det till i morgon.”':'”Mitt uppdrag är redan klart. Behåll ditt provtryck.”',[{label:'Vad är ditt uppdrag?',fn:()=>talkJob('ideas'),reply:true}]);return}
     if(h.mission==='farm'&&item==='seeds'){const r=logicDeliverSeeds();updateHUD();showDialogue(mission('farm').npc,r.ok?'”Frön från Sams trädgård! Tack. Jag erbjuder en extra ledtråd när du arbetar här. Du måste fortfarande svara själv.”':'”Mitt arbete är redan klart. Behåll fröpåsen som ett minne från trädgården.”',[{label:'Prata om arbetet.',fn:()=>talkJob('farm'),reply:true}]);return}
+    if(h.mission==='press'&&item==='paperParcel'){const r=logicDeliverPaperParcel();updateHUD();showDialogue('Boktryckaren Brita',r.ok?'”Tack för papperet! Här får du en daler. Jag har ett nytt pappersärende nästa speldag.”':'”Det paketet kan jag inte betala för igen i dag.”',[{label:'Tillbaka till tryckeriet.',fn:closeDialogue,reply:true}]);return}
     if(h.id==='cart'){showMap();return}
     if(h.id==='baker'){if(verb==='take')narrate('Marta flyttar brödet exakt en handlängd längre bort. ”Tre daler.”');else talkBaker();return}
     if(h.id==='archive'){if(verb==='use'&&item&&mission(item))tryFinish();else talkArchive();return}
@@ -481,14 +507,16 @@
     $('leavePlants').onclick=closeModal;
   }
   function showOracle(){
-    openModal('BOKORAKLET','Den stora kunskapsboken finns hos dig', '<p class="lead">”Sök i din SO-bok. Jag visar vart du ska leta — svaret måste du finna själv.”</p><div class="quest-list">'+data.missions.map(m=>'<div class="quest-row"><span class="seal">'+m.symbol+'</span><span><b>'+esc(m.title)+'</b><small>'+esc(bookGuide(m.id))+'</small></span></div>').join('')+'</div><p class="small">Avsnitt anges tills läraren lagt in den riktiga bokens sidnummer. Hänvisningarna är gratis.</p>','oracle');
+    const parcel=state.paperErrand.active&&!state.inventory.paperParcel;
+    openModal('BOKORAKLET','Den stora kunskapsboken finns hos dig', '<p class="lead">”Sök i din SO-bok. Jag visar vart du ska leta — svaret måste du finna själv.”</p><div class="quest-list">'+data.missions.map(m=>'<div class="quest-row"><span class="seal">'+m.symbol+'</span><span><b>'+esc(m.title)+'</b><small>'+esc(bookGuide(m.id))+'</small></span></div>').join('')+'</div><p class="small">Avsnitt anges tills läraren lagt in den riktiga bokens sidnummer. Hänvisningarna är gratis.</p>'+(parcel?'<div class="button-row"><button id="takePaperParcel" class="primary">Ta Britas papperspaket</button></div>':''),'oracle');
+    if(parcel){$('takePaperParcel').onclick=()=>{const r=logicTakePaperParcel();updateHUD();if(r.ok){window.UPPDRAG_SOUND?.play('paper');closeModal();narrate('Papperspaketet ligger i ränseln. Leverera till Brita i tryckeriet för 1 daler.')}}}
   }
   function talkMaster(){
     if(state.rehearsal){showReviewQuestion();return}
     const cards=eligibleReviewCards(),due=window.UPPDRAG_PRACTICE?.due(state.practice,cards.map(q=>q.id))||[];
     const remaining=state.lastAppleAt===null?0:Math.max(0,DAY_MS-(Date.now()-state.lastAppleAt));
     const prior=state.visits.previousVisitAt,days=prior?Math.max(0,Math.floor((Date.now()-prior)/DAY_MS)):null;
-    const text='”Kunskap ska hämtas fram igen — inte bara förvaras som gammalt bröd.”<br><br>'+ (days!==null&&days>0?'Du var här för '+days+' dagar sedan.<br>':'')+cards.length+' fria frågor från '+state.completed.length+(state.completed.length===1?' avslutat uppdrag. ':' avslutade uppdrag. ')+due.length+' frågor är dags att repetera.<br><br>'+ (cards.length?'Förhöret innehåller högst sex frågor. Du får återkoppling efter varje svar. Ingen mat eller speltid förbrukas.':'Klara ett uppdrag först. Sedan repeterar vi just det området.')+'<br><br>'+ (remaining?'Du kan träna nu. Nästa äpple kan tjänas om ungefär '+Math.ceil(remaining/3600000)+' timmar.':'Minst 70 procent rätt ger ett äpple. Högst ett belönat förhör per verkligt dygn.');
+    const text='”Kunskap ska hämtas fram igen — inte bara förvaras som gammalt bröd.”<br><br>'+ (days!==null&&days>0?'Du var här för '+days+' dagar sedan.<br>':'')+cards.length+' fria frågor från '+state.completed.length+(state.completed.length===1?' avslutat uppdrag. ':' avslutade uppdrag. ')+due.length+' frågor är dags att repetera.<br><br>'+ (cards.length?'Förhöret innehåller högst sex frågor. Du får återkoppling efter varje svar. Ingen mat eller speltid förbrukas.':'Klara ett uppdrag först. Sedan repeterar vi just det området.')+'<br><br>'+ (remaining?'Du kan träna nu. Nästa äpple och daler kan tjänas om ungefär '+Math.ceil(remaining/3600000)+' timmar.':'Minst 70 procent rätt ger ett äpple och 1 daler. Högst ett belönat förhör per verkligt dygn.');
     showDialogue('Läromästaren Rut',text,[
       ...(cards.length?[{label:'Förhör mig utan bok.',fn:()=>{const r=logicBeginReview();if(r.ok)showReviewQuestion()},reply:true}]:[]),
       {label:'Visa var jag kan läsa i SO-boken.',fn:showOracle,reply:true},
@@ -509,16 +537,23 @@
     if(!activeReviewId||reviewQuestion()?.id!==activeReviewId)return;activeReviewId=null;
     const r=logicReviewAnswer(value);if(!r.ok)return;updateHUD();
     const feedback=(r.correct?'Rätt. ':'Inte ännu. Rätt svar är <b>'+esc(r.q.answer)+'</b>. ')+esc(r.q.explanation)+'<p class="small">'+esc(bookGuide(r.q.missionId))+'</p>';
-    const finish=()=>showDialogue('Läromästaren Rut','Du mindes <b>'+r.score+' av '+r.total+'</b> svar.<br><br>'+ (r.rewarded?'Ett äpple ligger nu i ränseln. Ge det till en arbetsgivare eller använd det för en extra ledtråd i ett jobb.':r.passed?'Bra repetition. Ditt nästa belönade förhör öppnar efter ett verkligt dygn.':'Läs om avsnittet och prova igen. Du förlorade ingen mat.')+'<br><br><em>Att klara samma frågor igen i kväll räknas inte som spridd repetition.</em>',[{label:'Fortsätt äventyret.',fn:closeDialogue,reply:true},{label:'Besök bokoraklet.',fn:showOracle,reply:true}]);
+    const finish=()=>showDialogue('Läromästaren Rut','Du mindes <b>'+r.score+' av '+r.total+'</b> svar.<br><br>'+ (r.rewarded?'Du har tjänat 1 daler och ett äpple ligger nu i ränseln. Ge det till en arbetsgivare eller använd det för en extra ledtråd i ett jobb.':r.passed?'Bra repetition. Ditt nästa belönade förhör öppnar efter ett verkligt dygn.':'Läs om avsnittet och prova igen. Du förlorade ingen mat.')+'<br><br><em>Att klara samma frågor igen i kväll räknas inte som spridd repetition.</em>',[{label:'Fortsätt äventyret.',fn:closeDialogue,reply:true},{label:'Besök bokoraklet.',fn:showOracle,reply:true}]);
     showDialogue('Läromästaren Rut',feedback,[{label:r.finished?'Se mitt resultat.':'Nästa minnesfråga →',fn:r.finished?finish:showReviewQuestion,reply:true}],r.correct?'feedback-good':'');
+  }
+  function showPaperErrand(){
+    const r=logicBeginPaperErrand();
+    showDialogue('Boktryckaren Brita',r.ok?(state.inventory.paperParcel?'”Du har redan papperspaketet. Välj det i ränseln och använd det på mig.”':'”Hämta mitt papperspaket vid bokoraklets skrivbord på Stortorget. Kom tillbaka och använd paketet på mig, så får du 1 daler.”'):'”Dagens pappersleverans är redan betald. Kom tillbaka nästa speldag.”',[{label:'Jag går och hämtar paketet.',fn:closeDialogue,reply:true}]);
   }
   function showPressPuzzle(){
     const w=state.workshop,missing=['type','ink','paper'].filter(id=>!w.placed.includes(id));
-    showDialogue('Den mycket högljudda pressen',w.printed?'Ditt första provtryck är klart. Visa det för Noor i kaffehuset för en extra ledtråd.':'Pressen behöver tre saker: blytyper, papper och trycksvärta. Ta dem i rummet, välj dem i ränseln och använd dem på pressen.<br><br>Återstår: <b>'+(missing.length?missing.map(id=>esc(ITEM_INFO[id].name)).join(', '):'ingenting — dra i handtaget')+'</b>.<p class="small">Det här är ett frivilligt miljöpussel. Du kan prata med Brita och arbeta direkt.</p>',[
-      ...(!w.printed?[{label:'Dra i pressens handtag.',fn:()=>{const r=logicPrint();updateHUD();if(r.ok){window.UPPDRAG_SOUND?.play('press');narrate('DUNK! Pressen spottar ut ett provtryck.');showDialogue('Boktryckaren Brita','”Det blev ett blad! Ta det till Noor i kaffehuset. Och undvik att använda mer bläck än papper.”',[{label:'Provtrycket ligger i ränseln.',fn:()=>{window.UPPDRAG_SOUND?.play('paper');closeDialogue()},reply:true}])}else{showHint('Lägg blytyper, papper och trycksvärta i pressen först.');showPressPuzzle()}},reply:true}]:[]),
+    const holding=!!state.inventory.proof,finished=state.completed.includes('ideas'),daily=w.lastDeliveredDay===state.day;
+    const description=!w.printed?'Pressen behöver blytyper, papper och trycksvärta. Ta dem i rummet och använd dem på pressen. Första provtrycket är gratis.<br><br>Återstår: <b>'+(missing.length?missing.map(id=>esc(ITEM_INFO[id].name)).join(', '):'ingenting — dra i handtaget')+'</b>.':holding?'Du har ett provtryck i ränseln. Ge det till Noor i kaffehuset.':finished?'Noors uppdrag är klart. Du kan fortfarande göra pappersärenden och provlyssna på pressen.':daily?'Noor har fått dagens provtryck. Nästa speldag kan du trycka ett nytt ark för 1 daler.':'Pressen är förberedd. Ett nytt provtryck kostar <b>1 daler</b>. Noor tar emot högst ett per speldag. Du har '+state.coins+' daler.';
+    showDialogue('Den mycket högljudda pressen',description+'<p class="small">Pusslet och pappersärendet kostar ingen mat och räknas inte som kunskapsresultat.</p>',[
+      ...(!holding&&(!w.printed||(!finished&&!daily))?[{label:w.printed?'Tryck ett nytt ark (1 daler).':'Dra i pressens handtag.',fn:()=>{const r=logicPrint();updateHUD();if(r.ok){window.UPPDRAG_SOUND?.play('press');showDialogue('Boktryckaren Brita','”Ett nytt blad! Visa det för Noor i kaffehuset för en extra ledtråd.”',[{label:'Provtrycket ligger i ränseln.',fn:()=>{window.UPPDRAG_SOUND?.play('paper');closeDialogue()},reply:true}])}else{showHint(r.reason==='money'?'Du behöver 1 daler. Repetera hos Rut eller gör Britas pappersärende.':'Lägg blytyper, papper och trycksvärta i pressen först.');showPressPuzzle()}},reply:true}]:[]),
+      {label:state.paperErrand.active?'Visa mitt pappersärende.':'Ta ett pappersärende (tjäna 1 daler).',fn:showPaperErrand,reply:true},
       {label:'Jag fortsätter utforska.',fn:closeDialogue,reply:true},
       {label:'Provlyssna på pressljudet.',fn:async()=>{const audio=window.UPPDRAG_SOUND;if(!audio||!await audio.setEnabled(true)){showHint('Webbläsaren kunde inte starta ljudet.');return}refreshSoundButton();audio.stop();audio.play('press');showHint('Ljudskiss: träknarr, presslag och papper. Högtalarknappen stänger av ljudet.');},reply:true},
-      {label:'Ge mig en tydlig ledtråd.',fn:()=>showDialogue('Boktryckaren Brita','”Ta blytyperna ur kasten, bläckburken och pappershögen. Klicka på ett föremål i ränseln och sedan på pressen. När alla tre är på plats drar du i handtaget.”',[{label:'Nu provar jag.',fn:closeDialogue,reply:true}]),reply:true}
+      {label:'Ge mig en tydlig ledtråd.',fn:()=>showDialogue('Boktryckaren Brita','”Första gången: ta blytyper, bläck och papper och använd dem på pressen. Därefter står pressen redo, men nästa ark kostar en daler. Leverera papper åt mig om du saknar pengar.”',[{label:'Nu provar jag.',fn:closeDialogue,reply:true}]),reply:true}
     ]);
   }
   function showHintForJob(){
@@ -606,14 +641,14 @@
   function mapMarkup(){const pins=[['garden','Trädgård','❧',18,18],['print','Tryckeri','▤',47,17],['riksdag','Riksdag','♜',69,18],['farm','Byn','♧',19,78],['square','Stortorget','⌂',50,49],['coffee','Kaffehus','✧',69,74],['palace','Slott','♛',47,82],['harbor','Hamnen','⚓',88,49]];return `<div class="city-map"><div class="map-road h"></div><div class="map-road v"></div><div class="map-water"></div>${pins.map(([id,label,mark,x,y])=>{const mid=MISSION_FOR[id],failed=mid&&state.failedToday.includes(mid);return `<button class="map-location ${state.scene===id?'current':''} ${failed?'locked':''}" style="left:${x}%;top:${y}%" data-travel="${id}" data-mark="${mark}">${label}${failed?' · stängt':''}</button>`}).join('')}</div>`}
   function showMap(){if(state.rehearsal){showReviewQuestion();return}if(state.working){resumeWork();return}closeDialogue();openModal('STADSKARTA','Vart vill du gå?',`${mapMarkup()}<p class="small">Resor kostar ingen mättnad i prototypen. Själva arbetena gör det.</p>`,'map');for(const b of document.querySelectorAll('[data-travel]'))b.onclick=()=>travel(b.dataset.travel)}
   function gapMarkup(){const gaps=state.gaps.map(id=>allCards().find(q=>q.id===id)).filter(Boolean);return gaps.length?`<h3>Kunskapsluckor att ta med till lektionen</h3><div class="gap-list">${gaps.map(q=>`<div class="gap"><b>${esc(q.topic)}</b><p>${esc(q.question)}</p></div>`).join('')}</div>`:'<p class="small">Inga obesvarade kunskapsluckor är noterade just nu.</p>'}
-  function showNotebook(){closeDialogue();openModal('ANTECKNINGSBOKEN','Det här behöver du kunna',`<p>Här finns frågorna du missat — men inga facit. Bokoraklet på Stortorget hänvisar till rätt avsnitt. Läromästaren repeterar avslutade uppdrag och visar återkoppling efter ditt eget försök.</p>${gapMarkup()}<h3>Repetition</h3><p>Besök läromästaren Rut på Stortorget. Ett kort förhör utan bok kan ge ett äpple. När en fråga ska återkomma räknas i verkliga dagar, inte speldagar.</p><h3>Arbetsintyg</h3><div class="quest-list">${data.missions.map(m=>`<div class="quest-row ${state.completed.includes(m.id)?'done':''}"><span class="seal">${state.completed.includes(m.id)?'✓':m.symbol}</span><span><b>${esc(m.title)}</b><small>${state.completed.includes(m.id)?esc(ITEM_INFO[m.id].name):'Inte utfört'}</small></span></div>`).join('')}</div>`,'notebook')}
+  function showNotebook(){closeDialogue();openModal('ANTECKNINGSBOKEN','Det här behöver du kunna',`<p>Här finns frågorna du missat — men inga facit. Bokoraklet på Stortorget hänvisar till rätt avsnitt. Läromästaren repeterar avslutade uppdrag och visar återkoppling efter ditt eget försök.</p>${gapMarkup()}<h3>Repetition</h3><p>Besök läromästaren Rut på Stortorget. Ett kort förhör utan bok kan ge ett äpple och 1 daler. När en fråga ska återkomma räknas i verkliga dagar, inte speldagar.</p><h3>Arbetsintyg</h3><div class="quest-list">${data.missions.map(m=>`<div class="quest-row ${state.completed.includes(m.id)?'done':''}"><span class="seal">${state.completed.includes(m.id)?'✓':m.symbol}</span><span><b>${esc(m.title)}</b><small>${state.completed.includes(m.id)?esc(ITEM_INFO[m.id].name):'Inte utfört'}</small></span></div>`).join('')}</div>`,'notebook')}
 
   function stats(){const rows=reportRows(),attempted=rows.filter(r=>r.s.attempts),firstRight=attempted.filter(r=>r.s.firstCorrect&&!r.s.firstSupported),missed=rows.filter(r=>r.s.missed),independent=rows.filter(r=>r.s.correct-r.s.supported>0);return{rows,attempted,firstRight,missed,independent}}
   function showReport(){const s=stats();openModal('KUNSKAPSRAPPORT',state.name?`${esc(state.name)} · speldag ${state.day}`:`Speldag ${state.day}`,`<div class="report-grid"><div class="report-stat"><b>${state.completed.length}/7</b><span>arbetsintyg</span></div><div class="report-stat"><b>${s.attempted.length}/${s.rows.length}</b><span>frågor prövade</span></div><div class="report-stat"><b>${s.firstRight.length}</b><span>rätt direkt</span></div><div class="report-stat"><b>${s.missed.length}</b><span>kunskapsluckor</span></div></div><table class="report-table"><thead><tr><th>Uppdrag</th><th>Prövade</th><th>Rätt direkt</th><th>Fel</th></tr></thead><tbody>${data.missions.map(m=>{const rows=m.cards.map(q=>({q,s:state.answers[q.id]||{}})),seen=rows.filter(r=>r.s.attempts),right=seen.filter(r=>r.s.firstCorrect&&!r.s.firstSupported),wrong=seen.filter(r=>r.s.missed);return `<tr><td>${esc(m.title)}</td><td>${seen.length}/${rows.length}</td><td>${right.length}</td><td>${wrong.length}</td></tr>`}).join('')}</tbody></table><p class="small">Ett arbetsintyg kräver alla moment rätt i samma försök. Sambandsuppgifter innehåller färdiga delar och räknas därför som stöd. Rapporten är ett övningsunderlag, inte ett betyg.</p><div class="button-row"><button id="downloadReport" class="primary">Hämta rapport (.csv)</button><button id="printReport" class="secondary">Skriv ut</button></div>`,'report');$('downloadReport').onclick=()=>download('uppdrag-1700-aventyrsrapport.csv',reportCSV(),'text/csv;charset=utf-8');$('printReport').onclick=()=>window.print()}
   function download(filename,text,type){const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2500)}
 
   function showMenu(){if(state.rehearsal){showReviewQuestion();return}if(state.working){resumeWork();return}openModal('SPELMENY','Pausa äventyret',`<div class="rules"><button id="menuNotebook" class="rule"><b>Anteckningar</b><span>Kunskapsluckor utan facit</span></button><button id="menuReport" class="rule"><b>Rapport</b><span>Försök och arbetsintyg</span></button><button id="menuHelp" class="rule"><b>Så spelar du</b><span>Handlingar, hunger och dagar</span></button><button id="menuTeacher" class="rule"><b>För läraren</b><span>Frågebank och elevfil</span></button></div><div class="button-row"><button id="menuContinue" class="primary">Fortsätt spela</button><button id="menuReset" class="text-button">Börja om hela äventyret</button></div>`,'menu');$('menuNotebook').onclick=showNotebook;$('menuReport').onclick=showReport;$('menuHelp').onclick=showHelp;$('menuTeacher').onclick=showTeacher;$('menuContinue').onclick=closeModal;$('menuReset').onclick=confirmReset}
-  function showHelp(){openModal('SÅ SPELAR DU','Kunskap är spelmekaniken',`<div class="rules"><div class="rule"><b>1. Utforska</b><span>Välj Titta, Prata, Ta eller Använd. Tryckeriet och trädgården har frivilliga pussel med föremål att använda.</span></div><div class="rule"><b>2. Arbeta</b><span>Varje jobb kostar 1 mättnad och för tiden framåt.</span></div><div class="rule"><b>3. Minns</b><span>Svara utan alternativ. Ett fel stänger jobbet för dagen.</span></div><div class="rule"><b>4. Överlev</b><span>Tjäna daler, köp bröd och ät ur ränseln.</span></div></div><p>Det finns ingen snabb gissningsloop: ett fel visar inte facit och kräver en ny speldag. Sambandspusslen har däremot färdiga delar och ger därför visst stöd.</p><p>Besök läromästaren Rut på Stortorget för att repetera avslutade uppdrag. Minst 70 procent rätt kan ge ett äpple en gång per verkligt dygn. Äpplet ger extra stöd i ett nytt jobb och stödet markeras i rapporten. Bokoraklets hänvisningar är alltid gratis.</p><div class="warning">Spelet är gjort för att spelas efter undervisning. Det är inte tänkt att lära ut hela området på egen hand.</div>`,'help')}
+  function showHelp(){openModal('SÅ SPELAR DU','Kunskap är spelmekaniken',`<div class="rules"><div class="rule"><b>1. Utforska</b><span>Välj Titta, Prata, Ta eller Använd. Tryckeriet och trädgården har frivilliga pussel med föremål att använda.</span></div><div class="rule"><b>2. Arbeta</b><span>Varje jobb kostar 1 mättnad och för tiden framåt.</span></div><div class="rule"><b>3. Minns</b><span>Svara utan alternativ. Ett fel stänger jobbet för dagen.</span></div><div class="rule"><b>4. Överlev</b><span>Tjäna daler, köp bröd och ät ur ränseln.</span></div></div><p>Det finns ingen snabb gissningsloop: ett fel visar inte facit och kräver en ny speldag. Sambandspusslen har däremot färdiga delar och ger därför visst stöd.</p><p>Besök läromästaren Rut på Stortorget för att repetera avslutade uppdrag. Minst 70 procent rätt kan ge ett äpple och 1 daler en gång per verkligt dygn. Äpplet ger extra stöd i ett nytt jobb och stödet markeras i rapporten. Bokoraklets hänvisningar är alltid gratis.</p><div class="warning">Spelet är gjort för att spelas efter undervisning. Det är inte tänkt att lära ut hela området på egen hand.</div>`,'help')}
   function showTeacher(){openModal('FÖR LÄRAREN','En prototyp att pröva kritiskt',`<div class="segmented"><button id="teacherGuide" class="active">Upplägg</button><button id="teacherBank">Frågebank</button><button id="teacherSources">Källor</button></div><div id="teacherContent"></div>`,'teacher');$('teacherGuide').onclick=()=>teacherTab('guide');$('teacherBank').onclick=()=>teacherTab('bank');$('teacherSources').onclick=()=>teacherTab('sources');teacherTab('guide')}
   function teacherTab(tab){
     for(const [id,key]of[['teacherGuide','guide'],['teacherBank','bank'],['teacherSources','sources']])$(id).classList.toggle('active',tab===key);const el=$('teacherContent');
