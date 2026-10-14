@@ -78,3 +78,8 @@ test('book references and tailored hints can be imported without inventing page 
   assert(e.logicBeginJob('press').ok);e.state.inventory.apple=1;
   assert.equal(e.logicJobHint().hint,'Tänk på året i bokens tidslinje.');
 });
+
+test('year clues narrow the decade without revealing the full year',()=>{
+  const e=engine();assert(e.logicBeginJob('press').ok);e.state.inventory.apple=1;
+  const hint=e.logicJobHint().hint;assert(hint.includes('1760-talet'));assert(!hint.includes('1766'));
+});

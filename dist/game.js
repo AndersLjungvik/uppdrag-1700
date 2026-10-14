@@ -208,7 +208,8 @@
   function jobHint(q){
     if(q.learningHint)return q.learningHint;
     const answer=q.answer||'',first=answer.match(/[\p{L}\p{N}]/u)?.[0]||'?';
-    return bookGuide(state.working?.missionId||q.missionId)+' Svaret börjar med ”'+first+'”.';
+    const clue=/^[0-9]{4}$/.test(answer)?'Det är ett år på '+(Math.floor(Number(answer)/10)*10)+'-talet.':'Svaret börjar med ”'+first+'”.';
+    return bookGuide(state.working?.missionId||q.missionId)+' '+clue;
   }
   function logicJobHint(){
     const w=state.working;if(!w||w.hintUsed)return{ok:false,reason:'unavailable'};
@@ -453,7 +454,7 @@
     const cards=eligibleReviewCards(),due=window.UPPDRAG_PRACTICE?.due(state.practice,cards.map(q=>q.id))||[];
     const remaining=state.lastAppleAt===null?0:Math.max(0,DAY_MS-(Date.now()-state.lastAppleAt));
     const prior=state.visits.previousVisitAt,days=prior?Math.max(0,Math.floor((Date.now()-prior)/DAY_MS)):null;
-    const text='”Kunskap ska hämtas fram igen — inte bara förvaras som gammalt bröd.”<br><br>'+ (days!==null&&days>0?'Du var här för '+days+' dagar sedan.<br>':'')+cards.length+' fria frågor från '+state.completed.length+' avslutade uppdrag. '+due.length+' frågor är dags att repetera.<br><br>'+ (cards.length?'Förhöret innehåller högst sex frågor. Du får återkoppling efter varje svar. Ingen mat eller speltid förbrukas.':'Klara ett uppdrag först. Sedan repeterar vi just det området.')+'<br><br>'+ (remaining?'Du kan träna nu. Nästa äpple kan tjänas om ungefär '+Math.ceil(remaining/3600000)+' timmar.':'Minst 70 procent rätt ger ett äpple. Högst ett belönat förhör per verkligt dygn.');
+    const text='”Kunskap ska hämtas fram igen — inte bara förvaras som gammalt bröd.”<br><br>'+ (days!==null&&days>0?'Du var här för '+days+' dagar sedan.<br>':'')+cards.length+' fria frågor från '+state.completed.length+(state.completed.length===1?' avslutat uppdrag. ':' avslutade uppdrag. ')+due.length+' frågor är dags att repetera.<br><br>'+ (cards.length?'Förhöret innehåller högst sex frågor. Du får återkoppling efter varje svar. Ingen mat eller speltid förbrukas.':'Klara ett uppdrag först. Sedan repeterar vi just det området.')+'<br><br>'+ (remaining?'Du kan träna nu. Nästa äpple kan tjänas om ungefär '+Math.ceil(remaining/3600000)+' timmar.':'Minst 70 procent rätt ger ett äpple. Högst ett belönat förhör per verkligt dygn.');
     showDialogue('Läromästaren Rut',text,[
       ...(cards.length?[{label:'Förhör mig utan bok.',fn:()=>{const r=logicBeginReview();if(r.ok)showReviewQuestion()},reply:true}]:[]),
       {label:'Visa var jag kan läsa i SO-boken.',fn:showOracle,reply:true},
@@ -479,7 +480,7 @@
   }
   function showPressPuzzle(){
     const w=state.workshop,missing=['type','ink','paper'].filter(id=>!w.placed.includes(id));
-    showDialogue('Den mycket högljudda pressen',w.printed?'Ditt första provtryck är klart. Visa det för Noor i kaffehuset för en extra ledtråd.':'Pressen behöver tre saker: blytyper, papper och trycksvärta. Ta dem i rummet, välj dem i ränseln och använd dem på pressen.<br><br>Återstår: <b>'+missing.map(id=>esc(ITEM_INFO[id].name)).join(', ')+'</b>.<p class="small">Det här är ett frivilligt miljöpussel. Du kan prata med Brita och arbeta direkt.</p>',[
+    showDialogue('Den mycket högljudda pressen',w.printed?'Ditt första provtryck är klart. Visa det för Noor i kaffehuset för en extra ledtråd.':'Pressen behöver tre saker: blytyper, papper och trycksvärta. Ta dem i rummet, välj dem i ränseln och använd dem på pressen.<br><br>Återstår: <b>'+(missing.length?missing.map(id=>esc(ITEM_INFO[id].name)).join(', '):'ingenting — dra i handtaget')+'</b>.<p class="small">Det här är ett frivilligt miljöpussel. Du kan prata med Brita och arbeta direkt.</p>',[
       ...(!w.printed?[{label:'Dra i pressens handtag.',fn:()=>{const r=logicPrint();updateHUD();if(r.ok){narrate('DUNK! Pressen spottar ut ett provtryck.');showDialogue('Boktryckaren Brita','”Det blev ett blad! Ta det till Noor i kaffehuset. Och undvik att använda mer bläck än papper.”',[{label:'Provtrycket ligger i ränseln.',fn:closeDialogue,reply:true}])}else{showHint('Lägg blytyper, papper och trycksvärta i pressen först.');showPressPuzzle()}},reply:true}]:[]),
       {label:'Jag fortsätter utforska.',fn:closeDialogue,reply:true},
       {label:'Ge mig en tydlig ledtråd.',fn:()=>showDialogue('Boktryckaren Brita','”Ta blytyperna ur kasten, bläckburken och pappershögen. Klicka på ett föremål i ränseln och sedan på pressen. När alla tre är på plats drar du i handtaget.”',[{label:'Nu provar jag.',fn:closeDialogue,reply:true}]),reply:true}
