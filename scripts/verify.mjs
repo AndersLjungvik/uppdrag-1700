@@ -13,6 +13,7 @@ const {createCanvas}=require('@napi-rs/canvas');
 let checks=0;
 const test=(name,fn)=>{fn();checks++;process.stdout.write(`PASS ${name}\n`)};
 const context=vm.createContext({window:{__ADVENTURE_TEST__:true},console,Date,Math,JSON,Object,Array,Set,Map,Number,String});
+vm.runInContext(fs.readFileSync(path.join(root,'dist/practice.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'dist/curriculum.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'dist/game.js'),'utf8'),context);
 const e=context.window.__adventure;
@@ -86,7 +87,12 @@ test('The interface exposes verbs, inventory, dialogue, resources and map access
 const offline=fs.readFileSync(path.join(root,'dist/uppdrag-1700.html'),'utf8');
 test('Standalone pupil file embeds CSS and scripts',()=>{
   assert(!/<script\s+src=/.test(offline));assert(!/href="style.css"/.test(offline));
-  const scripts=[...offline.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];assert.equal(scripts.length,3);for(const script of scripts)new vm.Script(script[1]);assert(offline.includes('window.CUSTOM_BANK=null;'));
+  const scripts=[...offline.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];assert.equal(scripts.length,4);for(const script of scripts)new vm.Script(script[1]);assert(offline.includes('window.CUSTOM_BANK=null;'));
+});
+
+test('Question attempts record real review times and due dates',()=>{
+  e.setState(e.blankState());e.logicBeginJob('trade');const q=e.mission('trade').cards[0];e.logicAnswer(q,q.answer,false);const review=e.state.practice[q.id];assert(review.lastReviewedAt>0);assert(review.nextDueAt>review.lastReviewedAt);
 });
 
 process.stdout.write(`\n${checks} checks passed. Montage: qa/adventure-scenes.png\n`);
+

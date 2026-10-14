@@ -21,6 +21,7 @@
         <div class="resource"><span class="resource-icon sun">☀</span><span><small>TID</small><b id="timeValue">Morgon</b></span></div>
       </div>
       <button class="round-btn" id="mapBtn" aria-label="Öppna stadskartan">⌖</button>
+      <button class="round-btn" id="accountBtn" aria-label="Konto och sparning">☁</button>
       <button class="round-btn" id="menuBtn" aria-label="Öppna spelmenyn">☰</button>
     </header>
 
@@ -60,7 +61,15 @@
   </div>
 
   <dialog id="modal" aria-labelledby="modalTitle"><div id="modalBody"></div></dialog>
+  <dialog id="cloudDialog" aria-labelledby="cloudTitle"><div class="modal-inner">
+    <h2 id="cloudTitle">Konto och sparning</h2><p id="cloudStatus" role="status"></p>
+    <div class="button-row"><button id="cloudLogin" class="primary" hidden>Logga in med Google</button><button id="cloudLogout" class="secondary" hidden>Logga ut</button><button id="cloudRetry" class="secondary" hidden>Försök spara igen</button><button id="cloudClose" class="secondary">Tillbaka</button></div>
+  </div></dialog>
+  <script src="cloud-config.js"></script>
+  <script src="practice.js"></script>
   <script src="curriculum.js"></script>
   <script src="game.js"></script>
+  <script type="module" src="cloud-ui.mjs"></script>
 </body>
 </html>
+

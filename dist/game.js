@@ -4,6 +4,8 @@
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const BASE=window.CURRICULUM;
   const SAVE_KEY='uppdrag1700.adventure.v2';
+  let cloudAccount=null;
+  const saveKey=()=>cloudAccount?`${SAVE_KEY}.account.${cloudAccount}`:SAVE_KEY;
   const BANK_KEY='uppdrag1700.questions.v1';
   const TIME_NAMES=['Morgon','Förmiddag','Eftermiddag','Skymning','Natt'];
   const PAY={nature:4,farm:5,press:6,ideas:6,power:7,trade:8,king:9};
@@ -79,11 +81,13 @@
     return !!allowance&&candidates.some(a=>a.length>=6&&!/\d/.test(a)&&editDistance(a,clean)<=allowance);
   }
   function gradeQuestion(q,value){return q.type==='chain'?Array.isArray(value)&&q.steps.every((s,i)=>s.answer===value[i]):gradeShort(q,value)}
-  function blankState(){return{version:2,name:'',scene:'square',heroX:44,coins:0,food:2,maxFood:5,day:1,time:0,breadBought:false,breadEaten:false,completed:[],failedToday:[],inventory:{},working:null,answers:{},gaps:[],history:[],won:false,started:false,collapseCount:0}}
+  function blankState(){return{version:2,name:'',scene:'square',heroX:44,coins:0,food:2,maxFood:5,day:1,time:0,breadBought:false,breadEaten:false,completed:[],failedToday:[],inventory:{},working:null,answers:{},gaps:[],history:[],won:false,started:false,collapseCount:0,visits:{},practice:{}}}
   let state=blankState();
   function loadState(value){
     const fresh=blankState();if(!value||value.version!==2)return fresh;
     const merged={...fresh,...value};
+    merged.visits=value.visits&&typeof value.visits==='object'?value.visits:{};
+    merged.practice=value.practice&&typeof value.practice==='object'?value.practice:{};
     merged.completed=Array.isArray(value.completed)?value.completed.filter(id=>!!mission(id)):[];
     merged.failedToday=Array.isArray(value.failedToday)?value.failedToday.filter(id=>!!mission(id)):[];
     merged.inventory=value.inventory&&typeof value.inventory==='object'?value.inventory:{};
@@ -94,8 +98,8 @@
     merged.food=Math.max(0,Math.min(merged.maxFood,Number(merged.food)||0));merged.coins=Math.max(0,Number(merged.coins)||0);merged.time=Math.max(0,Math.min(4,Number(merged.time)||0));
     return merged;
   }
-  if(!window.__ADVENTURE_TEST__)state=loadState(readStorage(SAVE_KEY));
-  function save(){if(window.__ADVENTURE_TEST__)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch{showHint('Webbläsaren kunde inte spara. Hämta rapporten innan du stänger.')}}
+  if(!window.__ADVENTURE_TEST__){state=loadState(readStorage(SAVE_KEY));if(window.UPPDRAG_PRACTICE)state.visits=window.UPPDRAG_PRACTICE.visit(state.visits)}
+  function save(){if(window.__ADVENTURE_TEST__)return;try{localStorage.setItem(saveKey(),JSON.stringify(state));if(cloudAccount&&window.dispatchEvent)window.dispatchEvent(new CustomEvent('uppdrag-save'))}catch{showHint('Webbläsaren kunde inte spara. Hämta rapporten innan du stänger.')}}
   function addItem(id,quantity=1){state.inventory[id]=(state.inventory[id]||0)+quantity}
   function removeItem(id,quantity=1){state.inventory[id]=Math.max(0,(state.inventory[id]||0)-quantity);if(!state.inventory[id])delete state.inventory[id]}
   function objective(){
@@ -113,6 +117,7 @@
     state.food--;state.time++;state.working={missionId,index:0};save();return{ok:true};
   }
   function recordAnswer(q,correct,response,supported=false){
+    if(window.UPPDRAG_PRACTICE)state.practice[q.id]=window.UPPDRAG_PRACTICE.review(state.practice[q.id],correct,supported);
     const s=state.answers[q.id]||{attempts:0,correct:0,missed:0,supported:0};
     if(!s.attempts){s.firstCorrect=correct;s.firstSupported=supported}
     s.attempts++;s.lastCorrect=correct;s.lastSupported=supported;s.lastResponse=Array.isArray(response)?response.join(' → '):String(response??'');s.lastDay=state.day;
@@ -427,5 +432,13 @@
   window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('dialogue').hidden)closeDialogue();else if($('modal').open)closeModal()}if(e.key.toLowerCase()==='m'&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))showMap()});
   window.addEventListener('pagehide',save);
   function animate(t){renderScene(ctx,state.scene,state,t);requestAnimationFrame(animate)}
+  window.UPPDRAG_GAME_CLOUD={
+    snapshot:()=>clone(state),
+    pause:()=>{if(state.working){showHint('Avsluta arbetet före kontobyte.');return false}playing=false;return true},
+    resume:()=>{playing=state.started},
+    enter:(uid,value)=>{closeDialogue();activeQuestion=null;cloudAccount=uid;state=loadState(value||readStorage(saveKey()));state.name='';if(window.UPPDRAG_PRACTICE)state.visits=window.UPPDRAG_PRACTICE.visit(state.visits);activeVerb=null;selectedItem=null;updateHUD();if(state.started){closeModal();if(state.working)resumeWork()}else showIntro();playing=false},
+    leave:()=>{closeDialogue();activeQuestion=null;cloudAccount=null;state=loadState(readStorage(SAVE_KEY));activeVerb=null;selectedItem=null;updateHUD();if(state.started)closeModal();else showIntro();playing=false}
+  };
   updateHUD();requestAnimationFrame(animate);if(state.started){playing=true;if(state.working)resumeWork();else travel(state.scene)}else showIntro();
 })();
+

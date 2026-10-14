@@ -53,3 +53,18 @@ const baker=[...new Set(elements.values())].find(el=>el.dataset?.hotspot==='bake
 assert.equal(game.state.inventory.bread,1);const bread=[...new Set(elements.values())].find(el=>el.dataset?.item==='bread');bread.click();bread.click();
 assert.equal(game.state.food,4);assert(game.state.breadEaten);
 process.stdout.write('PASS complete UI route: intro → harbor → five-step job → reload-safe pay → buy bread → eat\n');
+
+
+const guestCoins=game.state.coins;
+const bridge=window.UPPDRAG_GAME_CLOUD;
+assert(bridge.pause());
+bridge.enter('student-A', {...saved, coins:15});
+assert.equal(game.state.coins,15);
+assert.equal(game.state.name,'');
+assert.equal(JSON.parse(storage.get('uppdrag1700.adventure.v2')).coins,guestCoins);
+bridge.enter('student-B',null);
+assert.equal(game.state.coins,0);
+bridge.leave();
+assert.equal(game.state.coins,guestCoins);
+assert.equal(game.state.name,'Testlärlingen');
+process.stdout.write('PASS account switch isolates pupil and guest save states\n');
