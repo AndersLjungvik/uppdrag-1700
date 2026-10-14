@@ -1,0 +1,17 @@
+{
+  "name": "uppdrag-1700",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Den hungrige lärlingen: point-and-click-äventyr för historieundervisning i åk 6.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build-offline.mjs && node scripts/build-pages.mjs",
+    "test": "node scripts/verify.mjs && node scripts/ui-smoke.mjs"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "0.1.100"
+  }
+}

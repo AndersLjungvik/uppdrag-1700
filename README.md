@@ -1,2 +1,40 @@
-# uppdrag-1700
-Den hungrige lärlingen: ett point-and-click-äventyr för att träna kunskaper om 1700-talet i åk 6.
+# Uppdrag 1700: Den hungrige lärlingen
+
+Ett buildless point-and-click-äventyr för historieundervisning i åk 6. Spelaren utforskar åtta handritade scener, väljer handlingar, pratar med personer, samlar föremål och använder kunskap om 1700-talet för att få arbete, pengar och mat. Varje standardjobb har fyra fria kortsvar och ett samband med färdiga delar.
+
+## Innehåll och träning
+
+Frihetstiden, tryckfrihet, vardagsliv, Linné, Gustav III, handel och upplysning. Ett jobb kostar ett mått mättnad och alla fem moment måste bli rätt i följd. Ett fel visar inte facit: arbetsgivaren stänger för speldagen, frågan hamnar i anteckningsboken och kan prövas igen nästa dag. En lyckad anställning ger daler och ett förseglat arbetsintyg. Bröd kostar tre daler och ger tre mått mättnad.
+
+Framsteg sparas i localStorage i samma webbläsare på samma enhet. CSV-rapporten visar första försök, rätt, fel och stöd. Sambandsuppgifterna räknas alltid som stöd. Ingen central resultatinsamling eller identitetsverifiering finns; rapporten är ett övningsunderlag, inte betygsunderlag i sig.
+
+## Styrning
+
+Välj `Titta på`, `Prata med`, `Ta` eller `Använd` och klicka på ett hotspot i scenen. Klick på marken flyttar figuren. Föremål väljs i ränseln och används sedan på något i scenen. Klicka på bröd en andra gång för att äta. `M` öppnar kartan och `Escape` stänger samtal eller menyer.
+
+## Filer
+
+`dist/index.html`, `dist/style.css`, `dist/curriculum.js`, `dist/game.js` är webbversionen. `dist/uppdrag-1700.html` är en fristående elevfil, genererad med `node scripts/build-offline.mjs`. Den kör utan nätanslutning. Skolans regler för att öppna lokala HTML-filer måste provas på elevdatorn.
+
+Canvasbilder skapas i kod; inga externa typsnitt, bilder, bibliotek, API:er eller telemetri används. Historiska källor finns i lärarmenyn. Den grafiska miljön, personerna och berättelsen är fiktiva. Frågebanken är avsiktligt tillfällig medan spelarkitekturen provas.
+
+
+## GitHub Pages
+
+Webbversionen ligger i `docs/`. I repots **Settings → Pages**, välj **Deploy from a branch**, grenen **main** och mappen **/docs**, och spara. GitHub visar den spelbara länken när publiceringen är färdig.
+
+Alla resurslänkar är relativa och fungerar därför under GitHub Pages projektadress. Vid flytt från en annan webbplats börjar framstegen om: webbläsaren sparar separat för varje webbplats.
+
+## Utveckla och kontrollera
+
+Kräver Node.js 20 eller senare. Själva spelet behöver inga installerade paket.
+
+```sh
+npm install
+npm run build
+npm test
+```
+
+`npm run build` uppdaterar både den fristående elevfilen och `docs/`. Checka in uppdaterade `dist/` och `docs/` tillsammans. Testerna kontrollerar spellogik, svar, alla scener, hamnuppdragets sparning och en simulerad gränssnittsrutt. De ersätter inte provspelning i en riktig webbläsare.
+
+För att spela lokalt öppnar du `dist/index.html` eller `dist/uppdrag-1700.html` i webbläsaren.
