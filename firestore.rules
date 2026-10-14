@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) {
+      // Verified student-account domain: edu.lerum.se.
+      return request.auth != null && request.auth.uid == uid
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('^[^@]+@edu\\.lerum\\.se$');
+    }
+    match /players/{uid}/saves/adventure-v2 {
+      allow get: if owner(uid);
+      allow create: if owner(uid) && valid() && request.resource.data.revision == 1;
+      allow update: if owner(uid) && valid()
+        && request.resource.data.revision == resource.data.revision + 1
+        && request.resource.data.firstSeenAt == resource.data.firstSeenAt;
+      function valid() {
+        return request.resource.data.keys().hasOnly(['schema', 'revision', 'game', 'practice', 'firstSeenAt', 'lastSeenAt', 'updatedAt'])
+          && request.resource.data.schema == 1
+          && request.resource.data.revision is int
+          && request.resource.data.game is map
+          && request.resource.data.game.version == 2
+          && !request.resource.data.game.keys().hasAny(['name'])
+          && request.resource.data.practice is map
+          && request.resource.data.firstSeenAt is int
+          && request.resource.data.lastSeenAt is int
+          && request.resource.data.updatedAt == request.time;
+      }
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
