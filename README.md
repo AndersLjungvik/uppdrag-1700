@@ -1,10 +1,10 @@
 # Uppdrag 1700: Den hungrige lärlingen
 
-Ett buildless point-and-click-äventyr för historieundervisning i åk 6. Spelaren utforskar åtta handritade scener, väljer handlingar, pratar med personer, samlar föremål och använder kunskap om 1700-talet för att få arbete, pengar och mat. Varje standardjobb har fyra fria kortsvar och ett samband med färdiga delar.
+Ett buildless point-and-click-äventyr för historieundervisning i åk 6. Spelaren utforskar tio handritade scener, väljer handlingar, pratar med personer, samlar föremål och använder kunskap om 1700-talet för att få arbete, pengar och mat. Varje arbetspass har fyra fria kortsvar. Separata gesäll- och mästarprov använder samband med färdiga delar.
 
 ## Innehåll och träning
 
-Frihetstiden, tryckfrihet, vardagsliv, Linné, Gustav III, handel och upplysning. Ett jobb kostar ett mått mättnad och alla fem moment måste bli rätt i följd. Ett fel visar inte facit: arbetsgivaren stänger för speldagen, frågan hamnar i anteckningsboken och kan prövas igen nästa dag. En lyckad anställning ger daler och ett förseglat arbetsintyg. Bröd kostar tre daler och ger tre mått mättnad.
+Frihetstiden, tryckfrihet, vardagsliv, Linné, Gustav III, handel och upplysning. Ett jobb kostar ett mått mättnad och fyra kortsvar behöver bli rätt. Ett fel visar inte facit: arbetsgivaren stänger för speldagen, frågan hamnar i anteckningsboken och kan prövas igen nästa dag. En lyckad anställning ger daler och ett förseglat arbetsintyg. Bröd kostar tre daler och ger tre mått mättnad.
 
 Framsteg sparas i localStorage i samma webbläsare på samma enhet. CSV-rapporten visar första försök, rätt, fel och stöd. Sambandsuppgifterna räknas alltid som stöd. Ingen central resultatinsamling eller identitetsverifiering finns; rapporten är ett övningsunderlag, inte betygsunderlag i sig.
 
@@ -16,7 +16,7 @@ Välj `Titta på`, `Prata med`, `Ta` eller `Använd` och klicka på ett hotspot 
 
 `dist/index.html`, `dist/style.css`, `dist/curriculum.js`, `dist/game.js` är webbversionen. `dist/uppdrag-1700.html` är en fristående elevfil, genererad med `node scripts/build-offline.mjs`. Den kör utan nätanslutning. Skolans regler för att öppna lokala HTML-filer måste provas på elevdatorn.
 
-Canvasbilder skapas i kod; inga externa typsnitt, bilder, bibliotek, API:er eller telemetri används. Historiska källor finns i lärarmenyn. Den grafiska miljön, personerna och berättelsen är fiktiva. Frågebanken är avsiktligt tillfällig medan spelarkitekturen provas.
+Canvasbilder skapas i kod; inga externa typsnitt, bilder, bibliotek, API:er eller telemetri används. Historiska källor finns i lärarmenyn. Den grafiska miljön, personerna och berättelsen är fiktiva. Frågebanken följer det tillhandahållna kapitlet, med egna formuleringar och sidreferenser. Förlagets prov och bilder ingår inte i källkoden.
 
 
 ## GitHub Pages
@@ -46,9 +46,9 @@ Tryckeriets handlingar har en första ljudskiss: metallrassel för blytyper, pap
 
 Historisk grund för ljudvalet: [Penn Libraries om tryckning 1776](https://www.library.upenn.edu/events/printing-1776-ink-balls) beskriver färgbollar före färgvalsarnas införande på 1800-talet. Skissen använder därför ingen motor- eller färgvalsslinga.
 
-På Stortorget finns läromästaren Rut och bokoraklets skrivbord. Rut ger högst sex fria frågor från avslutade uppdrag, prioriterar förfallna frågor och tidigare fel och blandar in sådant spelaren lyckats med. Fel ger återkoppling utan att låsa förhöret. Ett förhör kostar varken mat eller speldagstid.
+På Stortorget finns läromästaren Rut och bokoraklets skrivbord. Rut ger högst sex fria frågor från genomgångna områden, prioriterar förfallna frågor och tidigare fel och blandar in sådant spelaren lyckats med. Fel ger återkoppling utan att låsa förhöret. Ett förhör kostar varken mat eller speldagstid.
 
-Minst 70 procent rätt ger ett äpple och 1 daler, högst en belöning per 24 verkliga timmar. Repetition kan alltid göras utan belöning. Äpplen erbjuds till arbetsgivare eller används i en kortsvarsfråga för en extra ledtråd; svar med sådan hjälp markeras som stöd. Grundläggande bokhänvisningar är alltid gratis. Datumen och belöningarna bygger på enhetens klocka och är inga säkra bedömningsdata.
+Minst 70 procent rätt ger ett äpple och 1 daler, högst en belöning per 24 verkliga timmar. Repetition kan alltid göras utan belöning. Äpplen erbjuds till arbetsgivare eller används i en kortsvarsfråga för en extra ledtråd; hjälpen öppnas först efter eget registrerat försök och svar med sådan hjälp markeras som stöd. Grundläggande bokhänvisningar är alltid gratis. Datumen och belöningarna bygger på enhetens klocka och är inga säkra bedömningsdata.
 
 Tryckeriet har blytyper, papper och trycksvärta att ta och lägga i pressen. Dra i handtaget när allt är på plats. Provtrycket kan lämnas till Noor i kaffehuset för en extra ledtråd. Pusslet är frivilligt, kostar ingen mat och räknas inte som kunskapsresultat. Föremål och pussel sparas tillsammans med äventyret.
 
@@ -67,3 +67,15 @@ Första provtrycket är gratis när pressens tre delar är på plats. Därefter 
 Britas pappersärende finns vid pressen: ta ärendet, hämta paketet vid bokoraklets skrivbord på Stortorget och använd det på Brita. Leveransen betalar 1 daler högst en gång per speldag, kostar ingen mat och kräver inga kunskapsfrågor. Paketet är ett separat föremål från pusslets papper. Ärendet kan göras även efter tryckeriets kunskapsjobb och när repetitionsbelöningen är låst.
 
 Repetition betalar 1 daler tillsammans med äpplet, högst en gång per 24 verkliga timmar. Speldagar öppnar inte belöningen. Befintliga belöningstider gäller även efter uppdateringen. Priser och gränser är val för spelbalansen, inte forskningsbaserade mått på lärande.
+
+## Kapitelversion v0.3
+
+81 uppgifter i sju arbetsområden, med 18 angivna begrepp. Del 1 behandlar frihetstiden. Del 2 öppnar gustavianska tiden, byn, slottet, operan och kolonihamnens arkiv. Meny → Kapitel och språk låter läraren öppna del 2 på varje enhet. Inställningen är lokal, utan autentiserad lärarstyrning eller synkning mellan elever. Tidigare kapitel kan återbesökas.
+
+Första godkända arbetspasset ger ett intyg och ordinarie lön. Senare pass ger 2/3/4 daler beroende på yrkesnivå. Arbetspassen prioriterar obesvarade frågor, tidigare fel och frågor som ska återkomma. Eleven kan markera ett undervisat område för träning hos Rut före första intyget.
+
+Gesällprovet öppnas efter att samtliga tillgängliga faktafrågor på arbetsplatsen har repetitionsnivå minst 2 och senaste svaret är självständigt rätt. En nivå ökar bara om det gått minst 24 timmar sedan föregående försök. Gesällprovet består av tillgängliga sambandsuppgifter. Mästarprovet kräver minst ett nytt självständigt återkallningstillfälle per faktafråga minst 24 timmar efter befordran, följt av en ny tillämpningssituation. Färdiga delar räknas alltid som stöd. Spelnivåer är inte betyg eller validerade mått på behärskning. Enhetens klocka är inte manipulationssäker.
+
+Lättläst läge väljs på startskärmen eller i Kapitel och språk. Frågor får kortare formuleringar där det behövs, med samma svar och kunskapskrav. Samtalen är korta och valfria i båda lägena. Karaktärernas reaktioner ger varken poäng, intyg eller repetitionsnivå. Resedagboken skiljer skapade övningsexempel från verkliga historiska källor och innehåller en nutida övning om historiebruk.
+
+Befintliga pengar, intyg och föremål behålls. Gamla pågående arbetspass avslutas vid byte till den nya frågebanken eftersom frågeordningen ändrats. Gamla kort-id återanvänds bara när kunskapsinnehållet är detsamma.

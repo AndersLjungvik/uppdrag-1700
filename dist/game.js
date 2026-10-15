@@ -40,15 +40,7 @@
   function bookGuide(id){return mission(id)?.bookReference||BOOK_GUIDES[id]||'Leta upp det aktuella avsnittet i SO-boken.'}
   const SCENE_FOR={nature:'garden',farm:'farm',press:'print',ideas:'coffee',power:'riksdag',trade:'harbor',king:'palace'};
   const MISSION_FOR=Object.fromEntries(Object.entries(SCENE_FOR).map(([m,s])=>[s,m]));
-  const REACTIONS={
-    nature:'Sam stirrar på etiketten. Sedan på dig. Sedan på etiketten igen. ”Jag tror att växten vissnade av svaret.”',
-    farm:'Karin suckar så djupt att kvarnvingarna nästan börjar snurra. ”Det där vågar jag inte bygga skörden på.”',
-    press:'Brita gäspar, lägger kinden mot korrekturet och somnar med ett litet moln av trycksvärta runt näsan.',
-    ideas:'Noor lyfter kaffekoppen. ”Det svaret var starkare än kaffet, men betydligt mindre användbart.”',
-    power:'Elias doppar pennan i bläck och skriver: ”Sökanden bör återkomma efter nästa undervisning.”',
-    trade:'Jo lägger undan manifestet. ”Om jag skriver så där hamnar sidenet i Säffle och skeppet i en roddbåt.”',
-    king:'Amira höjer ett ögonbryn. Vakten höjer två. Porten förblir mycket bestämt stängd.'
-  };
+  const REACTIONS=Object.fromEntries(Object.keys(PAY).map(id=>[id,'Svaret matchade inte de svar som spelet känner igen. Frågan sparas så att du kan läsa på eller ta upp svaret med din lärare.']));
   const JOB_LINES={
     nature:['Sam räcker fram en etikett som vinden försöker stjäla.','En kruka har tappat både namn och självförtroende.','Sam pekar på ett skåp med ordnade växtprover.','En professor muttrar om förnuft bakom en häck.','Tre anteckningar måste bindas ihop innan växten kan katalogiseras.'],
     farm:['Karin pekar ut över gårdarna.','Hon lägger handen på plogen.','Hon visar en nästan tom säck.','Ett brev från godsägaren nämner särskilda rättigheter.','Karin behöver skriva följderna i rätt ordning.'],
@@ -68,7 +60,7 @@
       return mission&&Array.isArray(mission.cards)&&mission.cards.length>0&&mission.cards.length<=20&&mission.cards.every(q=>{
         if(!q||typeof q.id!=='string'||ids.has(q.id)||typeof q.question!=='string'||typeof q.explanation!=='string')return false;
         ids.add(q.id);
-        if(q.type==='short')return typeof q.answer==='string'&&Array.isArray(q.accept)&&q.accept.length>0&&Array.isArray(q.distractors)&&q.distractors.length===3;
+        if(q.type==='short')return typeof q.answer==='string'&&Array.isArray(q.accept)&&q.accept.length>0;
         if(q.type==='chain')return Array.isArray(q.steps)&&q.steps.length===3&&q.steps.every(s=>s&&typeof s.answer==='string'&&Array.isArray(s.options)&&s.options.includes(s.answer));
         return false;
       });
@@ -102,13 +94,20 @@
     return !!allowance&&candidates.some(a=>a.length>=6&&!/\d/.test(a)&&editDistance(a,clean)<=allowance);
   }
   function gradeQuestion(q,value){return q.type==='chain'?Array.isArray(value)&&q.steps.every((s,i)=>s.answer===value[i]):gradeShort(q,value)}
-  function blankState(){return{version:2,name:'',scene:'square',heroX:44,coins:0,food:2,maxFood:5,day:1,time:0,breadBought:false,breadEaten:false,completed:[],failedToday:[],inventory:{},working:null,answers:{},gaps:[],history:[],won:false,started:false,collapseCount:0,visits:{},practice:{},rehearsal:null,reviewHistory:[],lastAppleAt:null,hintCredits:{},workshop:{collected:[],placed:[],printed:false,delivered:false,printCount:0,lastDeliveredDay:0},paperErrand:{active:false,lastPaidDay:0},botany:{placements:{},solved:false,delivered:false}}}
+  function blankState(){return{version:2,name:'',scene:'square',heroX:44,coins:0,food:2,maxFood:5,day:1,time:0,breadBought:false,breadEaten:false,completed:[],failedToday:[],inventory:{},working:null,answers:{},gaps:[],history:[],chapter:1,unlockedChapter:1,studied:[],careers:{},workSessions:[],simpleText:false,bankId:BASE.bankId,won:false,started:false,collapseCount:0,visits:{},practice:{},rehearsal:null,reviewHistory:[],lastAppleAt:null,hintCredits:{},workshop:{collected:[],placed:[],printed:false,delivered:false,printCount:0,lastDeliveredDay:0},paperErrand:{active:false,lastPaidDay:0},botany:{placements:{},solved:false,delivered:false}}}
   let state=blankState();
   function loadState(value){
     const fresh=blankState();if(!value||value.version!==2)return fresh;
     const merged={...fresh,...value};
     merged.visits=value.visits&&typeof value.visits==='object'?value.visits:{};
     merged.practice=value.practice&&typeof value.practice==='object'?value.practice:{};
+    merged.chapter=value.chapter===2?2:1;
+    merged.unlockedChapter=value.unlockedChapter===2||value.completed?.some(id=>['farm','king'].includes(id))?2:1;
+    merged.chapter=Math.min(merged.chapter,merged.unlockedChapter);
+    merged.studied=[...new Set([...(Array.isArray(value.studied)?value.studied:[]),...(Array.isArray(value.completed)?value.completed:[])].filter(id=>!!mission(id)))];
+    merged.careers=Object.fromEntries(data.missions.map(m=>{const c=value.careers?.[m.id]||{};return [m.id,{rank:[1,2,3].includes(c.rank)?c.rank:1,promotedAt:Number(c.promotedAt)||0}]}));
+    merged.workSessions=Array.isArray(value.workSessions)?value.workSessions.slice(-100):[];
+    merged.simpleText=value.simpleText===true;
     merged.completed=Array.isArray(value.completed)?value.completed.filter(id=>!!mission(id)):[];
     merged.failedToday=Array.isArray(value.failedToday)?value.failedToday.filter(id=>!!mission(id)):[];
     merged.inventory=value.inventory&&typeof value.inventory==='object'?value.inventory:{};
@@ -120,13 +119,16 @@
     const pe=value.paperErrand||{};merged.paperErrand={active:pe.active===true,lastPaidDay:Number.isSafeInteger(pe.lastPaidDay)&&pe.lastPaidDay>=0?pe.lastPaidDay:0};
     const b=value.botany||{};
     merged.botany={placements:Object.fromEntries(PLANT_LABELS.filter(p=>['Rosa','Viola'].includes(b.placements?.[p.id])).map(p=>[p.id,b.placements[p.id]])),solved:b.solved===true,delivered:b.delivered===true};
-    const allowed=allCards().filter(q=>q.type==='short'&&merged.completed.includes(q.missionId)).map(q=>q.id);
+    const allowed=allCards().filter(q=>q.type==='short'&&merged.studied.includes(q.missionId)&&(q.chapter||1)<=merged.chapter).map(q=>q.id);
     const r=value.rehearsal;
     merged.rehearsal=r&&Array.isArray(r.ids)&&r.ids.length>0&&r.ids.length<=6&&new Set(r.ids).size===r.ids.length&&r.ids.every(id=>allowed.includes(id))&&Number.isInteger(r.index)&&r.index>=0&&r.index<r.ids.length&&Number.isInteger(r.correct)&&r.correct>=0&&r.correct<=r.index?{ids:r.ids,index:r.index,correct:r.correct,startedAt:Number(r.startedAt)||Date.now()}:null;
     merged.answers=value.answers&&typeof value.answers==='object'?value.answers:{};
     merged.gaps=Array.isArray(value.gaps)?value.gaps:[];merged.history=Array.isArray(value.history)?value.history:[];
-    if(!['square','garden','farm','print','coffee','riksdag','harbor','palace'].includes(merged.scene))merged.scene='square';
+    if(!['square','garden','farm','print','coffee','riksdag','harbor','palace','opera','colony'].includes(merged.scene))merged.scene='square';
     if(!merged.working||!mission(merged.working.missionId)||!Number.isInteger(merged.working.index)||merged.working.index<0||merged.working.index>=mission(merged.working.missionId).cards.length)merged.working=null;
+    if(merged.working){const w=merged.working; if(!Array.isArray(w.ids)||!w.ids.length||w.ids.some(id=>!mission(w.missionId).cards.some(q=>q.id===id&&(q.chapter||1)<=merged.chapter))||w.index>=w.ids.length)merged.working=null;}
+    if(merged.chapter===1&&['farm','palace','opera','colony'].includes(merged.scene))merged.scene='square';
+    merged.bankId=BASE.bankId;
     merged.food=Math.max(0,Math.min(merged.maxFood,Number(merged.food)||0));merged.coins=Math.max(0,Number(merged.coins)||0);merged.time=Math.max(0,Math.min(4,Number(merged.time)||0));
     return merged;
   }
@@ -135,20 +137,36 @@
   function addItem(id,quantity=1){state.inventory[id]=(state.inventory[id]||0)+quantity}
   function removeItem(id,quantity=1){state.inventory[id]=Math.max(0,(state.inventory[id]||0)-quantity);if(!state.inventory[id])delete state.inventory[id]}
   function objective(){
-    if(state.won)return'Äventyret är löst. Minnesluckor kan fortfarande tränas.';
+    if(state.won)return'Fortsätt arbeta och öva. Nästa yrkesnivå väntar.';
     if(!state.breadBought){if(state.coins<3)return'Skaffa arbete. Tjäna minst 3 daler.';return'Gå till bagaren på Stortorget och köp bröd.'}
     if(!state.breadEaten)return'Ät brödet i ränseln.';
-    if(state.completed.length<data.missions.length)return`Samla arbetsintyg med kunskap: ${state.completed.length} / ${data.missions.length}.`;
+    if(state.completed.length<data.missions.length)return`Del ${state.chapter} · Arbetsintyg: ${state.completed.length} / ${data.missions.length}.`;
     return'Använd de sju arbetsintygen på arkivbudet på Stortorget.';
   }
-  function logicBeginJob(missionId){
+  const RANKS={1:'Lärling',2:'Gesäll',3:'Mästare'};
+  function availableCards(id){return mission(id)?.cards.filter(q=>(q.chapter||1)<=state.chapter)||[]}
+  function career(id){return state.careers[id]||(state.careers[id]={rank:1,promotedAt:0})}
+  function logicStudy(id){if(!availableCards(id).length)return false;if(!state.studied.includes(id))state.studied.push(id);save();return true}
+  function logicChapter(chapter,{unlock=false}={}){if(state.working||state.rehearsal||![1,2].includes(chapter))return false;if(unlock)state.unlockedChapter=Math.max(state.unlockedChapter,chapter);if(chapter>state.unlockedChapter)return false;state.chapter=chapter;state.scene='square';save();return true}
+  function promotionStage(id,now=Date.now()){
+    const c=career(id),facts=availableCards(id).filter(q=>q.type==='short');
+    if(!facts.length||!facts.every(q=>(state.practice[q.id]?.level||0)>=2&&state.practice[q.id]?.lastCorrect&&!state.practice[q.id]?.supported))return null;
+    if(c.rank===1&&availableCards(id).some(q=>q.stage==='journey'))return 'journey';
+    if(c.rank===2&&now-c.promotedAt>=DAY_MS&&facts.every(q=>state.practice[q.id]?.lastReviewedAt>=c.promotedAt+DAY_MS)&&availableCards(id).some(q=>q.stage==='master'))return 'master';
+    return null;
+  }
+  function workQuestion(){const w=state.working;return w?mission(w.missionId)?.cards.find(q=>q.id===w.ids?.[w.index]):null}
+  function logicBeginJob(missionId,{promotion=false,now=Date.now()}={}){
     if(state.working||state.rehearsal)return{ok:false,reason:'busy'};
     if(!mission(missionId))return{ok:false,reason:'unknown'};
-    if(state.completed.includes(missionId))return{ok:false,reason:'completed'};
+    const cards=availableCards(missionId);if(!cards.length)return{ok:false,reason:'chapter'};
     if(state.failedToday.includes(missionId))return{ok:false,reason:'locked'};
     if(state.time>=4)return{ok:false,reason:'night'};
     if(state.food<=0)return{ok:false,reason:'hungry'};
-    state.food--;state.time++;state.working={missionId,index:0};save();return{ok:true};
+    const stage=promotion?promotionStage(missionId,now):'facts';if(!stage)return{ok:false,reason:'not-ready'};
+    const choices=stage==='facts'?shuffle(cards.filter(q=>q.type==='short')).sort((a,b)=>{const score=q=>{const p=state.practice[q.id];return !p?100:p.lastCorrect===false?80:p.nextDueAt<=now?60:0};return score(b)-score(a)}).slice(0,4):cards.filter(q=>q.stage===stage);
+    if(!choices.length)return{ok:false,reason:'not-ready'};
+    logicStudy(missionId);state.food--;state.time++;state.working={missionId,index:0,ids:choices.map(q=>q.id),stage,attempted:false,hintUsed:false};save();return{ok:true};
   }
   function recordAnswer(q,correct,response,supported=false,source='job',now=Date.now()){
     if(window.UPPDRAG_PRACTICE)state.practice[q.id]=window.UPPDRAG_PRACTICE.review(state.practice[q.id],correct,supported,now);
@@ -159,24 +177,32 @@
     state.history.push({id:q.id,missionId:q.missionId||state.working?.missionId,day:state.day,correct,supported,source,at:now,response:s.lastResponse});state.history=state.history.slice(-700);
     if(!correct&&!state.gaps.includes(q.id))state.gaps.push(q.id);if(correct)state.gaps=state.gaps.filter(id=>id!==q.id);save();return s;
   }
-  function logicAnswer(q,value,supported=q.type==='chain'){
+  function logicAnswer(q,value,supported=q?.type==='chain'){
     if(!state.working)return{ok:false,reason:'no-job'};
-    const expected=mission(state.working.missionId).cards[state.working.index];
+    const expected=workQuestion();
     if(!expected||q.id!==expected.id)return{ok:false,reason:'wrong-step'};
     supported=supported||state.working.hintUsed===true;
     const correct=gradeQuestion(q,value);recordAnswer({...q,missionId:state.working.missionId},correct,value,supported);
+    if(!correct&&q.type==='short'&&!state.working.attempted&&(state.inventory.apple||state.hintCredits[state.working.missionId]>0)){state.working.attempted=true;save();return{ok:true,correct:false,retry:true,missionId:state.working.missionId}}
     if(!correct){const id=state.working.missionId;if(!state.failedToday.includes(id))state.failedToday.push(id);state.working=null;save();return{ok:true,correct:false,missionId:id,collapsed:state.food<=0&&state.coins<3&&!state.inventory.bread}}
-    state.working.index++;state.working.hintUsed=false;
+    state.working.index++;state.working.hintUsed=false;state.working.attempted=false;
     const current=mission(state.working.missionId);
-    if(state.working.index>=current.cards.length){const id=state.working.missionId;state.working=null;logicCompleteJob(id);return{ok:true,correct:true,completed:true,missionId:id}}
+    if(state.working.index>=state.working.ids.length){const {missionId:id,stage}=state.working;state.working=null;const reward=finishWork(id,stage);return{ok:true,correct:true,completed:true,missionId:id,...reward}}
     save();return{ok:true,correct:true,completed:false,missionId:state.working.missionId,index:state.working.index};
   }
   function logicCompleteJob(id){
     if(state.completed.includes(id))return false;state.scene=SCENE_FOR[id]||state.scene;state.completed.push(id);state.coins+=PAY[id]||5;addItem(id);save();return true;
   }
+  function finishWork(id,stage,now=Date.now()){
+    const first=!state.completed.includes(id),c=career(id);let pay;
+    if(first){logicCompleteJob(id);pay=PAY[id]||5}else{pay=c.rank+1;state.coins+=pay}
+    if(stage==='journey'){c.rank=2;c.promotedAt=now}
+    if(stage==='master'){c.rank=3;c.promotedAt=now}
+    state.workSessions.push({missionId:id,stage,at:now,pay,rank:c.rank});state.workSessions=state.workSessions.slice(-100);save();return{pay,first,rank:c.rank,promoted:stage!=='facts'};
+  }
   function logicBuyBread(){if(state.coins<3)return{ok:false,reason:'coins'};state.coins-=3;addItem('bread');state.breadBought=true;save();return{ok:true}}
   function logicEatBread(){if(!state.inventory.bread)return{ok:false,reason:'none'};if(state.food>=state.maxFood)return{ok:false,reason:'full'};removeItem('bread');state.food=Math.min(state.maxFood,state.food+3);state.breadEaten=true;save();return{ok:true}}
-  function eligibleReviewCards(){return allCards().filter(q=>q.type==='short'&&state.completed.includes(q.missionId))}
+  function eligibleReviewCards(){return allCards().filter(q=>q.type==='short'&&state.studied.includes(q.missionId)&&(q.chapter||1)<=state.chapter)}
   function reviewSelection(now=Date.now()){
     const candidates=shuffle(eligibleReviewCards()).sort((a,b)=>{
       const score=q=>{const p=state.practice[q.id]||{},a=state.answers[q.id]||{};return (p.nextDueAt<=now?100:0)+(p.lastCorrect===false||a.lastCorrect===false?40:0)+(p.lastReviewedAt==null?20:0)};
@@ -207,7 +233,7 @@
   }
   function logicCancelReview(){state.rehearsal=null;save()}
   function logicOfferApple(id){
-    if(!mission(id)||state.completed.includes(id))return{ok:false,reason:'no-job'};
+    if(!mission(id))return{ok:false,reason:'no-job'};
     if(!state.inventory.apple)return{ok:false,reason:'no-apple'};
     removeItem('apple');state.hintCredits[id]=(state.hintCredits[id]||0)+1;save();return{ok:true};
   }
@@ -219,7 +245,8 @@
   }
   function logicJobHint(){
     const w=state.working;if(!w||w.hintUsed)return{ok:false,reason:'unavailable'};
-    const q=mission(w.missionId).cards[w.index];if(q.type!=='short')return{ok:false,reason:'supported-already'};
+    if(!w.attempted)return{ok:false,reason:'attempt-first'};
+    const q=workQuestion();if(q.type!=='short')return{ok:false,reason:'supported-already'};
     if(state.hintCredits[w.missionId]>0)state.hintCredits[w.missionId]--;
     else if(state.inventory.apple)removeItem('apple');
     else return{ok:false,reason:'no-apple'};
@@ -285,8 +312,8 @@
   function reportRows(){return allCards().map(q=>({q,s:state.answers[q.id]||{attempts:0,correct:0,missed:0,supported:0}}))}
   function csvCell(value){let s=String(value??'');if(/^[=+@\-\t\r]/.test(s))s="'"+s;return `"${s.replace(/"/g,'""')}"`}
   function reportCSV(){
-    const rows=[['Alias','Dag','Uppdrag','Fråga','Försök','Rätt','Fel','Första försöket rätt','Stöd','Senaste svar','Senaste aktivitet']];
-    for(const {q,s} of reportRows())rows.push([state.name,state.day,q.topic,q.question,s.attempts||0,s.correct||0,s.missed||0,s.attempts?s.firstCorrect?'Ja':'Nej':'',s.supported||0,s.lastResponse||'',s.lastSource==='review'?'Repetition':'Arbete']);
+    const rows=[['Alias','Dag','Uppdrag','Fråga','Försök','Rätt','Fel','Första försöket rätt','Stöd','Senaste svar','Senaste aktivitet','Kapitel','Yrkesnivå','Repetitionsnivå','Nästa repetition']];
+    for(const {q,s} of reportRows())rows.push([state.name,state.day,q.topic,q.question,s.attempts||0,s.correct||0,s.missed||0,s.attempts?s.firstCorrect?'Ja':'Nej':'',s.supported||0,s.lastResponse||'',s.attempts?(s.lastSource==='review'?'Repetition':'Arbete'):'',q.chapter||1,RANKS[career(q.missionId).rank],state.practice[q.id]?.level||0,state.practice[q.id]?.nextDueAt?new Date(state.practice[q.id].nextDueAt).toISOString():'']);
     return '\uFEFF'+rows.map(row=>row.map(csvCell).join(';')).join('\r\n');
   }
 
@@ -346,6 +373,9 @@
     ]}
   };
 
+  LOCATIONS.opera={title:'Vid operans scen',subtitle:'Arbete, musik och kungens pengar',start:12,hotspots:[{id:'musician',label:'musikern Liv',kind:'npc',defaultVerb:'talk',x:56,y:37,w:17,h:47,walk:60},{id:'operaExit',label:'vägen till Stortorget',kind:'exit',to:'square',defaultVerb:'use',x:2,y:28,w:9,h:55,walk:8}]};
+  LOCATIONS.colony={title:'Kolonihamnens arkiv',subtitle:'Handel, förtryck och motstånd',start:12,hotspots:[{id:'witness',label:'arkivskrivaren Ester',kind:'npc',defaultVerb:'talk',x:51,y:39,w:17,h:45,walk:56},{id:'ledger',label:'hamnboken',kind:'object',defaultVerb:'look',x:25,y:61,w:20,h:17,walk:33},{id:'colonyExit',label:'till stadskartan',kind:'exit',to:'square',defaultVerb:'use',x:2,y:28,w:9,h:55,walk:8}]};
+  let figureTime=0,speakingFigure='';
   function rect(ctx,x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h)}
   function line(ctx,x1,y1,x2,y2,color,width=1){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
   function ellipse(ctx,x,y,rx,ry,color){ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill()}
@@ -354,7 +384,23 @@
   function sky(ctx,top,bottom){const g=ctx.createLinearGradient(0,0,0,470);g.addColorStop(0,top);g.addColorStop(1,bottom);ctx.fillStyle=g;ctx.fillRect(0,0,1280,720);ellipse(ctx,1040,110,49,49,'#dfbd6b99')}
   function cobbles(ctx,y=470,color='#a99978'){rect(ctx,0,y,1280,720-y,color);for(let yy=y;yy<720;yy+=28)for(let x=(yy/28%2)*22-20;x<1280;x+=44){ctx.strokeStyle='#756d5b55';ctx.strokeRect(x,yy,42,26)}}
   function building(ctx,x,y,w,h,wall='#b99668',roof='#803f32',timber=false){rect(ctx,x+8,y+12,w,h,'#1b1c1650');rect(ctx,x,y,w,h,wall);polygon(ctx,[[x-15,y],[x+w/2,y-95],[x+w+15,y]],roof);if(timber){for(let yy=y+18;yy<y+h;yy+=58)line(ctx,x,yy,x+w,yy,'#4c3b2d',9);for(let xx=x+20;xx<x+w;xx+=65)line(ctx,xx,y,xx,y+h,'#4c3b2d',8);line(ctx,x,y,x+w,y+h,'#4c3b2d',7);line(ctx,x+w,y,x,y+h,'#4c3b2d',7)}for(let xx=x+25;xx<x+w-18;xx+=66){rect(ctx,xx,y+30,30,42,'#51696b');rect(ctx,xx+4,y+34,10,15,'#d4b86899');line(ctx,xx+15,y+31,xx+15,y+71,'#ddcda3',2)}rect(ctx,x+w/2-27,y+h-76,54,76,'#40362b');ellipse(ctx,x+w/2+14,y+h-39,3,3,'#c6a156')}
-  function person(ctx,x,y,color='#6e4d38',sleep=false,initial=''){ellipse(ctx,x+8,y+21,27,11,'#14181142');if(sleep){ctx.save();ctx.translate(x,y);ctx.rotate(.25);x=0;y=0}rect(ctx,x-14,y-67,28,62,color);polygon(ctx,[[x-20,y-10],[x+20,y-10],[x+14,y+22],[x-15,y+22]],'#2f3129');ellipse(ctx,x,y-82,16,20,'#c79f72');ellipse(ctx,x,y-99,19,8,'#393a2e');rect(ctx,x-24,y-100,48,5,'#393a2e');if(initial)text(ctx,initial,x,y-76,10,'#5d3727','center','system-ui');if(sleep){ctx.restore();text(ctx,'z',x+30,y-95,18,'#f0dca9');text(ctx,'Z',x+49,y-119,24,'#f0dca9')}}
+  function person(ctx,x,y,color='#6e4d38',sleep=false,initial=''){
+    const seed=(initial.charCodeAt(0)||70),woman=['B','K','A','L','E'].includes(initial),skin=['#c88f61','#ecc49a','#9c6648','#dab08b'][seed%4];
+    ellipse(ctx,x+8,y+20,35,9,'#171c1544');ctx.save();ctx.translate(x,y);ctx.rotate(sleep?.12:Math.sin(figureTime/1400+seed)*.012);
+    ctx.lineJoin='round';ctx.lineWidth=6;ctx.strokeStyle='#f1dfb9';
+    const cut=(pts,fill)=>{ctx.beginPath();pts.forEach(([a,b],i)=>i?ctx.lineTo(a,b):ctx.moveTo(a,b));ctx.closePath();ctx.stroke();ctx.fillStyle=fill;ctx.fill()};
+    cut([[-23,-90],[21,-90],[29,-31],[woman?40:21,8],[-34,8],[-24,-35]],color);
+    if(woman){cut([[-12,-65],[15,-65],[27,4],[-27,4]],'#e3d3ad')}else{cut([[-16,6],[-1,6],[-3,28],[-24,28]],'#333f3e');cut([[5,6],[20,6],[26,27],[7,27]],'#333f3e');}
+    cut([[-28,-85],[-39,-48],[-21,-34],[-15,-45],[-24,-52],[-12,-78]],color);
+    ctx.save();ctx.translate(18,-79);ctx.rotate(initial===speakingFigure?Math.sin(figureTime/420)*.18:0);cut([[0,0],[12,1],[20,27],[41,14],[46,25],[15,43],[5,36]],color);ellipse(ctx,44,19,9,8,skin);ctx.restore();
+    ellipse(ctx,0,-109,23,27,'#f1dfb9');ellipse(ctx,0,-109,20,24,skin);
+    cut([[-23,-119],[-17,-137],[12,-139],[26,-121],[13,-125],[-6,-126],[-15,-110]],woman?'#d9d6ba':'#47392d');
+    if(!woman){cut([[-33,-133],[-10,-144],[12,-135],[34,-135],[20,-125],[-24,-125]],'#354d43')}
+    ellipse(ctx,-6,-110,2.2,sleep?1:2.8,'#302c26');ellipse(ctx,10,-110,2.2,sleep?1:2.8,'#302c26');line(ctx,2,-108,5,-101,'#895b40',2);line(ctx,-4,-95,9,-94,'#734e39',2);ellipse(ctx,14,-101,4,2,'#b36e5c77');
+    if(initial==='S'||initial==='E'){ctx.strokeStyle='#3f4a3a';ctx.lineWidth=2;ctx.strokeRect(-13,-116,13,12);ctx.strokeRect(4,-116,13,12);line(ctx,0,-111,4,-111,'#3f4a3a',2)}
+    for(let k=0;k<3;k++)ellipse(ctx,4,-65+k*13,2,2,'#e3c38a');ctx.restore();
+    if(sleep)text(ctx,'z',x+35,y-132,20,'#f4dfaf');
+  }
   function tree(ctx,x,y,s=1){rect(ctx,x-8*s,y,16*s,95*s,'#66513a');ellipse(ctx,x,y-22*s,55*s,57*s,'#3f6443');ellipse(ctx,x-32*s,y-42*s,35*s,35*s,'#527851');ellipse(ctx,x+35*s,y-48*s,38*s,40*s,'#668456')}
   function sign(ctx,x,y,label){rect(ctx,x,y,7,110,'#594832');rect(ctx,x-55,y-7,118,38,'#a77b45');polygon(ctx,[[x+63,y-7],[x+82,y+12],[x+63,y+31]],'#a77b45');text(ctx,label,x+4,y+18,14,'#f2dfb4','center')}
   function crate(ctx,x,y,s=1){rect(ctx,x,y,65*s,47*s,'#916c42');line(ctx,x,y,x+65*s,y+47*s,'#c29b64',4);line(ctx,x+65*s,y,x,y+47*s,'#c29b64',4);ctx.strokeStyle='#5e482f';ctx.lineWidth=3;ctx.strokeRect(x,y,65*s,47*s)}
@@ -369,6 +415,8 @@
   function drawRiksdag(ctx,t,s){room(ctx,'#8b806a','#786a52');rect(ctx,130,80,1020,305,'#77745f');for(let x=170;x<1120;x+=105){rect(ctx,x,105,76,180,'#c2af82');line(ctx,x+38,105,x+38,285,'#867851',3)}text(ctx,'RIKETS FYRA STÅND',640,60,25,'#eadab4','center');const benchColors=['#7e4c3b','#536d58','#6e5d76','#98733f'];for(let row=0;row<4;row++){rect(ctx,200+row*45,455+row*47,620-row*90,28,benchColors[row]);for(let x=220+row*45;x<790-row*45;x+=60)rect(ctx,x,483+row*47,9,35,'#4b3c2c')}const failed=s.failedToday.includes('power');person(ctx,840,575,'#52634e',failed,'E');rect(ctx,755,562,160,26,'#9b784a');rect(ctx,795,510,65,52,'#d7c69e');rect(ctx,0,210,100,355,'#3b342d')}
   function drawHarbor(ctx,t,s){sky(ctx,'#72898d','#d1b88b');rect(ctx,0,500,1280,220,'#88745a');for(let x=0;x<1280;x+=55)line(ctx,x,500,x,720,'#594b3b55',3);rect(ctx,760,325,520,175,'#4f777b');for(let y=350;y<500;y+=24)line(ctx,760,y+Math.sin(t/550+y)*4,1280,y,'#b0c4b055',3);ship(ctx,860,420,.95);for(let i=0;i<5;i++)crate(ctx,350+(i%3)*74,510+Math.floor(i/3)*52,.95);building(ctx,-30,270,300,230,'#a2815e','#6c4135');text(ctx,'MAGASIN',118,326,21,'#f1ddb1','center');const failed=s.failedToday.includes('trade');person(ctx,705,575,'#566c67',failed,'J');rect(ctx,650,557,120,28,'#987143');rect(ctx,670,530,73,27,'#d8c59c');rect(ctx,0,260,74,340,'#342f2a')}
   function drawPalace(ctx,t,s){room(ctx,'#a0896b','#837058');for(let x=120;x<1200;x+=180){rect(ctx,x,80,66,390,'#d9c79d');ellipse(ctx,x+33,80,36,19,'#e7d9b7');ellipse(ctx,x+33,470,40,16,'#64523d')}rect(ctx,415,70,250,270,'#5b4737');rect(ctx,430,85,220,240,'#9b7551');ellipse(ctx,540,185,65,83,'#c99c6e');polygon(ctx,[[480,300],[600,300],[570,220],[510,220]],'#5a765d');ellipse(ctx,540,98,55,20,'#372f27');text(ctx,'GUSTAV III',540,365,18,'#e9d5aa','center');rect(ctx,920,135,250,335,'#43372f');for(let x=950;x<1140;x+=47)rect(ctx,x,160,18,260,'#d2b574');text(ctx,'KUNGLIG PORT',1045,120,18,'#eed8a9','center');const failed=s.failedToday.includes('king');person(ctx,800,567,'#725148',failed,'A');rect(ctx,0,225,95,345,'#3c342d');ellipse(ctx,805,450,70,15,'#e3c98733')}
+  function drawOpera(ctx,t,s){room(ctx,'#744b43','#655242');rect(ctx,220,120,840,440,'#353c37');for(let i=0;i<6;i++){rect(ctx,200+i*26,110,24,450,'#914b43');rect(ctx,1056-i*26,110,24,450,'#914b43')}rect(ctx,210,540,860,45,'#ae8754');text(ctx,'KUNGENS OPERA',640,83,30,'#f0dfb6','center');person(ctx,780,570,'#746b91',false,'L');ellipse(ctx,760,482,12,35,'#b9834b');line(ctx,765,449,785,408,'#d5b582',7);for(let i=0;i<3;i++)ellipse(ctx,380+i*170,652,67,18,'#593f37');}
+  function drawColony(ctx,t,s){sky(ctx,'#859f9d','#e1cea1');rect(ctx,0,430,1280,290,'#ad926f');rect(ctx,770,330,510,200,'#5c9294');ship(ctx,875,450,.8);building(ctx,65,260,440,240,'#c6ad82','#925e49');text(ctx,'ARKIV · SAINT BARTHÉLEMY',300,290,18,'#342f27','center');rect(ctx,305,520,260,40,'#795e43');rect(ctx,334,495,180,25,'#e2cfa5');person(ctx,730,565,'#667d82',false,'E');text(ctx,'VEMS RÖST FINNS I ARKIVET?',960,100,18,'#334c4b','center');}
   function drawExtras(ctx,id,s,t){
     if(id==='garden'){
       rect(ctx,551,580,180,17,'#70563a');rect(ctx,565,597,10,63,'#5e4932');rect(ctx,708,597,10,63,'#5e4932');
@@ -384,14 +432,15 @@
       if(!s.workshop.collected.includes('paper')){for(let i=0;i<4;i++)rect(ctx,692+i*2,578-i*5,96,6,'#f0dfb7');text(ctx,'PAPPER',739,546,11,'#e8d3a5','center')}
       const n=s.workshop.placed.length;text(ctx,s.workshop.printed?(s.inventory.proof?'PROVTRYCKET ÄR KLART':'PRESSEN ÄR REDO'):n+' / 3 DELAR I PRESSEN',470,650,17,'#f0d8a2','center');
       if(n)rect(ctx,394,330,97,55,'#d9c59c');
+      if(s.chapter===2){rect(ctx,1040,115,160,65,'#e1cfa8');text(ctx,'GRANSKAS',1120,151,19,'#7c3b32','center')}
       if(s.workshop.printed)text(ctx,'TRYCKFRIHET',443,363,13,'#342b24','center');
     }
   }
-  function renderScene(ctx,id,s=state,t=0){ctx.clearRect(0,0,1280,720);({square:drawSquare,garden:drawGarden,farm:drawFarm,print:drawPrint,coffee:drawCoffee,riksdag:drawRiksdag,harbor:drawHarbor,palace:drawPalace}[id]||drawSquare)(ctx,t,s);drawExtras(ctx,id,s,t);const g=ctx.createLinearGradient(0,0,0,720);g.addColorStop(0,'#16191413');g.addColorStop(.72,'#11130c00');g.addColorStop(1,'#11130c55');ctx.fillStyle=g;ctx.fillRect(0,0,1280,720)}
+  function renderScene(ctx,id,s=state,t=0){figureTime=t;ctx.clearRect(0,0,1280,720);({square:drawSquare,garden:drawGarden,farm:drawFarm,print:drawPrint,coffee:drawCoffee,riksdag:drawRiksdag,harbor:drawHarbor,palace:drawPalace,opera:drawOpera,colony:drawColony}[id]||drawSquare)(ctx,t,s);drawExtras(ctx,id,s,t);const g=ctx.createLinearGradient(0,0,0,720);g.addColorStop(0,'#16191413');g.addColorStop(.72,'#11130c00');g.addColorStop(1,'#11130c55');ctx.fillStyle=g;ctx.fillRect(0,0,1280,720)}
 
   const coreApi={
     get state(){return state},get data(){return data},blankState,loadState,validBank,applyBank,allCards,mission,
-    bookGuide,eligibleReviewCards,reviewSelection,logicBeginReview,reviewQuestion,logicReviewAnswer,logicCancelReview,logicOfferApple,logicJobHint,logicCollect,logicPlace,logicPrint,logicDeliverProof,logicBeginPaperErrand,logicTakePaperParcel,logicDeliverPaperParcel,logicPlantPlacement,logicSortPlants,logicDeliverSeeds,
+    availableCards,career,promotionStage,workQuestion,logicStudy,logicChapter,RANKS,bookGuide,eligibleReviewCards,reviewSelection,logicBeginReview,reviewQuestion,logicReviewAnswer,logicCancelReview,logicOfferApple,logicJobHint,logicCollect,logicPlace,logicPrint,logicDeliverProof,logicBeginPaperErrand,logicTakePaperParcel,logicDeliverPaperParcel,logicPlantPlacement,logicSortPlants,logicDeliverSeeds,
     normalize,gradeShort,gradeQuestion,logicBeginJob,logicAnswer,logicCompleteJob,logicBuyBread,logicEatBread,logicNewDay,
     reportCSV,reportRows,csvCell,renderScene,
     setState(value){state=loadState(value)},resetData(){data=clone(BASE)}
@@ -424,7 +473,7 @@
   function updateHUD(){
     const loc=LOCATIONS[state.scene];$('placeName').textContent=loc.title;$('objectiveText').textContent=objective();
     $('foodValue').textContent=`${state.food} / ${state.maxFood}`;$('coinValue').textContent=state.coins;$('timeValue').textContent=TIME_NAMES[state.time]||'Natt';
-    $('sceneTitle').innerHTML=`<span>${esc(loc.title.toUpperCase())}</span><small>${esc(loc.subtitle)}</small>`;
+    $('sceneTitle').innerHTML=`<span>${esc(loc.title.toUpperCase())}</span><small>${state.chapter===1?'FRIHETSTIDEN':'GUSTAVIANSKA TIDEN'} · ${esc(loc.subtitle)}</small>`;
     renderInventory();renderHotspots();hero.style.setProperty('--x',`${state.heroX}%`);save();
   }
   function renderInventory(){
@@ -449,7 +498,7 @@
   for(const button of document.querySelectorAll('[data-verb]'))button.onclick=()=>{selectedItem=null;activeVerb=activeVerb===button.dataset.verb?null:button.dataset.verb;updateVerbButtons();renderInventory()};
 
   function walkTo(x,then){
-    if(moveTimer)finishWalk();currentTarget=true;const distance=Math.abs(state.heroX-x);state.heroX=x;hero.style.setProperty('--x',`${x}%`);hero.classList.add('walking');$('skipWalk').hidden=distance<25||reduced;moveFinish=then;
+    if(moveTimer)finishWalk();currentTarget=true;const distance=Math.abs(state.heroX-x);hero.style.setProperty('--facing',x<state.heroX?-1:1);state.heroX=x;hero.style.setProperty('--x',`${x}%`);hero.classList.add('walking');$('skipWalk').hidden=distance<25||reduced;moveFinish=then;
     moveTimer=setTimeout(finishWalk,reduced?20:Math.min(1050,300+distance*11));
   }
   function finishWalk(){if(moveTimer){clearTimeout(moveTimer);moveTimer=null}hero.classList.remove('walking');$('skipWalk').hidden=true;const fn=moveFinish;moveFinish=null;currentTarget=null;state.heroX=parseFloat(hero.style.getPropertyValue('--x'))||state.heroX;save();fn?.()}
@@ -465,6 +514,9 @@
   function performAction(h,verb){
     const item=selectedItem;activeVerb=null;selectedItem=null;updateVerbButtons();renderInventory();
     if(h.kind==='exit'&&(verb==='use'||verb==='look')){if(h.to)travel(h.to);else showMap();return}
+    if(h.id==='musician'){socialTalk('musician');return}
+    if(h.id==='witness'){socialTalk('witness');return}
+    if(h.id==='ledger'){showSources();return}
     if(h.id==='master'){talkMaster();return}
     if(h.id==='oracle'){showOracle();return}
     if(h.id==='flower'){showPlantPuzzle();return}
@@ -484,16 +536,17 @@
     if(verb==='use'&&item){narrate(`${ITEM_INFO[item]?.name||'Föremålet'} och ${h.label} verkar inte ha något att säga varandra.`);return}
     narrate(OBJECT_TEXT[h.id]||`Du betraktar ${h.label}. Det betraktar inte dig tillbaka.`);
   }
-  function travel(id){window.UPPDRAG_SOUND?.stop();if(state.rehearsal){showReviewQuestion();return}if(state.working){resumeWork();return}if(!LOCATIONS[id])return;closeDialogue();closeModal();state.scene=id;state.heroX=LOCATIONS[id].start;activeVerb=null;selectedItem=null;save();updateVerbButtons();updateHUD();showSceneName();}
+  function travel(id){if(['farm','palace','opera','colony'].includes(id)&&state.chapter<2){showHint('Platsen öppnar i kapitel 2.');return}window.UPPDRAG_SOUND?.stop();if(state.rehearsal){showReviewQuestion();return}if(state.working){resumeWork();return}if(!LOCATIONS[id])return;closeDialogue();closeModal();state.scene=id;state.heroX=LOCATIONS[id].start;activeVerb=null;selectedItem=null;save();updateVerbButtons();updateHUD();showSceneName();}
   function showSceneName(){$('sceneTitle').animate?.([{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'translateY(0)'}],{duration:350});}
   function showHint(message){$('hint').textContent=message;$('hint').hidden=false;clearTimeout(hintTimer);hintTimer=setTimeout(()=>$('hint').hidden=true,3800)}
   function narrate(message,duration=3000){$('narrationText').textContent=message;$('narration').hidden=false;clearTimeout(narrationTimer);narrationTimer=setTimeout(()=>$('narration').hidden=true,duration)}
 
   function showDialogue(speaker,text,actions=[],tone=''){
     const panel=$('dialogue');panel.hidden=false;panel.className=`dialogue ${tone}`;$('speaker').textContent=speaker.toUpperCase();$('portraitInitial').textContent=speaker.trim()[0]||'?';$('dialogueText').innerHTML=text;
+    hero.classList.add('talking');speakingFigure=speaker.trim().split(' ').at(-1)?.[0]||'';
     $('dialogueActions').innerHTML=actions.map((a,i)=>`<button id="dialogueAction${i}" class="${a.reply?'reply':''}">${a.label}</button>`).join('');actions.forEach((a,i)=>$('dialogueAction'+i).onclick=a.fn);keysOff();
   }
-  function closeDialogue(){const panel=$('dialogue');panel.hidden=true;panel.className='dialogue';$('dialogueActions').innerHTML='';activeQuestion=null}
+  function closeDialogue(){speakingFigure='';hero.classList.remove('talking');const panel=$('dialogue');panel.hidden=true;panel.className='dialogue';$('dialogueActions').innerHTML='';activeQuestion=null}
   $('dialogueClose').onclick=closeDialogue;
   function keysOff(){activeVerb=null;selectedItem=null;updateVerbButtons();renderInventory()}
 
@@ -508,7 +561,7 @@
   }
   function showOracle(){
     const parcel=state.paperErrand.active&&!state.inventory.paperParcel;
-    openModal('BOKORAKLET','Den stora kunskapsboken finns hos dig', '<p class="lead">”Sök i din SO-bok. Jag visar vart du ska leta — svaret måste du finna själv.”</p><div class="quest-list">'+data.missions.map(m=>'<div class="quest-row"><span class="seal">'+m.symbol+'</span><span><b>'+esc(m.title)+'</b><small>'+esc(bookGuide(m.id))+'</small></span></div>').join('')+'</div><p class="small">Avsnitt anges tills läraren lagt in den riktiga bokens sidnummer. Hänvisningarna är gratis.</p>'+(parcel?'<div class="button-row"><button id="takePaperParcel" class="primary">Ta Britas papperspaket</button></div>':''),'oracle');
+    openModal('BOKORAKLET','Den stora kunskapsboken finns hos dig', '<p class="lead">”Sök i din SO-bok. Jag visar vart du ska leta — svaret måste du finna själv.”</p><div class="quest-list">'+data.missions.filter(m=>availableCards(m.id).length).map(m=>'<div class="quest-row"><span class="seal">'+m.symbol+'</span><span><b>'+esc(m.title)+'</b><small>'+esc(bookGuide(m.id))+'</small></span></div>').join('')+'</div><p class="small">Hänvisningarna gäller ert kapitel om 1700-talet. De är gratis.</p>'+(parcel?'<div class="button-row"><button id="takePaperParcel" class="primary">Ta Britas papperspaket</button></div>':''),'oracle');
     if(parcel){$('takePaperParcel').onclick=()=>{const r=logicTakePaperParcel();updateHUD();if(r.ok){window.UPPDRAG_SOUND?.play('paper');closeModal();narrate('Papperspaketet ligger i ränseln. Leverera till Brita i tryckeriet för 1 daler.')}}}
   }
   function talkMaster(){
@@ -516,7 +569,7 @@
     const cards=eligibleReviewCards(),due=window.UPPDRAG_PRACTICE?.due(state.practice,cards.map(q=>q.id))||[];
     const remaining=state.lastAppleAt===null?0:Math.max(0,DAY_MS-(Date.now()-state.lastAppleAt));
     const prior=state.visits.previousVisitAt,days=prior?Math.max(0,Math.floor((Date.now()-prior)/DAY_MS)):null;
-    const text='”Kunskap ska hämtas fram igen — inte bara förvaras som gammalt bröd.”<br><br>'+ (days!==null&&days>0?'Du var här för '+days+' dagar sedan.<br>':'')+cards.length+' fria frågor från '+state.completed.length+(state.completed.length===1?' avslutat uppdrag. ':' avslutade uppdrag. ')+due.length+' frågor är dags att repetera.<br><br>'+ (cards.length?'Förhöret innehåller högst sex frågor. Du får återkoppling efter varje svar. Ingen mat eller speltid förbrukas.':'Klara ett uppdrag först. Sedan repeterar vi just det området.')+'<br><br>'+ (remaining?'Du kan träna nu. Nästa äpple och daler kan tjänas om ungefär '+Math.ceil(remaining/3600000)+' timmar.':'Minst 70 procent rätt ger ett äpple och 1 daler. Högst ett belönat förhör per verkligt dygn.');
+    const text=(state.simpleText?'Vi övar på det du har läst. Svara ur minnet.<br><br>':'”Kunskap ska hämtas fram igen — inte bara förvaras som gammalt bröd.”<br><br>')+ (days!==null&&days>0?'Du var här för '+days+' dagar sedan.<br>':'')+cards.length+' fria frågor från '+state.studied.length+(state.studied.length===1?' genomgånget område. ':' genomgångna områden. ')+due.length+' frågor är dags att repetera.<br><br>'+ (cards.length?'Förhöret innehåller högst sex frågor. Du får återkoppling efter varje svar. Ingen mat eller speltid förbrukas.':'Besök en arbetsplats. Välj att du har läst avsnittet. Sedan kan vi öva här.')+'<br><br>'+ (remaining?'Du kan träna nu. Nästa äpple och daler kan tjänas om ungefär '+Math.ceil(remaining/3600000)+' timmar.':'Minst 70 procent rätt ger ett äpple och 1 daler. Högst ett belönat förhör per verkligt dygn.');
     showDialogue('Läromästaren Rut',text,[
       ...(cards.length?[{label:'Förhör mig utan bok.',fn:()=>{const r=logicBeginReview();if(r.ok)showReviewQuestion()},reply:true}]:[]),
       {label:'Visa var jag kan läsa i SO-boken.',fn:showOracle,reply:true},
@@ -526,7 +579,7 @@
   function showReviewQuestion(){window.UPPDRAG_SOUND?.stop();
     const q=reviewQuestion(),r=state.rehearsal;if(!q||!r){talkMaster();return}activeReviewId=q.id;
     state.scene='square';updateHUD();
-    showDialogue('Läromästaren Rut','<span class="eyebrow">REPETITION '+(r.index+1)+' AV '+r.ids.length+'</span><b>'+esc(q.question)+'</b><p class="small">Försök ur minnet innan du öppnar boken. Fel låser inte förhöret.</p>',[]);
+    showDialogue('Läromästaren Rut','<span class="eyebrow">REPETITION '+(r.index+1)+' AV '+r.ids.length+'</span><b>'+esc(questionText(q))+'</b><p class="small">Försök ur minnet innan du öppnar boken. Fel låser inte förhöret.</p>',[]);
     $('dialogueActions').innerHTML='<input id="reviewAnswer" aria-label="Ditt repetitionssvar" autocomplete="off" spellcheck="false" maxlength="180" placeholder="Svara ur minnet …"><button type="button" id="submitReviewAnswer">Lämna svar →</button><button type="button" id="skipReviewAnswer" class="reply">Jag minns inte. Visa återkoppling.</button><button type="button" id="cancelReview" class="reply">Avsluta förhöret utan belöning.</button>';
     $('submitReviewAnswer').onclick=()=>submitReviewUI($('reviewAnswer').value);
     $('skipReviewAnswer').onclick=()=>submitReviewUI('');
@@ -559,51 +612,68 @@
   function showHintForJob(){
     const r=logicJobHint();if(!r.ok){showHint('Du behöver ett äpple eller en redan erbjuden ledtråd.');return}updateHUD();const w=state.working;showJobQuestion(w.missionId,w.index);
   }
+  const CHAPTER_NAMES={1:'Frihetstiden · 1719–1772',2:'Gustavianska tiden · 1772–1809'};
+  function questionText(q){return state.simpleText?(q.simpleQuestion||q.question):q.question}
   function talkJob(id){
     if(state.working){resumeWork();return}
-    const m=mission(id);
-    if(state.completed.includes(id)){showDialogue(m.npc,`”Arbetet är redan gjort. Ditt ${esc(ITEM_INFO[id].name.toLowerCase())} är bevis nog.”`,[{label:'Tack. Det känns ovanligt vuxet.',fn:closeDialogue,reply:true}]);return}
-    if(state.failedToday.includes(id)){showDialogue(m.npc,`<em>${esc(REACTIONS[id])}</em><br><br>Arbetet är stängt för resten av speldagen. Svaret visas inte. Läs på och återvänd nästa dag.`,[{label:'Skriv upp kunskapsluckan.',fn:()=>{closeDialogue();showNotebook()},reply:true},{label:'Backa långsamt därifrån.',fn:closeDialogue,reply:true}],'feedback-asleep');return}
-    if(state.time>=4){showDialogue(m.npc,'”Det är natt. Inte ens historien arbetar dygnet runt. Kom tillbaka i morgon.”',[{label:'Hitta värdshuset.',fn:()=>travel('square'),reply:true}]);return}
-    if(state.food<=0){showDialogue(m.npc,'”Du ser ut som ett frågetecken med hatt. Ät något innan du arbetar.”',[{label:'Till Stortorget och bagaren.',fn:()=>travel('square'),reply:true}]);return}
-    showDialogue(m.npc,`${esc(m.story)}<br><br><em>Jobbet kräver ${m.cards.length} kunskapssteg. Ett fel avslutar försöket för dagen. Facit visas inte.</em>`,[
-      {label:`Jag tar jobbet. (−1 mättnad, tiden går)`,fn:()=>beginJobUI(id),reply:true},
-      {label:'Vad får jag betalt?',fn:()=>showDialogue(m.npc,`”${PAY[id]} daler och ett förseglat arbetsintyg — om allt blir rätt.”`,[{label:'Då börjar vi.',fn:()=>beginJobUI(id),reply:true},{label:'Jag återkommer.',fn:closeDialogue,reply:true}]),reply:true},
-      {label:'Var ska jag läsa i SO-boken?',fn:()=>showDialogue(m.npc,esc(bookGuide(id)),[{label:'Jag läser på och återkommer.',fn:closeDialogue,reply:true}]),reply:true},
-      {label:'Jag behöver kunna mer först.',fn:closeDialogue,reply:true}
+    const m=mission(id),c=career(id),cards=availableCards(id),stage=promotionStage(id),locked=state.failedToday.includes(id);
+    const canWork=cards.length&&!locked&&state.time<4&&state.food>0;
+    showDialogue(m.npc,`<span class="eyebrow">${RANKS[c.rank]} · ${esc(CHAPTER_NAMES[state.chapter])}</span>${esc(state.simpleText?'Här finns arbete. Du svarar på fyra frågor ur minnet.':m.story)}<br><br>${!cards.length?'Det här arbetet öppnar i nästa kapitel.':locked?'Jobbet är stängt i dag. Du kan öva hos Rut eller komma tillbaka nästa speldag.':state.time>=4?'Arbetsdagen är slut. Kom tillbaka efter vila.':state.food<=0?'Ät något innan du arbetar.':'Första godkända passet ger '+PAY[id]+' daler och ett intyg. Senare pass ger '+(c.rank+1)+' daler.'}`,[
+      ...(canWork?[{label:'Jag tar ett arbetspass. (−1 mättnad)',fn:()=>beginJobUI(id),reply:true}]:[]),
+      ...(canWork&&stage?[{label:stage==='journey'?'Gör gesällprovet.':'Gör mästarprovet.',fn:()=>beginJobUI(id,true),reply:true}]:[]),
+      {label:'Hur har du det?',fn:()=>socialTalk(id),reply:true},
+      ...(cards.length?[{label:'Jag har läst avsnittet. Jag vill öva hos Rut.',fn:()=>{logicStudy(id);closeDialogue();travel('square');talkMaster()},reply:true}]:[]),
+      {label:'Var ska jag läsa?',fn:()=>showDialogue(m.npc,esc(bookGuide(id)),[{label:'Tillbaka.',fn:()=>talkJob(id),reply:true}]),reply:true},
+      {label:'Jag går vidare.',fn:closeDialogue,reply:true}
     ]);
   }
-  function beginJobUI(id){const result=logicBeginJob(id);if(!result.ok){closeDialogue();talkJob(id);return}updateHUD();showJobQuestion(id,0)}
+  const SOCIAL={
+    press:[['De kallar det frihetstid. Ändå finns det människor som inte får bestämma över sina egna liv.','Hur menar du?','Kungen bestämmer mindre. Men kvinnor har inte samma rättigheter som män. Vad tänker du om det?',[['Då är friheten olika för olika människor.','Ja. Namnet på en tid berättar inte allt.'],['Men du får trycka fler tankar?','Ja, det ger mig hopp. Jag vill veta hur länge det får vara så.']]],['Jag väljer mina ord noga nu. En kritisk text kan ge mig problem.','Hur menar du?','Kungen har begränsat tryckfriheten. Ska jag ändå trycka kritik?',[['Det kan vara viktigt att någon säger ifrån.','Det tycker jag också. Men jag måste tänka på dem som arbetar här.'],['Jag förstår att du är försiktig.','Ja. Det är lättare att vara modig när man slipper betala priset.']]]],
+    power:[['Det är mycket tal om frihet här inne. Men en del får knappt komma till tals.','Hur menar du?','Bönderna finns i riksdagen. Ändå hålls de utanför viktiga beslut. Är det rättvist?',[['De borde också få vara med.','Då skulle nog fler röster höras i protokollet.'],['Vem tjänar på att de hålls utanför?','En bra fråga. Jag tittar ofta efter vilka som sitter närmast makten.']]],['Salen är kvar. Men kungen har tagit mer makt.','Hur märks det?','Vi skriver fortfarande protokoll. Men alla beslut tas inte längre här. Vad tror du att folk tycker?',[['En del kanske gillar att en person bestämmer.','Ja, särskilt de som tröttnat på bråken.'],['De som förlorar inflytande blir nog arga.','Det hörs, om man lyssnar vid rätt dörr.']]]],
+    nature:[['Jag måste sätta nya etiketter. Annars vet ingen vilken växt jag menar.','Hur menar du?','Samma växt kan ha olika namn på olika platser. Vad skulle du göra?',[['Använda namn som flera forskare känner till.','Precis. Då blir det lättare att förstå varandra.'],['Fråga dem som bor där växten finns.','Ja! Deras kunskap kan vara viktig. Jag tar med min anteckningsbok.']]]],
+    farm:[['Min jord låg utspridd. Nu talar man om att samla den.','Hur menar du?','Det kan bli lättare att odla. Men kanske måste någon flytta från byn. Vad skulle du sakna?',[['Grannarna och hjälpen från dem.','Ja. En stor åker hjälper inte till när någon blir sjuk.'],['Jag skulle vilja se vilken jord jag får först.','Klokt. Alla åkrar ger inte lika bra skörd.']]]],
+    ideas:[['Jag läste ett brev om barnhuset. Jag kan inte sluta tänka på barnen.','Hur menar du?','Där finns tak över huvudet. Men barnen får arbeta hårt och maten räcker inte alltid. Vad tänker du?',[['Barnen behöver mer än bara ett tak.','Ja. Trygghet och någon som tar hand om dem också.'],['Vem lyssnar på barnen?','Det är just det jag undrar. Deras egna röster hörs så sällan.']]],['Musikern vid operan gillar kungen. En annan bekant avskyr honom.','Hur kan de tycka så olika?','Musikern får arbete när kungen stöder kulturen. Min andra bekant får inte trycka sin kritik. Vem förstår du?',[['Jag förstår musikern.','Ja, det betyder mycket att få arbeta med sin musik.'],['Jag förstår den som vill kritisera.','Ja. Att kunna säga emot betyder också mycket.'],['Jag förstår båda.','Samma kung kan påverka två liv på helt olika sätt.']]]],
+    trade:[['Ännu en last te och porslin. Alla här vill tjäna på handeln.','Hur menar du?','Det är långt till Kina. Skeppet kan vara borta länge. Skulle du vilja följa med?',[['Ja, jag vill se andra platser.','Då får du också tåla trängsel och långa dagar till sjöss.'],['Jag stannar hellre här.','Då kan du hjälpa mig räkna lådorna. De kommer inte bära sig själva.']]],['I den här hamnboken räknas pengar. Men jag saknar människorna.','Hur menar du?','På Saint Barthélemy finns människor som berövats sin frihet. Deras liv ryms inte i köpmännens siffror. Vad borde vi bevara?',[['Deras egna berättelser.','Ja. Annars är det bara de mäktiga som hörs i arkivet.'],['Berättelser om deras motstånd.','Ja. De gjorde motstånd, flydde och krävde rättigheter. Det får inte glömmas.']]]],
+    king:[['Någon sa att kungen skulle ha blivit älskad om han vunnit kriget.','Tror du det?','Kanske. En seger kan ge ära. Men hade den fått alla att glömma sina klagomål?',[['Fler kanske hade stött honom.','Kanske det. En seger kan få människor att samlas kring en kung.'],['Inte de som förlorat någon i kriget.','Nej. Seger och sorg kan finnas samtidigt.'],['Det går inte att veta säkert.','Nej. Vi får tänka med det vi vet, utan att låtsas veta allt.']]]]
+  };
+  SOCIAL.musician=[['Jag tycker om kungen. Hans stöd ger mig arbete här på operan.','Hur menar du?','Han ger pengar till musik och teater. Då kan vi spela. Tycker du att det är bra?', [['Ja, fler får höra din musik.','Precis! Du borde komma och lyssna någon kväll.'],['Men får man kritisera kungen också?','Sch … lite tystare. Det där är inte lika enkelt.']]]];
+  SOCIAL.witness=[SOCIAL.trade[1]];
+  function socialTalk(id,node='start'){
+    const variants=SOCIAL[id]||SOCIAL.ideas,v=variants[Math.min(state.chapter-1,variants.length-1)],npc=mission(id)?.npc||(id==='musician'?'Musikern Liv':'Arkivskrivaren Ester');
+    if(node==='start'){showDialogue(npc,esc(v[0]),[{label:v[1],fn:()=>socialTalk(id,'explain'),reply:true},{label:'Jag måste vidare.',fn:closeDialogue,reply:true}]);return}
+    showDialogue(npc,esc(v[2]),[...v[3].map(([label,reaction])=>({label,fn:()=>showDialogue(npc,esc(reaction),[{label:'Tack för pratstunden. Jag går vidare.',fn:closeDialogue,reply:true}]),reply:true})),{label:'Jag måste vidare.',fn:closeDialogue,reply:true}]);
+  }
+  function beginJobUI(id,promotion=false){const result=logicBeginJob(id,{promotion});if(!result.ok){closeDialogue();talkJob(id);return}updateHUD();showJobQuestion(id,0)}
   function resumeWork(){const work=state.working;if(!work)return false;state.scene=SCENE_FOR[work.missionId]||state.scene;state.heroX=LOCATIONS[state.scene].start;updateHUD();showJobQuestion(work.missionId,work.index);showHint('Slutför momentet eller välj ”Jag kan inte detta än”.');return true}
   function showJobQuestion(id,index){window.UPPDRAG_SOUND?.stop();
-    const m=mission(id),q=m.cards[index];activeQuestion={id,index,q};const lead=JOB_LINES[id]?.[index]||'Arbetet fortsätter.';
-    showDialogue(m.npc,`<span class="eyebrow">ARBETSMOMENT ${index+1} AV ${m.cards.length}</span>${esc(lead)}<br><br><b>${esc(q.question)}</b>`,[]);
+    const m=mission(id),q=workQuestion();if(!q)return;activeQuestion={id,index,q};const lead=state.simpleText?'':(state.working.stage==='facts'?'Hjälp till med dagens arbete.':'Använd kunskaperna för att förklara ett samband.');
+    showDialogue(m.npc,`<span class="eyebrow">ARBETSMOMENT ${index+1} AV ${state.working.ids.length} · ${state.working.stage==='facts'?'ARBETSPASS':state.working.stage==='journey'?'GESÄLLPROV':'MÄSTARPROV'}</span>${esc(lead)}<br><br><b>${esc(questionText(q))}</b>`,[]);
     if(q.type==='short'){
       $('dialogueActions').innerHTML=`<input id="jobAnswer" autocomplete="off" spellcheck="false" maxlength="180" aria-label="Ditt svar" placeholder="Svara ur minnet …"><button id="submitJobAnswer">Utför momentet →</button><button id="giveUpJob" class="reply">Jag kan inte detta än. Avsluta jobbet.</button>`;
       if(state.working.hintUsed)$('dialogueText').innerHTML+='<p class="hint-note">'+esc(jobHint({...q,missionId:id}))+'</p>';
-      else if(state.inventory.apple||state.hintCredits[id]>0){$('dialogueActions').innerHTML+='<button type="button" id="appleHint" class="reply">'+(state.hintCredits[id]>0?'Använd erbjuden ledtråd.':'Använd ett äpple för extra ledtråd.')+'</button>';$('appleHint').onclick=showHintForJob;}
+      else if(state.working.attempted&&(state.inventory.apple||state.hintCredits[id]>0)){$('dialogueActions').innerHTML+='<button type="button" id="appleHint" class="reply">'+(state.hintCredits[id]>0?'Använd erbjuden ledtråd.':'Använd ett äpple för extra ledtråd.')+'</button>';$('appleHint').onclick=showHintForJob;}
       $('submitJobAnswer').onclick=()=>submitJobAnswer($('jobAnswer').value,false);$('giveUpJob').onclick=()=>submitJobAnswer('',false);$('jobAnswer').onkeydown=e=>{if(e.key==='Enter')submitJobAnswer($('jobAnswer').value,false)};setTimeout(()=>$('jobAnswer')?.focus(),0);
     }else{
-      $('dialogueActions').innerHTML=`<div id="chainJob" style="width:100%"><div style="display:grid;gap:7px">${q.steps.map((s,i)=>`<select id="chain${i}" aria-label="Sambandets del ${i+1}"><option value="">${i+1}. Välj ${i===0?'start':i===1?'nästa led':'följd'} …</option>${shuffle(s.options).map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('')}</select>`).join('')}</div><button id="submitChainAnswer" style="margin-top:8px" type="button">Lås sambandet →</button></div><button id="giveUpJob" type="button" class="reply">Jag kan inte detta än. Avsluta jobbet.</button>`;
+      $('dialogueActions').innerHTML=`<div id="chainJob" style="width:100%"><div style="display:grid;gap:7px">${q.steps.map((s,i)=>`<label class="chain-label">${esc(s.connector||'Del '+(i+1))}<select id="chain${i}" aria-label="Sambandets del ${i+1}"><option value="">${i+1}. Välj ${i===0?'start':i===1?'nästa led':'följd'} …</option>${shuffle(s.options).map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('')}</select></label>`).join('')}</div><button id="submitChainAnswer" style="margin-top:8px" type="button">Lås sambandet →</button></div><button id="giveUpJob" type="button" class="reply">Jag kan inte detta än. Avsluta jobbet.</button>`;
       $('submitChainAnswer').onclick=()=>{const values=q.steps.map((_,i)=>$('chain'+i).value);if(values.every(Boolean))submitJobAnswer(values,true);else showHint('Välj alla tre delarna innan du låser sambandet.')} ;$('giveUpJob').onclick=()=>submitJobAnswer([],true);
     }
   }
   function shuffle(values){const a=[...values];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
   function submitJobAnswer(value,supported){
     if(!activeQuestion)return;const {id,index,q}=activeQuestion;activeQuestion=null;const result=logicAnswer(q,value,supported);updateHUD();
+    if(!result.ok)return;
+    if(result.retry){showDialogue(mission(id).npc,'Det svaret behöver du pröva igen. Du har gjort ett eget försök och kan nu använda en ledtråd.',[{label:'Försök igen.',fn:()=>showJobQuestion(id,index),reply:true},{label:'Avsluta arbetspasset.',fn:()=>{state.failedToday.push(id);state.working=null;save();closeDialogue()},reply:true}]);return}
     if(!result.correct){
       showDialogue(mission(id).npc,`${esc(REACTIONS[id])}<br><br><b>Arbetet är förlorat för i dag.</b> Du får inte facit — frågan har lagts i din anteckningsbok.`,[
         {label:'Öppna anteckningsboken.',fn:showNotebook,reply:true},
         {label:'Fortsätt utforska.',fn:()=>{closeDialogue();if(result.collapsed)setTimeout(showCollapse,250)},reply:true}
       ],'feedback-asleep');return;
     }
-    if(result.completed){jobCompleted(id);return}
+    if(result.completed){jobCompleted(id,result);return}
     showDialogue(mission(id).npc,`Rätt. <em>${esc(q.explanation)}</em>`,[{label:'Fortsätt arbetet →',fn:()=>showJobQuestion(id,index+1),reply:true}],'feedback-good');
   }
-  function jobCompleted(id){
-    const m=mission(id),item=ITEM_INFO[id];save();updateHUD();showDialogue(m.npc,`”Det höll! Hela arbetet är klart.”<br><br>Du får <b>${PAY[id]} daler</b> och <b>${esc(item.name.toLowerCase())}</b>. Det senare är ett förseglat arbetsintyg till arkivet.`,[
-      {label:'Stoppa intyget i ränseln.',fn:()=>{closeDialogue();updateHUD();if(!state.breadBought&&state.coins>=3)showHint('Nu har du råd med bröd hos Marta på Stortorget.');if(state.completed.length===data.missions.length)showHint('Alla sju intyg är klara. Ta dem till arkivbudet.')} ,reply:true}
-    ],'feedback-good');
+  function jobCompleted(id,result){
+    const m=mission(id);save();updateHUD();showDialogue(m.npc,`Arbetspasset är klart. Du får <b>${result.pay} daler</b>.${result.first?' Du får också ett arbetsintyg till arkivet.':''}${result.promoted?'<br><br>Du är nu <b>'+RANKS[result.rank].toLowerCase()+'</b> här.':''}`, [{label:'Tack. Jag går vidare.',fn:()=>{closeDialogue();updateHUD()},reply:true}],'feedback-good');
   }
 
   function talkBaker(){
@@ -631,30 +701,41 @@
     $('nextDay').onclick=()=>{logicNewDay({collapsed:true});closeModal();travel('square');updateHUD()};
   }
   function showVictory(){
-    openModal('ARKIVET ÄR HELT','Du fick platsen.',`<div class="victory-stamp">✓</div><p class="lead">Arkivbudet fogar samman de sju intygen. Staden har fått en ny arkivlärling — en mättare sådan dessutom.</p><p>Du klarade äventyret på <b>${state.day} speldag${state.day===1?'':'ar'}</b>, med <b>${state.coins} daler</b> kvar och <b>${state.collapseCount}</b> kollaps${state.collapseCount===1?'':'er'}.</p><div class="warning">Det här var en prototyp med tillfällig frågebank. Nästa steg är att bygga pusslen direkt ur det material eleverna faktiskt har undervisats om.</div><div class="button-row"><button id="victoryReport" class="primary">Visa kunskapsrapport</button><button id="victoryContinue" class="secondary">Fortsätt utforska</button></div>`,'victory');$('victoryReport').onclick=showReport;$('victoryContinue').onclick=closeModal;
+    openModal('ARKIVET ÄR HELT','Du fick platsen.',`<div class="victory-stamp">✓</div><p class="lead">Arkivbudet fogar samman de sju intygen. Staden har fått en ny arkivlärling — en mättare sådan dessutom.</p><p>Du klarade äventyret på <b>${state.day} speldag${state.day===1?'':'ar'}</b>, med <b>${state.coins} daler</b> kvar och <b>${state.collapseCount}</b> kollaps${state.collapseCount===1?'':'er'}.</p><p>Du kan fortsätta arbeta, öva hos Rut och utvecklas till gesäll och mästare på arbetsplatserna.</p><div class="button-row"><button id="victoryReport" class="primary">Visa kunskapsrapport</button><button id="victoryContinue" class="secondary">Fortsätt utforska</button></div>`,'victory');$('victoryReport').onclick=showReport;$('victoryContinue').onclick=closeModal;
   }
 
-  function showJobs(){
-    const rows=data.missions.map(m=>{const done=state.completed.includes(m.id),failed=state.failedToday.includes(m.id);return `<div class="quest-row ${done?'done':''}"><span class="seal">${done?'✓':m.symbol}</span><span><b>${esc(m.title)}</b><small>${esc(m.location)} · ${m.cards.length} kunskapssteg · ${PAY[m.id]} daler</small></span>${failed?'<em>stängt i dag</em>':done?'<em>klart</em>':''}</div>`}).join('');
-    openModal('ANSLAGSTAVLAN','Arbeten i staden',`<p>Alla arbeten kräver kunskap. Ett fel avslutar jobbet för speldagen och visar inte facit.</p><div class="quest-list">${rows}</div><div class="button-row"><button id="jobsMap" class="primary">Öppna stadskartan</button></div>`,'jobs');$('jobsMap').onclick=showMap;
+  function showChapters(){
+    openModal('KAPITEL OCH SPRÅK',esc(CHAPTER_NAMES[state.chapter]),`<p>Din lärare öppnar nästa del när klassen börjar med den. Du kan alltid återvända till ett öppnat kapitel.</p><div class="button-row"><button id="chapterOne" class="secondary">Frihetstiden</button>${state.unlockedChapter===2?'<button id="chapterTwo" class="secondary">Gustavianska tiden</button>':'<button id="unlockChapter" class="secondary">Läraren: öppna del 2 på den här enheten</button>'}</div><hr><p>Välj språk. Samma kunskaper tränas i båda lägena.</p><button id="simpleToggle" class="primary">${state.simpleText?'Byt till vanligt språk':'Använd lättläst språk'}</button><p class="small">Kapitelvalet sparas på den här enheten. Det är en lektionsinställning, inte ett lösenordsskydd. Befordran kräver återkallning vid skilda verkliga dagar. Speldagar och pengar räcker inte.</p>`,'chapters');
+    $('chapterOne').onclick=()=>{logicChapter(1);travel('square')};
+    if($('chapterTwo'))$('chapterTwo').onclick=()=>{logicChapter(2);travel('square')};
+    if($('unlockChapter'))$('unlockChapter').onclick=()=>{logicChapter(2,{unlock:true});travel('square');showDialogue('Berättaren','År 1772 tar Gustav III makten. Staden förändras. Operan, kolonihamnen, byn och slottet öppnar. Du kan återvända till frihetstiden via menyn.',[{label:'Utforska staden.',fn:closeDialogue,reply:true}])};
+    $('simpleToggle').onclick=()=>{state.simpleText=!state.simpleText;save();showChapters()};
   }
-  function mapMarkup(){const pins=[['garden','Trädgård','❧',18,18],['print','Tryckeri','▤',47,17],['riksdag','Riksdag','♜',69,18],['farm','Byn','♧',19,78],['square','Stortorget','⌂',50,49],['coffee','Kaffehus','✧',69,74],['palace','Slott','♛',47,82],['harbor','Hamnen','⚓',88,49]];return `<div class="city-map"><div class="map-road h"></div><div class="map-road v"></div><div class="map-water"></div>${pins.map(([id,label,mark,x,y])=>{const mid=MISSION_FOR[id],failed=mid&&state.failedToday.includes(mid);return `<button class="map-location ${state.scene===id?'current':''} ${failed?'locked':''}" style="left:${x}%;top:${y}%" data-travel="${id}" data-mark="${mark}">${label}${failed?' · stängt':''}</button>`}).join('')}</div>`}
+  function showJobs(){
+    const rows=data.missions.map(m=>{const done=state.completed.includes(m.id),failed=state.failedToday.includes(m.id),open=availableCards(m.id).length,c=career(m.id);return `<div class="quest-row ${done?'done':''}"><span class="seal">${done?'✓':m.symbol}</span><span><b>${esc(m.title)}</b><small>${esc(m.location)} · ${RANKS[c.rank]} · ${open?'4 frågor per arbetspass':'Öppnar i del 2'}</small></span>${failed?'<em>stängt i dag</em>':done?'<em>Fortsatt arbete: '+(c.rank+1)+' daler</em>':''}</div>`}).join('');
+    openModal('ANSLAGSTAVLAN','Arbeten i staden',`<p>Du kan fortsätta arbeta efter ditt intyg. Öva hos Rut för att minnas över tid och förbereda gesällprovet.</p><div class="quest-list">${rows}</div><div class="button-row"><button id="jobsMap" class="primary">Öppna stadskartan</button><button id="jobsChapter" class="secondary">Kapitel och språk</button></div>`,'jobs');$('jobsMap').onclick=showMap;$('jobsChapter').onclick=showChapters;
+  }
+  function mapMarkup(){const pins=[['garden','Trädgård','❧',16,16],['print','Tryckeri','▤',43,16],['riksdag','Riksdag','♜',70,16],['farm','Byn','♧',15,77],['square','Stortorget','⌂',43,46],['coffee','Kaffehus','✧',70,76],['palace','Slott','♛',43,82],['harbor','Hamnen','⚓',87,46],['opera','Operan','♫',15,46],['colony','Kolonihamnen','⚓',87,84]];return `<p class="eyebrow">${esc(CHAPTER_NAMES[state.chapter])}</p><div class="city-map"><div class="map-road h"></div><div class="map-road v"></div><div class="map-water"></div>${pins.map(([id,label,mark,x,y])=>{const mid=MISSION_FOR[id],locked=state.chapter===1&&['farm','palace','opera','colony'].includes(id);return `<button class="map-location ${state.scene===id?'current':''} ${locked?'locked':''}" style="left:${x}%;top:${y}%" data-travel="${id}" data-mark="${mark}" ${locked?'disabled':''}>${label}${locked?' · del 2':''}</button>`}).join('')}</div>`}
   function showMap(){if(state.rehearsal){showReviewQuestion();return}if(state.working){resumeWork();return}closeDialogue();openModal('STADSKARTA','Vart vill du gå?',`${mapMarkup()}<p class="small">Resor kostar ingen mättnad i prototypen. Själva arbetena gör det.</p>`,'map');for(const b of document.querySelectorAll('[data-travel]'))b.onclick=()=>travel(b.dataset.travel)}
   function gapMarkup(){const gaps=state.gaps.map(id=>allCards().find(q=>q.id===id)).filter(Boolean);return gaps.length?`<h3>Kunskapsluckor att ta med till lektionen</h3><div class="gap-list">${gaps.map(q=>`<div class="gap"><b>${esc(q.topic)}</b><p>${esc(q.question)}</p></div>`).join('')}</div>`:'<p class="small">Inga obesvarade kunskapsluckor är noterade just nu.</p>'}
-  function showNotebook(){closeDialogue();openModal('ANTECKNINGSBOKEN','Det här behöver du kunna',`<p>Här finns frågorna du missat — men inga facit. Bokoraklet på Stortorget hänvisar till rätt avsnitt. Läromästaren repeterar avslutade uppdrag och visar återkoppling efter ditt eget försök.</p>${gapMarkup()}<h3>Repetition</h3><p>Besök läromästaren Rut på Stortorget. Ett kort förhör utan bok kan ge ett äpple och 1 daler. När en fråga ska återkomma räknas i verkliga dagar, inte speldagar.</p><h3>Arbetsintyg</h3><div class="quest-list">${data.missions.map(m=>`<div class="quest-row ${state.completed.includes(m.id)?'done':''}"><span class="seal">${state.completed.includes(m.id)?'✓':m.symbol}</span><span><b>${esc(m.title)}</b><small>${state.completed.includes(m.id)?esc(ITEM_INFO[m.id].name):'Inte utfört'}</small></span></div>`).join('')}</div>`,'notebook')}
+  function showNotebook(){closeDialogue();openModal('ANTECKNINGSBOKEN','Det här behöver du kunna',`<p>Här finns frågorna du missat — men inga facit. Bokoraklet på Stortorget hänvisar till rätt avsnitt. Läromästaren repeterar genomgångna områden och visar återkoppling efter ditt eget försök.</p>${gapMarkup()}<h3>Begrepp i det här kapitlet</h3><div class="concept-list">${(data.concepts||[]).filter(c=>c.chapter<=state.chapter).map(c=>`<span class="concept">${esc(c.term)} · ${state.answers[c.question]?.lastCorrect?"övat rätt":"att öva"}</span>`).join("")}</div><h3>Resedagboken</h3><p>Vad kan källor berätta? Vems röst saknas? Hur används historien i dag?</p><button id="journalSources" class="secondary">Undersök spår och källor</button><h3>Repetition</h3><p>Besök läromästaren Rut på Stortorget. Ett kort förhör utan bok kan ge ett äpple och 1 daler. När en fråga ska återkomma räknas i verkliga dagar, inte speldagar.</p><h3>Arbetsintyg</h3><div class="quest-list">${data.missions.map(m=>`<div class="quest-row ${state.completed.includes(m.id)?'done':''}"><span class="seal">${state.completed.includes(m.id)?'✓':m.symbol}</span><span><b>${esc(m.title)}</b><small>${state.completed.includes(m.id)?esc(ITEM_INFO[m.id].name):'Inte utfört'}</small></span></div>`).join('')}</div>`,'notebook');$('journalSources').onclick=showSources}
+
+  function showSources(){
+    openModal('RESEDAGBOKEN','Spår och röster',`<p>Du som spelare kan jämföra med vår tid. Personerna i staden känner bara sin egen tid.</p><h3>Två kartor över samma by</h3><div class="source-cards"><div><b>Före skiftet</b><p>Familjernas jord ligger i smala bitar på flera platser.</p></div><div><b>Efter skiftet</b><p>Jorden har samlats. Några gårdar ligger längre från grannarna.</p></div></div><p>Vilka förändringar kan en karta visa? Vad behöver vi fråga människorna om?</p><h3>Två röster om barnhuset</h3><blockquote>Föreståndaren: Här får barnen mat och tak över huvudet.</blockquote><blockquote>Barnet: Arbetet är tungt. Jag blir inte alltid mätt.</blockquote><p>Kan båda berätta om samma plats? Vad väljer de att ta upp?</p><h3>Historia i vår tid</h3><p>Tänk dig en reklam med en kungakrona och orden ”En kunglig smak”. Vad vill reklamen att du ska känna? En reklam kan använda historia för att sälja något. Den är inget bevis för hur människor åt på 1700-talet.</p><p class="small">Kartbeskrivningarna, replikerna och reklamen här är skapade övningsexempel. De är inte avskrifter av historiska källor.</p>`,'sources');
+  }
 
   function stats(){const rows=reportRows(),attempted=rows.filter(r=>r.s.attempts),firstRight=attempted.filter(r=>r.s.firstCorrect&&!r.s.firstSupported),missed=rows.filter(r=>r.s.missed),independent=rows.filter(r=>r.s.correct-r.s.supported>0);return{rows,attempted,firstRight,missed,independent}}
-  function showReport(){const s=stats();openModal('KUNSKAPSRAPPORT',state.name?`${esc(state.name)} · speldag ${state.day}`:`Speldag ${state.day}`,`<div class="report-grid"><div class="report-stat"><b>${state.completed.length}/7</b><span>arbetsintyg</span></div><div class="report-stat"><b>${s.attempted.length}/${s.rows.length}</b><span>frågor prövade</span></div><div class="report-stat"><b>${s.firstRight.length}</b><span>rätt direkt</span></div><div class="report-stat"><b>${s.missed.length}</b><span>kunskapsluckor</span></div></div><table class="report-table"><thead><tr><th>Uppdrag</th><th>Prövade</th><th>Rätt direkt</th><th>Fel</th></tr></thead><tbody>${data.missions.map(m=>{const rows=m.cards.map(q=>({q,s:state.answers[q.id]||{}})),seen=rows.filter(r=>r.s.attempts),right=seen.filter(r=>r.s.firstCorrect&&!r.s.firstSupported),wrong=seen.filter(r=>r.s.missed);return `<tr><td>${esc(m.title)}</td><td>${seen.length}/${rows.length}</td><td>${right.length}</td><td>${wrong.length}</td></tr>`}).join('')}</tbody></table><p class="small">Ett arbetsintyg kräver alla moment rätt i samma försök. Sambandsuppgifter innehåller färdiga delar och räknas därför som stöd. Rapporten är ett övningsunderlag, inte ett betyg.</p><div class="button-row"><button id="downloadReport" class="primary">Hämta rapport (.csv)</button><button id="printReport" class="secondary">Skriv ut</button></div>`,'report');$('downloadReport').onclick=()=>download('uppdrag-1700-aventyrsrapport.csv',reportCSV(),'text/csv;charset=utf-8');$('printReport').onclick=()=>window.print()}
+  function showReport(){const s=stats();openModal('KUNSKAPSRAPPORT',state.name?`${esc(state.name)} · speldag ${state.day}`:`Speldag ${state.day}`,`<div class="report-grid"><div class="report-stat"><b>${state.completed.length}/7</b><span>arbetsintyg</span></div><div class="report-stat"><b>${s.attempted.length}/${s.rows.length}</b><span>frågor prövade</span></div><div class="report-stat"><b>${s.firstRight.length}</b><span>rätt direkt</span></div><div class="report-stat"><b>${s.missed.length}</b><span>kunskapsluckor</span></div></div><table class="report-table"><thead><tr><th>Uppdrag / yrkesnivå</th><th>Prövade</th><th>Rätt direkt</th><th>Fel</th></tr></thead><tbody>${data.missions.map(m=>{const rows=m.cards.map(q=>({q,s:state.answers[q.id]||{}})),seen=rows.filter(r=>r.s.attempts),right=seen.filter(r=>r.s.firstCorrect&&!r.s.firstSupported),wrong=seen.filter(r=>r.s.missed);return `<tr><td>${esc(m.title)}<br><small>${RANKS[career(m.id).rank]}</small></td><td>${seen.length}/${rows.length}</td><td>${right.length}</td><td>${wrong.length}</td></tr>`}).join('')}</tbody></table><p class="small">Ett arbetsintyg visar ett klarat arbetspass med fyra kortsvar. Det visar inte att hela området är befäst. Sambandsuppgifter innehåller färdiga delar och räknas därför som stöd. Rapporten är ett övningsunderlag, inte ett betyg.</p><div class="button-row"><button id="downloadReport" class="primary">Hämta rapport (.csv)</button><button id="printReport" class="secondary">Skriv ut</button></div>`,'report');$('downloadReport').onclick=()=>download('uppdrag-1700-aventyrsrapport.csv',reportCSV(),'text/csv;charset=utf-8');$('printReport').onclick=()=>window.print()}
   function download(filename,text,type){const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2500)}
 
-  function showMenu(){if(state.rehearsal){showReviewQuestion();return}if(state.working){resumeWork();return}openModal('SPELMENY','Pausa äventyret',`<div class="rules"><button id="menuNotebook" class="rule"><b>Anteckningar</b><span>Kunskapsluckor utan facit</span></button><button id="menuReport" class="rule"><b>Rapport</b><span>Försök och arbetsintyg</span></button><button id="menuHelp" class="rule"><b>Så spelar du</b><span>Handlingar, hunger och dagar</span></button><button id="menuTeacher" class="rule"><b>För läraren</b><span>Frågebank och elevfil</span></button></div><div class="button-row"><button id="menuContinue" class="primary">Fortsätt spela</button><button id="menuReset" class="text-button">Börja om hela äventyret</button></div>`,'menu');$('menuNotebook').onclick=showNotebook;$('menuReport').onclick=showReport;$('menuHelp').onclick=showHelp;$('menuTeacher').onclick=showTeacher;$('menuContinue').onclick=closeModal;$('menuReset').onclick=confirmReset}
-  function showHelp(){openModal('SÅ SPELAR DU','Kunskap är spelmekaniken',`<div class="rules"><div class="rule"><b>1. Utforska</b><span>Välj Titta, Prata, Ta eller Använd. Tryckeriet och trädgården har frivilliga pussel med föremål att använda.</span></div><div class="rule"><b>2. Arbeta</b><span>Varje jobb kostar 1 mättnad och för tiden framåt.</span></div><div class="rule"><b>3. Minns</b><span>Svara utan alternativ. Ett fel stänger jobbet för dagen.</span></div><div class="rule"><b>4. Överlev</b><span>Tjäna daler, köp bröd och ät ur ränseln.</span></div></div><p>Det finns ingen snabb gissningsloop: ett fel visar inte facit och kräver en ny speldag. Sambandspusslen har däremot färdiga delar och ger därför visst stöd.</p><p>Besök läromästaren Rut på Stortorget för att repetera avslutade uppdrag. Minst 70 procent rätt kan ge ett äpple och 1 daler en gång per verkligt dygn. Äpplet ger extra stöd i ett nytt jobb och stödet markeras i rapporten. Bokoraklets hänvisningar är alltid gratis.</p><div class="warning">Spelet är gjort för att spelas efter undervisning. Det är inte tänkt att lära ut hela området på egen hand.</div>`,'help')}
+  function showMenu(){if(state.rehearsal){showReviewQuestion();return}if(state.working){resumeWork();return}openModal('SPELMENY','Pausa äventyret',`<div class="rules"><button id="menuNotebook" class="rule"><b>Anteckningar</b><span>Kunskapsluckor utan facit</span></button><button id="menuReport" class="rule"><b>Rapport</b><span>Försök och arbetsintyg</span></button><button id="menuHelp" class="rule"><b>Så spelar du</b><span>Handlingar, hunger och dagar</span></button><button id="menuTeacher" class="rule"><b>För läraren</b><span>Frågebank och elevfil</span></button></div><div class="button-row"><button id="menuChapter" class="secondary">Kapitel och språk</button><button id="menuContinue" class="primary">Fortsätt spela</button><button id="menuReset" class="text-button">Börja om hela äventyret</button></div>`,'menu');$('menuNotebook').onclick=showNotebook;$('menuReport').onclick=showReport;$('menuHelp').onclick=showHelp;$('menuTeacher').onclick=showTeacher;$('menuChapter').onclick=showChapters;$('menuContinue').onclick=closeModal;$('menuReset').onclick=confirmReset}
+  function showHelp(){openModal('SÅ SPELAR DU','Kunskap är spelmekaniken',`<div class="rules"><div class="rule"><b>1. Utforska</b><span>Välj Titta, Prata, Ta eller Använd. Tryckeriet och trädgården har frivilliga pussel med föremål att använda.</span></div><div class="rule"><b>2. Arbeta</b><span>Varje jobb kostar 1 mättnad och för tiden framåt.</span></div><div class="rule"><b>3. Minns</b><span>Svara utan alternativ. Ett fel stänger jobbet för dagen.</span></div><div class="rule"><b>4. Överlev</b><span>Tjäna daler, köp bröd och ät ur ränseln.</span></div></div><p>Det finns ingen snabb gissningsloop: ett fel visar inte facit och kräver en ny speldag. Sambandspusslen har däremot färdiga delar och ger därför visst stöd.</p><p>Besök läromästaren Rut på Stortorget för att repetera genomgångna områden. Minst 70 procent rätt kan ge ett äpple och 1 daler en gång per verkligt dygn. Äpplet ger extra stöd i ett nytt jobb och stödet markeras i rapporten. Bokoraklets hänvisningar är alltid gratis.</p><div class="warning">Spelet är gjort för att spelas efter undervisning. Det är inte tänkt att lära ut hela området på egen hand.</div>`,'help')}
   function showTeacher(){openModal('FÖR LÄRAREN','En prototyp att pröva kritiskt',`<div class="segmented"><button id="teacherGuide" class="active">Upplägg</button><button id="teacherBank">Frågebank</button><button id="teacherSources">Källor</button></div><div id="teacherContent"></div>`,'teacher');$('teacherGuide').onclick=()=>teacherTab('guide');$('teacherBank').onclick=()=>teacherTab('bank');$('teacherSources').onclick=()=>teacherTab('sources');teacherTab('guide')}
   function teacherTab(tab){
     for(const [id,key]of[['teacherGuide','guide'],['teacherBank','bank'],['teacherSources','sources']])$(id).classList.toggle('active',tab===key);const el=$('teacherContent');
-    if(tab==='guide'){el.innerHTML=`<p><b>Prototypens hypotes:</b> kunskap från undervisningen blir en resurs i ett äventyr. Eleven måste få arbete för att köpa mat. Ett fel svar avslutar jobbet för speldagen och visar inte facit.</p><h3>Spela tillsammans i klassen</h3><p>Visa spelet på projektorn. Låt alla elever tänka och svara för sig innan ni väljer klassens svar. Besök bokoraklet för att knyta uppdragen till undervisningen.</p><h3>Det som är starkt</h3><ul><li>Fria svar gör enkel gissning svår.</li><li>Kunskapen har en tydlig funktion i berättelsen.</li><li>Rapporten skiljer rätt direkt från senare försök.</li></ul><h3>Det som måste prövas</h3><ul><li>Hunger och låsning kan motivera, men också frustrera.</li><li>Fem rätt i följd mäter även uthållighet och läsning.</li><li>Den tillfälliga frågebanken täcker inte nödvändigtvis ert kommande kapitel.</li><li>Repetitionens intervaller är ett startförslag; elevernas lärande behöver följas upp.</li></ul><div class="button-row"><button id="downloadGame" class="primary">Hämta elevversion (.html)</button><button id="teacherReport" class="secondary">Visa rapport</button></div><p class="small">Elevversionen fungerar utan nät. Framsteg sparas i samma webbläsare på samma enhet och skickas inte automatiskt till läraren.</p>`;$('downloadGame').onclick=downloadGame;$('teacherReport').onclick=showReport;return}
-    if(tab==='sources'){el.innerHTML=`<p>Historiska faktauppgifter bygger främst på Sveriges riksdag, Uppsala universitet, Göteborgs universitet och Stockholmskällan. Staden, personerna och händelseförloppet är påhittade.</p><ul class="source-list">${data.sources.map(s=>`<li><a target="_blank" rel="noopener noreferrer" href="${esc(s.url)}">${esc(s.label)} ↗</a></li>`).join('')}</ul><div class="warning">Stödet gäller återkallning som lärstrategi, inte att just denna spelvärld förbättrar lärandet. Därför behöver vi observera elevernas beteende och justera.</div>`;return}
-    el.innerHTML=`<p>Fältet bookReference kan ange en riktig bokhänvisning per uppdrag, och learningHint en extra ledtråd per kortsvarsfråga. Import av en ny bank börjar ett nytt äventyr.<br><br>Den nuvarande banken är tillfällig: ${allCards().length} frågor i sju uppdrag. Exportera den som mall eller importera en ny bank med samma sju uppdrags-id.</p><div class="quest-list">${data.missions.map(m=>`<div class="quest-row"><span class="seal">${m.symbol}</span><span><b>${esc(m.title)}</b><small>${m.cards.length} frågor</small></span></div>`).join('')}</div><div class="button-row"><button id="exportBank" class="secondary">Exportera frågebank (.json)</button><button id="importBank" class="secondary">Importera frågebank</button></div><input id="bankUpload" type="file" accept="application/json,.json" hidden><p id="bankError" class="warning" hidden></p>`;$('exportBank').onclick=()=>download('uppdrag-1700-fragor.json',JSON.stringify(data,null,2),'application/json');$('importBank').onclick=()=>$('bankUpload').click();$('bankUpload').onchange=importBank;
+    if(tab==='guide'){el.innerHTML=`<p><b>Prototypens hypotes:</b> kunskap från undervisningen blir en resurs i ett äventyr. Eleven måste få arbete för att köpa mat. Ett fel svar visar inte facit. Med ett äpple eller en erbjuden ledtråd kan eleven få ett stöttat omförsök efter sitt eget försök.</p><div class="button-row"><button id="teacherChapter" class="primary">Öppna kapitel och språk</button></div><h3>Progression</h3><p>Lärling: fyra fria svar per arbetspass. För gesällprovet krävs att alla tillgängliga faktafrågor på arbetsplatsen har återkallats rätt utan stöd vid minst två tillfällen med minst ett verkligt dygn emellan. Därefter prövas samband med färdiga delar. För mästarprovet krävs ytterligare återkallning minst ett dygn efter gesällprovet, följt av en ny situation. Spelnivåerna och tidsgränserna är designval, inte validerade betygsgränser.</p><h3>Spela tillsammans i klassen</h3><p>Visa spelet på projektorn. Låt alla elever tänka och svara för sig innan ni väljer klassens svar. Besök bokoraklet för att knyta uppdragen till undervisningen.</p><h3>Det som är starkt</h3><ul><li>Fria svar gör enkel gissning svår.</li><li>Kunskapen har en tydlig funktion i berättelsen.</li><li>Rapporten skiljer rätt direkt från senare försök.</li></ul><h3>Det som måste prövas</h3><ul><li>Hunger och låsning kan motivera, men också frustrera.</li><li>Fyra fria svar per arbetspass mäter även läsning och stavning. Godtagbara formuleringar behöver följas upp.</li><li>Frågorna är anpassade till ert kapitel. Spelnivåer är inte betyg. Sambandsuppgifter med färdiga delar visar stöttad prestation.</li><li>Repetitionens intervaller är ett startförslag; elevernas lärande behöver följas upp.</li></ul><div class="button-row"><button id="downloadGame" class="primary">Hämta elevversion (.html)</button><button id="teacherReport" class="secondary">Visa rapport</button></div><p class="small">Elevversionen fungerar utan nät. Framsteg sparas i samma webbläsare på samma enhet och skickas inte automatiskt till läraren.</p>`;$('teacherChapter').onclick=showChapters;$('downloadGame').onclick=downloadGame;$('teacherReport').onclick=showReport;return}
+    if(tab==='sources'){el.innerHTML=`<p>Frågorna följer det tillhandahållna kapitlet i SOS Historia 4–6, arbetsboken och begreppslistan. Prov och bedömningsstöd har använts för att välja fakta, jämförelser och samband. Förlagets bilder och prov publiceras inte här. Staden, personerna och händelseförloppet är påhittade.</p><ul class="source-list">${data.sources.map(s=>`<li><a target="_blank" rel="noopener noreferrer" href="${esc(s.url)}">${esc(s.label)} ↗</a></li>`).join('')}</ul><div class="warning">Stödet gäller återkallning som lärstrategi, inte att just denna spelvärld förbättrar lärandet. Därför behöver vi observera elevernas beteende och justera.</div>`;return}
+    el.innerHTML=`<p>Fältet bookReference kan ange en riktig bokhänvisning per uppdrag, och learningHint en extra ledtråd per kortsvarsfråga. Import av en ny bank börjar ett nytt äventyr.<br><br>Den kapitelanpassade banken innehåller: ${allCards().length} frågor i sju uppdrag. Exportera den som mall eller importera en ny bank med samma sju uppdrags-id.</p><div class="quest-list">${data.missions.map(m=>`<div class="quest-row"><span class="seal">${m.symbol}</span><span><b>${esc(m.title)}</b><small>${m.cards.length} frågor</small></span></div>`).join('')}</div><div class="button-row"><button id="exportBank" class="secondary">Exportera frågebank (.json)</button><button id="importBank" class="secondary">Importera frågebank</button></div><input id="bankUpload" type="file" accept="application/json,.json" hidden><p id="bankError" class="warning" hidden></p>`;$('exportBank').onclick=()=>download('uppdrag-1700-fragor.json',JSON.stringify(data,null,2),'application/json');$('importBank').onclick=()=>$('bankUpload').click();$('bankUpload').onchange=importBank;
   }
   async function importBank(){const file=$('bankUpload').files?.[0];if(!file)return;try{const value=JSON.parse(await file.text());if(!validBank(value))throw new Error('Banken behöver samma sju uppdrag, unika fråge-id och giltiga svarsfält. Utgå från en exporterad fil.');openModal('BYT FRÅGEBANK','Börja ett nytt äventyr?',`<p>En ny frågebank gör gamla resultat svårtolkade. Importen nollställer därför spelets framsteg på den här enheten.</p><div class="button-row"><button id="confirmImport" class="primary">Importera och börja om</button><button id="cancelImport" class="secondary">Avbryt</button></div>`,'confirm');$('confirmImport').onclick=()=>{applyBank(value);try{localStorage.setItem(BANK_KEY,JSON.stringify(data))}catch{}const name=state.name;state=blankState();state.name=name;state.started=true;save();closeModal();travel('square');updateHUD();showHint('Den nya frågebanken är inläst.')} ;$('cancelImport').onclick=showTeacher}catch(error){const box=$('bankError');box.textContent=error.message;box.hidden=false}}
   async function downloadGame(){const button=$('downloadGame');if(button){button.disabled=true;button.textContent='Förbereder …'}try{let html;if(document.getElementById('custom-bank')){const clone=document.documentElement.cloneNode(true);clone.querySelector('#modal')?.removeAttribute('open');clone.querySelector('#custom-bank').textContent='window.CUSTOM_BANK='+JSON.stringify(data).replace(/</g,'\\u003c')+';';html='<!doctype html>\n'+clone.outerHTML}else{const response=await fetch('uppdrag-1700.html');if(!response.ok)throw new Error('Elevfilen kunde inte hämtas.');html=await response.text();html=html.replace(/window\.CUSTOM_BANK=null;/,()=>`window.CUSTOM_BANK=${JSON.stringify(data).replace(/</g,'\\u003c')};`)}download('uppdrag-1700-monkey-island.html',html,'text/html;charset=utf-8');showHint('Elevversionen är hämtad.')}catch(error){showHint('Kunde inte hämta elevversionen: '+error.message)}finally{if(button){button.disabled=false;button.textContent='Hämta elevversion (.html)'}}}
@@ -664,7 +745,7 @@
   function closeModal(){if($('modal').open)$('modal').close();canvas.focus()}
   $('modal').addEventListener('cancel',e=>{e.preventDefault();closeModal()});
   function showIntro(){
-    openModal('ETT POINT-AND-CLICK-ÄVENTYR','Den hungrige <em>lärlingen</em>',`<p class="lead">Du kommer till staden med tom ränsel, två mått mättnad och inte en enda daler. Arkivet söker en lärling — men först måste du överleva dagen.</p><div class="chapter-card"><span class="eyebrow">KAPITEL 1 · PROTOTYP</span><p><b>Skaffa arbete. Använd kunskaper om 1700-talet. Få betalt. Köp bröd.</b></p></div><div class="rules"><div class="rule"><b>Kunskap krävs</b><span>Korta svar skrivs fritt. Inga svarsalternativ.</span></div><div class="rule"><b>Fel får följder</b><span>Jobbet stängs för dagen. Facit avslöjas inte.</span></div><div class="rule"><b>Mat är tid</b><span>Varje arbete kostar 1 mättnad.</span></div><div class="rule"><b>Världen minns</b><span>Framsteg sparas på denna enhet.</span></div></div><label class="field-label" for="playerName">VAD SKA STADEN KALLA DIG? (FRIVILLIGT)</label><input id="playerName" maxlength="35" value="${esc(state.name)}" placeholder="Till exempel Arkivlärlingen"><div class="button-row"><button id="startAdventure" class="primary">${state.started?'Fortsätt äventyret':'Kliv in i staden'} →</button><button id="introTeacher" class="secondary">För läraren</button></div><p class="small">Staden och personerna är fiktiva. Frågebanken är tillfällig medan vi provar spelarkitekturen.</p>`,'intro');$('startAdventure').onclick=()=>{state.name=$('playerName').value.trim();state.started=true;playing=true;save();closeModal();travel(state.scene||'square');if(!state.completed.length)showDialogue('Berättaren','Din mage morrar. Marta säljer bröd för tre daler. Anslagstavlan listar arbeten — men ingen betalar för vackra gissningar.',[{label:'Jag tittar på anslagstavlan.',fn:()=>{closeDialogue();activeVerb='look';updateVerbButtons();showHint('Välj anslagstavlan i scenen.')},reply:true},{label:'Jag utforskar själv.',fn:closeDialogue,reply:true}])};$('introTeacher').onclick=showTeacher;
+    openModal('ETT POINT-AND-CLICK-ÄVENTYR','Den hungrige <em>lärlingen</em>',`<p class="lead">Du kommer till staden med tom ränsel, två mått mättnad och inte en enda daler. Arkivet söker en lärling — men först måste du överleva dagen.</p><div class="chapter-card"><span class="eyebrow">TVÅ KAPITEL · ETT ÄVENTYR</span><p><b>Skaffa arbete. Använd kunskaper om 1700-talet. Få betalt. Köp bröd.</b></p></div><div class="rules"><div class="rule"><b>Kunskap krävs</b><span>Korta svar skrivs fritt. Inga svarsalternativ.</span></div><div class="rule"><b>Fel får följder</b><span>Jobbet stängs för dagen. Facit avslöjas inte.</span></div><div class="rule"><b>Mat är tid</b><span>Varje arbete kostar 1 mättnad.</span></div><div class="rule"><b>Världen minns</b><span>Framsteg sparas på denna enhet.</span></div></div><label class="field-label" for="playerName">VAD SKA STADEN KALLA DIG? (FRIVILLIGT)</label><input id="playerName" maxlength="35" value="${esc(state.name)}" placeholder="Till exempel Arkivlärlingen"><div class="button-row"><button id="startAdventure" class="primary">${state.started?'Fortsätt äventyret':'Kliv in i staden'} →</button><button id="introLanguage" class="secondary">${state.simpleText?"Lättläst språk valt":"Välj lättläst språk"}</button><button id="introTeacher" class="secondary">För läraren</button></div><p class="small">Staden och personerna är fiktiva. Frågorna följer kapitlet om 1700-talets Sverige.</p>`,'intro');$('startAdventure').onclick=()=>{state.name=$('playerName').value.trim();state.started=true;playing=true;save();closeModal();travel(state.scene||'square');if(!state.completed.length)showDialogue('Berättaren','Din mage morrar. Marta säljer bröd för tre daler. Anslagstavlan listar arbeten — men ingen betalar för vackra gissningar.',[{label:'Jag tittar på anslagstavlan.',fn:()=>{closeDialogue();activeVerb='look';updateVerbButtons();showHint('Välj anslagstavlan i scenen.')},reply:true},{label:'Jag utforskar själv.',fn:closeDialogue,reply:true}])};$('introLanguage').onclick=()=>{state.simpleText=!state.simpleText;save();showIntro()};$('introTeacher').onclick=showTeacher;
   }
   function foodInfo(){openModal('MÄTTNAD','Kunskap kräver lunch',`<p>Du har <b>${state.food} av ${state.maxFood}</b> mättnad. Ett nytt arbete kostar 1. Ett bröd kostar 3 daler och ger tillbaka 3.</p><p>Om du misslyckas utan mat, pengar eller bröd tar dagen slut. Färdiga arbetsintyg finns kvar.</p>`,'food')}
 

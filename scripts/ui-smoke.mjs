@@ -42,10 +42,10 @@ elements.get('dialogueAction1').click();assert(elements.get('dialogue').hidden);
 elements.get('mapBtn').click();const harbor=[...new Set(elements.values())].find(el=>el.dataset?.travel==='harbor');assert(harbor);harbor.click();assert.equal(game.state.scene,'harbor');
 const npc=[...new Set(elements.values())].find(el=>el.dataset?.hotspot==='tradeNpc');assert(npc);npc.click();elements.get('dialogueAction0').click();assert.equal(game.state.working.missionId,'trade');
 const mission=game.mission('trade');
-for(const [index,q] of mission.cards.entries()){
+for(let index=0;game.state.working;index++){const q=game.workQuestion();const total=game.state.working.ids.length;
   if(q.type==='short'){elements.get('jobAnswer').value=q.answer;elements.get('submitJobAnswer').click()}
   else{q.steps.forEach((step,i)=>{elements.get('chain'+i).value=step.answer});elements.get('submitChainAnswer').click()}
-  if(index<mission.cards.length-1)elements.get('dialogueAction0').click();
+  if(index<total-1)elements.get('dialogueAction0').click();
 }
 assert(game.state.completed.includes('trade'));assert.equal(game.state.coins,8);assert.equal(game.state.scene,'harbor');elements.get('dialogueAction0').click();
 const saved=JSON.parse(storage.get('uppdrag1700.adventure.v2'));const reloaded=game.loadState(saved);
@@ -54,7 +54,7 @@ elements.get('mapBtn').click();const square=[...new Set(elements.values())].find
 const baker=[...new Set(elements.values())].find(el=>el.dataset?.hotspot==='baker');baker.click();elements.get('dialogueAction0').click();
 assert.equal(game.state.inventory.bread,1);const bread=[...new Set(elements.values())].find(el=>el.dataset?.item==='bread');bread.click();bread.click();
 assert.equal(game.state.food,4);assert(game.state.breadEaten);
-process.stdout.write('PASS complete UI route: intro → harbor → five-step job → reload-safe pay → buy bread → eat\n');
+process.stdout.write('PASS complete UI route: intro → harbor → four-question work session → reload-safe pay → buy bread → eat\n');
 
 
 const guestCoins=game.state.coins;
@@ -112,7 +112,7 @@ for(const [id,g] of [['canina','Viola'],['tricolor','Viola'],['gallica','Rosa'],
 elements.get('sortPlants').click();assert(elements.get('plantFeedback').textContent.includes('hamnade fel'));
 elements.get('plantHint').click();assert(elements.get('plantFeedback').textContent.includes('börjar med Rosa'));
 elements.get('plant-canina').value='Rosa';elements.get('sortPlants').click();assert.equal(game.state.inventory.seeds,1);
-elements.get('leavePlants').click();elements.get('mapBtn').click();
+elements.get('leavePlants').click();game.logicChapter(2,{unlock:true});elements.get('mapBtn').click();
 [...new Set(elements.values())].find(el=>el.dataset?.travel==='farm').click();
 item('seeds').click();hotspot('farmNpc').click();assert(!game.state.inventory.seeds);assert.equal(game.state.hintCredits.farm,1);
 elements.get('dialogueClose').click();
@@ -120,8 +120,21 @@ process.stdout.write('PASS garden UI: draft → reopen → retry → sort → se
 elements.get('mapBtn').click();
 [...new Set(elements.values())].find(el=>el.dataset?.travel==='palace').click();
 item('apple').click();hotspot('kingNpc').click();elements.get('dialogueAction0').click();elements.get('dialogueAction0').click();
-elements.get('appleHint').click();assert(game.state.working.hintUsed);
+assert(!elements.get('appleHint')||!game.state.working.hintUsed);elements.get('jobAnswer').value='fel';elements.get('submitJobAnswer').click();elements.get('dialogueAction0').click();elements.get('appleHint').click();assert(game.state.working.hintUsed);
 assert.equal(soundEvents.at(-1),'stop','knowledge question silences effects');
-elements.get('jobAnswer').value=game.mission('king').cards[0].answer;elements.get('submitJobAnswer').click();
-assert(game.state.answers['king-name'].lastSupported);
-process.stdout.write('PASS gameplay UI: rehearse → earn apple → collect and print → offer apple → supported answer\\n');
+const hinted=game.workQuestion();elements.get('jobAnswer').value=hinted.answer;elements.get('submitJobAnswer').click();
+assert(game.state.answers[hinted.id].lastSupported);
+process.stdout.write('PASS gameplay UI: rehearse → earn apple → collect and print → offer apple → supported answer\n');
+// Exercise the new optional dialogue without awarding knowledge or spending resources.
+elements.get('dialogueClose').click();game.state.working=null;game.state.time=0;game.state.food=5;
+elements.get('mapBtn').click();[...new Set(elements.values())].find(el=>el.dataset?.travel==='print').click();
+const beforeSocial=JSON.stringify({answers:game.state.answers,coins:game.state.coins,food:game.state.food,practice:game.state.practice});
+hotspot('pressNpc').click();elements.get('dialogueAction1').click();assert(elements.get('dialogueText').innerHTML.includes('väljer mina ord'));
+elements.get('dialogueAction0').click();assert(elements.get('dialogueText').innerHTML.includes('tryckfriheten'));
+elements.get('dialogueAction0').click();assert(elements.get('dialogueText').innerHTML.includes('arbetar här'));
+elements.get('dialogueAction0').click();assert(elements.get('dialogue').hidden);
+assert.equal(JSON.stringify({answers:game.state.answers,coins:game.state.coins,food:game.state.food,practice:game.state.practice}),beforeSocial);
+elements.get('menuBtn').click();elements.get('menuChapter').click();elements.get('simpleToggle').click();assert(game.state.simpleText);
+elements.get('chapterOne').click();assert.equal(game.state.chapter,1);assert.equal(game.state.unlockedChapter,2);
+elements.get('menuBtn').click();elements.get('menuNotebook').click();assert(elements.get('modalBody').innerHTML.includes('Begrepp i det här kapitlet'));elements.get('journalSources').click();assert(elements.get('modalBody').innerHTML.includes('övningsexempel'));
+process.stdout.write('PASS chapter/language/dialogue UI: character reaction → no knowledge reward → easy language → earlier chapter → source journal\n');

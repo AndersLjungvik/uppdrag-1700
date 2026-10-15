@@ -10,7 +10,7 @@ function engine(){
   return c.window.__adventure;
 }
 function studied(e,ids=['trade']){
-  const s=e.blankState();s.started=true;s.completed=ids;s.food=3;s.time=2;e.setState(s);
+  const s=e.blankState();s.started=true;s.chapter=2;s.unlockedChapter=2;s.completed=ids;s.food=3;s.time=2;e.setState(s);
 }
 function solve(e,now=NOW){
   let result;
@@ -25,8 +25,8 @@ test('old saved adventures gain new fields without losing harbor pay or seals',(
 });
 test('retrieval uses only studied short questions, with a unique bounded session',()=>{
   const e=engine();assert.equal(e.logicBeginReview(NOW).reason,'no-topics');studied(e);
-  assert(e.logicBeginReview(NOW).ok);assert.equal(e.state.rehearsal.ids.length,4);
-  assert.equal(new Set(e.state.rehearsal.ids).size,4);
+  assert(e.logicBeginReview(NOW).ok);assert.equal(e.state.rehearsal.ids.length,6);
+  assert.equal(new Set(e.state.rehearsal.ids).size,6);
   for(const id of e.state.rehearsal.ids)assert(e.mission('trade').cards.some(q=>q.type==='short'&&q.id===id));
 });
 test('due questions and prior errors return; future topics never enter the session',()=>{
@@ -59,11 +59,11 @@ test('poor performance and cancellation do not yield apples; rehearsal blocks co
 test('apple hints are consumed once, survive reload and mark the answer as supported',()=>{
   const e=engine();studied(e);e.state.inventory.apple=1;
   assert(e.logicOfferApple('king').ok);assert(!e.state.inventory.apple);assert.equal(e.state.hintCredits.king,1);
-  assert(e.logicBeginJob('king').ok);assert(e.logicJobHint().ok);assert.equal(e.logicJobHint().ok,false);
+  assert(e.logicBeginJob('king').ok);assert.equal(e.logicJobHint().reason,'attempt-first');e.logicAnswer(e.workQuestion(),'fel');assert(e.logicJobHint().ok);assert.equal(e.logicJobHint().ok,false);
   e.setState(JSON.parse(JSON.stringify(e.state)));assert.equal(e.state.working.hintUsed,true);
-  const q=e.mission('king').cards[0];assert(e.logicAnswer(q,q.answer,false).correct);
+  const q=e.workQuestion();assert(e.logicAnswer(q,q.answer,false).correct);
   assert.equal(e.state.answers[q.id].lastSupported,true);assert.equal(e.state.answers[q.id].supported,1);
-  assert.equal(e.state.working.hintUsed,false);assert.equal(e.logicJobHint().reason,'no-apple');
+  assert.equal(e.state.working.hintUsed,false);assert.equal(e.logicJobHint().reason,'attempt-first');
 });
 test('the printing puzzle has real inventory, reload-safe progress and one non-knowledge reward',()=>{
   const e=engine();assert.equal(e.logicPrint().reason,'missing');
@@ -74,15 +74,15 @@ test('the printing puzzle has real inventory, reload-safe progress and one non-k
 });
 test('book references and tailored hints can be imported without inventing page numbers',()=>{
   const e=engine(),bank=JSON.parse(JSON.stringify(e.data));bank.missions[0].bookReference='SO-boken, sidan 42';
-  bank.missions[0].cards[0].learningHint='Tänk på året i bokens tidslinje.';
+  for(const q of bank.missions[0].cards)q.learningHint='Tänk på året i bokens tidslinje.';
   assert(e.applyBank(bank));assert.equal(e.bookGuide('press'),'SO-boken, sidan 42');
   assert(e.logicBeginJob('press').ok);e.state.inventory.apple=1;
-  assert.equal(e.logicJobHint().hint,'Tänk på året i bokens tidslinje.');
+  e.logicAnswer(e.workQuestion(),'fel');assert.equal(e.logicJobHint().hint,'Tänk på året i bokens tidslinje.');
 });
 
 test('year clues narrow the decade without revealing the full year',()=>{
   const e=engine();assert(e.logicBeginJob('press').ok);e.state.inventory.apple=1;
-  const hint=e.logicJobHint().hint;assert(hint.includes('1760-talet'));assert(!hint.includes('1766'));
+  e.state.working.ids=['press-year'];e.logicAnswer(e.workQuestion(),'fel');const hint=e.logicJobHint().hint;assert(hint.includes('1760-talet'));assert(!hint.includes('1766'));
 });
 
 test('plant sorting saves drafts, permits retries and awards and delivers seeds once',()=>{
@@ -100,8 +100,8 @@ test('plant sorting saves drafts, permits retries and awards and delivers seeds 
   assert.equal(e.logicPlantPlacement('canina','Viola').ok,false);assert(e.logicDeliverSeeds().ok);
   assert(!e.state.inventory.seeds);assert.equal(e.state.hintCredits.farm,1);
   e.setState(JSON.parse(JSON.stringify(e.state)));assert.equal(e.logicDeliverSeeds().ok,false);
-  assert(e.logicBeginJob('farm').ok);assert(e.logicJobHint().ok);
-  const q=e.mission('farm').cards[0];e.logicAnswer(q,q.answer,false);assert(e.state.answers[q.id].lastSupported);
+  e.logicChapter(2,{unlock:true});assert(e.logicBeginJob('farm').ok);e.logicAnswer(e.workQuestion(),'fel');assert(e.logicJobHint().ok);
+  const q=e.workQuestion();e.logicAnswer(q,q.answer,false);assert(e.state.answers[q.id].lastSupported);
 });
 
 test('garden reward preserves finished farm jobs and sanitizes saved choices',()=>{
@@ -119,8 +119,8 @@ test('repeat printing charges once, limits holdings and daily delivery and resum
   assert(e.logicPrint().ok);assert.equal(e.state.coins,1);assert.equal(e.logicPrint().reason,'holding');
   e.setState(JSON.parse(JSON.stringify(e.state)));assert(e.logicDeliverProof().ok);assert.equal(e.state.hintCredits.ideas,2);
   assert.equal(e.state.workshop.printCount,2);assert.equal(e.logicDeliverProof().ok,false);
-  e.logicBeginJob('ideas');assert(e.logicJobHint().ok);assert.equal(e.state.hintCredits.ideas,1);
-  const q=e.mission('ideas').cards[0];e.logicAnswer(q,q.answer,false);assert(e.state.answers[q.id].lastSupported);
+  e.logicBeginJob('ideas');e.logicAnswer(e.workQuestion(),'fel');assert(e.logicJobHint().ok);assert.equal(e.state.hintCredits.ideas,1);
+  const q=e.workQuestion();e.logicAnswer(q,q.answer,false);assert(e.state.answers[q.id].lastSupported);
 });
 
 test('old delivered proofs retain today limit and finished cafe rejects repeat printing',()=>{
@@ -140,4 +140,51 @@ test('paper errands preserve packages on reload and pay once per game day withou
   e.setState(JSON.parse(JSON.stringify(e.state)));assert.equal(e.logicBeginPaperErrand().reason,'daily');
   e.logicNewDay();assert(e.logicBeginPaperErrand().ok);assert(e.logicTakePaperParcel().ok);assert(e.logicDeliverPaperParcel().ok);
   assert.equal(e.state.coins,2);assert.equal(Object.keys(e.state.answers).length,0);
+});
+
+test('chapters gate new topics, can reopen old worlds and cannot change during a job',()=>{
+ const e=engine();assert.equal(e.state.chapter,1);assert.equal(e.logicBeginJob('king').reason,'chapter');
+ assert(e.availableCards('trade').every(q=>q.chapter===1));assert.equal(e.logicChapter(2),false);
+ assert(e.logicStudy('trade'));assert(e.logicBeginJob('trade').ok);assert.equal(e.logicChapter(2,{unlock:true}),false);
+ assert(e.state.working.ids.every(id=>e.availableCards('trade').some(q=>q.id===id&&q.type==='short')));
+ e.state.working=null;assert(e.logicChapter(2,{unlock:true}));assert(e.logicBeginJob('king').ok);
+ e.state.working=null;assert(e.logicChapter(1));assert.equal(e.state.unlockedChapter,2);
+ assert(e.eligibleReviewCards().every(q=>q.chapter===1));
+});
+test('work resumes its saved shuffled cards and pays repeat wages without duplicating a seal',()=>{
+ const e=engine();e.logicBeginJob('press');const ids=[...e.state.working.ids];e.logicAnswer(e.workQuestion(),e.workQuestion().answer);
+ e.setState(JSON.parse(JSON.stringify(e.state)));assert.equal(e.workQuestion().id,ids[1]);
+ while(e.state.working)e.logicAnswer(e.workQuestion(),e.workQuestion().answer);
+ assert.equal(e.state.coins,6);assert.equal(e.state.inventory.press,1);
+ e.state.food=5;e.state.time=0;assert(e.logicBeginJob('press').ok);
+ while(e.state.working)e.logicAnswer(e.workQuestion(),e.workQuestion().answer);
+ assert.equal(e.state.coins,8);assert.equal(e.state.inventory.press,1);assert.equal(e.state.workSessions.length,2);
+});
+test('study before certification opens rehearsal and hints always require a recorded attempt',()=>{
+ const e=engine();assert(e.logicStudy('press'));assert.equal(e.state.completed.length,0);assert(e.logicBeginReview(NOW).ok);e.logicCancelReview();
+ e.state.inventory.apple=1;e.logicBeginJob('press');const q=e.workQuestion();assert.equal(e.logicJobHint().reason,'attempt-first');
+ assert(e.logicAnswer(q,'vet inte').retry);assert.equal(e.state.answers[q.id].missed,1);assert(e.logicJobHint().ok);
+ e.setState(JSON.parse(JSON.stringify(e.state)));assert(e.state.working.hintUsed);e.logicAnswer(e.workQuestion(),q.answer);
+ assert(e.state.answers[q.id].lastSupported);assert.equal(e.state.practice[q.id].level,0);
+});
+test('same-session success and game days cannot promote; spaced facts unlock separate reason tasks',()=>{
+ const e=engine(),facts=e.availableCards('press').filter(q=>q.type==='short');
+ for(const q of facts)e.state.practice[q.id]={level:1,lastCorrect:true,supported:false,lastReviewedAt:NOW,nextDueAt:NOW+DAY};
+ for(let i=0;i<8;i++)e.logicNewDay();assert.equal(e.promotionStage('press',NOW+1000),null);
+ for(const q of facts)e.state.practice[q.id]={level:2,lastCorrect:true,supported:false,lastReviewedAt:NOW,nextDueAt:NOW+DAY};
+ assert.equal(e.promotionStage('press',NOW),'journey');e.state.food=5;e.state.time=0;assert(e.logicBeginJob('press',{promotion:true,now:NOW}).ok);
+ while(e.state.working){const q=e.workQuestion();assert.equal(q.stage,'journey');assert(e.logicAnswer(q,q.steps.map(s=>s.answer)).correct)}
+ assert.equal(e.career('press').rank,2);const promoted=e.career('press').promotedAt;assert.equal(e.promotionStage('press',promoted+DAY),null);
+ for(const q of facts)e.state.practice[q.id].lastReviewedAt=promoted+DAY;
+ assert.equal(e.promotionStage('press',promoted+DAY),'master');e.state.time=0;e.state.food=5;e.logicBeginJob('press',{promotion:true,now:promoted+DAY});
+ const q=e.workQuestion();assert.equal(q.stage,'master');e.logicAnswer(q,q.steps.map(s=>s.answer));assert.equal(e.career('press').rank,3);
+ assert(e.state.answers[q.id].lastSupported,'reason puzzles remain marked as scaffolded');
+});
+test('all 18 required concepts link to an assessable free response in the right chapter',()=>{
+ const e=engine();assert.equal(e.data.concepts.length,18);
+ for(const c of e.data.concepts){const q=e.mission(c.mission).cards.find(q=>q.id===c.question);assert(q);assert.equal(q.type,'short');assert.equal(q.chapter,c.chapter);assert(e.gradeShort(q,q.answer));assert(q.simpleQuestion)}
+});
+test('old unfinished job is safely cancelled but money, inventory and gaps survive migration',()=>{
+ const e=engine(),s={version:2,coins:19,completed:['trade'],inventory:{trade:1,apple:1},working:{missionId:'press',index:2},gaps:['press-open'],answers:{},scene:'harbor'};
+ e.setState(s);assert.equal(e.state.working,null);assert.equal(e.state.coins,19);assert.equal(e.state.inventory.apple,1);assert(e.state.studied.includes('trade'));assert(e.state.gaps.includes('press-open'));
 });

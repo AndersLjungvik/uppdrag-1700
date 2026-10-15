@@ -1,120 +1,2171 @@
 'use strict';
-(() => {
- const short = (id, question, answer, accept, distractors, explanation, hint='Skriv ett ord eller en kort fras.') => ({id,type:'short',question,answer,accept,distractors,explanation,hint});
- const chain = (id,question,steps,explanation) => ({id,type:'chain',question,steps,explanation,hint:'Bygg ett historiskt samband. Välj en del i varje ruta.'});
- window.CURRICULUM = {
-  version:1,
-  title:'Uppdrag 1700',
-  scope:'Sveriges frihetstid och gustavianska tid, med utblickar mot upplysningen och handeln.',
-  missions:[
-   {id:'press',title:'Tryckeriets hemlighet',location:'Tryckeriet',symbol:'▤',period:'1766',npc:'Boktryckaren Brita',x:650,y:850,color:'#ba9254',reward:120,
-    story:'Det doftar trycksvärta i gränden. Brita drar ner persiennen och visar ett förseglat paket. ”Det här dokumentet förändrade vad som fick tryckas. Arkivet måste få rätt berättelse. Kan du kontrollera mina fyra uppgifter och sätta ihop sambandet innan du tar paketet?”',
-    notes:['År 1766 fick Sverige en tryckfrihetsförordning. Den gav större frihet att trycka texter och införde rätt till insyn i många myndighetshandlingar. Friheten hade fortfarande begränsningar, bland annat för religiösa texter.','Censur innebär att makthavare granskar eller hindrar innehåll. Offentlighetsprincipen gör det möjligt att granska hur makten används. Tryckfriheten begränsades på nytt under Gustav III.'],
-    cards:[
-     short('press-year','Vilket år fick Sverige sin första tryckfrihetsförordning?','1766',['1766'],['1772','1719','1792'],'1766 antog riksdagen tryckfrihetsförordningen.','Skriv ett årtal.'),
-     short('press-censor','Vad kallas det när makthavare granskar eller stoppar texter och åsikter?','Censur',['censur','censurering','censurerar'],['Jordbruk','Revolution','Export'],'Censur kan hindra människor från att sprida texter och åsikter.'),
-     short('press-open','Vilken princip ger människor rätt till insyn i många myndighetshandlingar?','Offentlighetsprincipen',['offentlighetsprincipen','offentlighetsprincip'],['Envälde','Ståndsprivilegier','Merkantilism'],'Offentlighetsprincipen ger insyn i myndigheternas arbete. Vissa uppgifter kan ändå vara hemliga.'),
-     short('press-freedom','Vad kallas friheten att uttrycka sig i tryckta texter?','Tryckfrihet',['tryckfrihet','tryckfriheten'],['Censur','Missväxt','Monopol'],'Tryckfrihet gör det möjligt att sprida information och åsikter i tryck, inom lagens gränser.'),
-     chain('press-chain','Bygg sambandet: varför kan insyn begränsa maktmissbruk?',[
-      {answer:'Människor får läsa myndighetshandlingar',options:['Människor får läsa myndighetshandlingar','Myndighetshandlingar förstörs','Bara kungen får läsa dokument']},
-      {answer:'Missförhållanden kan upptäckas och diskuteras',options:['Missförhållanden kan upptäckas och diskuteras','All kritik blir förbjuden','Makthavare blir automatiskt felfria']},
-      {answer:'Makthavare kan ställas till svars',options:['Makthavare kan ställas till svars','Alla får rösträtt år 1766','Riksdagen försvinner']}
-     ],'Insyn kan göra det lättare att upptäcka och kritisera maktmissbruk. Den gör inte samhället demokratiskt automatiskt.')
-    ]},
-   {id:'power',title:'Vem har makten?',location:'Riksdagshuset',symbol:'♜',period:'1719–1772',npc:'Skrivaren Elias',x:1130,y:395,color:'#80916b',reward:120,
-    story:'Från riksdagshuset hörs upprörda röster. Elias sitter på trappan med en sönderriven förteckning. ”Alla säger att deras grupp borde bestämma. Men vem hade egentligen makten under frihetstiden? Hjälp mig att återställa dokumentet innan det lämnas till arkivet.”',
-    notes:['Frihetstiden brukar dateras till 1719–1772. Kungens makt minskade och riksdagen fick större inflytande. Hattar och mössor var två politiska grupper.','Riksdagen bestod av fyra stånd: adel, präster, borgare och bönder. De flesta människor hade ändå inget politiskt inflytande. Det var alltså inte demokrati som i dagens Sverige.'],
-    cards:[
-     short('power-era','Vad kallas perioden i Sverige mellan 1719 och 1772?','Frihetstiden',['frihetstiden','frihetstid'],['Stormaktstiden','Vikingatiden','Medeltiden'],'Perioden kallas frihetstiden eftersom kungens makt begränsades.'),
-     short('power-parliament','Vilken politisk församling fick större makt under frihetstiden?','Riksdagen',['riksdagen','riksdag','ståndsriksdagen'],['Kungen','Kyrkorådet','Ostindiska kompaniet'],'Riksdagen fick större makt. Kungamakten var svagare än under enväldet.'),
-     short('power-parties','Vilka två politiska grupper konkurrerade under frihetstiden?','Hattar och mössor',['hattar och mössor','hattarna och mössorna','mössor och hattar','mössorna och hattarna','hattar mössor'],['Adel och torpare','Kungar och kejsare','Vikingar och munkar'],'Hattar och mössor var två konkurrerande politiska grupper.','Skriv båda grupperna.'),
-     short('power-estates','Vilket stånd bestod bland annat av städernas köpmän och hantverkare?','Borgare',['borgare','borgarna','borgarståndet'],['Adel','Präster','Bönder'],'Borgarståndet representerade bland annat köpmän och hantverkare i städerna.'),
-     chain('power-chain','Bygg sambandet: hur ändrades fördelningen av makt?',[
-      {answer:'Kungens makt begränsas',options:['Kungens makt begränsas','Kungen får all makt','Alla stånd avskaffas 1719']},
-      {answer:'Riksdagen får större inflytande',options:['Riksdagen får större inflytande','Riksdagen blir maktlös','Alla invånare får lika inflytande']},
-      {answer:'De flesta människor saknar ändå politiskt inflytande',options:['De flesta människor saknar ändå politiskt inflytande','Sverige blir en modern demokrati','Varje barn får en röst i riksdagen']}
-     ],'Frihetstid betydde mer frihet från kungligt envälde, men inte lika politiska rättigheter för alla.')
-    ]},
-   {id:'farm',title:'Fält utan skörd',location:'Byn utanför staden',symbol:'♧',period:'1700-talets vardag',npc:'Bonden Karin',x:470,y:1280,color:'#b59453',reward:120,
-    story:'En tom säck ligger bredvid kvarnen. Karin visar de glesa axen på åkern. ”Vi måste förklara varför livet på landet kunde vara så sårbart. Mitt brev till arkivet är nästan klart, men några viktiga ord saknas. Hjälp mig att göra det begripligt.”',
-    notes:['De flesta människor i Sverige levde på landsbygden under 1700-talet. Många var beroende av jordbruket och av att skörden räckte. Missväxt betyder att skörden blir ovanligt dålig.','Bönderna var ett av riksdagens stånd, men alla som arbetade på landet hade inte samma rättigheter. Privilegier var särskilda förmåner eller rättigheter som vissa grupper hade.'],
-    cards:[
-     short('farm-land','Var bodde de flesta människor i Sverige under 1700-talet?','På landsbygden',['landsbygden','på landsbygden','landet','på landet'],['I storstäder','På slott','I industristäder'],'De flesta bodde på landsbygden och många var beroende av jordbruket.'),
-     short('farm-work','Vad kallas arbetet med att odla mark och hålla djur för att producera mat?','Jordbruk',['jordbruk','jordbruket','lantbruk','lantbruket'],['Export','Censur','Boktryckeri'],'Jordbruk producerar mat genom bland annat odling och djurhållning.'),
-     short('farm-crop','Vad kallas det när skörden blir ovanligt dålig?','Missväxt',['missväxt','missväxten'],['Tryckfrihet','Monopol','Upplysning'],'Missväxt kunde leda till brist på mat och göra livet svårare.'),
-     short('farm-privilege','Vad kallas särskilda rättigheter eller förmåner som vissa grupper har?','Privilegier',['privilegier','privilegium','ståndsprivilegier','förmåner'],['Revolutioner','Skördar','Protester'],'Privilegier kan skapa skillnader mellan grupper. Adeln hade särskilda privilegier.'),
-     chain('farm-chain','Bygg en möjlig följd av missväxt.',[
-      {answer:'Skörden blir ovanligt dålig',options:['Skörden blir ovanligt dålig','Alla skatter försvinner','Skörden blir större än någonsin']},
-      {answer:'Det blir mindre mat att äta och sälja',options:['Det blir mindre mat att äta och sälja','Alla bönder blir rikare','Matbehovet försvinner']},
-      {answer:'Risken för hunger och fattigdom ökar',options:['Risken för hunger och fattigdom ökar','Ingen behöver längre arbeta','Alla får automatiskt nya privilegier']}
-     ],'En dålig skörd kunde ge både matbrist och sämre inkomster. Följderna berodde också på tillgång till hjälp och annan mat.')
-    ]},
-   {id:'nature',title:'Naturens ordning',location:'Botaniska trädgården',symbol:'❧',period:'Vetenskap på 1700-talet',npc:'Trädgårdslärlingen Sam',x:460,y:400,color:'#82965d',reward:120,
-    story:'Sam har täckt bordet med växter, etiketter och pressade blad. ”Etiketterna har hamnat i fel ordning. En del av arbetet handlar om att ordna naturen så att andra kan förstå och jämföra. Vi skickar en sammanfattning till arkivet. Kan du hjälpa mig att reda ut begreppen?”',
-    notes:['Carl von Linné ordnade och namngav växter och djur. Arternas vetenskapliga namn består av ett släktnamn och ett artepitet. Systemet används internationellt.','Systematik handlar om att ordna och gruppera organismer. Upplysningen betonade bland annat förnuft, undersökningar och nyttig kunskap. Linnés grupperingar är inte identiska med dagens biologiska system.'],
-    cards:[
-     short('nature-linne','Vilken svensk vetenskapsman är känd för att ordna och namnge växter och djur?','Carl von Linné',['carl von linné','carl linné','linné','linnaeus','carl linnaeus'],['Gustav III','Karl XII','Anders Chydenius'],'Carl von Linné utvecklade ett system för att ordna och namnge organismer.','Skriv namn eller efternamn.'),
-     short('nature-names','Hur många delar har ett vetenskapligt artnamn i Linnés namnsystem?','Två',['två','2','två delar','2 delar'],['En','Fyra','Tio'],'Det har två delar: ett släktnamn och ett artepitet.'),
-     short('nature-system','Vad kallas arbetet med att ordna och gruppera växter och djur?','Systematik',['systematik','systematiken','klassificering'],['Censur','Envälde','Merkantilism'],'Systematik handlar om att ordna och gruppera organismer.'),
-     short('nature-reason','Vilket ord betyder förmågan att tänka logiskt och pröva argument, något som betonades under upplysningen?','Förnuft',['förnuft','förnuftet'],['Privilegier','Censur','Missväxt'],'Förnuft innebär att använda tänkande och argument. Upplysningen betonade också undersökningar och kunskap.'),
-     chain('nature-chain','Bygg sambandet: varför är gemensamma namn användbara?',[
-      {answer:'En art får ett gemensamt vetenskapligt namn',options:['En art får ett gemensamt vetenskapligt namn','Varje forskare hittar på ett hemligt namn','Alla växter får samma namn']},
-      {answer:'Forskare kan lättare veta vilken art de menar',options:['Forskare kan lättare veta vilken art de menar','Forskare behöver inte längre undersöka naturen','Alla arter blir likadana']},
-      {answer:'Kunskap kan jämföras och delas mellan länder',options:['Kunskap kan jämföras och delas mellan länder','All forskning blir förbjuden','Inga frågor behöver ställas']}
-     ],'Gemensamma namn hjälper människor att dela och jämföra kunskap. Forskning behövs fortfarande.')
-    ]},
-   {id:'king',title:'Kungens kupp',location:'Slottet',symbol:'♛',period:'1772–1792',npc:'Slottsbudet Amira',x:1750,y:400,color:'#ae7555',reward:140,
-    story:'Amira står vid slottsporten. Hon håller två brev med olika datum. ”Det ena beskriver en stor förändring av makten, det andra en händelse på operan. De får inte blandas ihop. Kontrollera vad vi faktiskt vet innan jag skickar breven till arkivet.”',
-    notes:['Gustav III genomförde en statskupp år 1772. Kungen fick större makt och frihetstiden tog slut. Statskupp betyder att makten tas över med tvång, utanför vanliga politiska regler.','Gustavianska tiden förknippas bland annat med Gustav III och hovets kulturliv. År 1792 sköts Gustav III på en maskerad på operan och dog senare av skadorna.'],
-    cards:[
-     short('king-name','Vilken kung genomförde en statskupp år 1772?','Gustav III',['gustav iii','gustav 3','gustav den tredje','gustaf iii','gustaf 3'],['Karl XII','Gustav Vasa','Karl XIV Johan'],'Gustav III genomförde statskuppen 1772.','Skriv namn och nummer.'),
-     short('king-coup','Vad kallas ett maktövertagande med tvång utanför vanliga politiska regler?','Statskupp',['statskupp','statskuppen','kupp'],['Skörd','Import','Tryckfrihet'],'En statskupp är ett maktövertagande utanför de vanliga politiska reglerna.'),
-     short('king-year','Vilket år genomfördes Gustav III:s statskupp?','1772',['1772'],['1766','1719','1789'],'Statskuppen 1772 avslutade frihetstiden och stärkte kungamakten.','Skriv ett årtal.'),
-     short('king-death','Vilket år sköts Gustav III på operan och dog av sina skador?','1792',['1792'],['1772','1766','1784'],'Gustav III sköts vid en maskerad 1792 och dog senare av skadorna.','Skriv ett årtal.'),
-     chain('king-chain','Bygg sambandet: vad förändrade kuppen 1772?',[
-      {answer:'Gustav III genomför en statskupp',options:['Gustav III genomför en statskupp','Gustav III lämnar all makt till folket','Linné blir kung']},
-      {answer:'Kungens makt ökar',options:['Kungens makt ökar','Kungens makt försvinner','Alla får rösträtt']},
-      {answer:'Frihetstiden tar slut',options:['Frihetstiden tar slut','Frihetstiden börjar','Medeltiden börjar']}
-     ],'Statskuppen stärkte kungamakten. År 1772 brukar därför räknas som frihetstidens slut.')
-    ]},
-   {id:'trade',title:'Den stora handeln',location:'Hamnen',symbol:'⚓',period:'1731–1790-tal',npc:'Hamnskrivaren Jo',x:1920,y:1280,color:'#758e8f',reward:140,
-    story:'Trossarna gnisslar vid kajen. Jo håller upp en lastförteckning. ”Här finns varor som har rest långt. Men en berättelse om handel måste också handla om dem som utnyttjades. Hjälp mig att skriva en rättvisande sammanfattning, inte bara räkna köpmännens vinster.”',
-    notes:['Svenska Ostindiska kompaniet bildades 1731. Det förde bland annat te, siden och porslin från Kina till Göteborg. Import är att köpa in varor från andra länder; export är att sälja till dem.','Sverige fick Saint-Barthélemy som koloni 1784; det officiella övertagandet skedde 1785. Förslavade människor såldes och utnyttjades där under svenskt styre. Handelns vinster och följder fördelades ojämlikt.'],
-    cards:[
-     short('trade-company','Vad hette det svenska handelskompani som bildades 1731 och handlade med Kina?','Ostindiska kompaniet',['ostindiska kompaniet','svenska ostindiska kompaniet','ostindiska'],['Västindiska riksdagen','Hattpartiet','Kungliga vetenskapsrådet'],'Svenska Ostindiska kompaniet importerade bland annat te, siden och porslin.'),
-     short('trade-import','Vad kallas det när ett land köper in varor från ett annat land?','Import',['import','importera','importering'],['Export','Censur','Statskupp'],'Import är att köpa in varor från andra länder.'),
-     short('trade-export','Vad kallas det när ett land säljer varor till ett annat land?','Export',['export','exportera','exportering'],['Import','Missväxt','Privilegium'],'Export är att sälja varor till andra länder.'),
-     short('trade-slavery','Vad kallas ett system där människor berövas frihet och behandlas som egendom?','Slaveri',['slaveri','slaveriet'],['Tryckfrihet','Jordbruk','Systematik'],'Slaveri berövar människor deras frihet. Sverige deltog också i kolonial handel och slaveri.'),
-     chain('trade-chain','Bygg sambandet: varför måste kolonial handel granskas kritiskt?',[
-      {answer:'Varor produceras med förslavade människors arbete',options:['Varor produceras med förslavade människors arbete','Alla som arbetar får samma rättigheter','Ingen arbetar med produktionen']},
-      {answer:'Köpmän och ägare kan tjäna pengar',options:['Köpmän och ägare kan tjäna pengar','Vinsten delas alltid lika','Handeln saknar ekonomiska följder']},
-      {answer:'Vinster kan bygga på andra människors ofrihet',options:['Vinster kan bygga på andra människors ofrihet','Handelsvinster bevisar att allt var rättvist','Slaveri ger alla större frihet']}
-     ],'Ekonomisk vinst visar inte att handeln var rättvis. Fråga vilka som tjänade på den och vilka som drabbades.')
-    ]},
-   {id:'ideas',title:'Idéer som brinner',location:'Kaffehuset',symbol:'✧',period:'Upplysningen · 1789',npc:'Brevskrivaren Noor',x:1690,y:850,color:'#ad8a57',reward:140,
-    story:'I kaffehuset ligger ett brev från Frankrike på bordet. Noor ber dig läsa adressen. ”Nya idéer sprids mellan länder. Vissa vill undersöka, andra vill förändra samhället. Mitt brev måste skilja mellan en idéströmning, ett sätt att styra och en omvälvande händelse.”',
-    notes:['Upplysningen betonade förnuft, kunskap och kritisk prövning. Många ifrågasatte gamla auktoriteter och orättvisa privilegier, men upplysningsidéerna innebar inte lika rättigheter för alla i praktiken.','Envälde betyder att en härskare har mycket stor makt. En revolution är en genomgripande förändring av samhälle eller politisk ordning. Franska revolutionen började 1789 och hade flera samverkande orsaker.'],
-    cards:[
-     short('ideas-enlightenment','Vilken idéströmning på 1700-talet betonade förnuft, kunskap och kritisk prövning?','Upplysningen',['upplysningen','upplysning','upplysningstiden'],['Medeltiden','Merkantilismen','Feodalismen'],'Upplysningen betonade förnuft och kunskap och ifrågasatte etablerade auktoriteter.'),
-     short('ideas-autocracy','Vad kallas ett styrelsesätt där en härskare har mycket stor makt?','Envälde',['envälde','enväldet','absolutism'],['Tryckfrihet','Export','Systematik'],'Envälde innebär att en härskare har mycket stor makt.'),
-     short('ideas-revolution','Vad kallas en genomgripande omvälvning av samhället eller den politiska ordningen?','Revolution',['revolution','revolutionen'],['Import','Censur','Skörd'],'En revolution innebär en genomgripande förändring, ofta av den politiska ordningen.'),
-     short('ideas-year','Vilket år började franska revolutionen?','1789',['1789'],['1772','1792','1766'],'Franska revolutionen började 1789. Den hade politiska, sociala och ekonomiska orsaker.','Skriv ett årtal.'),
-     chain('ideas-chain','Bygg ett möjligt samband mellan idéer och förändring.',[
-      {answer:'Människor ifrågasätter orättvisa privilegier',options:['Människor ifrågasätter orättvisa privilegier','Alla förbjuds att tänka','Alla accepterar varje gammal regel']},
-      {answer:'Krav på förändring kan växa',options:['Krav på förändring kan växa','Alla samhällsproblem försvinner direkt','Kungens makt ökar alltid']},
-      {answer:'Idéer kan bidra till politiska omvälvningar',options:['Idéer kan bidra till politiska omvälvningar','Idéer är den enda orsaken till varje revolution','Bara årtal avgör vad som händer']}
-     ],'Idéer kan bidra till förändring. Franska revolutionen hade också ekonomiska och sociala orsaker; ett enda samband förklarar inte allt.')
-    ]}
+window.CURRICULUM={
+  "version": 3,
+  "bankId": "kapitel1700-2026-10-v3",
+  "title": "Uppdrag 1700",
+  "scope": "Kapitlet 1700-talets Sverige, grundbok s. 62–105, arbetsbok s. 24–39 och lärarguide s. 34–49.",
+  "missions": [
+    {
+      "id": "press",
+      "title": "Ord som förändrar",
+      "npc": "Boktryckaren Brita",
+      "location": "Tryckeriet",
+      "symbol": "▤",
+      "period": "1719–1809",
+      "story": "Jag behöver din hjälp med ord som förändrar.",
+      "bookReference": "Grundboken s. 75–77 och 103. Arbetsboken uppgift 11–12 och 31.",
+      "notes": [
+        "År 1766 fick Sverige en tryckfrihetsförordning.",
+        "Censur innebär att texter granskas och kan förbjudas.",
+        "Offentlighetsprincipen ger insyn. Vissa uppgifter kan vara hemliga.",
+        "Tryckfriheten har haft begränsningar och har förändrats över tid.",
+        "Kyrkan ville att barn skulle kunna läsa religiösa texter.",
+        "Katekesen användes för att undervisa om kristendomen.",
+        "Cajsa Wargs kokbok blev mycket spridd.",
+        "Brev, tidningar, bilder och protokoll kan användas som historiska källor."
+      ],
+      "cards": [
+        {
+          "id": "press-year",
+          "type": "short",
+          "question": "Vilket år fick Sverige sin första tryckfrihetsförordning?",
+          "answer": "1766",
+          "accept": [
+            "1766"
+          ],
+          "explanation": "År 1766 fick Sverige en tryckfrihetsförordning.",
+          "chapter": 1,
+          "simpleQuestion": "Vilket år infördes tryckfrihet i Sverige?"
+        },
+        {
+          "id": "press-censor",
+          "type": "short",
+          "question": "Vad kallas granskning som kan stoppa en text innan den trycks?",
+          "answer": "Censur",
+          "accept": [
+            "Censur",
+            "censurering"
+          ],
+          "explanation": "Censur innebär att texter granskas och kan förbjudas.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallas det när texter granskas och kan stoppas före tryckning?"
+        },
+        {
+          "id": "press-open",
+          "type": "short",
+          "question": "Vilken princip ger rätt att läsa många av myndigheternas handlingar?",
+          "answer": "Offentlighetsprincipen",
+          "accept": [
+            "Offentlighetsprincipen",
+            "offentlighetsprincip"
+          ],
+          "explanation": "Offentlighetsprincipen ger insyn. Vissa uppgifter kan vara hemliga.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallas rätten att läsa många av myndigheternas papper och beslut?"
+        },
+        {
+          "id": "press-freedom",
+          "type": "short",
+          "question": "Vad kallas friheten att skriva och sprida tryckta texter?",
+          "answer": "Tryckfrihet",
+          "accept": [
+            "Tryckfrihet"
+          ],
+          "explanation": "Tryckfriheten har haft begränsningar och har förändrats över tid.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallas friheten att skriva och sprida tryckta texter?"
+        },
+        {
+          "id": "press-reading",
+          "type": "short",
+          "question": "Vilken institution krävde att barn skulle lära sig läsa under stormaktstiden?",
+          "answer": "Kyrkan",
+          "accept": [
+            "Kyrkan",
+            "svenska kyrkan"
+          ],
+          "explanation": "Kyrkan ville att barn skulle kunna läsa religiösa texter.",
+          "chapter": 1,
+          "simpleQuestion": "Vilken institution ville att barn skulle lära sig läsa kristna texter?"
+        },
+        {
+          "id": "press-catechism",
+          "type": "short",
+          "question": "Vad hette boken som lärde ut grunderna i kristendomen?",
+          "answer": "Katekesen",
+          "accept": [
+            "Katekesen",
+            "katekes"
+          ],
+          "explanation": "Katekesen användes för att undervisa om kristendomen.",
+          "chapter": 1,
+          "simpleQuestion": "Vad hette boken som lärde ut grunderna i kristendomen?"
+        },
+        {
+          "id": "press-warg",
+          "type": "short",
+          "question": "Vilken kvinna skrev en känd kokbok på 1700-talet?",
+          "answer": "Cajsa Warg",
+          "accept": [
+            "Cajsa Warg",
+            "cajsa",
+            "kajsa warg",
+            "warg"
+          ],
+          "explanation": "Cajsa Wargs kokbok blev mycket spridd.",
+          "chapter": 1,
+          "simpleQuestion": "Vilken kvinna skrev en känd kokbok på 1700-talet?"
+        },
+        {
+          "id": "press-sources",
+          "type": "short",
+          "question": "Vad kallas material som berättar om det förflutna, till exempel brev och protokoll?",
+          "answer": "Historiska källor",
+          "accept": [
+            "Historiska källor",
+            "källor",
+            "historiska källor"
+          ],
+          "explanation": "Brev, tidningar, bilder och protokoll kan användas som historiska källor.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallas material som berättar om det förflutna, till exempel brev och protokoll?"
+        },
+        {
+          "id": "press-reason-1",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Bygg en förklaring till varför läsning kunde förändra samhället.",
+          "steps": [
+            {
+              "answer": "fler kunde läsa själva",
+              "options": [
+                "fler kunde läsa själva",
+                "alla slutade läsa",
+                "kungen förbjöd all läsning"
+              ],
+              "connector": "Eftersom"
+            },
+            {
+              "answer": "jämföra texter med det prästerna sa",
+              "options": [
+                "jämföra texter med det prästerna sa",
+                "bevisa att varje text var sann",
+                "sluta tänka själva"
+              ],
+              "connector": "kunde de"
+            },
+            {
+              "answer": "makthavarnas påståenden ifrågasättas",
+              "options": [
+                "makthavarnas påståenden ifrågasättas",
+                "alla rösta i riksdagen",
+                "kyrkan bestämma mer automatiskt"
+              ],
+              "connector": "Därför kunde"
+            }
+          ],
+          "requires": [
+            "press-year",
+            "press-censor",
+            "press-open",
+            "press-freedom",
+            "press-reading",
+            "press-catechism",
+            "press-warg",
+            "press-sources"
+          ],
+          "explanation": "Att kunna läsa gav möjligheter att pröva påståenden. Det gav inte alla politisk makt.",
+          "chapter": 1,
+          "simpleQuestion": "Bygg en förklaring till varför läsning kunde förändra samhället."
+        },
+        {
+          "id": "press-reason-2",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Bygg sambandet mellan insyn och granskning.",
+          "steps": [
+            {
+              "answer": "människor fick läsa många myndighetshandlingar",
+              "options": [
+                "människor fick läsa många myndighetshandlingar",
+                "alla dokument blev hemliga",
+                "bara kungen fick läsa"
+              ],
+              "connector": "Eftersom"
+            },
+            {
+              "answer": "beslut och missförhållanden granskas",
+              "options": [
+                "beslut och missförhållanden granskas",
+                "alla hemligheter alltid avslöjas",
+                "alla makthavare bli felfria"
+              ],
+              "connector": "kunde"
+            },
+            {
+              "answer": "att makthavare kritiserades",
+              "options": [
+                "att makthavare kritiserades",
+                "att riksdagen försvann",
+                "att alla lagar slutade gälla"
+              ],
+              "connector": "vilket kunde leda till"
+            }
+          ],
+          "requires": [
+            "press-year",
+            "press-censor",
+            "press-open",
+            "press-freedom",
+            "press-reading",
+            "press-catechism",
+            "press-warg",
+            "press-sources"
+          ],
+          "explanation": "Insyn gör granskning möjlig, men hindrar inte automatiskt alla fel.",
+          "chapter": 1,
+          "simpleQuestion": "Bygg sambandet mellan insyn och granskning."
+        },
+        {
+          "id": "press-reason-3",
+          "type": "chain",
+          "stage": "master",
+          "question": "En skrivare säger: ”Alla tryckta texter från 1766 berättar hela sanningen.” Bygg ett källkritiskt svar.",
+          "steps": [
+            {
+              "answer": "en text är från den tid vi undersöker",
+              "options": [
+                "en text är från den tid vi undersöker",
+                "en text är gammal måste den vara falsk",
+                "tryckta texter saknar avsändare"
+              ],
+              "connector": "Även om"
+            },
+            {
+              "answer": "undersöka vem som skrev och varför",
+              "options": [
+                "undersöka vem som skrev och varför",
+                "tro på varje uppgift",
+                "bara titta på typsnittet"
+              ],
+              "connector": "behöver vi"
+            },
+            {
+              "answer": "författarens syfte påverkar vad som berättas",
+              "options": [
+                "författarens syfte påverkar vad som berättas",
+                "ett datum gör innehållet helt neutralt",
+                "alla vittnen minns likadant"
+              ],
+              "connector": "eftersom"
+            }
+          ],
+          "requires": [
+            "press-year",
+            "press-censor",
+            "press-open",
+            "press-freedom",
+            "press-reading",
+            "press-catechism",
+            "press-warg",
+            "press-sources"
+          ],
+          "explanation": "En samtida källa är värdefull men måste tolkas. Jämför gärna flera källor.",
+          "chapter": 1,
+          "simpleQuestion": "En skrivare säger: ”Alla tryckta texter från 1766 berättar hela sanningen.” Bygg ett källkritiskt svar."
+        }
+      ]
+    },
+    {
+      "id": "power",
+      "title": "Makt och motstånd",
+      "npc": "Skrivaren Elias",
+      "location": "Riksdagshuset",
+      "symbol": "♜",
+      "period": "1719–1809",
+      "story": "Jag behöver din hjälp med makt och motstånd.",
+      "bookReference": "Grundboken s. 64–65 och 70–74. Arbetsboken uppgift 1–4 och 8–10.",
+      "notes": [
+        "Kungens envälde avskaffades, men friheten var olika för olika grupper.",
+        "Riksdagen och riksrådet fick större makt när kungens makt minskade.",
+        "Riksrådet fungerade ungefär som en regering.",
+        "Grundlagen innehöll regler för hur makten skulle delas.",
+        "Hattarna ville starta krig mot Ryssland. Mössorna var deras motståndare.",
+        "Ulrika Eleonora följde Karl XII. Hennes make blev sedan Fredrik I.",
+        "Bönder protesterade mot kriget och valet av ny kung. Upproret slogs ned.",
+        "Rysslands tsarinna stödde Adolf Fredrik som svensk tronföljare."
+      ],
+      "cards": [
+        {
+          "id": "power-era",
+          "type": "short",
+          "question": "Vad kallas perioden i Sverige mellan 1719 och 1772?",
+          "answer": "Frihetstiden",
+          "accept": [
+            "Frihetstiden",
+            "frihetstid"
+          ],
+          "explanation": "Kungens envälde avskaffades, men friheten var olika för olika grupper.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallas perioden i Sverige mellan 1719 och 1772?"
+        },
+        {
+          "id": "power-parliament",
+          "type": "short",
+          "question": "Vilken församling fick större makt under frihetstiden?",
+          "answer": "Riksdagen",
+          "accept": [
+            "Riksdagen",
+            "ståndsriksdagen"
+          ],
+          "explanation": "Riksdagen och riksrådet fick större makt när kungens makt minskade.",
+          "chapter": 1,
+          "simpleQuestion": "Vilken församling fick större makt under frihetstiden?"
+        },
+        {
+          "id": "power-council",
+          "type": "short",
+          "question": "Vad kallades frihetstidens motsvarighet till regering?",
+          "answer": "Riksrådet",
+          "accept": [
+            "Riksrådet",
+            "riksråd"
+          ],
+          "explanation": "Riksrådet fungerade ungefär som en regering.",
+          "chapter": 1,
+          "simpleQuestion": "Vad hette den grupp som var som en regering under frihetstiden?"
+        },
+        {
+          "id": "power-law",
+          "type": "short",
+          "question": "Vad kallas en särskilt viktig lag om hur ett land ska styras?",
+          "answer": "Grundlag",
+          "accept": [
+            "Grundlag",
+            "grundlagen"
+          ],
+          "explanation": "Grundlagen innehöll regler för hur makten skulle delas.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallas en extra viktig lag om hur landet ska styras?"
+        },
+        {
+          "id": "power-parties",
+          "type": "short",
+          "question": "Vilka två politiska grupper konkurrerade under frihetstiden?",
+          "answer": "Hattar och mössor",
+          "accept": [
+            "Hattar och mössor",
+            "hattarna och mössorna",
+            "mössor och hattar",
+            "mössorna och hattarna"
+          ],
+          "explanation": "Hattarna ville starta krig mot Ryssland. Mössorna var deras motståndare.",
+          "chapter": 1,
+          "simpleQuestion": "Vilka två politiska grupper konkurrerade under frihetstiden?"
+        },
+        {
+          "id": "power-estates",
+          "type": "short",
+          "question": "Vilket stånd bestod bland annat av städernas köpmän och hantverkare?",
+          "answer": "Borgare",
+          "accept": [
+            "borgare",
+            "borgarna",
+            "borgarståndet"
+          ],
+          "explanation": "Borgare var ett av riksdagens fyra stånd. Där fanns bland annat köpmän och hantverkare.",
+          "chapter": 1,
+          "simpleQuestion": "Vilket stånd tillhörde köpmän och hantverkare i städerna?"
+        },
+        {
+          "id": "power-rebellion",
+          "type": "short",
+          "question": "Vad kallas böndernas uppror och marsch till Stockholm 1743?",
+          "answer": "Stora daldansen",
+          "accept": [
+            "Stora daldansen",
+            "daldansen"
+          ],
+          "explanation": "Bönder protesterade mot kriget och valet av ny kung. Upproret slogs ned.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallas böndernas uppror i Stockholm år 1743?"
+        },
+        {
+          "id": "power-four-estates",
+          "type": "short",
+          "question": "Vilka fyra stånd var representerade i riksdagen?",
+          "answer": "Adel, präster, borgare och bönder",
+          "accept": [
+            "adel präster borgare bönder",
+            "adel präster borgare och bönder",
+            "adel präster bönder borgare",
+            "adel präster bönder och borgare",
+            "adel borgare präster bönder",
+            "adel borgare präster och bönder",
+            "adel borgare bönder präster",
+            "adel borgare bönder och präster",
+            "adel bönder präster borgare",
+            "adel bönder präster och borgare",
+            "adel bönder borgare präster",
+            "adel bönder borgare och präster",
+            "präster adel borgare bönder",
+            "präster adel borgare och bönder",
+            "präster adel bönder borgare",
+            "präster adel bönder och borgare",
+            "präster borgare adel bönder",
+            "präster borgare adel och bönder",
+            "präster borgare bönder adel",
+            "präster borgare bönder och adel",
+            "präster bönder adel borgare",
+            "präster bönder adel och borgare",
+            "präster bönder borgare adel",
+            "präster bönder borgare och adel",
+            "borgare adel präster bönder",
+            "borgare adel präster och bönder",
+            "borgare adel bönder präster",
+            "borgare adel bönder och präster",
+            "borgare präster adel bönder",
+            "borgare präster adel och bönder",
+            "borgare präster bönder adel",
+            "borgare präster bönder och adel",
+            "borgare bönder adel präster",
+            "borgare bönder adel och präster",
+            "borgare bönder präster adel",
+            "borgare bönder präster och adel",
+            "bönder adel präster borgare",
+            "bönder adel präster och borgare",
+            "bönder adel borgare präster",
+            "bönder adel borgare och präster",
+            "bönder präster adel borgare",
+            "bönder präster adel och borgare",
+            "bönder präster borgare adel",
+            "bönder präster borgare och adel",
+            "bönder borgare adel präster",
+            "bönder borgare adel och präster",
+            "bönder borgare präster adel",
+            "bönder borgare präster och adel"
+          ],
+          "explanation": "De fyra stånden var adel, präster, borgare och bönder. Alla invånare fick ändå inte vara med och bestämma.",
+          "chapter": 1,
+          "simpleQuestion": "Vilka fyra stånd fanns i riksdagen? Skriv alla fyra."
+        },
+        {
+          "id": "power-reason-1",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara varför frihetstid inte betydde lika frihet för alla.",
+          "steps": [
+            {
+              "answer": "kungens makt begränsades",
+              "options": [
+                "kungens makt begränsades",
+                "alla fick lika rösträtt",
+                "riksdagen avskaffades"
+              ],
+              "connector": "Eftersom"
+            },
+            {
+              "answer": "riksdagen och riksrådet större inflytande",
+              "options": [
+                "riksdagen och riksrådet större inflytande",
+                "alla barn samma inflytande som adeln",
+                "bönderna ensam makt"
+              ],
+              "connector": "fick"
+            },
+            {
+              "answer": "många människor saknade politiskt inflytande",
+              "options": [
+                "många människor saknade politiskt inflytande",
+                "alla kunde välja regeringen",
+                "kvinnor och barn fick rösta"
+              ],
+              "connector": "men"
+            }
+          ],
+          "requires": [
+            "power-era",
+            "power-parliament",
+            "power-council",
+            "power-law",
+            "power-parties",
+            "power-estates",
+            "power-rebellion",
+            "power-four-estates"
+          ],
+          "explanation": "Det förändrade styret innebar inte modern demokrati.",
+          "chapter": 1,
+          "simpleQuestion": "Förklara varför frihetstid inte betydde lika frihet för alla."
+        },
+        {
+          "id": "power-reason-2",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara böndernas protest 1743.",
+          "steps": [
+            {
+              "answer": "kriget misslyckades och kungavalet väckte ilska",
+              "options": [
+                "kriget misslyckades och kungavalet väckte ilska",
+                "skatterna försvann",
+                "bönderna hade beslutat om kriget själva"
+              ],
+              "connector": "Eftersom"
+            },
+            {
+              "answer": "bönder mot Stockholm",
+              "options": [
+                "bönder mot Stockholm",
+                "alla bönder till Ryssland",
+                "riksdagen till Dalarna"
+              ],
+              "connector": "marscherade"
+            },
+            {
+              "answer": "militären slog ned upproret",
+              "options": [
+                "militären slog ned upproret",
+                "bönderna fick all makt",
+                "alla krav genomfördes fredligt"
+              ],
+              "connector": "men"
+            }
+          ],
+          "requires": [
+            "power-era",
+            "power-parliament",
+            "power-council",
+            "power-law",
+            "power-parties",
+            "power-estates",
+            "power-rebellion",
+            "power-four-estates"
+          ],
+          "explanation": "Protesten handlade både om kriget och om vem som skulle bli kung.",
+          "chapter": 1,
+          "simpleQuestion": "Förklara böndernas protest 1743."
+        },
+        {
+          "id": "power-reason-3",
+          "type": "chain",
+          "stage": "master",
+          "question": "En berättare säger: ”Kungen bestämde mindre, alltså bestämde alla lika mycket.” Bygg en invändning.",
+          "steps": [
+            {
+              "answer": "hade kungen mindre makt under frihetstiden",
+              "options": [
+                "hade kungen mindre makt under frihetstiden",
+                "styrde kungen ensam under hela frihetstiden",
+                "var riksdagen avskaffad"
+              ],
+              "connector": "Visserligen"
+            },
+            {
+              "answer": "adeln hade fortfarande stort inflytande",
+              "options": [
+                "adeln hade fortfarande stort inflytande",
+                "alla invånare hade lika många röster",
+                "barn valde riksrådet"
+              ],
+              "connector": "men"
+            },
+            {
+              "answer": "måste vi fråga vilka grupper som faktiskt fick makt",
+              "options": [
+                "måste vi fråga vilka grupper som faktiskt fick makt",
+                "bevisar ordet frihet att alla var jämlika",
+                "saknar maktfördelning betydelse"
+              ],
+              "connector": "Därför"
+            }
+          ],
+          "requires": [
+            "power-era",
+            "power-parliament",
+            "power-council",
+            "power-law",
+            "power-parties",
+            "power-estates",
+            "power-rebellion",
+            "power-four-estates"
+          ],
+          "explanation": "Undersök hur makten fördelades mellan grupper, inte bara mellan kung och riksdag.",
+          "chapter": 1,
+          "simpleQuestion": "En berättare säger: ”Kungen bestämde mindre, alltså bestämde alla lika mycket.” Bygg en invändning."
+        }
+      ]
+    },
+    {
+      "id": "nature",
+      "title": "Vetenskap att granska",
+      "npc": "Trädgårdslärlingen Sam",
+      "location": "Trädgården",
+      "symbol": "❧",
+      "period": "1719–1809",
+      "story": "Jag behöver din hjälp med vetenskap att granska.",
+      "bookReference": "Grundboken s. 78–80. Arbetsboken uppgift 13–15.",
+      "notes": [
+        "Linnés system för att namnge arter används internationellt.",
+        "Gemensamma latinska namn gjorde det lättare att dela kunskap.",
+        "Anders Celsius undersökte bland annat vatten och temperatur.",
+        "Scheele arbetade som apotekare och forskade i kemi.",
+        "Syre är en gas i luften. Scheele bidrog till kunskapen om den.",
+        "Eva Ekeblad undersökte hur potatis kunde användas.",
+        "Ekeblad visade bland annat hur mjöl kunde göras av potatis.",
+        "Akademien samlade och spred forskning, men möjligheterna att delta var ojämna."
+      ],
+      "cards": [
+        {
+          "id": "nature-linne",
+          "type": "short",
+          "question": "Vem ordnade och gav vetenskapliga namn åt växter och djur?",
+          "answer": "Carl von Linné",
+          "accept": [
+            "Carl von Linné",
+            "linné",
+            "carl linnaeus",
+            "linnaeus"
+          ],
+          "explanation": "Linnés system för att namnge arter används internationellt.",
+          "chapter": 1,
+          "simpleQuestion": "Vem ordnade växter och djur i grupper och gav dem vetenskapliga namn?"
+        },
+        {
+          "id": "nature-language",
+          "type": "short",
+          "question": "Vilket språk använde Linné när han gav växter och djur namn?",
+          "answer": "Latin",
+          "accept": [
+            "Latin",
+            "latinska"
+          ],
+          "explanation": "Gemensamma latinska namn gjorde det lättare att dela kunskap.",
+          "chapter": 1,
+          "simpleQuestion": "Vilket språk använde Linné när han gav växter och djur namn?"
+        },
+        {
+          "id": "nature-celsius",
+          "type": "short",
+          "question": "Vem förknippas med temperaturskalan Celsius?",
+          "answer": "Anders Celsius",
+          "accept": [
+            "Anders Celsius",
+            "celsius"
+          ],
+          "explanation": "Anders Celsius undersökte bland annat vatten och temperatur.",
+          "chapter": 1,
+          "simpleQuestion": "Vem förknippas med temperaturskalan Celsius?"
+        },
+        {
+          "id": "nature-scheele",
+          "type": "short",
+          "question": "Vilken svensk apotekare upptäckte bland annat syre?",
+          "answer": "Carl Wilhelm Scheele",
+          "accept": [
+            "Carl Wilhelm Scheele",
+            "scheele",
+            "carl vilhelm scheele"
+          ],
+          "explanation": "Scheele arbetade som apotekare och forskade i kemi.",
+          "chapter": 1,
+          "simpleQuestion": "Vilken apotekare upptäckte bland annat syre?"
+        },
+        {
+          "id": "nature-oxygen",
+          "type": "short",
+          "question": "Vilken gas i luften upptäckte bland andra Scheele?",
+          "answer": "Syre",
+          "accept": [
+            "Syre",
+            "syrgas",
+            "oxygen"
+          ],
+          "explanation": "Syre är en gas i luften. Scheele bidrog till kunskapen om den.",
+          "chapter": 1,
+          "simpleQuestion": "Vilken gas i luften upptäckte bland andra Scheele?"
+        },
+        {
+          "id": "nature-ekeblad",
+          "type": "short",
+          "question": "Vem blev den första kvinnan i Kungliga Vetenskapsakademien?",
+          "answer": "Eva Ekeblad",
+          "accept": [
+            "Eva Ekeblad",
+            "ekeblad",
+            "eva de la gardie"
+          ],
+          "explanation": "Eva Ekeblad undersökte hur potatis kunde användas.",
+          "chapter": 1,
+          "simpleQuestion": "Vem var den första kvinnan i Vetenskapsakademien?"
+        },
+        {
+          "id": "nature-potato",
+          "type": "short",
+          "question": "Vilken gröda undersökte Eva Ekeblad?",
+          "answer": "Potatis",
+          "accept": [
+            "Potatis",
+            "potatisen"
+          ],
+          "explanation": "Ekeblad visade bland annat hur mjöl kunde göras av potatis.",
+          "chapter": 1,
+          "simpleQuestion": "Vilken gröda undersökte Eva Ekeblad?"
+        },
+        {
+          "id": "nature-academy",
+          "type": "short",
+          "question": "Vilken akademi bildades 1739 för att sprida forskning?",
+          "answer": "Kungliga Vetenskapsakademien",
+          "accept": [
+            "Kungliga Vetenskapsakademien",
+            "vetenskapsakademien",
+            "kungliga vetenskapsakademin",
+            "vetenskapsakademin"
+          ],
+          "explanation": "Akademien samlade och spred forskning, men möjligheterna att delta var ojämna.",
+          "chapter": 1,
+          "simpleQuestion": "Vilken grupp bildades år 1739 för att sprida forskning?"
+        },
+        {
+          "id": "nature-science",
+          "type": "short",
+          "question": "Vad kallas kunskap som bygger på forskning?",
+          "answer": "Vetenskap",
+          "accept": [
+            "vetenskap",
+            "forskning"
+          ],
+          "explanation": "Vetenskap bygger på undersökningar. Påståenden måste kunna granskas.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallas kunskap som bygger på forskning?"
+        },
+        {
+          "id": "nature-reason-1",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara varför vetenskapliga namn kan hjälpa forskare.",
+          "steps": [
+            {
+              "answer": "arter får gemensamma namn",
+              "options": [
+                "arter får gemensamma namn",
+                "varje forskare håller namnen hemliga",
+                "alla arter blir samma art"
+              ],
+              "connector": "Eftersom"
+            },
+            {
+              "answer": "forskare jämföra vad de menar",
+              "options": [
+                "forskare jämföra vad de menar",
+                "alla undersökningar upphöra",
+                "namnet ersätta alla bevis"
+              ],
+              "connector": "kan"
+            },
+            {
+              "answer": "kan kunskap lättare delas mellan länder",
+              "options": [
+                "kan kunskap lättare delas mellan länder",
+                "är alla gamla teorier riktiga",
+                "behövs inga nya frågor"
+              ],
+              "connector": "Därför"
+            }
+          ],
+          "requires": [
+            "nature-linne",
+            "nature-language",
+            "nature-celsius",
+            "nature-scheele",
+            "nature-oxygen",
+            "nature-ekeblad",
+            "nature-potato",
+            "nature-academy",
+            "nature-science"
+          ],
+          "explanation": "Ett gemensamt språk hjälper samarbete. Det ersätter inte undersökningar.",
+          "chapter": 1,
+          "simpleQuestion": "Förklara varför vetenskapliga namn kan hjälpa forskare."
+        },
+        {
+          "id": "nature-reason-2",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara varför fred kunde gynna forskning.",
+          "steps": [
+            {
+              "answer": "krig tog mindre resurser",
+              "options": [
+                "krig tog mindre resurser",
+                "alla forskare blev soldater",
+                "alla böcker förbjöds"
+              ],
+              "connector": "När"
+            },
+            {
+              "answer": "mer tid och pengar för undersökningar",
+              "options": [
+                "mer tid och pengar för undersökningar",
+                "ingen anledning att undersöka något",
+                "lika möjligheter för alla automatiskt"
+              ],
+              "connector": "fanns"
+            },
+            {
+              "answer": "nya upptäckter och mer spridd kunskap",
+              "options": [
+                "nya upptäckter och mer spridd kunskap",
+                "att alla teorier blev sanna",
+                "att samhällets orättvisor upphörde"
+              ],
+              "connector": "vilket kunde leda till"
+            }
+          ],
+          "requires": [
+            "nature-linne",
+            "nature-language",
+            "nature-celsius",
+            "nature-scheele",
+            "nature-oxygen",
+            "nature-ekeblad",
+            "nature-potato",
+            "nature-academy",
+            "nature-science"
+          ],
+          "explanation": "Fred kunde frigöra resurser, men tillgången till utbildning var fortfarande ojämn.",
+          "chapter": 1,
+          "simpleQuestion": "Förklara varför fred kunde gynna forskning."
+        },
+        {
+          "id": "nature-reason-3",
+          "type": "chain",
+          "stage": "master",
+          "question": "En besökare säger: ”Linné var viktig, så hans indelning av människor måste också vara riktig.” Bygg ett svar.",
+          "steps": [
+            {
+              "answer": "bidrog Linné till kunskapen om växter och djur",
+              "options": [
+                "bidrog Linné till kunskapen om växter och djur",
+                "forskade Linné aldrig",
+                "är alla gamla forskningsresultat värdelösa"
+              ],
+              "connector": "Visserligen"
+            },
+            {
+              "answer": "hans rasindelning av människor var felaktig",
+              "options": [
+                "hans rasindelning av människor var felaktig",
+                "bevisar hans berömmelse alla hans påståenden",
+                "kan en forskare aldrig ha fel"
+              ],
+              "connector": "men"
+            },
+            {
+              "answer": "måste även berömda forskares påståenden granskas",
+              "options": [
+                "måste även berömda forskares påståenden granskas",
+                "ska rasindelningen användas i dag",
+                "kan vi bortse från belägg"
+              ],
+              "connector": "Därför"
+            }
+          ],
+          "requires": [
+            "nature-linne",
+            "nature-language",
+            "nature-celsius",
+            "nature-scheele",
+            "nature-oxygen",
+            "nature-ekeblad",
+            "nature-potato",
+            "nature-academy",
+            "nature-science"
+          ],
+          "explanation": "Viktiga vetenskapliga bidrag gör inte alla en persons idéer riktiga. Människor har samma värde.",
+          "chapter": 1,
+          "simpleQuestion": "En besökare säger: ”Linné var viktig, så hans indelning av människor måste också vara riktig.” Bygg ett svar."
+        }
+      ]
+    },
+    {
+      "id": "farm",
+      "title": "Byn som förändras",
+      "npc": "Bonden Karin",
+      "location": "Byn",
+      "symbol": "♧",
+      "period": "1719–1809",
+      "story": "Jag behöver din hjälp med byn som förändras.",
+      "bookReference": "Grundboken s. 86–87. Arbetsboken uppgift 18–20.",
+      "notes": [
+        "De flesta bodde på landet och arbetade med jordbruk.",
+        "Jordbruket var centralt för de flesta människors försörjning.",
+        "En familjs jord var ofta uppdelad på flera smala tegar.",
+        "Skiften förändrade både åkrarna och byarnas gemenskap.",
+        "I städerna växte fabriker fram. Många kvinnor och barn arbetade där.",
+        "Fabriksägare anställde barn eftersom de kunde betala dem mindre.",
+        "Tobak odlades på flera platser i Sverige under 1700-talet.",
+        "Hantverkare tillverkade många av städernas varor."
+      ],
+      "cards": [
+        {
+          "id": "farm-land",
+          "type": "short",
+          "question": "Var bodde omkring 90 procent av Sveriges befolkning under gustavianska tiden?",
+          "answer": "På landsbygden",
+          "accept": [
+            "På landsbygden",
+            "landsbygden",
+            "landet",
+            "på landet"
+          ],
+          "explanation": "De flesta bodde på landet och arbetade med jordbruk.",
+          "chapter": 2,
+          "simpleQuestion": "Var bodde ungefär nio av tio människor under gustavianska tiden?"
+        },
+        {
+          "id": "farm-work",
+          "type": "short",
+          "question": "Vad kallas arbetet med att odla mark och hålla djur för mat?",
+          "answer": "Jordbruk",
+          "accept": [
+            "Jordbruk",
+            "lantbruk"
+          ],
+          "explanation": "Jordbruket var centralt för de flesta människors försörjning.",
+          "chapter": 2,
+          "simpleQuestion": "Vad kallas arbetet med att odla mark och hålla djur för mat?"
+        },
+        {
+          "id": "farm-strips",
+          "type": "short",
+          "question": "Vad kallades de smala jordbitar en bondefamilj hade på flera platser?",
+          "answer": "Tegar",
+          "accept": [
+            "Tegar",
+            "teg",
+            "tegarna"
+          ],
+          "explanation": "En familjs jord var ofta uppdelad på flera smala tegar.",
+          "chapter": 2,
+          "simpleQuestion": "Vad hette de smala åkerbitar som en familj hade på flera platser?"
+        },
+        {
+          "id": "farm-reform",
+          "type": "short",
+          "question": "Vad kallades förändringen då jord samlades till större sammanhängande åkrar?",
+          "answer": "Skifte",
+          "accept": [
+            "Skifte",
+            "skiftet",
+            "skiften",
+            "jordskifte"
+          ],
+          "explanation": "Skiften förändrade både åkrarna och byarnas gemenskap.",
+          "chapter": 2,
+          "simpleQuestion": "Vad kallas det när små åkerbitar slås ihop till större åkrar?"
+        },
+        {
+          "id": "farm-factory",
+          "type": "short",
+          "question": "Vad kallas en arbetsplats där många tillverkar varor, till exempel tyg?",
+          "answer": "Fabrik",
+          "accept": [
+            "Fabrik",
+            "fabriken",
+            "manufaktur"
+          ],
+          "explanation": "I städerna växte fabriker fram. Många kvinnor och barn arbetade där.",
+          "chapter": 2,
+          "simpleQuestion": "Vad kallas en arbetsplats där många tillverkar varor, till exempel tyg?"
+        },
+        {
+          "id": "farm-cheap",
+          "type": "short",
+          "question": "Varför var barn billiga att anställa jämfört med vuxna?",
+          "answer": "De fick lägre lön",
+          "accept": [
+            "De fick lägre lön",
+            "lägre lön",
+            "låg lön",
+            "de fick mindre lön",
+            "mindre lön",
+            "de behövde inte lika mycket lön",
+            "barn fick lägre lön",
+            "barnen fick lägre lön",
+            "de fick mindre lön",
+            "barn fick mindre betalt",
+            "de fick mindre betalt",
+            "lägre lön",
+            "mindre lön",
+            "billigare arbetskraft",
+            "de hade lägre lön"
+          ],
+          "explanation": "Fabriksägare anställde barn eftersom de kunde betala dem mindre.",
+          "chapter": 2,
+          "simpleQuestion": "Varför kostade det mindre att anställa barn än vuxna?"
+        },
+        {
+          "id": "farm-tobacco",
+          "type": "short",
+          "question": "Vilken gröda odlades bland annat för att tillverka snus och röktobak?",
+          "answer": "Tobak",
+          "accept": [
+            "Tobak",
+            "tobaken"
+          ],
+          "explanation": "Tobak odlades på flera platser i Sverige under 1700-talet.",
+          "chapter": 2,
+          "simpleQuestion": "Vilken gröda odlades bland annat för att tillverka snus och röktobak?"
+        },
+        {
+          "id": "farm-handcraft",
+          "type": "short",
+          "question": "Vad kallas tillverkning där man gör saker för hand, som skor eller kärl?",
+          "answer": "Hantverk",
+          "accept": [
+            "Hantverk",
+            "hantverket"
+          ],
+          "explanation": "Hantverkare tillverkade många av städernas varor.",
+          "chapter": 2,
+          "simpleQuestion": "Vad kallas det när man tillverkar saker för hand?"
+        },
+        {
+          "id": "farm-reason-1",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara hur skiften kunde förändra bylivet.",
+          "steps": [
+            {
+              "answer": "familjens jord samlades på färre platser",
+              "options": [
+                "familjens jord samlades på färre platser",
+                "alla åkrar försvann",
+                "alla blev lika rika"
+              ],
+              "connector": "Eftersom"
+            },
+            {
+              "answer": "jordbruket skötas mer av varje familj",
+              "options": [
+                "jordbruket skötas mer av varje familj",
+                "ingen längre odla mat",
+                "alla hushåll flytta till slottet"
+              ],
+              "connector": "kunde"
+            },
+            {
+              "answer": "byarnas gemenskap kunde splittras",
+              "options": [
+                "byarnas gemenskap kunde splittras",
+                "alla fick exakt samma villkor",
+                "behövde ingen arbeta"
+              ],
+              "connector": "men"
+            }
+          ],
+          "requires": [
+            "farm-land",
+            "farm-work",
+            "farm-strips",
+            "farm-reform",
+            "farm-factory",
+            "farm-cheap",
+            "farm-tobacco",
+            "farm-handcraft"
+          ],
+          "explanation": "Skiften kunde göra jordbruk effektivare och samtidigt förändra gemenskap och fördelning av jord.",
+          "chapter": 2,
+          "simpleQuestion": "Förklara hur skiften kunde förändra bylivet."
+        },
+        {
+          "id": "farm-reason-2",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara varför fabriksägare anställde barn.",
+          "steps": [
+            {
+              "answer": "barn fick lägre lön än vuxna",
+              "options": [
+                "barn fick lägre lön än vuxna",
+                "barn ägde alla fabriker",
+                "alla barn valde fabrik framför skola"
+              ],
+              "connector": "Eftersom"
+            },
+            {
+              "answer": "ägaren minska sina kostnader",
+              "options": [
+                "ägaren minska sina kostnader",
+                "barnen bestämma alla löner",
+                "arbetet alltid bli ofarligt"
+              ],
+              "connector": "kunde"
+            },
+            {
+              "answer": "barnen kunde få långa och tunga arbetsdagar",
+              "options": [
+                "barnen kunde få långa och tunga arbetsdagar",
+                "var barnens liv alltid lättare",
+                "fick alla barn god utbildning"
+              ],
+              "connector": "men"
+            }
+          ],
+          "requires": [
+            "farm-land",
+            "farm-work",
+            "farm-strips",
+            "farm-reform",
+            "farm-factory",
+            "farm-cheap",
+            "farm-tobacco",
+            "farm-handcraft"
+          ],
+          "explanation": "En vinst för fabriksägaren kunde innebära svåra villkor för barnen.",
+          "chapter": 2,
+          "simpleQuestion": "Förklara varför fabriksägare anställde barn."
+        },
+        {
+          "id": "farm-reason-3",
+          "type": "chain",
+          "stage": "master",
+          "question": "En bonde säger att skiftet var bra för alla. Använd två perspektiv.",
+          "steps": [
+            {
+              "answer": "kunde större samlade åkrar göra odlingen lättare",
+              "options": [
+                "kunde större samlade åkrar göra odlingen lättare",
+                "försvann behovet av mat",
+                "blev all mark gratis"
+              ],
+              "connector": "För en del familjer"
+            },
+            {
+              "answer": "kunde andra få sämre jord eller förlora gemenskap",
+              "options": [
+                "kunde andra få sämre jord eller förlora gemenskap",
+                "fick alla familjer samma resultat",
+                "slutade alla bo på landet"
+              ],
+              "connector": "Samtidigt"
+            },
+            {
+              "answer": "behöver vi jämföra vilka som vann och förlorade",
+              "options": [
+                "behöver vi jämföra vilka som vann och förlorade",
+                "räcker en persons berättelse för att beskriva alla",
+                "måste en förändring alltid vara helt bra eller helt dålig"
+              ],
+              "connector": "Därför"
+            }
+          ],
+          "requires": [
+            "farm-land",
+            "farm-work",
+            "farm-strips",
+            "farm-reform",
+            "farm-factory",
+            "farm-cheap",
+            "farm-tobacco",
+            "farm-handcraft"
+          ],
+          "explanation": "En historisk förändring kan få olika följder för olika människor.",
+          "chapter": 2,
+          "simpleQuestion": "En bonde säger att skiftet var bra för alla. Använd två perspektiv."
+        }
+      ]
+    },
+    {
+      "id": "ideas",
+      "title": "Människors liv och röster",
+      "npc": "Brevskrivaren Noor",
+      "location": "Kaffehuset",
+      "symbol": "✧",
+      "period": "1719–1809",
+      "story": "Jag behöver din hjälp med människors liv och röster.",
+      "bookReference": "Grundboken s. 66–69, 82–85 och 88–89. Arbetsboken uppgift 5–7, 17 och 21–22.",
+      "notes": [
+        "Barnhus gav tak över huvudet men många barn tvingades arbeta hårt.",
+        "Gustav III tillät fler religiösa grupper, men friheten hade stora begränsningar.",
+        "Upplysningen förknippas med kritiskt tänkande och rättigheter.",
+        "Bellman skrev både om kungligheter och om fattiga människors liv.",
+        "Lenngren skrev bland annat i tidningar och försvarade kvinnors möjligheter att bilda sig.",
+        "Gustav III stödde kultur. En del av kulturen hyllade också honom själv.",
+        "Kön, rikedom och samhällsställning påverkade människors möjligheter.",
+        "Barn kunde få sy, tvätta eller spinna och utsattes också för våld."
+      ],
+      "cards": [
+        {
+          "id": "ideas-shelter",
+          "type": "short",
+          "question": "Vad kallades institutioner där barn utan omsorg kunde få bo?",
+          "answer": "Barnhus",
+          "accept": [
+            "Barnhus",
+            "barnhuset",
+            "barnhem"
+          ],
+          "explanation": "Barnhus gav tak över huvudet men många barn tvingades arbeta hårt.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallades husen där barn utan omsorg kunde få bo?"
+        },
+        {
+          "id": "ideas-faith",
+          "type": "short",
+          "question": "Vad kallas friheten att få utöva sin religion?",
+          "answer": "Religionsfrihet",
+          "accept": [
+            "Religionsfrihet",
+            "religionsfriheten"
+          ],
+          "explanation": "Gustav III tillät fler religiösa grupper, men friheten hade stora begränsningar.",
+          "chapter": 2,
+          "simpleQuestion": "Vad kallas friheten att få utöva sin religion?"
+        },
+        {
+          "id": "ideas-enlighten",
+          "type": "short",
+          "question": "Vad kallas idéerna om förnuft, undersökningar och människors rättigheter under 1700-talet?",
+          "answer": "Upplysningen",
+          "accept": [
+            "Upplysningen",
+            "upplysning"
+          ],
+          "explanation": "Upplysningen förknippas med kritiskt tänkande och rättigheter.",
+          "chapter": 2,
+          "simpleQuestion": "Vad kallas 1700-talets idéer om förnuft, forskning och människors rättigheter?"
+        },
+        {
+          "id": "ideas-bellman",
+          "type": "short",
+          "question": "Vilken visdiktare skrev bland annat om livet i Stockholm?",
+          "answer": "Carl Michael Bellman",
+          "accept": [
+            "Carl Michael Bellman",
+            "bellman",
+            "carl mikael bellman"
+          ],
+          "explanation": "Bellman skrev både om kungligheter och om fattiga människors liv.",
+          "chapter": 2,
+          "simpleQuestion": "Vilken visdiktare skrev bland annat om livet i Stockholm?"
+        },
+        {
+          "id": "ideas-lenngren",
+          "type": "short",
+          "question": "Vilken författare skrev om kvinnors rättigheter och människors orättvisor?",
+          "answer": "Anna Maria Lenngren",
+          "accept": [
+            "Anna Maria Lenngren",
+            "lenngren",
+            "anna maria"
+          ],
+          "explanation": "Lenngren skrev bland annat i tidningar och försvarade kvinnors möjligheter att bilda sig.",
+          "chapter": 2,
+          "simpleQuestion": "Vilken författare skrev om kvinnors rättigheter och människors orättvisor?"
+        },
+        {
+          "id": "ideas-patron",
+          "type": "short",
+          "question": "Vilken kung gav stöd till Bellman, teater och andra delar av kulturlivet?",
+          "answer": "Gustav III",
+          "accept": [
+            "Gustav III",
+            "gustav 3",
+            "gustav den tredje"
+          ],
+          "explanation": "Gustav III stödde kultur. En del av kulturen hyllade också honom själv.",
+          "chapter": 2,
+          "simpleQuestion": "Vilken kung gav pengar till Bellman och teatern?"
+        },
+        {
+          "id": "ideas-inequality",
+          "type": "short",
+          "question": "Vilket ord beskriver att människor inte har samma rättigheter och möjligheter?",
+          "answer": "Ojämlikhet",
+          "accept": [
+            "Ojämlikhet",
+            "ojämlikt",
+            "ojämlikheten"
+          ],
+          "explanation": "Kön, rikedom och samhällsställning påverkade människors möjligheter.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallas det när människor har olika rättigheter och möjligheter?"
+        },
+        {
+          "id": "ideas-workchildren",
+          "type": "short",
+          "question": "Vad måste många barn på barnhus göra större delen av dagen?",
+          "answer": "Arbeta",
+          "accept": [
+            "Arbeta",
+            "jobba",
+            "arbete",
+            "arbeta hårt",
+            "jobba hårt",
+            "arbeta hela dagen",
+            "jobba hela dagen"
+          ],
+          "explanation": "Barn kunde få sy, tvätta eller spinna och utsattes också för våld.",
+          "chapter": 1,
+          "simpleQuestion": "Vad måste många barn på barnhus göra större delen av dagen?"
+        },
+        {
+          "id": "ideas-culture",
+          "type": "short",
+          "question": "Vilket ord kan samla musik, teater, konst och litteratur?",
+          "answer": "Kultur",
+          "accept": [
+            "kultur"
+          ],
+          "explanation": "Här betyder kultur till exempel musik, konst, litteratur och teater.",
+          "chapter": 2,
+          "simpleQuestion": "Vilket ord kan samla musik, teater, konst och litteratur?"
+        },
+        {
+          "id": "ideas-reason-1",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara varför en ogift kvinna kunde frukta att få barn.",
+          "steps": [
+            {
+              "answer": "hon kunde drabbas av straff och skam",
+              "options": [
+                "hon kunde drabbas av straff och skam",
+                "alla kvinnor hade samma frihet som män",
+                "alla barn fick trygg omsorg"
+              ],
+              "connector": "Eftersom"
+            },
+            {
+              "answer": "hon bli rädd för hur familj och samhälle skulle behandla henne",
+              "options": [
+                "hon bli rädd för hur familj och samhälle skulle behandla henne",
+                "hon räkna med att alla hjälpte henne",
+                "hon alltid välja fritt"
+              ],
+              "connector": "kunde"
+            },
+            {
+              "answer": "samhällets regler kunde utsätta kvinnor och barn för svår press",
+              "options": [
+                "samhällets regler kunde utsätta kvinnor och barn för svår press",
+                "kvinnorna själva orsakade alla orättvisor",
+                "alla familjer hade samma villkor"
+              ],
+              "connector": "Det visar att"
+            }
+          ],
+          "requires": [
+            "ideas-shelter",
+            "ideas-inequality",
+            "ideas-workchildren"
+          ],
+          "explanation": "Förklara utsattheten genom samhällets normer och villkor. Lägg inte skulden på kvinnan.",
+          "chapter": 1,
+          "simpleQuestion": "Förklara varför en ogift kvinna kunde frukta att få barn."
+        },
+        {
+          "id": "ideas-reason-2",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara varför stödet till kultur kunde gynna både konstnären och kungen.",
+          "steps": [
+            {
+              "answer": "kungen gav pengar till kultur",
+              "options": [
+                "kungen gav pengar till kultur",
+                "all kultur förbjöds",
+                "inga författare kunde skriva"
+              ],
+              "connector": "När"
+            },
+            {
+              "answer": "konstnärer och författare arbeta vidare",
+              "options": [
+                "konstnärer och författare arbeta vidare",
+                "alla invånare automatiskt få lika makt",
+                "alla texter bli oberoende av pengar"
+              ],
+              "connector": "kunde"
+            },
+            {
+              "answer": "hyllningar göra kungen mer omtyckt",
+              "options": [
+                "hyllningar göra kungen mer omtyckt",
+                "kritik aldrig förekomma",
+                "alla fattiga bli rika"
+              ],
+              "connector": "Samtidigt kunde"
+            }
+          ],
+          "requires": [
+            "ideas-shelter",
+            "ideas-faith",
+            "ideas-enlighten",
+            "ideas-bellman",
+            "ideas-lenngren",
+            "ideas-patron",
+            "ideas-inequality",
+            "ideas-workchildren",
+            "ideas-culture"
+          ],
+          "explanation": "Stödet kunde både möjliggöra konst och stärka kungens anseende.",
+          "chapter": 2,
+          "simpleQuestion": "Förklara varför stödet till kultur kunde gynna både konstnären och kungen."
+        },
+        {
+          "id": "ideas-reason-3",
+          "type": "chain",
+          "stage": "master",
+          "question": "Ett brev beskriver barnhus som enbart hjälp. Ett annat berättar om hårt arbete. Bygg en jämförelse.",
+          "steps": [
+            {
+              "answer": "kan lyfta fram mat och tak över huvudet",
+              "options": [
+                "kan lyfta fram mat och tak över huvudet",
+                "bevisar att alla barn trivdes",
+                "gör andra berättelser onödiga"
+              ],
+              "connector": "Det första brevet"
+            },
+            {
+              "answer": "visa tvång och svåra arbetsvillkor",
+              "options": [
+                "visa tvång och svåra arbetsvillkor",
+                "sakna värde för att det kritiserar",
+                "bevisa att ingen fick mat"
+              ],
+              "connector": "Samtidigt kan det andra"
+            },
+            {
+              "answer": "undersöka avsändare och jämföra flera erfarenheter",
+              "options": [
+                "undersöka avsändare och jämföra flera erfarenheter",
+                "välja den trevligaste berättelsen",
+                "räkna vilket brev som är längst"
+              ],
+              "connector": "Därför behöver vi"
+            }
+          ],
+          "requires": [
+            "ideas-shelter",
+            "ideas-inequality",
+            "ideas-workchildren"
+          ],
+          "explanation": "Båda källorna kan belysa delar av samma institution. Vi behöver undersöka deras perspektiv.",
+          "chapter": 1,
+          "simpleQuestion": "Ett brev beskriver barnhus som enbart hjälp. Ett annat berättar om hårt arbete. Bygg en jämförelse."
+        }
+      ]
+    },
+    {
+      "id": "trade",
+      "title": "Handel, kolonier och motstånd",
+      "npc": "Hamnskrivaren Jo",
+      "location": "Hamnen",
+      "symbol": "⚓",
+      "period": "1719–1809",
+      "story": "Jag behöver din hjälp med handel, kolonier och motstånd.",
+      "bookReference": "Grundboken s. 64 och 90–94. Arbetsboken uppgift 3 och 23–26.",
+      "notes": [
+        "Kompaniets skepp seglade från Göteborg till Kina.",
+        "Göteborg var utgångspunkt för kompaniets resor till Kina.",
+        "Sverige importerade bland annat te, siden och porslin.",
+        "Svenska företag exporterade bland annat järn.",
+        "Sverige styrde Saint Barthélemy och deltog i slavhandeln.",
+        "Förslavade människor utsattes för tvång och våld. De gjorde också motstånd.",
+        "Slaveriet på ön avskaffades 1847, efter 1700-talets slut.",
+        "Förslavade människor krävde rättigheter, flydde och gjorde uppror."
+      ],
+      "cards": [
+        {
+          "id": "trade-company",
+          "type": "short",
+          "question": "Vilket svenskt företag seglade till Kina för att köpa te, siden och porslin?",
+          "answer": "Ostindiska kompaniet",
+          "accept": [
+            "Ostindiska kompaniet",
+            "svenska ostindiska kompaniet"
+          ],
+          "explanation": "Kompaniets skepp seglade från Göteborg till Kina.",
+          "chapter": 1,
+          "simpleQuestion": "Vilket svenskt företag seglade till Kina för att köpa te, siden och porslin?"
+        },
+        {
+          "id": "trade-port",
+          "type": "short",
+          "question": "Från vilken svensk stad seglade Ostindiska kompaniets skepp?",
+          "answer": "Göteborg",
+          "accept": [
+            "Göteborg",
+            "göteborgs hamn"
+          ],
+          "explanation": "Göteborg var utgångspunkt för kompaniets resor till Kina.",
+          "chapter": 1,
+          "simpleQuestion": "Från vilken svensk stad seglade Ostindiska kompaniets skepp?"
+        },
+        {
+          "id": "trade-import",
+          "type": "short",
+          "question": "Vad kallas det att köpa in varor från andra länder?",
+          "answer": "Import",
+          "accept": [
+            "Import",
+            "importera"
+          ],
+          "explanation": "Sverige importerade bland annat te, siden och porslin.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallas det att köpa in varor från andra länder?"
+        },
+        {
+          "id": "trade-export",
+          "type": "short",
+          "question": "Vad kallas det att sälja varor till andra länder?",
+          "answer": "Export",
+          "accept": [
+            "Export",
+            "exportera"
+          ],
+          "explanation": "Svenska företag exporterade bland annat järn.",
+          "chapter": 1,
+          "simpleQuestion": "Vad kallas det att sälja varor till andra länder?"
+        },
+        {
+          "id": "trade-colony",
+          "type": "short",
+          "question": "Vilken ö i Karibien blev svensk koloni under Gustav III?",
+          "answer": "Saint Barthélemy",
+          "accept": [
+            "Saint Barthélemy",
+            "saint barthelemy",
+            "sankt barthelemy",
+            "st barthelemy",
+            "s:t barthelemy"
+          ],
+          "explanation": "Sverige styrde Saint Barthélemy och deltog i slavhandeln.",
+          "chapter": 2,
+          "simpleQuestion": "Vilken ö i Karibien blev svensk koloni under Gustav III?"
+        },
+        {
+          "id": "trade-slavery",
+          "type": "short",
+          "question": "Vad kallas ett system där människor berövas friheten och behandlas som egendom?",
+          "answer": "Slaveri",
+          "accept": [
+            "Slaveri",
+            "slaveriet"
+          ],
+          "explanation": "Förslavade människor utsattes för tvång och våld. De gjorde också motstånd.",
+          "chapter": 2,
+          "simpleQuestion": "Vad kallas ett system där människor berövas friheten och behandlas som egendom?"
+        },
+        {
+          "id": "trade-abolish",
+          "type": "short",
+          "question": "Blick framåt: vilket år avskaffades slaveriet på svenska Saint Barthélemy?",
+          "answer": "1847",
+          "accept": [
+            "1847"
+          ],
+          "explanation": "Slaveriet på ön avskaffades 1847, efter 1700-talets slut.",
+          "chapter": 2,
+          "simpleQuestion": "Blick framåt: vilket år avskaffades slaveriet på svenska Saint Barthélemy?"
+        },
+        {
+          "id": "trade-resist",
+          "type": "short",
+          "question": "Vad kallas det när människor aktivt gör motstånd mot makten, ibland tillsammans med våld?",
+          "answer": "Uppror",
+          "accept": [
+            "Uppror",
+            "ett uppror"
+          ],
+          "explanation": "Förslavade människor krävde rättigheter, flydde och gjorde uppror.",
+          "chapter": 2,
+          "simpleQuestion": "Vad kallas det när människor aktivt gör motstånd mot makten, ibland tillsammans med våld?"
+        },
+        {
+          "id": "trade-colonydef",
+          "type": "short",
+          "question": "Vad kallas ett område som styrs från ett annat land?",
+          "answer": "Koloni",
+          "accept": [
+            "koloni",
+            "en koloni"
+          ],
+          "explanation": "En koloni styrs av en makt i ett annat land.",
+          "chapter": 2,
+          "simpleQuestion": "Vad kallas ett område som styrs från ett annat land?"
+        },
+        {
+          "id": "trade-slavetrade",
+          "type": "short",
+          "question": "Vad kallas handel där människor köps och säljs som egendom?",
+          "answer": "Slavhandel",
+          "accept": [
+            "slavhandel",
+            "slavhandeln"
+          ],
+          "explanation": "Slavhandel innebar att människor berövades friheten och köptes och såldes.",
+          "chapter": 2,
+          "simpleQuestion": "Vad kallas handel där människor köps och säljs som egendom?"
+        },
+        {
+          "id": "trade-reason-1",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara hur kolonial handel kunde gynna vissa och skada andra.",
+          "steps": [
+            {
+              "answer": "handel med kolonier gav inkomster",
+              "options": [
+                "handel med kolonier gav inkomster",
+                "alla arbetade frivilligt",
+                "inga människor utnyttjades"
+              ],
+              "connector": "Eftersom"
+            },
+            {
+              "answer": "köpmän och kungamakt tjäna pengar",
+              "options": [
+                "köpmän och kungamakt tjäna pengar",
+                "alla bli lika rika",
+                "slaveriet upphöra automatiskt"
+              ],
+              "connector": "kunde"
+            },
+            {
+              "answer": "berövades förslavade människor frihet och rättigheter",
+              "options": [
+                "berövades förslavade människor frihet och rättigheter",
+                "delade alla på vinsten",
+                "hade de förslavade samma makt som köpmännen"
+              ],
+              "connector": "Samtidigt"
+            }
+          ],
+          "requires": [
+            "trade-company",
+            "trade-port",
+            "trade-import",
+            "trade-export",
+            "trade-colony",
+            "trade-slavery",
+            "trade-abolish",
+            "trade-resist",
+            "trade-colonydef",
+            "trade-slavetrade"
+          ],
+          "explanation": "Beskriv både vinsterna och vilka människor som utsattes för övergrepp.",
+          "chapter": 2,
+          "simpleQuestion": "Förklara hur kolonial handel kunde gynna vissa och skada andra."
+        },
+        {
+          "id": "trade-reason-2",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara hur motstånd kunde göra slaveriet svårare att upprätthålla.",
+          "steps": [
+            {
+              "answer": "förslavade människor krävde rättigheter och flydde",
+              "options": [
+                "förslavade människor krävde rättigheter och flydde",
+                "alla accepterade förtrycket",
+                "slavägarna avstod från all vinst"
+              ],
+              "connector": "När"
+            },
+            {
+              "answer": "slavägarnas makt",
+              "options": [
+                "slavägarnas makt",
+                "bara vädret",
+                "behovet av rättigheter"
+              ],
+              "connector": "utmanades"
+            },
+            {
+              "answer": "växte också kritik mot att människor fick köpas och säljas",
+              "options": [
+                "växte också kritik mot att människor fick köpas och säljas",
+                "försvann slaveriet samma dag överallt",
+                "blev alla kolonier svenska"
+              ],
+              "connector": "Samtidigt"
+            }
+          ],
+          "requires": [
+            "trade-company",
+            "trade-port",
+            "trade-import",
+            "trade-export",
+            "trade-colony",
+            "trade-slavery",
+            "trade-abolish",
+            "trade-resist",
+            "trade-colonydef",
+            "trade-slavetrade"
+          ],
+          "explanation": "Motståndet hade flera former. Avskaffandet skedde vid olika tidpunkter på olika platser.",
+          "chapter": 2,
+          "simpleQuestion": "Förklara hur motstånd kunde göra slaveriet svårare att upprätthålla."
+        },
+        {
+          "id": "trade-reason-3",
+          "type": "chain",
+          "stage": "master",
+          "question": "En hamnbok räknar bara vinster och avgifter. Vad behöver arkivet lägga till?",
+          "steps": [
+            {
+              "answer": "visa hur handeln gav inkomster",
+              "options": [
+                "visa hur handeln gav inkomster",
+                "visa varje förslavad människas hela liv",
+                "bevisa att handeln var rättvis"
+              ],
+              "connector": "Hamnboken kan"
+            },
+            {
+              "answer": "förslavades erfarenheter och motstånd kan saknas",
+              "options": [
+                "förslavades erfarenheter och motstånd kan saknas",
+                "pengar berättar allt om lidande",
+                "alla röster finns alltid i bokföringen"
+              ],
+              "connector": "men"
+            },
+            {
+              "answer": "fler källor och människornas perspektiv",
+              "options": [
+                "fler källor och människornas perspektiv",
+                "bara större siffror",
+                "bortse från Sveriges roll"
+              ],
+              "connector": "Därför behöver vi"
+            }
+          ],
+          "requires": [
+            "trade-company",
+            "trade-port",
+            "trade-import",
+            "trade-export",
+            "trade-colony",
+            "trade-slavery",
+            "trade-abolish",
+            "trade-resist",
+            "trade-colonydef",
+            "trade-slavetrade"
+          ],
+          "explanation": "Handelsdokument kan vara viktiga källor men gör ofta förtryckta människors röster osynliga.",
+          "chapter": 2,
+          "simpleQuestion": "En hamnbok räknar bara vinster och avgifter. Vad behöver arkivet lägga till?"
+        }
+      ]
+    },
+    {
+      "id": "king",
+      "title": "Kungamakt och förlust",
+      "npc": "Slottsbudet Amira",
+      "location": "Slottet",
+      "symbol": "♛",
+      "period": "1719–1809",
+      "story": "Jag behöver din hjälp med kungamakt och förlust.",
+      "bookReference": "Grundboken s. 81–85 och 95–102. Arbetsboken uppgift 16–17 och 27–30.",
+      "notes": [
+        "Gustav III tog makt från riksrådet och stärkte kungamakten 1772.",
+        "Kuppen 1772 markerar slutet på frihetstiden.",
+        "Gustav III använde militären när han tog makten.",
+        "Gustav III sköts på operan 1792 och dog senare av skadorna.",
+        "Anckarström dömdes för mordet. Fler personer var inblandade i planerna.",
+        "Revolutionen i Frankrike följdes av stora politiska förändringar och krig.",
+        "Gustav IV Adolf avsattes efter krigsförlusten.",
+        "Finland och Åland blev delar av det ryska riket efter kriget."
+      ],
+      "cards": [
+        {
+          "id": "king-name",
+          "type": "short",
+          "question": "Vilken kung tog makten genom en kupp år 1772?",
+          "answer": "Gustav III",
+          "accept": [
+            "Gustav III",
+            "gustav 3",
+            "gustav den tredje"
+          ],
+          "explanation": "Gustav III tog makt från riksrådet och stärkte kungamakten 1772.",
+          "chapter": 2,
+          "simpleQuestion": "Vilken kung tog makten genom en kupp år 1772?"
+        },
+        {
+          "id": "king-year",
+          "type": "short",
+          "question": "Vilket år tog frihetstiden slut genom Gustav III:s kupp?",
+          "answer": "1772",
+          "accept": [
+            "1772"
+          ],
+          "explanation": "Kuppen 1772 markerar slutet på frihetstiden.",
+          "chapter": 2,
+          "simpleQuestion": "Vilket år tog frihetstiden slut genom Gustav III:s kupp?"
+        },
+        {
+          "id": "king-coup",
+          "type": "short",
+          "question": "Vad kallas ett maktövertagande med tvång utanför vanliga politiska regler?",
+          "answer": "Statskupp",
+          "accept": [
+            "Statskupp",
+            "kupp"
+          ],
+          "explanation": "Gustav III använde militären när han tog makten.",
+          "chapter": 2,
+          "simpleQuestion": "Vad kallas det när någon tar makten med tvång utanför de vanliga reglerna?"
+        },
+        {
+          "id": "king-death",
+          "type": "short",
+          "question": "Vilket år sköts Gustav III på en maskerad och dog senare?",
+          "answer": "1792",
+          "accept": [
+            "1792"
+          ],
+          "explanation": "Gustav III sköts på operan 1792 och dog senare av skadorna.",
+          "chapter": 2,
+          "simpleQuestion": "Vilket år sköts Gustav III på en maskerad och dog senare?"
+        },
+        {
+          "id": "king-allies",
+          "type": "short",
+          "question": "Vilka två länder samarbetade Sverige med mot Frankrike innan Ryssland bytte sida?",
+          "answer": "Storbritannien och Ryssland",
+          "accept": [
+            "Storbritannien och Ryssland",
+            "Ryssland och Storbritannien",
+            "England och Ryssland",
+            "Ryssland och England",
+            "Storbritannien Ryssland",
+            "Ryssland Storbritannien"
+          ],
+          "explanation": "Sverige samarbetade först med Storbritannien och Ryssland. När Ryssland slöt fred med Frankrike förändrades läget. Ryssland anföll Finland år 1808.",
+          "chapter": 2,
+          "simpleQuestion": "Sverige ville besegra Frankrike. Vilka två länder samarbetade Sverige med först?"
+        },
+        {
+          "id": "king-revolution",
+          "type": "short",
+          "question": "I vilket land började revolutionen 1789?",
+          "answer": "Frankrike",
+          "accept": [
+            "Frankrike",
+            "frankrike"
+          ],
+          "explanation": "Revolutionen i Frankrike följdes av stora politiska förändringar och krig.",
+          "chapter": 2,
+          "simpleQuestion": "I vilket land började revolutionen 1789?"
+        },
+        {
+          "id": "king-successor",
+          "type": "short",
+          "question": "Vilken kung regerade när Sverige förlorade Finland 1809?",
+          "answer": "Gustav IV Adolf",
+          "accept": [
+            "Gustav IV Adolf",
+            "gustav 4 adolf",
+            "gustav den fjärde adolf"
+          ],
+          "explanation": "Gustav IV Adolf avsattes efter krigsförlusten.",
+          "chapter": 2,
+          "simpleQuestion": "Vem var kung när Sverige förlorade Finland år 1809?"
+        },
+        {
+          "id": "king-finland",
+          "type": "short",
+          "question": "Till vilket land förlorade Sverige Finland och Åland 1809?",
+          "answer": "Ryssland",
+          "accept": [
+            "Ryssland",
+            "ryska riket"
+          ],
+          "explanation": "Finland och Åland blev delar av det ryska riket efter kriget.",
+          "chapter": 2,
+          "simpleQuestion": "Vilket land tog över Finland och Åland år 1809?"
+        },
+        {
+          "id": "king-reason-1",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara hur en kung kunde genomföra reformer och samtidigt minska friheten.",
+          "steps": [
+            {
+              "answer": "förbjöd tortyr och genomförde reformer",
+              "options": [
+                "förbjöd tortyr och genomförde reformer",
+                "gav genast alla lika rösträtt",
+                "avskaffade alla straff"
+              ],
+              "connector": "Gustav III"
+            },
+            {
+              "answer": "tog också mer makt och begränsade tryckfriheten",
+              "options": [
+                "tog också mer makt och begränsade tryckfriheten",
+                "lämnade all makt till riksdagen",
+                "förbjöd all kultur"
+              ],
+              "connector": "men"
+            },
+            {
+              "answer": "kan samma regering ha både reformer och förtryck",
+              "options": [
+                "kan samma regering ha både reformer och förtryck",
+                "är varje reform ett bevis på demokrati",
+                "behöver maktfördelningen inte granskas"
+              ],
+              "connector": "Därför"
+            }
+          ],
+          "requires": [
+            "king-name",
+            "king-year",
+            "king-coup",
+            "king-death",
+            "king-allies",
+            "king-revolution",
+            "king-successor",
+            "king-finland"
+          ],
+          "explanation": "Utvärdera konkreta förändringar och vilka som gynnades eller drabbades.",
+          "chapter": 2,
+          "simpleQuestion": "Förklara hur en kung kunde genomföra reformer och samtidigt minska friheten."
+        },
+        {
+          "id": "king-reason-2",
+          "type": "chain",
+          "stage": "journey",
+          "question": "Förklara hur Sverige förlorade Finland.",
+          "steps": [
+            {
+              "answer": "Gustav IV Adolf stod mot Frankrike",
+              "options": [
+                "Gustav IV Adolf stod mot Frankrike",
+                "Sverige blev allierat med Napoleon",
+                "Finland redan var ett självständigt land"
+              ],
+              "connector": "När"
+            },
+            {
+              "answer": "Ryssland och Frankrike slöt fred",
+              "options": [
+                "Ryssland och Frankrike slöt fred",
+                "Ryssland lämnade alla krig",
+                "alla svenska soldater fick semester"
+              ],
+              "connector": "förändrades läget när"
+            },
+            {
+              "answer": "anföll Ryssland Finland och Sverige förlorade kriget",
+              "options": [
+                "anföll Ryssland Finland och Sverige förlorade kriget",
+                "blev Ryssland en del av Sverige",
+                "fick Sverige tillbaka alla områden"
+              ],
+              "connector": "och därefter"
+            }
+          ],
+          "requires": [
+            "king-name",
+            "king-year",
+            "king-coup",
+            "king-death",
+            "king-allies",
+            "king-revolution",
+            "king-successor",
+            "king-finland"
+          ],
+          "explanation": "Sverige hamnade på en svår sida i stormakternas krig och förlorade Finland och Åland.",
+          "chapter": 2,
+          "simpleQuestion": "Förklara hur Sverige förlorade Finland."
+        },
+        {
+          "id": "king-reason-3",
+          "type": "chain",
+          "stage": "master",
+          "question": "Ett porträtt visar kungen som hjälte. En tidning kritiserar hans krig. Bygg ett sätt att undersöka bilden av kungen.",
+          "steps": [
+            {
+              "answer": "vara gjort för att framställa kungen som mäktig",
+              "options": [
+                "vara gjort för att framställa kungen som mäktig",
+                "bevisa att alla älskade honom",
+                "visa alla krigets följder"
+              ],
+              "connector": "Porträttet kan"
+            },
+            {
+              "answer": "ge ett annat perspektiv men behöver också granskas",
+              "options": [
+                "ge ett annat perspektiv men behöver också granskas",
+                "alltid vara helt neutral",
+                "ersätta alla andra källor"
+              ],
+              "connector": "Tidningen kan"
+            },
+            {
+              "answer": "jämför vi syfte och innehåll med fler källor",
+              "options": [
+                "jämför vi syfte och innehåll med fler källor",
+                "väljer vi automatiskt porträttet",
+                "avgör färgerna vem som har rätt"
+              ],
+              "connector": "Därför"
+            }
+          ],
+          "requires": [
+            "king-name",
+            "king-year",
+            "king-coup",
+            "king-death",
+            "king-allies",
+            "king-revolution",
+            "king-successor",
+            "king-finland"
+          ],
+          "explanation": "Kungaporträtt och texter är källor med olika syften. Ingen ensam källa ger hela bilden.",
+          "chapter": 2,
+          "simpleQuestion": "Ett porträtt visar kungen som hjälte. En tidning kritiserar hans krig. Bygg ett sätt att undersöka bilden av kungen."
+        }
+      ]
+    }
   ],
-  sources:[
-   {label:'Sveriges riksdag · Riksdagens historia',url:'https://www.riksdagen.se/sv/sa-fungerar-riksdagen/riksdagens-historia/fran-ting-och-stammor-till-dagens-riksdag/'},
-   {label:'Sveriges riksdag · Besluten som förändrade Sverige',url:'https://www.riksdagen.se/sv/aktuellt/fran-kungamakt-till-folkstyre/besluten-som-forandrade-sverige/'},
-   {label:'Kungliga slotten · Gustav III 1771–1792',url:'https://www.kungligaslotten.se/ur-arkivet/svenska-regenter/2018-02-20-gustav-iii-1771-1792.html'},
-   {label:'Uppsala universitet · Linné, idéerna och frihetstiden',url:'https://www.uu.se/om-uu/historia/carl-von-linne/linne-online/linne-ideerna-och-historien/linnes-sverige-och-frihetstiden'},
-   {label:'Uppsala universitet · Artens namn',url:'https://www.uu.se/om-uu/historia/carl-von-linne/linne-online/vaxterna-och-djuren/ordning-i-naturen/arten-naturens-grundenhet'},
-   {label:'Göteborgs universitet · Ostindiska kompaniets arkiv',url:'https://ostindiska.ub.gu.se/start'},
-   {label:'Stockholmskällan · Kolonin Saint-Barthélemy',url:'https://stockholmskallan.stockholm.se/teman/Stockholmsplatser/kolonin-saint-barthelemy/'},
-   {label:'Roediger & Karpicke (2006) · Test-Enhanced Learning',url:'https://www.psychologicalscience.org/journals/psychological-science/j.1467-9280.2006.01693.x/'}
+  "sources": [
+    {
+      "label": "Underlag: lärarens fotograferade kapitel, arbetsbok och lärarguide. Sidreferenser finns vid varje arbetsplats.",
+      "url": "https://andersljungvik.github.io/uppdrag-1700/"
+    },
+    {
+      "label": "Roediger & Karpicke (2006), Test-Enhanced Learning",
+      "url": "https://doi.org/10.1111/j.1467-9280.2006.01693.x"
+    },
+    {
+      "label": "Soderstrom, Kerr & Bjork (2016), Retrieval and Spacing",
+      "url": "https://doi.org/10.1177/0956797615617778"
+    }
+  ],
+  "concepts": [
+    {
+      "term": "frihetstiden",
+      "mission": "power",
+      "chapter": 1,
+      "question": "power-era"
+    },
+    {
+      "term": "riksrådet",
+      "mission": "power",
+      "chapter": 1,
+      "question": "power-council"
+    },
+    {
+      "term": "Ostindiska kompaniet",
+      "mission": "trade",
+      "chapter": 1,
+      "question": "trade-company"
+    },
+    {
+      "term": "grundlag",
+      "mission": "power",
+      "chapter": 1,
+      "question": "power-law"
+    },
+    {
+      "term": "barnhus",
+      "mission": "ideas",
+      "chapter": 1,
+      "question": "ideas-shelter"
+    },
+    {
+      "term": "hattar och mössor",
+      "mission": "power",
+      "chapter": 1,
+      "question": "power-parties"
+    },
+    {
+      "term": "stora daldansen",
+      "mission": "power",
+      "chapter": 1,
+      "question": "power-rebellion"
+    },
+    {
+      "term": "tryckfrihet",
+      "mission": "press",
+      "chapter": 1,
+      "question": "press-freedom"
+    },
+    {
+      "term": "offentlighetsprincipen",
+      "mission": "press",
+      "chapter": 1,
+      "question": "press-open"
+    },
+    {
+      "term": "vetenskap",
+      "mission": "nature",
+      "chapter": 1,
+      "question": "nature-science"
+    },
+    {
+      "term": "upplysningen",
+      "mission": "ideas",
+      "chapter": 2,
+      "question": "ideas-enlighten"
+    },
+    {
+      "term": "religionsfrihet",
+      "mission": "ideas",
+      "chapter": 2,
+      "question": "ideas-faith"
+    },
+    {
+      "term": "skifte",
+      "mission": "farm",
+      "chapter": 2,
+      "question": "farm-reform"
+    },
+    {
+      "term": "fabriker",
+      "mission": "farm",
+      "chapter": 2,
+      "question": "farm-factory"
+    },
+    {
+      "term": "kultur",
+      "mission": "ideas",
+      "chapter": 2,
+      "question": "ideas-culture"
+    },
+    {
+      "term": "koloni",
+      "mission": "trade",
+      "chapter": 2,
+      "question": "trade-colonydef"
+    },
+    {
+      "term": "Saint Barthélemy",
+      "mission": "trade",
+      "chapter": 2,
+      "question": "trade-colony"
+    },
+    {
+      "term": "slavhandel",
+      "mission": "trade",
+      "chapter": 2,
+      "question": "trade-slavetrade"
+    }
+  ],
+  "goals": [
+    "Varför kallas tiden mellan 1719 och 1772 för frihetstiden?",
+    "Hur påverkades Sverige av att fler människor lärde sig läsa?",
+    "Hur förlorade Sverige Finland?"
   ]
- };
-})();
+};
