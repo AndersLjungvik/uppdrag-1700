@@ -131,7 +131,7 @@ elements.get('mapBtn').click();[...new Set(elements.values())].find(el=>el.datas
 const beforeSocial=JSON.stringify({answers:game.state.answers,coins:game.state.coins,food:game.state.food,practice:game.state.practice});
 hotspot('pressNpc').click();elements.get('dialogueAction1').click();assert(elements.get('dialogueText').innerHTML.includes('väljer mina ord'));
 elements.get('dialogueAction0').click();assert(elements.get('dialogueText').innerHTML.includes('tryckfriheten'));
-elements.get('dialogueAction0').click();assert(elements.get('dialogueText').innerHTML.includes('arbetar här'));
+elements.get('dialogueAction0').click();assert(elements.get('hearReply'));elements.get('hearReply').click();assert(elements.get('dialogueText').innerHTML.includes('arbetar här'));
 elements.get('dialogueAction0').click();assert(elements.get('dialogue').hidden);
 assert.equal(JSON.stringify({answers:game.state.answers,coins:game.state.coins,food:game.state.food,practice:game.state.practice}),beforeSocial);
 elements.get('menuBtn').click();elements.get('menuChapter').click();elements.get('simpleToggle').click();assert(game.state.simpleText);
@@ -152,7 +152,7 @@ const beforeGuest=JSON.stringify({coins:game.state.coins,time:game.state.time,fo
 hotspot('guest-klara').click();assert(elements.get('speaker').textContent.includes('KLARA'));
 assert.equal(elements.get('dialogue').dataset.side,'right');assert.equal(elements.get('replyName').textContent,'Du');
 elements.get('dialogueAction0').click();assert(elements.get('dialogueText').innerHTML.includes('ingen röst'));
-elements.get('dialogueAction0').click();assert(elements.get('dialogueText').innerHTML.includes('lyssnad'));
+elements.get('dialogueAction0').click();assert(elements.get('hearReply'));assert(elements.get('lastPlayerReply').textContent.includes('friheten'));assert(elements.get('dialogueText').innerHTML.includes('ingen röst'));elements.get('hearReply').click();assert(elements.get('dialogueText').innerHTML.includes('lyssnad'));assert(elements.get('conversationLog').innerHTML.includes('Du'));
 elements.get('dialogueAction0').click();assert(elements.get('dialogue').hidden);
 assert.equal(JSON.stringify({coins:game.state.coins,time:game.state.time,food:game.state.food,answers:game.state.answers,practice:game.state.practice,completed:game.state.completed}),beforeGuest);
 assert(index.indexOf('id="dialogue"')<index.indexOf('</main>'),'comic dialogue is anchored inside the game stage');

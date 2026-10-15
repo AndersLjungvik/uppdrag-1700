@@ -10,7 +10,7 @@ const require=process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES
   ? createRequire(path.join(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES,'package.json'))
   : createRequire(import.meta.url);
 const {createCanvas,loadImage}=require('@napi-rs/canvas');
-const artImages={scenes:await loadImage(path.join(root,'dist/assets/scene-atlas.png')),characters:await loadImage(path.join(root,'dist/assets/character-atlas.png'))};
+const artImages={printing:await loadImage(path.join(root,'dist/assets/printing-workshop.png')),scenes:await loadImage(path.join(root,'dist/assets/scene-atlas.png')),characters:await loadImage(path.join(root,'dist/assets/character-atlas.png'))};
 let checks=0;
 const test=(name,fn)=>{fn();checks++;process.stdout.write(`PASS ${name}\n`)};
 const context=vm.createContext({window:{__ADVENTURE_TEST__:true,UPPDRAG_ART_IMAGES:artImages},console,Date,Math,JSON,Object,Array,Set,Map,Number,String});

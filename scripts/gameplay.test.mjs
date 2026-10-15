@@ -201,3 +201,11 @@ test('cast shares the player floor and scale and faces the approaching player',(
   }
  }
 });
+
+test('every puppet has a distinct listening and speaking frame within the asset',()=>{
+ const e=engine();
+ for(let i=0;i<10;i++){
+  const a=e.puppetCell(i,false),b=e.puppetCell(i,true);assert.notEqual(a[1],b[1]);
+  for(const [x,y,w,h]of [a,b]){assert(x>=0&&y>=0&&w>0&&h>0);assert(x+w<=1145&&y+h<=1374)}
+ }
+});

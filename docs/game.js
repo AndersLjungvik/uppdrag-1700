@@ -378,16 +378,16 @@
   const ART_FIGURES={M:1,S:2,K:3,B:4,N:5,E:6,J:7,A:8,R:9,L:5};
   // Shared 1280 × 720 stage coordinates keep CSS player and canvas cast at one scale.
   const STAGING={
-    square:{height:320,foot:658,cast:[['baker',245,'M','Bagaren Marta'],['archive',650,'A','Arkivbudet'],['master',430,'R','Läromästaren Rut']]},
-    garden:{height:340,foot:665,cast:[['natureNpc',790,'S','Trädgårdslärlingen Sam']]},
-    farm:{height:340,foot:670,cast:[['farmNpc',820,'K','Bonden Karin']]},
-    print:{height:365,foot:675,min:6,max:94,cast:[['pressNpc',260,'B','Boktryckaren Brita']]},
-    coffee:{height:350,foot:674,min:6,max:94,cast:[['ideasNpc',875,'N','Brevskrivaren Noor']]},
-    riksdag:{height:355,foot:672,min:6,max:94,cast:[['powerNpc',900,'E','Skrivaren Elias']]},
-    harbor:{height:345,foot:665,cast:[['tradeNpc',820,'J','Hamnskrivaren Jo']]},
-    palace:{height:370,foot:673,cast:[['kingNpc',860,'A','Slottsbudet Amira']]},
-    opera:{height:355,foot:670,cast:[['musician',820,'L','Musikern Liv']]},
-    colony:{height:350,foot:675,min:6,max:94,cast:[['witness',465,'E','Arkivskrivaren Ester']]}
+    square:{height:380,foot:680,cast:[['baker',245,'M','Bagaren Marta'],['archive',650,'A','Arkivbudet'],['master',430,'R','Läromästaren Rut']]},
+    garden:{height:400,foot:685,cast:[['natureNpc',790,'S','Trädgårdslärlingen Sam']]},
+    farm:{height:400,foot:690,cast:[['farmNpc',820,'K','Bonden Karin']]},
+    print:{height:490,foot:710,min:6,max:94,cast:[['pressNpc',260,'B','Boktryckaren Brita']]},
+    coffee:{height:400,foot:690,min:6,max:94,cast:[['ideasNpc',875,'N','Brevskrivaren Noor']]},
+    riksdag:{height:410,foot:690,min:6,max:94,cast:[['powerNpc',900,'E','Skrivaren Elias']]},
+    harbor:{height:400,foot:685,cast:[['tradeNpc',820,'J','Hamnskrivaren Jo']]},
+    palace:{height:420,foot:690,cast:[['kingNpc',860,'A','Slottsbudet Amira']]},
+    opera:{height:410,foot:690,cast:[['musician',820,'L','Musikern Liv']]},
+    colony:{height:410,foot:690,min:6,max:94,cast:[['witness',465,'E','Arkivskrivaren Ester']]}
   };
   const BYSTANDERS={
     square:{id:'klara',name:'Marknadsbesökaren Klara',x:1050,sprite:3,topic:'freedom'},
@@ -408,19 +408,22 @@
     for(const actor of sceneCast(id)){const h=LOCATIONS[id].hotspots.find(h=>h.id===actor.hotspot);if(h){h.x=(actor.x-actor.height/3)/12.8;h.y=(actor.foot-actor.height)/7.2;h.w=actor.height*2/3/12.8;h.h=actor.height/7.2;h.walk=approachX(actor,id)}}
     LOCATIONS[id].start=Math.max(layout.min||5,Math.min(layout.max||95,LOCATIONS[id].start));
   }
-  const ART={background:null,characters:null};
+  const PUPPET_CELLS=[[0, 20, 229, 346], [229, 21, 229, 343], [458, 11, 229, 363], [687, 21, 229, 343], [916, 18, 229, 347], [0, 379, 229, 341], [229, 378, 229, 341], [458, 374, 229, 354], [687, 379, 229, 339], [916, 378, 229, 342], [0, 730, 229, 327], [229, 728, 229, 329], [458, 728, 229, 333], [687, 729, 229, 327], [916, 732, 229, 325], [0, 1062, 229, 310], [229, 1061, 229, 311], [458, 1061, 229, 311], [687, 1062, 229, 310], [916, 1063, 229, 309]];
+  function puppetCell(sprite,talking=false){return PUPPET_CELLS[Math.floor(sprite/5)*10+(talking?5:0)+sprite%5]}
+  const ART={background:null,characters:null,printing:null};
+  const animatePuppets=!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const ART_SCENES=['square','garden','farm','print','coffee','riksdag','harbor','palace','opera','colony'];
-  const ASSET_URLS={scenes:window.UPPDRAG_ASSETS?.scenes||'assets/scene-atlas.png?v=0.3.2',characters:window.UPPDRAG_ASSETS?.characters||'assets/character-atlas.png'};
-  if(window.UPPDRAG_ART_IMAGES){ART.background=window.UPPDRAG_ART_IMAGES.scenes;ART.characters=window.UPPDRAG_ART_IMAGES.characters}
+  const ASSET_URLS={scenes:window.UPPDRAG_ASSETS?.scenes||'assets/scene-atlas.png?v=0.3.2',characters:window.UPPDRAG_ASSETS?.characters||'assets/character-atlas.png?v=0.4.0',printing:window.UPPDRAG_ASSETS?.printing||'assets/printing-workshop.png?v=0.4.0'};
+  if(window.UPPDRAG_ART_IMAGES){ART.background=window.UPPDRAG_ART_IMAGES.scenes;ART.characters=window.UPPDRAG_ART_IMAGES.characters;ART.printing=window.UPPDRAG_ART_IMAGES.printing}
   else if(typeof window.Image==='function'){
-    for(const [key,url] of [['background',ASSET_URLS.scenes],['characters',ASSET_URLS.characters]]){const image=new window.Image();image.onload=()=>{ART[key]=image};image.src=url}
+    for(const [key,url] of [['background',ASSET_URLS.scenes],['characters',ASSET_URLS.characters],['printing',ASSET_URLS.printing]]){const image=new window.Image();image.onload=()=>{ART[key]=image};image.src=url}
   }
   function drawArtScene(ctx,id,s,t){
     const i=ART_SCENES.indexOf(id),image=ART.background;if(i<0||!image)return false;
-    const w=image.width/2,h=image.height/5;ctx.drawImage(image,(i%2)*w,Math.floor(i/2)*h,w,h,0,0,1280,720);
+    const w=image.width/2,h=image.height/5;if(id==='print'&&ART.printing)ctx.drawImage(ART.printing,0,0,ART.printing.width,ART.printing.height,0,0,1280,720);else ctx.drawImage(image,(i%2)*w,Math.floor(i/2)*h,w,h,0,0,1280,720);
     for(const actor of sceneCast(id)){
-      const image=ART.characters;if(!image)continue;const w=image.width/5,h=image.height/2,height=actor.height,width=height*2/3;
-      ellipse(ctx,actor.x,actor.foot-2,width*.27,7,'#211d1933');ctx.save();ctx.translate(actor.x,actor.foot);ctx.scale(actorFacing(actor,s.heroX),1);ctx.rotate(actor.name===speakingName?Math.sin(t/600)*.012:0);ctx.drawImage(image,(actor.sprite%5)*w,Math.floor(actor.sprite/5)*h,w,h,-width/2,-height,width,height);ctx.restore();
+      const image=ART.characters;if(!image)continue;const talking=actor.name===speakingName,[sx,sy,sw,sh]=puppetCell(actor.sprite,talking),height=actor.height,width=height*2/3;
+      ellipse(ctx,actor.x,actor.foot-2,width*.27,7,'#211d1933');ctx.save();ctx.translate(actor.x,actor.foot);ctx.scale(actorFacing(actor,s.heroX),1);ctx.rotate(animatePuppets&&talking?Math.sin(t/1400)*.009:0);ctx.drawImage(image,sx,sy,sw,sh,-width/2,-height,width,height);ctx.restore();
     }
     if(id==='print'&&s.chapter===2){rect(ctx,1030,80,180,58,'#e3d1a7');text(ctx,'GRANSKAS',1120,116,19,'#71352d','center')}
     return true;
@@ -493,7 +496,7 @@
     get state(){return state},get data(){return data},blankState,loadState,validBank,applyBank,allCards,mission,
     availableCards,career,promotionStage,workQuestion,logicStudy,logicChapter,RANKS,bookGuide,eligibleReviewCards,reviewSelection,logicBeginReview,reviewQuestion,logicReviewAnswer,logicCancelReview,logicOfferApple,logicJobHint,logicCollect,logicPlace,logicPrint,logicDeliverProof,logicBeginPaperErrand,logicTakePaperParcel,logicDeliverPaperParcel,logicPlantPlacement,logicSortPlants,logicDeliverSeeds,
     normalize,gradeShort,gradeQuestion,logicBeginJob,logicAnswer,logicCompleteJob,logicBuyBread,logicEatBread,logicNewDay,
-    reportCSV,reportRows,csvCell,renderScene,stageLayout,sceneCast,actorFacing,approachX,
+    reportCSV,reportRows,csvCell,renderScene,stageLayout,sceneCast,actorFacing,approachX,puppetCell,
     setState(value){state=loadState(value)},resetData(){data=clone(BASE)}
   };
   window.__adventure=coreApi;
@@ -501,6 +504,8 @@
 
   const canvas=$('scene'),ctx=canvas.getContext('2d'),hero=$('hero');
   hero.style.setProperty('--character-atlas',`url("${ASSET_URLS.characters}")`);hero.classList.add('paper-art');
+  function heroPose(talking=false){const [x,y,w,h]=puppetCell(0,talking);hero.style.backgroundSize=`${1145/w*100}% ${1374/h*100}%`;hero.style.backgroundPosition=`${x/(1145-w)*100}% ${y/(1374-h)*100}%`;hero.classList.toggle('speaking',talking)}
+  heroPose();
   let activeVerb=null,selectedItem=null,moveTimer=null,moveFinish=null,hintTimer=null,narrationTimer=null;
   let activeQuestion=null,activeReviewId=null,currentTarget=null,playing=state.started;
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -538,7 +543,7 @@
   function renderSceneActions(){
     const bar=$('sceneActions');if(!bar)return;
     const loc=LOCATIONS[state.scene];bar.innerHTML=loc.hotspots.filter(h=>!h.collect||!state.workshop.collected.includes(h.collect)).map(h=>`<button type="button" data-direct="${h.id}">${esc(h.label)}</button>`).join('');
-    for(const button of document.querySelectorAll('[data-direct]'))button.onclick=()=>{const h=loc.hotspots.find(h=>h.id===button.dataset.direct);if(!h)return;if(state.working){resumeWork();return}if(state.rehearsal){showReviewQuestion();return}closeDialogue();closeModal();if(moveTimer){clearTimeout(moveTimer);moveTimer=null;moveFinish=null;currentTarget=null}state.heroX=h.walk??state.heroX;hero.style.setProperty('--x',`${state.heroX}%`);performAction(h,selectedItem?'use':activeVerb||h.defaultVerb||'look')};
+    for(const button of document.querySelectorAll('[data-direct]'))button.onclick=()=>{const h=loc.hotspots.find(h=>h.id===button.dataset.direct);if(!h)return;if(state.working){resumeWork();return}if(state.rehearsal){showReviewQuestion();return}closeDialogue();closeModal();if(moveTimer){clearTimeout(moveTimer);moveTimer=null;moveFinish=null;currentTarget=null}walkTo(h.walk??state.heroX,()=>performAction(h,selectedItem?'use':activeVerb||h.defaultVerb||'look'))};
   }
   function renderHotspots(){
     const loc=LOCATIONS[state.scene];$('hotspotLayer').innerHTML=loc.hotspots.filter(h=>!h.collect||!state.workshop.collected.includes(h.collect)).map(h=>`<button class="hotspot ${h.kind==='exit'?'exit':''}" data-hotspot="${h.id}" data-label="${esc(h.label)}" aria-label="${esc((h.defaultVerb==='talk'?'Prata med ':h.defaultVerb==='take'?'Ta ':h.defaultVerb==='look'?'Titta på ':'Gå till ')+h.label)}" style="left:${h.x}%;top:${h.y}%;width:${h.w}%;height:${h.h}%"></button>`).join('');
@@ -601,13 +606,35 @@
   function showHint(message){$('hint').textContent=message;$('hint').hidden=false;clearTimeout(hintTimer);hintTimer=setTimeout(()=>$('hint').hidden=true,3800)}
   function narrate(message,duration=3000){$('narrationText').textContent=message;$('narration').hidden=false;clearTimeout(narrationTimer);narrationTimer=setTimeout(()=>$('narration').hidden=true,duration)}
 
-  function showDialogue(speaker,text,actions=[],tone=''){
-    const panel=$('dialogue');panel.hidden=false;panel.className=`dialogue ${tone}`;$('speaker').textContent=speaker.toUpperCase();$('portraitInitial').textContent=speaker.trim()[0]||'?';$('dialogueText').innerHTML=text;
-    const actor=sceneCast(state.scene).find(a=>a.name===speaker),panelLeft=actor?actor.x<state.heroX*12.8:true;panel.dataset.side=panelLeft?'left':'right';if(actor)hero.style.setProperty('--facing',actor.x>state.heroX*12.8?1:-1);
-    $('replyName').textContent=state.working||state.rehearsal?'Ditt svar':'Du';speakingName=speaker;hero.classList.add('talking');speakingFigure=speaker.trim().split(' ').at(-1)?.[0]||'';
-    $('dialogueActions').innerHTML=actions.map((a,i)=>`<button id="dialogueAction${i}" class="${a.reply?'reply':''}">${a.label}</button>`).join('');actions.forEach((a,i)=>$('dialogueAction'+i).onclick=a.fn);keysOff();
+  let conversationSpeaker='',conversationTurns=[],lastPlayerLine='',nextDialogueActionAt=0;
+  function transcript(){
+    $('conversationLog').innerHTML=conversationTurns.map(t=>`<li><b>${esc(t.speaker)}:</b> ${t.text}</li>`).join('');
+    $('conversationHistory').hidden=conversationTurns.length<2;
   }
-  function closeDialogue(){speakingName='';speakingFigure='';hero.classList.remove('talking');const panel=$('dialogue');panel.hidden=true;panel.className='dialogue';$('dialogueActions').innerHTML='';activeQuestion=null}
+  function rememberPlayer(label){lastPlayerLine=label;conversationTurns.push({speaker:'Du',text:esc(label)});transcript()}
+  function showDialogue(speaker,text,actions=[],tone=''){
+    const panel=$('dialogue'),opening=panel.hidden||conversationSpeaker!==speaker;
+    if(opening){conversationSpeaker=speaker;conversationTurns=[];lastPlayerLine='';$('conversationHistory').open=false;
+      const actor=sceneCast(state.scene).find(a=>a.name===speaker),panelLeft=actor?actor.x<state.heroX*12.8:true;
+      panel.dataset.side=panelLeft?'left':'right';
+      const x=actor?actor.x/12.8:(panelLeft?22:78),hx=state.heroX+(panelLeft?6:-6);
+      panel.style.setProperty('--speaker-x',`${Math.max(13,Math.min(87,x))}%`);
+      panel.style.setProperty('--reply-x',`${Math.max(15,Math.min(85,hx))}%`);
+      if(actor)hero.style.setProperty('--facing',actor.x>state.heroX*12.8?1:-1);
+    }
+    panel.hidden=false;panel.className=`dialogue ${tone}`;$('speaker').textContent=speaker.toUpperCase();$('portraitInitial').textContent=speaker.trim()[0]||'?';$('dialogueText').innerHTML=text;
+    if(conversationTurns.at(-1)?.text!==text)conversationTurns.push({speaker,text});transcript();
+    $('lastPlayerReply').textContent=lastPlayerLine?`Du: ”${lastPlayerLine}”`:'';$('lastPlayerReply').hidden=!lastPlayerLine;
+    $('replyName').textContent=state.working||state.rehearsal?'Ditt svar':'Du';speakingName=speaker;hero.classList.remove('talking');heroPose(false);speakingFigure=speaker.trim().split(' ').at(-1)?.[0]||'';
+    nextDialogueActionAt=Date.now()+300;
+    $('dialogueActions').innerHTML=actions.map((a,i)=>`<button id="dialogueAction${i}" class="${a.reply?'reply':''}">${a.label}</button>`).join('');
+    actions.forEach((a,i)=>$('dialogueAction'+i).onclick=e=>{
+      if(e?.isTrusted&&Date.now()<nextDialogueActionAt)return;
+      if(a.spoken){rememberPlayer(a.label);speakingName='';heroPose(true);$('lastPlayerReply').textContent=`”${a.label}”`;$('lastPlayerReply').hidden=false;$('replyName').textContent='Du säger';$('dialogueActions').innerHTML='<button id="hearReply" class="reply">Lyssna på svaret →</button>';$('hearReply').onclick=()=>a.fn();return}
+      if(a.reply)rememberPlayer(a.label);a.fn();
+    });keysOff();
+  }
+  function closeDialogue(){speakingName='';speakingFigure='';conversationSpeaker='';conversationTurns=[];lastPlayerLine='';hero.classList.remove('talking');heroPose(false);const panel=$('dialogue');panel.hidden=true;panel.className='dialogue';$('dialogueActions').innerHTML='';activeQuestion=null}
   $('dialogueClose').onclick=leaveDialogue;
   function leaveDialogue(){if(state.working){showDialogue(mission(state.working.missionId).npc,'Arbetspasset pågår. Vill du fortsätta eller avsluta för i dag?',[{label:'Fortsätt arbetet.',fn:resumeWork,reply:true},{label:'Avsluta arbetspasset.',fn:()=>{const id=state.working.missionId;if(!state.failedToday.includes(id))state.failedToday.push(id);state.working=null;save();closeDialogue();updateHUD()},reply:true}]);return}if(state.rehearsal){showReviewQuestion();return}closeDialogue()}
   function keysOff(){activeVerb=null;selectedItem=null;updateVerbButtons();renderInventory()}
@@ -703,7 +730,7 @@
   function socialTalk(id,node='start'){
     const variants=SOCIAL[id]||SOCIAL.ideas,v=variants[Math.min(state.chapter-1,variants.length-1)],npc=mission(id)?.npc||(id==='musician'?'Musikern Liv':'Arkivskrivaren Ester');
     if(node==='start'){showDialogue(npc,esc(v[0]),[{label:v[1],fn:()=>socialTalk(id,'explain'),reply:true},{label:'Jag måste vidare.',fn:closeDialogue,reply:true}]);return}
-    showDialogue(npc,esc(v[2]),[...v[3].map(([label,reaction])=>({label,fn:()=>showDialogue(npc,esc(reaction),[{label:'Tack för pratstunden. Jag går vidare.',fn:closeDialogue,reply:true}]),reply:true})),{label:'Jag måste vidare.',fn:closeDialogue,reply:true}]);
+    showDialogue(npc,esc(v[2]),[...v[3].map(([label,reaction])=>({label,spoken:true,fn:()=>showDialogue(npc,esc(reaction),[{label:'Tack för pratstunden. Jag går vidare.',fn:closeDialogue,reply:true}]),reply:true})),{label:'Jag måste vidare.',fn:closeDialogue,reply:true}]);
   }
   const STREET_TALKS={
     freedom:[['De säger att det är en fri tid. Jag undrar vem som får känna den friheten.','Hur menar du?','Riksdagen får bestämma mer. Men jag har ingen röst där. Vad tänker du?',[['Då är friheten olika för olika människor.','Ja. Det märks när man behöver bli lyssnad på.'],['Kanske kan det förändras?','Det hoppas jag. Men någon måste väl börja säga ifrån.']]],['Kungen bestämmer mer nu. En del jublar och andra suckar.','Vad tycker du?','Jag vill kunna säga vad jag tycker utan att vara rädd. Är det för mycket begärt?',[['Nej, man behöver kunna kritisera makten.','Då förstår du varför jag lyssnar noga vid tryckeriet.'],['Du låter orolig.','Lite. Det är svårt att veta vem som lyssnar.']]]],
@@ -715,10 +742,10 @@
   function ambientTalk(topic,name,node='start'){
     const variants=STREET_TALKS[topic],v=variants[Math.min(state.chapter-1,variants.length-1)];
     if(node==='start'){showDialogue(name,esc(v[0]),[{label:v[1],fn:()=>ambientTalk(topic,name,'explain'),reply:true},{label:'Jag måste vidare till mitt jobb.',fn:closeDialogue,reply:true}]);return}
-    showDialogue(name,esc(v[2]),[...v[3].map(([label,reaction])=>({label,fn:()=>showDialogue(name,esc(reaction),[{label:'Tack för pratstunden. Vi ses!',fn:closeDialogue,reply:true}]),reply:true})),{label:'Jag måste vidare.',fn:closeDialogue,reply:true}]);
+    showDialogue(name,esc(v[2]),[...v[3].map(([label,reaction])=>({label,spoken:true,fn:()=>showDialogue(name,esc(reaction),[{label:'Tack för pratstunden. Vi ses!',fn:closeDialogue,reply:true}]),reply:true})),{label:'Jag måste vidare.',fn:closeDialogue,reply:true}]);
   }
   function beginJobUI(id,promotion=false){const result=logicBeginJob(id,{promotion});if(!result.ok){closeDialogue();talkJob(id);return}updateHUD();showJobQuestion(id,0)}
-  function resumeWork(){const work=state.working;if(!work)return false;state.scene=SCENE_FOR[work.missionId]||state.scene;state.heroX=LOCATIONS[state.scene].start;updateHUD();showJobQuestion(work.missionId,work.index);showHint('Slutför momentet eller välj ”Jag kan inte detta än”.');return true}
+  function resumeWork(){const work=state.working;if(!work)return false;const destination=SCENE_FOR[work.missionId]||state.scene;if(state.scene!==destination){state.scene=destination;const actor=sceneCast(destination).find(a=>a.name===mission(work.missionId).npc);state.heroX=actor?approachX(actor,destination):LOCATIONS[destination].start;}updateHUD();showJobQuestion(work.missionId,work.index);showHint('Slutför momentet eller välj ”Jag kan inte detta än”.');return true}
   function showJobQuestion(id,index){window.UPPDRAG_SOUND?.stop();
     const m=mission(id),q=workQuestion();if(!q)return;activeQuestion={id,index,q};const lead=state.simpleText?'':(state.working.stage==='facts'?'Hjälp till med dagens arbete.':'Använd kunskaperna för att förklara ett samband.');
     showDialogue(m.npc,`<span class="eyebrow">ARBETSMOMENT ${index+1} AV ${state.working.ids.length} · ${state.working.stage==='facts'?'ARBETSPASS':state.working.stage==='journey'?'GESÄLLPROV':'MÄSTARPROV'}</span>${esc(lead)}<br><br><b>${esc(questionText(q))}</b>`,[]);
