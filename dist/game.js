@@ -630,7 +630,7 @@
     $('dialogueActions').innerHTML=actions.map((a,i)=>`<button id="dialogueAction${i}" class="${a.reply?'reply':''}">${a.label}</button>`).join('');
     actions.forEach((a,i)=>$('dialogueAction'+i).onclick=e=>{
       if(e?.isTrusted&&Date.now()<nextDialogueActionAt)return;
-      if(a.spoken){rememberPlayer(a.label);speakingName='';heroPose(true);$('lastPlayerReply').textContent=`”${a.label}”`;$('lastPlayerReply').hidden=false;$('replyName').textContent='Du säger';$('dialogueActions').innerHTML='<button id="hearReply" class="reply">Lyssna på svaret →</button>';$('hearReply').onclick=()=>a.fn();return}
+      if(a.spoken){rememberPlayer(a.label);speakingName='';heroPose(true);$('speaker').textContent=conversationSpeaker.toUpperCase()+' FRÅGADE';$('lastPlayerReply').textContent=`”${a.label}”`;$('lastPlayerReply').hidden=false;$('replyName').textContent='Du säger';$('dialogueActions').innerHTML='<button id="hearReply" class="reply">Lyssna på svaret →</button>';$('hearReply').onclick=()=>a.fn();return}
       if(a.reply)rememberPlayer(a.label);a.fn();
     });keysOff();
   }
