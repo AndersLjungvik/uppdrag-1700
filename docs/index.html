@@ -7,7 +7,7 @@
   <meta name="description" content="Ett point-and-click-äventyr där kunskaper om 1700-talet behövs för att få arbete, mat och lösa mysteriet.">
   <title>Uppdrag 1700: Den hungrige lärlingen</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='15' fill='%23171813'/%3E%3Cpath d='M15 55h50L54 28H26z' fill='%23d09a50'/%3E%3Cpath d='M26 28l14-13 14 13' fill='none' stroke='%23f5e4bd' stroke-width='5'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css?v=0.3.1">
+  <link rel="stylesheet" href="style.css?v=0.3.2">
 </head>
 <body>
   <div class="app" id="app">
@@ -35,6 +35,15 @@
       <div id="hint" class="hint" role="status" hidden></div>
       <button id="skipWalk" class="skip-walk" hidden>Hoppa över promenaden</button>
       <div id="narration" class="narration" hidden><span id="narrationText"></span></div>
+      <section id="dialogue" class="dialogue" hidden aria-live="polite" data-side="right">
+        <div class="speech-bubble" id="speechBubble">
+          <div class="speaker" id="speaker">Berättaren</div>
+          <div class="dialogue-text" id="dialogueText"></div>
+          <button class="dialogue-close" id="dialogueClose" aria-label="Avsluta samtalet">×</button>
+        </div>
+        <div class="reply-bubble" id="replyBubble"><div class="reply-name" id="replyName">Du</div><div id="dialogueActions" class="dialogue-actions"></div></div>
+        <span id="portraitInitial" hidden></span>
+      </section>
     </main>
 
     <section class="command-deck" aria-label="Handlingar och föremål">
@@ -51,15 +60,7 @@
       </div>
     </section>
 
-    <section id="dialogue" class="dialogue" hidden aria-live="polite">
-      <div class="portrait" id="portrait"><span id="portraitInitial">?</span></div>
-      <div class="dialogue-main">
-        <div class="speaker" id="speaker">Berättaren</div>
-        <div class="dialogue-text" id="dialogueText"></div>
-        <div id="dialogueActions" class="dialogue-actions"></div>
-      </div>
-      <button class="dialogue-close" id="dialogueClose" aria-label="Avsluta samtalet">×</button>
-    </section>
+
   </div>
 
   <dialog id="modal" aria-labelledby="modalTitle"><div id="modalBody"></div></dialog>
@@ -68,10 +69,10 @@
     <div class="button-row"><button id="cloudLogin" class="primary" hidden>Logga in med Google</button><button id="cloudLogout" class="secondary" hidden>Logga ut</button><button id="cloudRetry" class="secondary" hidden>Försök spara igen</button><button id="cloudClose" class="secondary">Tillbaka</button></div>
   </div></dialog>
   <script src="cloud-config.js"></script>
-  <script src="practice.js?v=0.3.1"></script>
-  <script src="sound.js?v=0.3.1"></script>
-  <script src="curriculum.js?v=0.3.1"></script>
-  <script src="game.js?v=0.3.1"></script>
+  <script src="practice.js?v=0.3.2"></script>
+  <script src="sound.js?v=0.3.2"></script>
+  <script src="curriculum.js?v=0.3.2"></script>
+  <script src="game.js?v=0.3.2"></script>
   <script type="module" src="cloud-ui.mjs"></script>
 </body>
 </html>

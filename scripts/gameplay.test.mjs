@@ -188,3 +188,16 @@ test('old unfinished job is safely cancelled but money, inventory and gaps survi
  const e=engine(),s={version:2,coins:19,completed:['trade'],inventory:{trade:1,apple:1},working:{missionId:'press',index:2},gaps:['press-open'],answers:{},scene:'harbor'};
  e.setState(s);assert.equal(e.state.working,null);assert.equal(e.state.coins,19);assert.equal(e.state.inventory.apple,1);assert(e.state.studied.includes('trade'));assert(e.state.gaps.includes('press-open'));
 });
+
+test('cast shares the player floor and scale and faces the approaching player',()=>{
+ const e=engine();
+ for(const id of ['square','garden','farm','print','coffee','riksdag','harbor','palace','opera','colony']){
+  const layout=e.stageLayout(id);
+  for(const actor of e.sceneCast(id)){
+   assert.equal(actor.foot,layout.foot);assert(actor.height/layout.height>=.95&&actor.height/layout.height<=1);
+   assert.equal(e.actorFacing(actor,0),-1);assert.equal(e.actorFacing(actor,100),1);
+   const approach=e.approachX(actor,id);assert(approach>=(layout.min||5)&&approach<=(layout.max||95));
+   assert(Math.abs(approach*12.8-actor.x)>100,'conversation leaves space between figures');
+  }
+ }
+});

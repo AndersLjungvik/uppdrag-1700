@@ -144,3 +144,16 @@ elements.get('modalClose').click();elements.get('mapBtn').click();[...new Set(el
 const direct=[...new Set(elements.values())].find(el=>el.dataset?.direct==='natureNpc');assert(direct);direct.click();assert(elements.get('speaker').textContent.includes('SAM'));
 elements.get('dialogueAction0').click();const savedWork=game.state.working;elements.get('dialogueClose').click();assert(game.state.working===savedWork);assert(elements.get('dialogueText').innerHTML.includes('pågår'));elements.get('dialogueAction0').click();assert(elements.get('jobAnswer'));
 process.stdout.write('PASS recovery UI: visible scene control → start job → close confirmation → resume saved question\n');
+
+// Bystanders branch into a reaction and leave every learning/economy field untouched.
+elements.get('dialogueClose').click();game.state.working=null;game.state.time=0;game.state.food=5;
+elements.get('mapBtn').click();[...new Set(elements.values())].find(el=>el.dataset?.travel==='square').click();
+const beforeGuest=JSON.stringify({coins:game.state.coins,time:game.state.time,food:game.state.food,answers:game.state.answers,practice:game.state.practice,completed:game.state.completed});
+hotspot('guest-klara').click();assert(elements.get('speaker').textContent.includes('KLARA'));
+assert.equal(elements.get('dialogue').dataset.side,'right');assert.equal(elements.get('replyName').textContent,'Du');
+elements.get('dialogueAction0').click();assert(elements.get('dialogueText').innerHTML.includes('ingen röst'));
+elements.get('dialogueAction0').click();assert(elements.get('dialogueText').innerHTML.includes('lyssnad'));
+elements.get('dialogueAction0').click();assert(elements.get('dialogue').hidden);
+assert.equal(JSON.stringify({coins:game.state.coins,time:game.state.time,food:game.state.food,answers:game.state.answers,practice:game.state.practice,completed:game.state.completed}),beforeGuest);
+assert(index.indexOf('id="dialogue"')<index.indexOf('</main>'),'comic dialogue is anchored inside the game stage');
+process.stdout.write('PASS ambient/comic UI: bystander → explanation → player response → reaction → leave, without reward or cost\n');

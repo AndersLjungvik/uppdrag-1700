@@ -375,10 +375,42 @@
 
   LOCATIONS.opera={title:'Vid operans scen',subtitle:'Arbete, musik och kungens pengar',start:12,hotspots:[{id:'musician',label:'musikern Liv',kind:'npc',defaultVerb:'talk',x:56,y:37,w:17,h:47,walk:60},{id:'operaExit',label:'vägen till Stortorget',kind:'exit',to:'square',defaultVerb:'use',x:2,y:28,w:9,h:55,walk:8}]};
   LOCATIONS.colony={title:'Kolonihamnens arkiv',subtitle:'Handel, förtryck och motstånd',start:12,hotspots:[{id:'witness',label:'arkivskrivaren Ester',kind:'npc',defaultVerb:'talk',x:51,y:39,w:17,h:45,walk:56},{id:'ledger',label:'hamnboken',kind:'object',defaultVerb:'look',x:25,y:61,w:20,h:17,walk:33},{id:'colonyExit',label:'till stadskartan',kind:'exit',to:'square',defaultVerb:'use',x:2,y:28,w:9,h:55,walk:8}]};
+  const ART_FIGURES={M:1,S:2,K:3,B:4,N:5,E:6,J:7,A:8,R:9,L:5};
+  // Shared 1280 × 720 stage coordinates keep CSS player and canvas cast at one scale.
+  const STAGING={
+    square:{height:320,foot:658,cast:[['baker',245,'M','Bagaren Marta'],['archive',650,'A','Arkivbudet'],['master',430,'R','Läromästaren Rut']]},
+    garden:{height:340,foot:665,cast:[['natureNpc',790,'S','Trädgårdslärlingen Sam']]},
+    farm:{height:340,foot:670,cast:[['farmNpc',820,'K','Bonden Karin']]},
+    print:{height:365,foot:675,min:6,max:94,cast:[['pressNpc',260,'B','Boktryckaren Brita']]},
+    coffee:{height:350,foot:674,min:6,max:94,cast:[['ideasNpc',875,'N','Brevskrivaren Noor']]},
+    riksdag:{height:355,foot:672,min:6,max:94,cast:[['powerNpc',900,'E','Skrivaren Elias']]},
+    harbor:{height:345,foot:665,cast:[['tradeNpc',820,'J','Hamnskrivaren Jo']]},
+    palace:{height:370,foot:673,cast:[['kingNpc',860,'A','Slottsbudet Amira']]},
+    opera:{height:355,foot:670,cast:[['musician',820,'L','Musikern Liv']]},
+    colony:{height:350,foot:675,min:6,max:94,cast:[['witness',465,'E','Arkivskrivaren Ester']]}
+  };
+  const BYSTANDERS={
+    square:{id:'klara',name:'Marknadsbesökaren Klara',x:1050,sprite:3,topic:'freedom'},
+    print:{id:'otto',name:'Lärlingen Otto',x:1050,sprite:0,topic:'reading'},
+    coffee:{id:'maja',name:'Kaffegästen Maja',x:250,sprite:1,topic:'children'},
+    garden:{id:'linnea',name:'Besökaren Linnea',x:1090,sprite:9,topic:'science'},
+    palace:{id:'lovisa',name:'Hovgästen Lovisa',x:380,sprite:1,topic:'king'}
+  };
+  function stageLayout(id){return STAGING[id]||STAGING.square}
+  function sceneCast(id){
+    const layout=stageLayout(id),people=layout.cast.map(([hotspot,x,initial,name])=>({hotspot,x,initial,name,height:layout.height,foot:layout.foot,sprite:ART_FIGURES[initial]??0}));
+    const guest=BYSTANDERS[id];if(guest)people.push({...guest,hotspot:'guest-'+guest.id,initial:guest.name[0],height:layout.height*.96,foot:layout.foot});return people;
+  }
+  function actorFacing(actor,heroX){return heroX*12.8<actor.x?-1:1}
+  function approachX(actor,id){const l=stageLayout(id),x=actor.x>640?actor.x-260:actor.x+260;return Math.max(l.min||5,Math.min(l.max||95,x/12.8))}
+  for(const [id,layout]of Object.entries(STAGING)){
+    const guest=BYSTANDERS[id];if(guest)LOCATIONS[id].hotspots.push({id:'guest-'+guest.id,label:guest.name,kind:'npc',guest:guest.topic,defaultVerb:'talk',x:0,y:0,w:14,h:50});
+    for(const actor of sceneCast(id)){const h=LOCATIONS[id].hotspots.find(h=>h.id===actor.hotspot);if(h){h.x=(actor.x-actor.height/3)/12.8;h.y=(actor.foot-actor.height)/7.2;h.w=actor.height*2/3/12.8;h.h=actor.height/7.2;h.walk=approachX(actor,id)}}
+    LOCATIONS[id].start=Math.max(layout.min||5,Math.min(layout.max||95,LOCATIONS[id].start));
+  }
   const ART={background:null,characters:null};
   const ART_SCENES=['square','garden','farm','print','coffee','riksdag','harbor','palace','opera','colony'];
-  const ART_FIGURES={M:1,S:2,K:3,B:4,N:5,E:6,J:7,A:8,R:9,L:5};
-  const ASSET_URLS={scenes:window.UPPDRAG_ASSETS?.scenes||'assets/scene-atlas.png',characters:window.UPPDRAG_ASSETS?.characters||'assets/character-atlas.png'};
+  const ASSET_URLS={scenes:window.UPPDRAG_ASSETS?.scenes||'assets/scene-atlas.png?v=0.3.2',characters:window.UPPDRAG_ASSETS?.characters||'assets/character-atlas.png'};
   if(window.UPPDRAG_ART_IMAGES){ART.background=window.UPPDRAG_ART_IMAGES.scenes;ART.characters=window.UPPDRAG_ART_IMAGES.characters}
   else if(typeof window.Image==='function'){
     for(const [key,url] of [['background',ASSET_URLS.scenes],['characters',ASSET_URLS.characters]]){const image=new window.Image();image.onload=()=>{ART[key]=image};image.src=url}
@@ -386,12 +418,14 @@
   function drawArtScene(ctx,id,s,t){
     const i=ART_SCENES.indexOf(id),image=ART.background;if(i<0||!image)return false;
     const w=image.width/2,h=image.height/5;ctx.drawImage(image,(i%2)*w,Math.floor(i/2)*h,w,h,0,0,1280,720);
-    const figures={square:[[260,520,'M'],[635,548,'A']],garden:[[795,550,'S']],farm:[[735,562,'K']],print:[[880,563,'B']],coffee:[[820,565,'N']],riksdag:[[840,575,'E']],harbor:[[705,575,'J']],palace:[[800,567,'A']],opera:[[780,570,'L']],colony:[[730,565,'E']]};
-    for(const [x,y,initial]of figures[id]||[])person(ctx,x,y,'#604d3b',false,initial);
+    for(const actor of sceneCast(id)){
+      const image=ART.characters;if(!image)continue;const w=image.width/5,h=image.height/2,height=actor.height,width=height*2/3;
+      ellipse(ctx,actor.x,actor.foot-2,width*.27,7,'#211d1933');ctx.save();ctx.translate(actor.x,actor.foot);ctx.scale(actorFacing(actor,s.heroX),1);ctx.rotate(actor.name===speakingName?Math.sin(t/600)*.012:0);ctx.drawImage(image,(actor.sprite%5)*w,Math.floor(actor.sprite/5)*h,w,h,-width/2,-height,width,height);ctx.restore();
+    }
     if(id==='print'&&s.chapter===2){rect(ctx,1030,80,180,58,'#e3d1a7');text(ctx,'GRANSKAS',1120,116,19,'#71352d','center')}
     return true;
   }
-  let figureTime=0,speakingFigure='';
+  let figureTime=0,speakingFigure='',speakingName='';
   function rect(ctx,x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h)}
   function line(ctx,x1,y1,x2,y2,color,width=1){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
   function ellipse(ctx,x,y,rx,ry,color){ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill()}
@@ -441,7 +475,7 @@
       text(ctx,s.botany.solved?'ETIKETTERNA ÄR ORDNADE':'VÄXTETIKETTER',641,680,15,'#f1e7c5','center');
     }
     if(id==='square'){
-      person(ctx,407,563,'#514b72',false,'R');text(ctx,'LÄROMÄSTARE',402,462,14,'#f0d8a2','center');
+      if(!ART.background)person(ctx,407,563,'#514b72',false,'R');text(ctx,'LÄROMÄSTARE',402,462,14,'#f0d8a2','center');
       rect(ctx,47,550,93,20,'#715539');rect(ctx,71,531,43,19,'#e8d8b3');text(ctx,'SO-BOKEN',94,510,13,'#eed7a0','center');
     }
     if(id==='print'){
@@ -459,7 +493,7 @@
     get state(){return state},get data(){return data},blankState,loadState,validBank,applyBank,allCards,mission,
     availableCards,career,promotionStage,workQuestion,logicStudy,logicChapter,RANKS,bookGuide,eligibleReviewCards,reviewSelection,logicBeginReview,reviewQuestion,logicReviewAnswer,logicCancelReview,logicOfferApple,logicJobHint,logicCollect,logicPlace,logicPrint,logicDeliverProof,logicBeginPaperErrand,logicTakePaperParcel,logicDeliverPaperParcel,logicPlantPlacement,logicSortPlants,logicDeliverSeeds,
     normalize,gradeShort,gradeQuestion,logicBeginJob,logicAnswer,logicCompleteJob,logicBuyBread,logicEatBread,logicNewDay,
-    reportCSV,reportRows,csvCell,renderScene,
+    reportCSV,reportRows,csvCell,renderScene,stageLayout,sceneCast,actorFacing,approachX,
     setState(value){state=loadState(value)},resetData(){data=clone(BASE)}
   };
   window.__adventure=coreApi;
@@ -492,6 +526,7 @@
     const loc=LOCATIONS[state.scene];$('placeName').textContent=loc.title;$('objectiveText').textContent=objective();
     $('foodValue').textContent=`${state.food} / ${state.maxFood}`;$('coinValue').textContent=state.coins;$('timeValue').textContent=TIME_NAMES[state.time]||'Natt';
     $('sceneTitle').innerHTML=`<span>${esc(loc.title.toUpperCase())}</span><small>${state.chapter===1?'FRIHETSTIDEN':'GUSTAVIANSKA TIDEN'} · ${esc(loc.subtitle)}</small>`;
+    const staging=stageLayout(state.scene);hero.style.height=`${staging.height/7.2}%`;hero.style.width=`${staging.height*2/3/12.8}%`;hero.style.bottom=`${(720-staging.foot)/7.2}%`;
     renderInventory();renderHotspots();renderSceneActions();hero.style.setProperty('--x',`${state.heroX}%`);save();
   }
   function renderInventory(){
@@ -506,7 +541,7 @@
     for(const button of document.querySelectorAll('[data-direct]'))button.onclick=()=>{const h=loc.hotspots.find(h=>h.id===button.dataset.direct);if(!h)return;if(state.working){resumeWork();return}if(state.rehearsal){showReviewQuestion();return}closeDialogue();closeModal();if(moveTimer){clearTimeout(moveTimer);moveTimer=null;moveFinish=null;currentTarget=null}state.heroX=h.walk??state.heroX;hero.style.setProperty('--x',`${state.heroX}%`);performAction(h,selectedItem?'use':activeVerb||h.defaultVerb||'look')};
   }
   function renderHotspots(){
-    const loc=LOCATIONS[state.scene];$('hotspotLayer').innerHTML=loc.hotspots.filter(h=>!h.collect||!state.workshop.collected.includes(h.collect)).map(h=>`<button class="hotspot ${h.kind==='exit'?'exit':''}" data-hotspot="${h.id}" data-label="${esc(h.label)}" aria-label="${esc((h.defaultVerb==='talk'?'Prata med ':h.defaultVerb==='take'?'Ta ':h.defaultVerb==='look'?'Titta på ':'Gå till ')+h.label)}" style="left:${h.x}%;top:${h.kind==='npc'?51:h.y}%;width:${h.w}%;height:${h.kind==='npc'?42:h.h}%"></button>`).join('');
+    const loc=LOCATIONS[state.scene];$('hotspotLayer').innerHTML=loc.hotspots.filter(h=>!h.collect||!state.workshop.collected.includes(h.collect)).map(h=>`<button class="hotspot ${h.kind==='exit'?'exit':''}" data-hotspot="${h.id}" data-label="${esc(h.label)}" aria-label="${esc((h.defaultVerb==='talk'?'Prata med ':h.defaultVerb==='take'?'Ta ':h.defaultVerb==='look'?'Titta på ':'Gå till ')+h.label)}" style="left:${h.x}%;top:${h.y}%;width:${h.w}%;height:${h.h}%"></button>`).join('');
     for(const button of document.querySelectorAll('[data-hotspot]')){
       const h=loc.hotspots.find(x=>x.id===button.dataset.hotspot);button.onclick=e=>{e.stopPropagation();handleHotspot(h)};button.onmouseenter=()=>previewAction(h);button.onfocus=()=>previewAction(h);button.onmouseleave=clearPreview;button.onblur=clearPreview;
     }
@@ -521,7 +556,7 @@
   for(const button of document.querySelectorAll('[data-verb]'))button.onclick=()=>{selectedItem=null;activeVerb=activeVerb===button.dataset.verb?null:button.dataset.verb;updateVerbButtons();renderInventory()};
 
   function walkTo(x,then){
-    if(moveTimer)finishWalk();currentTarget=true;const distance=Math.abs(state.heroX-x);hero.style.setProperty('--facing',x<state.heroX?-1:1);state.heroX=x;hero.style.setProperty('--x',`${x}%`);hero.classList.add('walking');$('skipWalk').hidden=distance<25||reduced;moveFinish=then;
+    const bounds=stageLayout(state.scene);x=Math.max(bounds.min||4,Math.min(bounds.max||96,x));if(moveTimer)finishWalk();currentTarget=true;const distance=Math.abs(state.heroX-x);hero.style.setProperty('--facing',x<state.heroX?-1:1);state.heroX=x;hero.style.setProperty('--x',`${x}%`);hero.classList.add('walking');$('skipWalk').hidden=distance<25||reduced;moveFinish=then;
     moveTimer=setTimeout(finishWalk,reduced?20:Math.min(1050,300+distance*11));
   }
   function finishWalk(){if(moveTimer){clearTimeout(moveTimer);moveTimer=null}hero.classList.remove('walking');$('skipWalk').hidden=true;const fn=moveFinish;moveFinish=null;currentTarget=null;state.heroX=parseFloat(hero.style.getPropertyValue('--x'))||state.heroX;save();fn?.()}
@@ -535,6 +570,8 @@
     walkTo(h.walk??(h.x+h.w/2),()=>performAction(h,verb));
   }
   function performAction(h,verb){
+    const actor=sceneCast(state.scene).find(a=>a.hotspot===h.id);if(actor)hero.style.setProperty('--facing',actor.x>state.heroX*12.8?1:-1);
+    if(h.guest){ambientTalk(h.guest,actor?.name||h.label);return}
     const item=selectedItem;activeVerb=null;selectedItem=null;updateVerbButtons();renderInventory();
     if(h.kind==='exit'&&(verb==='use'||verb==='look')){if(h.to)travel(h.to);else showMap();return}
     if(h.id==='musician'){socialTalk('musician');return}
@@ -566,10 +603,11 @@
 
   function showDialogue(speaker,text,actions=[],tone=''){
     const panel=$('dialogue');panel.hidden=false;panel.className=`dialogue ${tone}`;$('speaker').textContent=speaker.toUpperCase();$('portraitInitial').textContent=speaker.trim()[0]||'?';$('dialogueText').innerHTML=text;
-    hero.classList.add('talking');speakingFigure=speaker.trim().split(' ').at(-1)?.[0]||'';
+    const actor=sceneCast(state.scene).find(a=>a.name===speaker),panelLeft=actor?actor.x<state.heroX*12.8:true;panel.dataset.side=panelLeft?'left':'right';if(actor)hero.style.setProperty('--facing',actor.x>state.heroX*12.8?1:-1);
+    $('replyName').textContent=state.working||state.rehearsal?'Ditt svar':'Du';speakingName=speaker;hero.classList.add('talking');speakingFigure=speaker.trim().split(' ').at(-1)?.[0]||'';
     $('dialogueActions').innerHTML=actions.map((a,i)=>`<button id="dialogueAction${i}" class="${a.reply?'reply':''}">${a.label}</button>`).join('');actions.forEach((a,i)=>$('dialogueAction'+i).onclick=a.fn);keysOff();
   }
-  function closeDialogue(){speakingFigure='';hero.classList.remove('talking');const panel=$('dialogue');panel.hidden=true;panel.className='dialogue';$('dialogueActions').innerHTML='';activeQuestion=null}
+  function closeDialogue(){speakingName='';speakingFigure='';hero.classList.remove('talking');const panel=$('dialogue');panel.hidden=true;panel.className='dialogue';$('dialogueActions').innerHTML='';activeQuestion=null}
   $('dialogueClose').onclick=leaveDialogue;
   function leaveDialogue(){if(state.working){showDialogue(mission(state.working.missionId).npc,'Arbetspasset pågår. Vill du fortsätta eller avsluta för i dag?',[{label:'Fortsätt arbetet.',fn:resumeWork,reply:true},{label:'Avsluta arbetspasset.',fn:()=>{const id=state.working.missionId;if(!state.failedToday.includes(id))state.failedToday.push(id);state.working=null;save();closeDialogue();updateHUD()},reply:true}]);return}if(state.rehearsal){showReviewQuestion();return}closeDialogue()}
   function keysOff(){activeVerb=null;selectedItem=null;updateVerbButtons();renderInventory()}
@@ -666,6 +704,18 @@
     const variants=SOCIAL[id]||SOCIAL.ideas,v=variants[Math.min(state.chapter-1,variants.length-1)],npc=mission(id)?.npc||(id==='musician'?'Musikern Liv':'Arkivskrivaren Ester');
     if(node==='start'){showDialogue(npc,esc(v[0]),[{label:v[1],fn:()=>socialTalk(id,'explain'),reply:true},{label:'Jag måste vidare.',fn:closeDialogue,reply:true}]);return}
     showDialogue(npc,esc(v[2]),[...v[3].map(([label,reaction])=>({label,fn:()=>showDialogue(npc,esc(reaction),[{label:'Tack för pratstunden. Jag går vidare.',fn:closeDialogue,reply:true}]),reply:true})),{label:'Jag måste vidare.',fn:closeDialogue,reply:true}]);
+  }
+  const STREET_TALKS={
+    freedom:[['De säger att det är en fri tid. Jag undrar vem som får känna den friheten.','Hur menar du?','Riksdagen får bestämma mer. Men jag har ingen röst där. Vad tänker du?',[['Då är friheten olika för olika människor.','Ja. Det märks när man behöver bli lyssnad på.'],['Kanske kan det förändras?','Det hoppas jag. Men någon måste väl börja säga ifrån.']]],['Kungen bestämmer mer nu. En del jublar och andra suckar.','Vad tycker du?','Jag vill kunna säga vad jag tycker utan att vara rädd. Är det för mycket begärt?',[['Nej, man behöver kunna kritisera makten.','Då förstår du varför jag lyssnar noga vid tryckeriet.'],['Du låter orolig.','Lite. Det är svårt att veta vem som lyssnar.']]]],
+    reading:[['Jag läste något som fick mig att fundera hela vägen hit.','Vad läste du?','En text sa emot något jag fått höra i kyrkan. Vem ska jag tro på?',[['Jämför vad de säger och fråga hur de vet.','Då får jag läsa vidare. Det här var större än jag trodde.'],['Prata med fler som har läst texten.','Bra idé. Jag tar med den till kaffehuset.']]]],
+    children:[['Jag har en släkting på barnhuset. Jag önskar att jag visste hur hon har det.','Hur menar du?','De säger att barnen får mat och husrum. Men hon berättar om långa arbetsdagar. Vad skulle du vilja fråga henne?',[['Om någon tar hand om henne när hon är ledsen.','Ja. Det glömmer de vuxna så lätt att berätta om.'],['Om hon får vila och äta sig mätt.','Det ska jag fråga nästa gång jag får träffa henne.']]]],
+    science:[['Jag vill veta vad växterna heter. Men jag tappar alltid bort namnen.','Varför vill du veta det?','Då kan jag fråga någon annan om samma växt. Hur skulle du komma ihåg namnen?',[['Skriva ner namnet och rita växten.','Ja! Min bok får nog bli full av blad och teckningar.'],['Fråga Sam och jämföra etiketterna.','Då gör jag det. Sam ser ut att ha ordning på dem.']]]],
+    king:[['Jag hör både lovord och ilska om Gustav III här i slottet.','Hur kan det vara så olika?','En får arbete när kungen stöder teatern. En annan vill kunna kritisera honom. Vem förstår du?',[['Båda, faktiskt.','Ja. Deras liv ser väldigt olika ut.'],['Den som vill säga vad den tycker.','Det kan jag förstå. Men här talar många tyst om sådant.']]]]
+  };
+  function ambientTalk(topic,name,node='start'){
+    const variants=STREET_TALKS[topic],v=variants[Math.min(state.chapter-1,variants.length-1)];
+    if(node==='start'){showDialogue(name,esc(v[0]),[{label:v[1],fn:()=>ambientTalk(topic,name,'explain'),reply:true},{label:'Jag måste vidare till mitt jobb.',fn:closeDialogue,reply:true}]);return}
+    showDialogue(name,esc(v[2]),[...v[3].map(([label,reaction])=>({label,fn:()=>showDialogue(name,esc(reaction),[{label:'Tack för pratstunden. Vi ses!',fn:closeDialogue,reply:true}]),reply:true})),{label:'Jag måste vidare.',fn:closeDialogue,reply:true}]);
   }
   function beginJobUI(id,promotion=false){const result=logicBeginJob(id,{promotion});if(!result.ok){closeDialogue();talkJob(id);return}updateHUD();showJobQuestion(id,0)}
   function resumeWork(){const work=state.working;if(!work)return false;state.scene=SCENE_FOR[work.missionId]||state.scene;state.heroX=LOCATIONS[state.scene].start;updateHUD();showJobQuestion(work.missionId,work.index);showHint('Slutför momentet eller välj ”Jag kan inte detta än”.');return true}
