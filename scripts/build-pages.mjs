@@ -8,6 +8,7 @@ for(const file of ['index.html','style.css','curriculum.js','game.js','uppdrag-1
   fs.copyFileSync(path.join(root,'dist',file),path.join(docs,file));
 }
 fs.cpSync(path.join(root,'dist/assets'),path.join(docs,'assets'),{recursive:true});
+fs.cpSync(path.join(root,'dist/demo'),path.join(docs,'demo'),{recursive:true});
 fs.writeFileSync(path.join(docs,'.nojekyll'),'');
 process.stdout.write('GitHub Pages files generated in docs/.\n');
 

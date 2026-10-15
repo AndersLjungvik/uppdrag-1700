@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#d9ccb0"><title>Uppdrag 1700 · Pappersstaden, demo</title><link rel="stylesheet" href="demo.css?v=1"></head>
+<body data-view="town"><div class="app">
+<header><button id="home" title="Till staden">UPPDRAG 1700</button><span id="location">STADEN</span><div class="header-right"><small>DEMO</small><button id="sound" aria-pressed="false">Ljud av</button></div></header>
+<main id="stage" aria-label="Spelvärlden"><canvas id="world" width="1280" height="720" tabindex="0" aria-label="Klicka på marken för att gå. Du kan också använda piltangenterna eller WASD."></canvas>
+<div id="mapLinks" aria-label="Platser i staden"><button data-place="print">TRYCKERI</button><button data-place="cafe">KAFFEHUS</button><button data-place="archive">ARKIV</button><button data-place="quay">KAJEN</button><button id="meetDog" class="person-target" aria-label="Hälsa på hunden"></button><button id="meetWoman" class="person-target" aria-label="Prata med kvinnan på torget"></button></div>
+<div id="bubble" class="bubble" hidden><small id="speaker"></small><p id="line" aria-live="polite"></p></div>
+<form id="work" hidden autocomplete="off"><small>HAMNENS UPPDRAG</small><p id="progress"></p><h1 id="question"></h1><label class="sr-only" for="answer">Ditt svar</label><input id="answer" maxlength="160" placeholder="Skriv ditt svar …" spellcheck="false"><button id="submit" type="submit">Svara</button><div id="feedback" hidden aria-live="polite"></div><button id="next" type="button" hidden>Nästa fråga</button></form>
+<div id="pressItems" hidden aria-label="Material på arbetsbordet"><button data-material="ink">Trycksvärta</button><button data-material="paper">Papper</button><button data-material="type">Typer</button></div><button id="pressTarget" hidden aria-label="Lägg valt material i tryckpressen"><span id="pressLabel">Tryckpressen</span></button>
+<div id="notice" class="notice" role="status" hidden></div>
+</main>
+<footer><div class="footer-top"><button id="back" hidden>← Till staden</button><span id="instruction">Klicka på marken för att gå. Välj en plats eller hälsa på någon.</span><button id="bagBtn" aria-haspopup="dialog">Ryggsäck</button></div><nav id="actions" aria-label="Vad vill du göra?"></nav></footer>
+</div>
+<dialog id="bag"><div class="bag-head"><h2>Ryggsäck</h2><button id="bagClose" aria-label="Stäng ryggsäcken">×</button></div><div id="bagItems"></div><details><summary>Mina uppdrag</summary><p id="taskList"></p></details><p class="small">Demon sparas i den här webbläsaren.</p><button id="restart" class="quiet">Börja om demon</button></dialog>
+<script type="module" src="demo.mjs?v=1"></script></body></html>
