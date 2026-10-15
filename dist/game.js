@@ -391,7 +391,7 @@
   };
   const BYSTANDERS={
     square:{id:'klara',name:'Marknadsbesökaren Klara',x:1050,sprite:3,topic:'freedom'},
-    print:{id:'otto',name:'Lärlingen Otto',x:1050,sprite:0,topic:'reading'},
+    print:{id:'otto',name:'Lärlingen Otto',x:1050,sprite:5,topic:'reading'},
     coffee:{id:'maja',name:'Kaffegästen Maja',x:250,sprite:1,topic:'children'},
     garden:{id:'linnea',name:'Besökaren Linnea',x:1090,sprite:9,topic:'science'},
     palace:{id:'lovisa',name:'Hovgästen Lovisa',x:380,sprite:1,topic:'king'}
