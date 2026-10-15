@@ -9,10 +9,11 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const require=process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES
   ? createRequire(path.join(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES,'package.json'))
   : createRequire(import.meta.url);
-const {createCanvas}=require('@napi-rs/canvas');
+const {createCanvas,loadImage}=require('@napi-rs/canvas');
+const artImages={scenes:await loadImage(path.join(root,'dist/assets/scene-atlas.png')),characters:await loadImage(path.join(root,'dist/assets/character-atlas.png'))};
 let checks=0;
 const test=(name,fn)=>{fn();checks++;process.stdout.write(`PASS ${name}\n`)};
-const context=vm.createContext({window:{__ADVENTURE_TEST__:true},console,Date,Math,JSON,Object,Array,Set,Map,Number,String});
+const context=vm.createContext({window:{__ADVENTURE_TEST__:true,UPPDRAG_ART_IMAGES:artImages},console,Date,Math,JSON,Object,Array,Set,Map,Number,String});
 vm.runInContext(fs.readFileSync(path.join(root,'dist/practice.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'dist/curriculum.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'dist/game.js'),'utf8'),context);
@@ -87,7 +88,7 @@ test('The interface exposes verbs, inventory, dialogue, resources and map access
 const offline=fs.readFileSync(path.join(root,'dist/uppdrag-1700.html'),'utf8');
 test('Standalone pupil file embeds CSS and scripts',()=>{
   assert(!/<script\s+src=/.test(offline));assert(!/href="style.css"/.test(offline));
-  const scripts=[...offline.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];assert.equal(scripts.length,5);for(const script of scripts)new vm.Script(script[1]);assert(offline.includes('window.CUSTOM_BANK=null;'));assert(offline.includes('window.UPPDRAG_SOUND='));
+  const scripts=[...offline.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];assert.equal(scripts.length,5);for(const script of scripts)new vm.Script(script[1]);assert(offline.includes('window.CUSTOM_BANK=null;'));assert(offline.includes('window.UPPDRAG_SOUND='));assert(offline.includes('window.UPPDRAG_ASSETS='));assert(offline.includes('data:image/png;base64,'));
 });
 
 test('Question attempts record real review times and due dates',()=>{

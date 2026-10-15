@@ -37,17 +37,18 @@
     for(let i=0;i<out.length;i++)out[i]=Math.tanh(out[i])*.7*Math.min(1,i/(rate*.004),(out.length-1-i)/(rate*.018));
     return out;
   }
-  let enabled=false,context=null,master=null;
+  let enabled=false,context=null,master=null,lastCue='',played=0;
+  let volume=.75;try{const v=Number(localStorage.getItem('uppdrag1700.volume.v1'));if(v>0&&v<=1)volume=v}catch{}
   const voices=new Set,cache=new Map;
   try{enabled=localStorage.getItem(KEY)==='on'}catch{}
   function remember(){try{localStorage.setItem(KEY,enabled?'on':'off')}catch{}}
   async function unlock(){
     if(!enabled)return false;
     try{
-      if(!context){const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return false;
-        context=new Audio();master=context.createGain();master.gain.value=.45;master.connect(context.destination);
+      if(!context||context.state==='closed'){const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return false;
+        context=new Audio();master=context.createGain();master.gain.value=volume;master.connect(context.destination);
       }
-      if(context.state==='suspended')await context.resume();
+      if(context.state!=='running')await context.resume();
       return context.state==='running';
     }catch{return false}
   }
@@ -61,12 +62,13 @@
     if(!enabled||!context||context.state!=='running'||voices.size>=6||!LENGTH[id])return false;
     try{
       let buffer=cache.get(id);
-      if(!buffer){const data=samples(id,context.sampleRate,42);buffer=context.createBuffer(1,data.length,context.sampleRate);buffer.getChannelData(0).set(data);cache.set(id,buffer)}
+      if(!buffer){const data=samples(id,context.sampleRate,42);let peak=0;for(const v of data)peak=Math.max(peak,Math.abs(v));const gain=Math.min(3,.6/Math.max(.001,peak));for(let i=0;i<data.length;i++)data[i]*=gain;buffer=context.createBuffer(1,data.length,context.sampleRate);buffer.getChannelData(0).set(data);cache.set(id,buffer)}
       const source=context.createBufferSource();source.buffer=buffer;source.connect(master);voices.add(source);
-      source.onended=()=>{voices.delete(source);source.disconnect()};source.start();return true;
+      source.onended=()=>{voices.delete(source);source.disconnect()};source.start();lastCue=id;played++;return true;
     }catch{return false}
   }
-  window.UPPDRAG_SOUND={samples,play,unlock,setEnabled,stop,get enabled(){return enabled}};
+  function setVolume(value){volume=Math.max(.05,Math.min(1,Number(value)||.75));if(master)master.gain.value=volume;try{localStorage.setItem('uppdrag1700.volume.v1',String(volume))}catch{}return volume}
+  window.UPPDRAG_SOUND={samples,play,unlock,setEnabled,setVolume,stop,get enabled(){return enabled},get status(){return{enabled,state:context?.state||'idle',lastCue,played,volume}}};
   // Only a deliberate gesture can unlock audio, including on Safari/iOS.
   document.addEventListener?.('pointerdown',()=>{void unlock()},{passive:true});
   document.addEventListener?.('keydown',()=>{void unlock()});

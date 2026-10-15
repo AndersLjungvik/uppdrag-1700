@@ -35,7 +35,7 @@ vm.runInContext(fs.readFileSync(path.join(root,'dist/practice.js'),'utf8'),conte
 vm.runInContext(fs.readFileSync(path.join(root,'dist/curriculum.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'dist/game.js'),'utf8'),context);
 const game=window.__adventure;
-assert(elements.get('modal').open,'intro is open');
+assert(elements.get('modal').open,'intro is open');assert(elements.get('modalClose').hidden,'new pupils must start before closing intro');
 elements.get('playerName').value='Testlärlingen';elements.get('startAdventure').click();
 assert(game.state.started);assert.equal(game.state.name,'Testlärlingen');
 elements.get('dialogueAction1').click();assert(elements.get('dialogue').hidden);
@@ -138,3 +138,9 @@ elements.get('menuBtn').click();elements.get('menuChapter').click();elements.get
 elements.get('chapterOne').click();assert.equal(game.state.chapter,1);assert.equal(game.state.unlockedChapter,2);
 elements.get('menuBtn').click();elements.get('menuNotebook').click();assert(elements.get('modalBody').innerHTML.includes('Begrepp i det här kapitlet'));elements.get('journalSources').click();assert(elements.get('modalBody').innerHTML.includes('övningsexempel'));
 process.stdout.write('PASS chapter/language/dialogue UI: character reaction → no knowledge reward → easy language → earlier chapter → source journal\n');
+
+// Direct scene controls provide a pointer/keyboard route without transparent hotspots.
+elements.get('modalClose').click();elements.get('mapBtn').click();[...new Set(elements.values())].find(el=>el.dataset?.travel==='garden').click();
+const direct=[...new Set(elements.values())].find(el=>el.dataset?.direct==='natureNpc');assert(direct);direct.click();assert(elements.get('speaker').textContent.includes('SAM'));
+elements.get('dialogueAction0').click();const savedWork=game.state.working;elements.get('dialogueClose').click();assert(game.state.working===savedWork);assert(elements.get('dialogueText').innerHTML.includes('pågår'));elements.get('dialogueAction0').click();assert(elements.get('jobAnswer'));
+process.stdout.write('PASS recovery UI: visible scene control → start job → close confirmation → resume saved question\n');

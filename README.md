@@ -79,3 +79,11 @@ Gesällprovet öppnas efter att samtliga tillgängliga faktafrågor på arbetspl
 Lättläst läge väljs på startskärmen eller i Kapitel och språk. Frågor får kortare formuleringar där det behövs, med samma svar och kunskapskrav. Samtalen är korta och valfria i båda lägena. Karaktärernas reaktioner ger varken poäng, intyg eller repetitionsnivå. Resedagboken skiljer skapade övningsexempel från verkliga historiska källor och innehåller en nutida övning om historiebruk.
 
 Befintliga pengar, intyg och föremål behålls. Gamla pågående arbetspass avslutas vid byte till den nya frågebanken eftersom frågeordningen ändrats. Gamla kort-id återanvänds bara när kunskapsinnehållet är detsamma.
+
+## Grafik och handhavande v0.3.1
+
+Alla tio bakgrunder och figurarket följer det godkända pappersdockeförslaget. Bilderna är separata spelresurser i `dist/assets` och kopieras till Pages samt bäddas in i elevfilen. De är bildgenererade med den godkända bilden som stilreferens; spelpersonerna är fiktiva. Ursprungliga genereringsprompter finns i `preparation/art-direction.md`.
+
+Synliga genvägar i scenens nederkant ger en alternativ väg till personer, föremål och utgångar. Ett pågående arbetspass kan inte längre döljas av misstag med kryss eller Escape utan ett tydligt val att fortsätta eller avsluta. Startdialogen går inte att stänga före spelstart.
+
+Ljudknappen visar på/av i text och spelar ett hörbart prov vid aktivering i alla miljöer. Meny → Ljud och provlyssning ger volym och testknapp samt återkoppling om ljudmotorn. Effekterna har justerad nivå. De är fortfarande handlingsljud; musik eller kontinuerlig miljöbakgrund ingår inte.
