@@ -631,7 +631,7 @@
     actions.forEach((a,i)=>$('dialogueAction'+i).onclick=e=>{
       if(e?.isTrusted&&Date.now()<nextDialogueActionAt)return;
       if(a.spoken){rememberPlayer(a.label);speakingName='';heroPose(true);$('speaker').textContent=conversationSpeaker.toUpperCase()+' FRÅGADE';$('lastPlayerReply').textContent=`”${a.label}”`;$('lastPlayerReply').hidden=false;$('replyName').textContent='Du säger';$('dialogueActions').innerHTML='<button id="hearReply" class="reply">Lyssna på svaret →</button>';$('hearReply').onclick=()=>a.fn();return}
-      if(a.reply)rememberPlayer(a.label);a.fn();
+      if(a.reply&&a.label.trim().endsWith('?'))rememberPlayer(a.label);a.fn();
     });keysOff();
   }
   function closeDialogue(){speakingName='';speakingFigure='';conversationSpeaker='';conversationTurns=[];lastPlayerLine='';hero.classList.remove('talking');heroPose(false);const panel=$('dialogue');panel.hidden=true;panel.className='dialogue';$('dialogueActions').innerHTML='';activeQuestion=null}
