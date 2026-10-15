@@ -4,6 +4,8 @@ Avgränsat designprov: stad ovanifrån, gång med klick/piltangenter, ett frivil
 
 Separat lokal sparning: `uppdrag1700.paper-demo.v1`. Ingen elevinloggning, inga kunskapsrapporter och ingen synkning. Arbetsintyg samlas under Mina uppdrag, inte som föremål. Frågorna i denna demo är ett designprov och ersätter inte det befintliga spelets schemalagda återkallning eller progression. Ljud är valfria syntetiska effekter; ingen inspelad historisk musik.
 
+I kajens och kaffehusets dialoger får bara den aktuella talaren en liten munrörelse och kroppsrörelse i 1,8–5,5 sekunder. Texten visas direkt och ligger kvar efter rörelsen. Lyssnaren står stilla. Uppdragens arbetsyta saknar talande figurer. Rörelsen stoppas när ryggsäcken öppnas, fliken döljs eller dialogen avslutas, och är avstängd vid systeminställningen för minskad rörelse. Ingen uppläsning eller lästidsgräns har lagts till.
+
 ## Bildmaterial
 
 `assets/town.png`, `assets/quay.png`, `assets/work.png` skapades med det inbyggda bildverktyget från de godkända konceptbilderna. Alla figurer, etiketter och texter i spelvyerna ritas av spelet; bildbakgrunderna är tomma kulisser. Tryckeriets arbetsyta och figurerna är kodritade pappersformer med gemensam diskret textur. De använder få delar för att matcha den godkända extrema förenklingen.
