@@ -1,14 +1,17 @@
-import {createEngine,validBank,SAVE_KEY,BANK_KEY} from './engine.mjs?v=0.6.5-step';
-import {PLACES,LEVEL_NAMES,LEVEL_TASKS,TIMELINES} from './content.mjs?v=0.6.5-step';
-import {choicesFor,shuffle} from './learning.mjs?v=0.6.5-step';
-import {createRenderer} from './render.mjs?v=0.6.5-step';
-import {createNarrator} from './narration.mjs?v=0.6.5-step';
-import {route,walkable} from '../demo/core.mjs?v=0.6.5-step';
+import {createEngine,validBank,SAVE_KEY,BANK_KEY} from './engine.mjs?v=0.6.14-bankqa';
+import {PLACES,LEVEL_NAMES,LEVEL_TASKS,TIMELINES} from './content.mjs?v=0.6.14-bankqa';
+import {choicesFor,shuffle} from './learning.mjs?v=0.6.14-bankqa';
+import {createRenderer} from './render.mjs?v=0.6.14-bankqa';
+import {createNarrator} from './narration.mjs?v=0.6.14-bankqa';
+import {route,walkable} from '../demo/core.mjs?v=0.6.14-bankqa';
 
 const $=id=>document.getElementById(id),canvas=$('world');
 const read=key=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
 const base=window.CLASSROOM_CURRICULUM||window.CURRICULUM,imported=read(BANK_KEY);
 let bank=imported?.bankId===base.bankId&&validBank(imported,base)?imported:base,account=null,saveIssue=false;
+// A saved copy of the official bank may predate the reviewed choices. Keep the
+// learner's answers and progress, but refresh the official options by card ID.
+if(bank!==base&&bank.sourcePolicy===base.sourcePolicy){const official=new Map(base.missions.flatMap(m=>m.cards.map(q=>[q.id,q])));for(const m of bank.missions)for(const q of m.cards){const source=official.get(q.id);if(!source||q.answer!==source.answer||q.question!==source.question)continue;if(q.type==='short'){if(source.distractors)q.distractors=[...source.distractors];else delete q.distractors;}else if(q.type==='chain'&&q.steps?.length===source.steps?.length&&q.steps.every((st,i)=>st.answer===source.steps[i].answer))q.steps=source.steps.map(st=>({...st,options:[...st.options]}));}}
 const saveKey=()=>account?`${SAVE_KEY}.account.${account}`:SAVE_KEY;
 function persist(value){try{localStorage.setItem(saveKey(),JSON.stringify(value));if(account)window.dispatchEvent(new CustomEvent('uppdrag-save'))}catch{if(!saveIssue){saveIssue=true;notify('Webbläsaren kunde inte spara. Hämta en sparfil i inställningarna.')}}}
 const original=read(SAVE_KEY);
