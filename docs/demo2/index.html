@@ -184,6 +184,12 @@ function isWater(x,y){
 }
 function walkablePoint(x,y){
  if(x<30||x>W-30||y<30||y>H-30||isWater(x,y))return false;
+ // Respect the first demo's authored collision map inside the original image.
+ if(x>=old.x&&x<=old.x+old.w&&y>=old.y&&y<=old.y+old.h){
+  const lx=x-old.x,ly=y-old.y;
+  if(lx>1080||ly>690||lx<25||ly<25)return false;
+  if([[22,165,325,190],[545,45,300,170],[145,435,295,170]].some(([a,b,w,h])=>lx>=a-12&&lx<=a+w+12&&ly>=b-12&&ly<=b+h+12))return false;
+ }
  if(blockingHouses.some(([a,b,w,h])=>x>a-15&&x<a+w+15&&y>b-15&&y<b+h+15))return false;
  // The original town already contains authored walkable areas. In the new
  // districts, allow streets and courtyards but never sea or building interiors.
