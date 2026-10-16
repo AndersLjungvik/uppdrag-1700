@@ -119,9 +119,9 @@ function renderChain(q,session){
  const firstEmpty=session.draft.findIndex(v=>!v);const step=firstEmpty<0&&session.draft.length===3?3:firstEmpty<0?session.draft.length:firstEmpty;
  $('chainForm').querySelector('button[type="submit"]').hidden=step<3;
  if(step===3){const title=document.createElement('strong');title.textContent='Din förklaring är färdig!';host.append(title);const back=document.createElement('button');back.type='button';back.textContent='Ändra sista delen';back.onclick=()=>{engine.setDraft(2,'');renderChain(q,engine.currentQuiz())};host.append(back);updatePreview();return}
- const part=q.steps[step],heading=document.createElement('h3');heading.textContent='Del '+(step+1)+' av 3';host.append(heading);
+ const part=q.steps[step],heading=document.createElement('h3');heading.textContent=(step+1)+' / 3';host.append(heading);
  const sentence=document.createElement('p');sentence.className='chain-prompt';sentence.textContent=part.connector||'Fortsätt förklaringen';host.append(sentence);
- const prompt=document.createElement('p');prompt.textContent='Välj hur meningen fortsätter:';host.append(prompt);
+ 
  for(const choice of shuffle(part.options)){const b=document.createElement('button');b.type='button';b.className='chain-option';b.textContent=choice;b.onclick=()=>{engine.setDraft(step,choice);renderChain(q,engine.currentQuiz())};host.append(b)}
  if(step>0){const back=document.createElement('button');back.type='button';back.textContent='← Ändra föregående del';back.onclick=()=>{engine.setDraft(step-1,'');renderChain(q,engine.currentQuiz())};host.append(back)}
  updatePreview();
