@@ -65,7 +65,14 @@ function backdrop(){
  // Houses and alleyways.
  [[3100,320,170,120],[3200,1120,160,115],[1120,650,160,120],[430,840,190,130],[3450,480,130,90]].forEach(([x,y,w,h],i)=>building(x,y,w,h,['#5e5a53','#a35b4a','#655f58'][i%3]));
  if(original.complete&&original.naturalWidth)ctx.drawImage(original,old.x,old.y,old.w,old.h);
- // Simple visible connection at the edge of the original town.
+ // A continuous land corridor links the old town to the working-class district.
+ // Keep the original waterfront south of the quay; do not create a sea crossing between neighborhoods.
+ poly([[2600,505],[2760,490],[2910,500],[3070,590],[3070,1080],[2910,1140],[2710,1110],[2600,1040]],'#cec5b4');
+ road([[2550,850],[2670,835],[2820,835],[2980,825],[3220,825]],94);
+ road([[2830,835],[2870,680],[3020,630]],48);
+ for(const [x,y,w,h,c] of [[2680,570,115,95,'#985d4d'],[2870,960,150,112,'#675e55'],[3000,570,135,90,'#985a49']])building(x,y,w,h,c);
+ for(const [x,y] of [[2670,1030],[2810,560],[2970,1090]])tree(x,y,19);
+ // The quay remains at the sea, while streets lead naturally into the next quarter.
  label('Vetenskap',920,770);label('Slottet',850,330);label('Operan',1210,1140);
  label('Barnhuskvarteren',3090,550);label('Verkstäderna',3470,920);
  label('Landsbygden',3750,300);
