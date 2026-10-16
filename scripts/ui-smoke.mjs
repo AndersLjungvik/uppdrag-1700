@@ -10,7 +10,7 @@ const require=process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES
   ? createRequire(path.join(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES,'package.json'))
   : createRequire(import.meta.url);
 const {createCanvas}=require('@napi-rs/canvas');
-const index=fs.readFileSync(path.join(root,'dist/index.html'),'utf8');
+const index=fs.readFileSync(path.join(root,'dist/classic.html'),'utf8');
 const elements=new Map(),listeners=new Map(),storage=new Map();let serial=0;
 function attr(raw,name){return raw.match(new RegExp(`${name}="([^"]*)"`))?.[1]||''}
 class Classes{constructor(value=''){this.values=new Set(value.split(/\s+/).filter(Boolean))}add(...v){v.forEach(x=>this.values.add(x))}remove(...v){v.forEach(x=>this.values.delete(x))}toggle(v,on){if(on===undefined)on=!this.values.has(v);on?this.values.add(v):this.values.delete(v);return on}}

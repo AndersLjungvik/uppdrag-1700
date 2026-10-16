@@ -1,15 +1,15 @@
 {
   "name": "uppdrag-1700",
-  "version": "0.4.2",
+  "version": "0.6.0",
   "private": true,
-  "description": "Den hungrige lärlingen: point-and-click-äventyr för historieundervisning i åk 6.",
+  "description": "Uppdrag 1700: pappersstaden med klassrummets frågebank, uppdragsbok och lärling–gesäll–mästare per kapitel.",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "build": "node scripts/build-offline.mjs && node scripts/build-pages.mjs",
-    "test": "node scripts/verify.mjs && node scripts/ui-smoke.mjs && node --test preparation/google-sync/google-sync.test.mjs scripts/practice.test.mjs scripts/gameplay.test.mjs scripts/sound.test.mjs"
+    "build": "node curriculum/build.mjs && node scripts/build-offline.mjs && node scripts/build-pages.mjs",
+    "test": "node scripts/verify.mjs && node scripts/ui-smoke.mjs && node --test preparation/google-sync/google-sync.test.mjs scripts/practice.test.mjs scripts/gameplay.test.mjs scripts/sound.test.mjs scripts/world.test.mjs scripts/classroom-bank.test.mjs scripts/demo.test.mjs scripts/narration.test.mjs && node scripts/paper-ui-smoke.mjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "0.1.100"

@@ -80,7 +80,7 @@ for(const [i,id] of sceneIds.entries()){const c=createCanvas(1280,720),ctx=c.get
 fs.mkdirSync(path.join(root,'qa'),{recursive:true});fs.writeFileSync(path.join(root,'qa/adventure-scenes.png'),montage.toBuffer('image/png'));
 test('All ten scene renderers produce a substantial montage',()=>assert(fs.statSync(path.join(root,'qa/adventure-scenes.png')).size>50000));
 
-const index=fs.readFileSync(path.join(root,'dist/index.html'),'utf8');
+const index=fs.readFileSync(path.join(root,'dist/classic.html'),'utf8');
 test('The interface exposes verbs, inventory, dialogue, resources and map access',()=>{
   for(const id of['scene','hotspotLayer','hero','verbs','inventory','dialogue','foodValue','coinValue','timeValue','mapBtn'])assert(index.includes(`id="${id}"`),id);
   for(const verb of['look','talk','take','use'])assert(index.includes(`data-verb="${verb}"`),verb);
@@ -88,7 +88,7 @@ test('The interface exposes verbs, inventory, dialogue, resources and map access
 const offline=fs.readFileSync(path.join(root,'dist/uppdrag-1700.html'),'utf8');
 test('Standalone pupil file embeds CSS and scripts',()=>{
   assert(!/<script\s+src=/.test(offline));assert(!/href="style\.css(?:\?[^"]*)?"/.test(offline));
-  const scripts=[...offline.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];assert.equal(scripts.length,5);for(const script of scripts)new vm.Script(script[1]);assert(offline.includes('window.CUSTOM_BANK=null;'));assert(offline.includes('window.UPPDRAG_SOUND='));assert(offline.includes('window.UPPDRAG_ASSETS='));assert(offline.includes('data:image/png;base64,'));
+  const scripts=[...offline.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)];assert.equal(scripts.length,5);for(const script of scripts.filter(s=>!s[1].includes('module')))new vm.Script(script[2]);assert(offline.includes('window.UPPDRAG_OFFLINE=true;'));assert(offline.includes('window.UPPDRAG_SOUND='));assert(offline.includes('window.UPPDRAG_WORLD_ASSETS='));assert(offline.includes('window.CLASSROOM_CURRICULUM='));assert(offline.includes('data:text/javascript;base64,'));assert(offline.includes('data:image/webp;base64,'));
 });
 
 test('Question attempts record real review times and due dates',()=>{

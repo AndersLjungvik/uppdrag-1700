@@ -1,89 +1,40 @@
-# Uppdrag 1700: Den hungrige lärlingen
+# Uppdrag 1700 · Pappersstaden
 
-Ett buildless point-and-click-äventyr för historieundervisning i åk 6. Spelaren utforskar tio handritade scener, väljer handlingar, pratar med personer, samlar föremål och använder kunskap om 1700-talet för att få arbete, pengar och mat. Varje arbetspass har fyra fria kortsvar. Separata gesäll- och mästarprov använder samband med färdiga delar.
+[Spela den uppdaterade versionen](https://andersljungvik.github.io/uppdrag-1700/?v=0.6.0)
 
-## Innehåll och träning
+Ett pappersäventyr för historia i åk 6. Eleven går i staden, tar emot beställningar och hjälper invånarna genom bokens tio avsnitt. Varje avsnitt har tre uppdragsnivåer: **lärling, gesäll och mästare**. Stämplar visar avklarade uppdrag; de är inte betyg eller validerade mått på varaktigt kunnande.
 
-Frihetstiden, tryckfrihet, vardagsliv, Linné, Gustav III, handel och upplysning. Ett jobb kostar ett mått mättnad och fyra kortsvar behöver bli rätt. Ett fel visar inte facit: arbetsgivaren stänger för speldagen, frågan hamnar i anteckningsboken och kan prövas igen nästa dag. En lyckad anställning ger daler och ett förseglat arbetsintyg. Bröd kostar tre daler och ger tre mått mättnad.
+## Innehåll och uppdrag
 
-Framsteg sparas i localStorage i samma webbläsare på samma enhet. CSV-rapporten visar första försök, rätt, fel och stöd. Sambandsuppgifterna räknas alltid som stöd. Ingen central resultatinsamling eller identitetsverifiering finns; rapporten är ett övningsunderlag, inte betygsunderlag i sig.
+Den aktiva banken innehåller 139 rättningsbara frågor och 12 separata, öppna samtalsfrågor. Underlaget är enbart det uppladdade klassrumsmaterialet. Varje fråga har egna hänvisningar. [Bankens dokumentation](curriculum/README.md) och [täckningslistan](preparation/classroom-bank-coverage.md) visar även luckor och preciseringar. Inga frågor från den tidigare AI-banken läggs till i den aktiva banken.
 
-## Styrning
+Uppdragsboken visar beställningen, nästa ärende och stämplarna i alla avsnitt. Beställningen kommer före hämtningen och varje överlämning har en mottagare. Första tryckuppdraget går från Maja till Brita och Jo, vidare till provtryck, Majas godkännande, färdig upplaga och leverans till kaffehuset. Trycksvärta, papper och typer flyttas direkt från arbetsbordet till pressen; transporterade underlag finns i ryggsäcken.
 
-Välj `Titta på`, `Prata med`, `Ta` eller `Använd` och klicka på ett hotspot i scenen. Klick på marken flyttar figuren. Föremål väljs i ränseln och används sedan på något i scenen. Klicka på bröd en andra gång för att äta. `M` öppnar kartan och `Escape` stänger samtal eller menyer.
+De tio avsnitten kan slutföras i bokordning. Framtida platser öppnas med avsnitten. Eleven får återvända, prata och göra om tidigare arbetspass för ett nytt arvode. Uppdragsbokens avsnittsväljare låter läraren öppna det avsnitt klassen arbetar med, lokalt på enheten. Tidslinjen visas bara i staden. Tematiska avsnitt visar ett tidsintervall i stället för ett påhittat exakt händelseår.
 
-## Filer
+## Läromästaren och hjälp
 
-`dist/index.html`, `dist/style.css`, `dist/curriculum.js`, `dist/game.js` är webbversionen. `dist/uppdrag-1700.html` är en fristående elevfil, genererad med `node scripts/build-offline.mjs`. Den kör utan nätanslutning. Skolans regler för att öppna lokala HTML-filer måste provas på elevdatorn.
+Läromästaren Rut finns i arkivet. Hon repeterar upp till sex faktafrågor som eleven faktiskt har mött, med prioritet för tidigare fel och frågor som behöver återkomma. Minst 70 procent rätt på första försöket utan nya svarsalternativ eller ledtråd ger **ett äpple och 1 daler per avslutat pass**. Eleven kan tjäna ett nytt äpple samma dag. Upprepning samma dag räknas däremot inte som en ny tidsmässigt utspridd återkallning i repetitionshistoriken.
 
-Canvasbilder skapas i kod; inga externa typsnitt, bilder, bibliotek, API:er eller telemetri används. Historiska källor finns i lärarmenyn. Den grafiska miljön, personerna och berättelsen är fiktiva. Frågebanken följer det tillhandahållna kapitlet, med egna formuleringar och sidreferenser. Förlagets prov och bilder ingår inte i källkoden.
+Ett äpple kan ges för en extra ledtråd vid ett arbetsbord. Det dras bara en gång för den aktuella frågan. Ledtråden och att den använts följer med vid omladdning. Ett sådant svar markeras som stöd. Bokhänvisningar, återkoppling, svarsalternativ och nya försök är gratis. Färdiga sambandsdelar räknas som stöd. Eleven kan pausa ett uppdrag, tjäna ett äpple och återvända till samma fråga. Arbete kräver inte mat eller pengar.
 
+## Sparning och ljud
 
-## GitHub Pages
+Spelet sparar automatiskt i webbläsaren. Inställningarna kan hämta och läsa in en JSON-sparfil. Vid byte från den äldre banken bevaras pengar och föremål och den äldre kunskapsregistreringen arkiveras. Gamla yrkesnivåer räknas inte som besvarade nya frågor. Kunskapsrapporten skiljer mellan uppdragsstämplar och självständiga svar och kan hämtas som CSV.
 
-Webbversionen ligger i `docs/`. I repots **Settings → Pages**, välj **Deploy from a branch**, grenen **main** och mappen **/docs**, och spara. GitHub visar den spelbara länken när publiceringen är färdig.
+Google-synkning är förberedd men inte aktiverad (`enabled: false`). Inloggning eller synkning utlovas inte; det lokala spelet fungerar utan dem.
 
-Alla resurslänkar är relativa och fungerar därför under GitHub Pages projektadress. Vid flytt från en annan webbplats börjar framstegen om: webbläsaren sparar separat för varje webbplats.
+Effekter startas genom ljudknappen. De omfattar papper, typer, trycksvärta, trä och tryckpress samt ett återhållsamt vattenljud vid kajen. Ingen musikfil ingår. Tal är frivilligt och använder en svensk systemröst när en sådan finns. Texten ligger kvar tills eleven går vidare. På små eller låga skärmar ligger dialogtexten i ett fält under scenen. Den talande karaktären har diskret rörelse; de andra står stilla. Inställningen för minskad rörelse respekteras.
 
-## Utveckla och kontrollera
-
-Kräver Node.js 20 eller senare. Själva spelet behöver inga installerade paket.
+## Bygga och kontrollera
 
 ```sh
-npm install
 npm run build
 npm test
 ```
 
-`npm run build` uppdaterar både den fristående elevfilen och `docs/`. Checka in uppdaterade `dist/` och `docs/` tillsammans. Testerna kontrollerar spellogik, svar, alla scener, hamnuppdragets sparning och en simulerad gränssnittsrutt. De ersätter inte provspelning i en riktig webbläsare.
+Ingen frontend-installation behövs för webbsidan. Testerna använder `@napi-rs/canvas` (lokal devDependency eller den tillgängliga runtime-versionen). Bygget skriver GitHub Pages-filer till `docs/` och en självständig elevfil till `dist/uppdrag-1700.html`. Den fristående filen innehåller samma bank, bilder, ljud och inbäddade moduler; Google-synkning är avstängd där.
 
-För att spela lokalt öppnar du `dist/index.html` eller `dist/uppdrag-1700.html` i webbläsaren.
+Testerna kontrollerar hela uppdragskedjan, alla 139 frågor, sparningar, ledtrådskostnad, repetitionsbelöningar, källhänvisningar och de faktiska UI-handlarna. Rendering av scener kan granskas via canvas. Det ersätter inte manuell provning i elevens egen webbläsare, på mobil eller av högtalaruppspelningen.
 
-
-## Repetition och föremål (v0.2)
-
-Tryckeriets handlingar har en första ljudskiss: metallrassel för blytyper, pappersprassel, ett dämpat ljud för bläck samt träknarr och ett tungt presslag när handtaget dras. Effekterna är egna syntetiska ljud, inte dokumentära inspelningar. Slå på dem med högtalarknappen i överkanten; valet sparas på enheten. Ljud är av från början, stoppas vid platsbyte och kunskapsfrågor och kan stängas av när som helst. Effekterna ingår även i elevfilen och behöver inga ljudnedladdningar. Musik och löpande miljöbakgrunder återstår.
-
-Historisk grund för ljudvalet: [Penn Libraries om tryckning 1776](https://www.library.upenn.edu/events/printing-1776-ink-balls) beskriver färgbollar före färgvalsarnas införande på 1800-talet. Skissen använder därför ingen motor- eller färgvalsslinga.
-
-På Stortorget finns läromästaren Rut och bokoraklets skrivbord. Rut ger högst sex fria frågor från genomgångna områden, prioriterar förfallna frågor och tidigare fel och blandar in sådant spelaren lyckats med. Fel ger återkoppling utan att låsa förhöret. Ett förhör kostar varken mat eller speldagstid.
-
-Minst 70 procent rätt ger ett äpple och 1 daler, högst en belöning per 24 verkliga timmar. Repetition kan alltid göras utan belöning. Äpplen erbjuds till arbetsgivare eller används i en kortsvarsfråga för en extra ledtråd; hjälpen öppnas först efter eget registrerat försök och svar med sådan hjälp markeras som stöd. Grundläggande bokhänvisningar är alltid gratis. Datumen och belöningarna bygger på enhetens klocka och är inga säkra bedömningsdata.
-
-Tryckeriet har blytyper, papper och trycksvärta att ta och lägga i pressen. Dra i handtaget när allt är på plats. Provtrycket kan lämnas till Noor i kaffehuset för en extra ledtråd. Pusslet är frivilligt, kostar ingen mat och räknas inte som kunskapsresultat. Föremål och pussel sparas tillsammans med äventyret.
-
-Trädgårdens etikettbord har fyra vetenskapliga artnamn att sortera i släktena Rosa och Viola. Första ordet anger släktet; båda orden tillsammans är artnamnet. Valen sparas även innan pusslet är klart. Fel går att ändra utan kostnad eller låst jobb. En fröpåse belönar sorteringen en gång och kan erbjudas Karin i byn för en extra ledtråd i jordbruksjobbet. Om jobbet redan är klart behålls fröpåsen. Pusslet är frivilligt och räknas inte i kunskapsrapporten.
-
-Artetiketterna är kontrollerade mot Kews Plants of the World Online: [Rosa canina](https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:731955-1), [Rosa gallica](https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:732569-1), [Viola tricolor](https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:869428-1) och [Viola odorata](https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:868828-1). Pusslet illustrerar namngivning, inte en rekonstruktion av en historisk trädgård.
-
-Frågebanken stöder bookReference per uppdrag och learningHint per kortsvarsfråga. Utan riktigt SO-material används avsnittsnamn, inte påhittade sidnummer. De sju uppdragen är fortfarande fria att besöka; deras ordning knyts till boken när materialet finns.
-
-Google-synkning är förberedd men avstängd. Den här spelversionen fungerar med lokal sparning på samma webbplats, webbläsare och enhet. Kontokonfiguration finns i arbetsversionen och behöver ett skolägt Firebase-projekt innan den kan aktiveras.
-
-## Återkommande stöd och ekonomi
-
-Första provtrycket är gratis när pressens tre delar är på plats. Därefter kostar varje nytt ark 1 daler. Spelaren kan bara ha ett provtryck åt gången. Noor tar emot högst ett per speldag medan idéuppdraget återstår. När dagens ark har lämnats kan nästa köpas följande speldag. Varje inlämnat ark ger en ledtråd som förbrukas vid användning; svaret markeras som hjälpt. Pressens inställning och dagsgräns sparas. Gamla sparningar med redan lämnat provtryck räknas som levererade på den aktuella speldagen.
-
-Britas pappersärende finns vid pressen: ta ärendet, hämta paketet vid bokoraklets skrivbord på Stortorget och använd det på Brita. Leveransen betalar 1 daler högst en gång per speldag, kostar ingen mat och kräver inga kunskapsfrågor. Paketet är ett separat föremål från pusslets papper. Ärendet kan göras även efter tryckeriets kunskapsjobb och när repetitionsbelöningen är låst.
-
-Repetition betalar 1 daler tillsammans med äpplet, högst en gång per 24 verkliga timmar. Speldagar öppnar inte belöningen. Befintliga belöningstider gäller även efter uppdateringen. Priser och gränser är val för spelbalansen, inte forskningsbaserade mått på lärande.
-
-## Kapitelversion v0.3
-
-81 uppgifter i sju arbetsområden, med 18 angivna begrepp. Del 1 behandlar frihetstiden. Del 2 öppnar gustavianska tiden, byn, slottet, operan och kolonihamnens arkiv. Meny → Kapitel och språk låter läraren öppna del 2 på varje enhet. Inställningen är lokal, utan autentiserad lärarstyrning eller synkning mellan elever. Tidigare kapitel kan återbesökas.
-
-Första godkända arbetspasset ger ett intyg och ordinarie lön. Senare pass ger 2/3/4 daler beroende på yrkesnivå. Arbetspassen prioriterar obesvarade frågor, tidigare fel och frågor som ska återkomma. Eleven kan markera ett undervisat område för träning hos Rut före första intyget.
-
-Gesällprovet öppnas efter att samtliga tillgängliga faktafrågor på arbetsplatsen har repetitionsnivå minst 2 och senaste svaret är självständigt rätt. En nivå ökar bara om det gått minst 24 timmar sedan föregående försök. Gesällprovet består av tillgängliga sambandsuppgifter. Mästarprovet kräver minst ett nytt självständigt återkallningstillfälle per faktafråga minst 24 timmar efter befordran, följt av en ny tillämpningssituation. Färdiga delar räknas alltid som stöd. Spelnivåer är inte betyg eller validerade mått på behärskning. Enhetens klocka är inte manipulationssäker.
-
-Lättläst läge väljs på startskärmen eller i Kapitel och språk. Frågor får kortare formuleringar där det behövs, med samma svar och kunskapskrav. Samtalen är korta och valfria i båda lägena. Karaktärernas reaktioner ger varken poäng, intyg eller repetitionsnivå. Resedagboken skiljer skapade övningsexempel från verkliga historiska källor och innehåller en nutida övning om historiebruk.
-
-Befintliga pengar, intyg och föremål behålls. Gamla pågående arbetspass avslutas vid byte till den nya frågebanken eftersom frågeordningen ändrats. Gamla kort-id återanvänds bara när kunskapsinnehållet är detsamma.
-
-## Grafik och handhavande v0.3.1
-
-Alla tio bakgrunder och figurarket följer det godkända pappersdockeförslaget. Bilderna är separata spelresurser i `dist/assets` och kopieras till Pages samt bäddas in i elevfilen. De är bildgenererade med den godkända bilden som stilreferens; spelpersonerna är fiktiva. Ursprungliga genereringsprompter finns i `preparation/art-direction.md`.
-
-Synliga genvägar i scenens nederkant ger en alternativ väg till personer, föremål och utgångar. Ett pågående arbetspass kan inte längre döljas av misstag med kryss eller Escape utan ett tydligt val att fortsätta eller avsluta. Startdialogen går inte att stänga före spelstart.
-
-Ljudknappen visar på/av i text och spelar ett hörbart prov vid aktivering i alla miljöer. Meny → Ljud och provlyssning ger volym och testknapp samt återkoppling om ljudmotorn. Effekterna har justerad nivå. De är fortfarande handlingsljud; musik eller kontinuerlig miljöbakgrund ingår inte.
+`dist/classic.html` bevarar den äldre versionen separat. Gamla `/demo/`-länkar går vidare till den nya huvudversionen. Den äldre bankens filer behövs enbart för arkiverade sparningar och regressionstester.

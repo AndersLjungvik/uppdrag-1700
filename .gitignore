@@ -3,3 +3,5 @@ qa/
 .DS_Store
 .env
 .env.*
+
+output/

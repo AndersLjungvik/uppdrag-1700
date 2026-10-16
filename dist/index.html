@@ -1,80 +1,22 @@
 <!doctype html>
-<html lang="sv">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#171813">
-  <meta name="description" content="Ett point-and-click-äventyr där kunskaper om 1700-talet behövs för att få arbete, mat och lösa mysteriet.">
-  <title>Uppdrag 1700: Den hungrige lärlingen</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='15' fill='%23171813'/%3E%3Cpath d='M15 55h50L54 28H26z' fill='%23d09a50'/%3E%3Cpath d='M26 28l14-13 14 13' fill='none' stroke='%23f5e4bd' stroke-width='5'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css?v=0.4.2">
-</head>
-<body>
-  <div class="app" id="app">
-    <header class="hud">
-      <button class="mark" id="titleBtn" aria-label="Visa kapitelinformation"><span>17</span><b>UPPDRAG<br>1700</b></button>
-      <div class="place"><span class="eyebrow">PLATS</span><strong id="placeName">Stortorget</strong></div>
-      <div class="objective"><span class="eyebrow">DITT UPPDRAG</span><strong id="objectiveText">Skaffa arbete. Tjäna pengar. Köp bröd.</strong></div>
-      <div class="resources">
-        <button id="foodBtn" class="resource" aria-label="Visa information om hunger"><span class="resource-icon">♨</span><span><small>MÄTTNAD</small><b id="foodValue">2 / 5</b></span></button>
-        <div class="resource"><span class="resource-icon coin">●</span><span><small>DALER</small><b id="coinValue">0</b></span></div>
-        <div class="resource"><span class="resource-icon sun">☀</span><span><small>TID</small><b id="timeValue">Morgon</b></span></div>
-      </div>
-      <button class="round-btn" id="mapBtn" aria-label="Öppna stadskartan">⌖</button>
-      <button class="round-btn" id="soundBtn" aria-label="Slå på miljöljud" title="Miljöljud" aria-pressed="false">🔇</button>
-      <button class="round-btn" id="accountBtn" aria-label="Konto och sparning">☁</button>
-      <button class="round-btn" id="menuBtn" aria-label="Öppna spelmenyn">☰</button>
-    </header>
-
-    <main class="stage-shell" id="stageShell">
-      <canvas id="scene" width="1280" height="720" aria-label="Point-and-click-scen. Välj handling och klicka på personer, föremål eller utgångar."></canvas>
-      <nav id="sceneActions" class="scene-actions" aria-label="Genvägar till personer och saker"></nav>
-      <div id="hotspotLayer" class="hotspot-layer" aria-label="Saker i scenen"></div>
-      <div id="hero" class="hero" aria-hidden="true"><i class="hat"></i><i class="head"></i><i class="body"></i><i class="leg l"></i><i class="leg r"></i></div>
-      <div id="sceneTitle" class="scene-title" aria-live="polite"><span>STORTORGET</span><small>En fiktiv svensk stad, sent 1700-tal</small></div>
-      <div id="hint" class="hint" role="status" hidden></div>
-      <button id="skipWalk" class="skip-walk" hidden>Hoppa över promenaden</button>
-      <div id="narration" class="narration" hidden><span id="narrationText"></span></div>
-      <section id="dialogue" class="dialogue" hidden data-side="right">
-        <div class="speech-bubble" id="speechBubble">
-          <div class="speaker" id="speaker">Berättaren</div>
-          <div class="dialogue-text" id="dialogueText" aria-live="polite"></div>
-          <button class="dialogue-close" id="dialogueClose" aria-label="Avsluta samtalet">×</button>
-        </div>
-        <div class="reply-bubble" id="replyBubble"><div class="reply-name" id="replyName">Du</div><p id="lastPlayerReply" class="last-player-reply" hidden></p><div id="dialogueActions" class="dialogue-actions"></div></div>
-        <details id="conversationHistory" class="conversation-history" hidden><summary>Läs samtalet igen</summary><ol id="conversationLog"></ol></details>
-        <span id="portraitInitial" hidden></span>
-      </section>
-    </main>
-
-    <section class="command-deck" aria-label="Handlingar och föremål">
-      <div class="sentence" id="sentence"><span id="sentenceVerb">Gå till</span> <b id="sentenceTarget">…</b></div>
-      <div class="verbs" id="verbs" aria-label="Välj handling">
-        <button data-verb="look"><span>◉</span>Titta på</button>
-        <button data-verb="talk"><span>❞</span>Prata med</button>
-        <button data-verb="take"><span>✋</span>Ta</button>
-        <button data-verb="use"><span>◇</span>Använd</button>
-      </div>
-      <div class="inventory-wrap">
-        <div class="inventory-label"><span class="eyebrow">DIN RÄNSEL</span><small id="inventoryHint">Välj ett föremål och klicka på något i scenen.</small></div>
-        <div class="inventory" id="inventory"><span class="empty-inventory">Tom. Obehagligt tom.</span></div>
-      </div>
-    </section>
-
-
-  </div>
-
-  <dialog id="modal" aria-labelledby="modalTitle"><div id="modalBody"></div></dialog>
-  <dialog id="cloudDialog" aria-labelledby="cloudTitle"><div class="modal-inner">
-    <h2 id="cloudTitle">Konto och sparning</h2><p id="cloudStatus" role="status"></p>
-    <div class="button-row"><button id="cloudLogin" class="primary" hidden>Logga in med Google</button><button id="cloudLogout" class="secondary" hidden>Logga ut</button><button id="cloudRetry" class="secondary" hidden>Försök spara igen</button><button id="cloudClose" class="secondary">Tillbaka</button></div>
-  </div></dialog>
-  <script src="cloud-config.js"></script>
-  <script src="practice.js?v=0.4.2"></script>
-  <script src="sound.js?v=0.4.2"></script>
-  <script src="curriculum.js?v=0.4.2"></script>
-  <script src="game.js?v=0.4.2"></script>
-  <script type="module" src="cloud-ui.mjs"></script>
-</body>
-</html>
-
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#eee2c8"><meta name="description" content="Uppdrag 1700. Gå genom pappersstaden, hjälp invånarna och repetera bokens avsnitt i tre nivåer."><title>Uppdrag 1700 · Pappersstaden</title><link rel="stylesheet" href="world/world.css?v=0.6.0"></head>
+<body data-view="town"><div class="app">
+<header><button id="home" title="Till staden">UPPDRAG 1700</button><span id="location">STADEN</span><span id="chapterBadge" aria-label="Din nivå i kapitlet"></span><div class="header-right"><button id="bookBtn">Uppdragsboken</button><button id="readAgain" hidden>Lyssna igen</button><button id="talk" aria-pressed="false" title="Läs upp repliker och frågor på svenska">Tal av</button><button id="sound" aria-pressed="false" title="Miljö- och handlingsljud">Effekter av</button><button id="settingsBtn" aria-label="Inställningar och sparning">⋯</button></div></header>
+<aside id="timeline" aria-label="Berättelsens tid"><span id="timelineLabel"></span><div class="time-track"><span id="timeRange"></span><span class="time-tick" style="left:0%">1719</span><span class="time-tick" style="left:26.67%">1743</span><span class="time-tick" style="left:58.89%">1772</span><span class="time-tick" style="left:81.11%">1792</span><span class="time-tick" style="left:100%">1809</span></div></aside>
+<main id="stage" aria-label="Spelvärlden"><canvas id="world" width="1280" height="720" tabindex="0" aria-label="Klicka på marken för att gå. Du kan också använda piltangenterna eller WASD."></canvas>
+<nav id="mapLinks" aria-label="Platser i staden"><button data-place="print">TRYCKERI</button><button data-place="cafe">KAFFEHUS</button><button data-place="archive">ARKIV · RUT</button><button data-place="quay">KAJEN</button><button data-place="gate" id="gateBtn" hidden>VÄGEN VIDARE</button><button id="meetDog" class="person-target" aria-label="Hälsa på hunden"></button><button id="meetWoman" class="person-target" aria-label="Prata med kvinnan på torget"></button></nav>
+<section id="work" aria-labelledby="question" hidden><small id="workTitle"></small><p id="progress"></p><h1 id="question"></h1><form id="answerForm"><label class="sr-only" for="answer">Ditt svar</label><input id="answer" maxlength="160" placeholder="Skriv ditt svar …" spellcheck="false" autocomplete="off"><button id="submit" type="submit">Svara</button></form><button id="showOptions" class="secondary">Visa svarsalternativ</button><div id="choiceArea" aria-label="Svarsalternativ" hidden></div><form id="chainForm" hidden><div id="chainParts"></div><p id="chainPreview"></p><button type="submit" id="submitChain">Kontrollera förklaringen</button></form><p id="helpText" hidden></p><div id="feedback" aria-live="polite" hidden></div><div class="work-controls"><button id="next" hidden>Nästa fråga</button><button id="retry" hidden>Försök igen</button><button id="hint" class="secondary" hidden>Ge ett äpple för en ledtråd</button></div><details id="questionSource"><summary>Var kan jag läsa om detta?</summary><p id="sourceText"></p></details></section>
+<div id="pressItems" hidden aria-label="Material på arbetsbordet"><button data-material="ink">Trycksvärta</button><button data-material="paper">Papper</button><button data-material="type">Typer</button></div><button id="pressTarget" hidden aria-label="Lägg valt material i tryckpressen"><span id="pressLabel">Tryckpressen</span></button>
+<section id="puzzle" hidden aria-labelledby="puzzleTitle"><h2 id="puzzleTitle"></h2><div id="puzzleDrawing" aria-hidden="true"></div><p id="puzzleText"></p><div id="puzzleChoices"></div><p id="puzzleFeedback" role="status"></p></section>
+<div id="notice" class="notice" role="status" hidden></div>
+</main>
+<div id="speechDock"><section id="bubble" class="bubble" hidden aria-label="Samtal"><small id="speaker"></small><p id="line" aria-live="polite"></p></section></div>
+<footer><div class="footer-top"><button id="back" hidden>← Till staden</button><span id="instruction">Börja på kaffehuset.</span><button id="skipWalk" hidden>Hoppa över promenaden</button><button id="bagBtn" aria-haspopup="dialog">Ryggsäck</button></div><nav id="actions" aria-label="Vad vill du göra?"></nav></footer>
+</div>
+<dialog id="bag" aria-labelledby="bagTitle"><div class="bag-head"><h2 id="bagTitle">Ryggsäck</h2><button id="bagClose" aria-label="Stäng ryggsäcken">×</button></div><div id="bagItems"></div><details open><summary>Mitt uppdrag</summary><p id="taskList"></p></details><p id="wallet"></p><div class="button-row"><button id="reviewBtn">Öva hos Rut</button><button id="reportBtn">Kunskapsrapport</button></div></dialog>
+<dialog id="book" aria-labelledby="bookTitle"><div class="bag-head"><h2 id="bookTitle">Uppdragsboken</h2><button id="bookClose" aria-label="Stäng boken">×</button></div><p id="bookIntro"></p><section id="currentOrder" aria-label="Ditt aktuella ärende"></section><p class="small">Behöver du en extra ledtråd? Repetera hos läromästaren Rut i arkivet och tjäna ett äpple. Bokhänvisningar och återkoppling är alltid gratis.</p><button id="bookMentor">Gå till läromästaren</button><div id="chapterList"></div><details><summary>Välj det avsnitt klassen arbetar med</summary><p class="small">Tidigare uppdrag och svar sparas när du byter avsnitt.</p><label for="chapterSelect">Avsnitt</label><select id="chapterSelect"></select><button id="openChapter">Öppna avsnittet</button></details></dialog>
+<dialog id="settings" aria-labelledby="settingsTitle"><div class="bag-head"><h2 id="settingsTitle">Inställningar och sparning</h2><button id="settingsClose" aria-label="Stäng inställningarna">×</button></div><label class="setting"><input id="simpleText" type="checkbox"> Enklare språk i frågorna</label><label class="setting" for="volume">Ljudstyrka<input id="volume" type="range" min="5" max="100" value="75"></label><p class="small">Svaren och uppdragen sparas automatiskt i den här webbläsaren. Tal använder datorns svenska röst.</p><div class="button-row"><button id="accountBtn">Konto och sparning</button><button id="backupBtn">Hämta sparfil</button><label class="file-button">Läs in sparfil<input id="restoreFile" type="file" accept="application/json,.json"></label><label class="file-button">Läs in frågebank<input id="bankFile" type="file" accept="application/json,.json"></label></div><p id="settingsStatus" role="status"></p></dialog>
+<dialog id="report" aria-labelledby="reportTitle"><div class="bag-head"><h2 id="reportTitle">Kunskapsrapport</h2><button id="reportClose" aria-label="Stäng kunskapsrapporten">×</button></div><div id="reportBody"></div><button id="downloadReport">Hämta rapport som CSV</button></dialog>
+<dialog id="cloudDialog" aria-labelledby="cloudTitle"><div class="bag-head"><h2 id="cloudTitle">Konto och sparning</h2></div><p id="cloudStatus" role="status"></p><div class="button-row"><button id="cloudLogin" hidden>Logga in med Google</button><button id="cloudLogout" hidden>Logga ut</button><button id="cloudRetry" hidden>Försök spara igen</button><button id="cloudClose">Tillbaka</button></div></dialog>
+<script src="cloud-config.js"></script><script src="practice.js?v=0.4.2"></script><script src="sound.js?v=0.4.2"></script><script src="classroom-curriculum.js?v=2026-10-16-1"></script><script type="module" src="world/app.mjs?v=0.6.0"></script>
+</body></html>
