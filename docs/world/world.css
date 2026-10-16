@@ -44,3 +44,15 @@
 .atlas-district.atlas-locked{background:#ded9c8ed;border-style:dashed;color:#605c52}
 .atlas-district small{display:block;margin-top:8px;font:12px/1.4 system-ui,sans-serif}
 @media(max-width:700px){#atlasButton{top:6px;right:6px;font-size:12px;padding:6px 9px}.atlas-viewport{max-height:58dvh}#worldAtlas>p{font-size:12px}.atlas-district{width:290px}}
+
+
+/* The world is an illustrated landscape, not a grid of district cards. */
+.atlas-land{height:850px;background:#d6d7b4}
+.atlas-illustration{position:absolute;inset:0;width:2110px;height:850px;display:block}
+.atlas-district.atlas-place-sign{width:235px;min-height:0;padding:8px 10px;background:#f7e9c7e8;border:1px solid #756348;border-radius:8px;box-shadow:2px 3px 0 #695c3a55}
+.atlas-place-sign h3{font:700 16px/1.2 Georgia,serif;margin:0 0 4px}
+.atlas-place-sign p{font:12px/1.2 system-ui,sans-serif;margin:0 0 3px}
+.atlas-place-sign button{font:12px/1.2 system-ui,sans-serif;min-height:36px;padding:5px 8px;background:#fff5da;margin:2px}
+.atlas-district.atlas-place-sign.atlas-locked{background:#d6d1bfdd;border:1px dashed #786f61}
+.atlas-place-sign small{font-size:11px;margin-top:3px}
+@media(max-width:700px){.atlas-district.atlas-place-sign{width:205px;padding:7px}.atlas-place-sign h3{font-size:15px}}
