@@ -56,7 +56,7 @@ function draw(t){renderer.draw(t,{world:engine.world(),place:view,speaker,speech
 function updateChrome(){
  const c=engine.current(),a=engine.active(),done=engine.progress().done,currentLevel=a?.level||Math.min(3,done+1);
  document.body.dataset.view=view;if(typeof atlasButton!=='undefined')atlasButton.hidden=view==='work';$('location').textContent=view==='work'?'ARBETSBORDET':PLACES[view]?.name.toUpperCase()||'STADEN';
- $('chapterBadge').textContent=a?.repeat?`Repetition · ${LEVEL_NAMES[a.level-1]} · ${done}/3 klara`:done===3?`Mästare klar ✓ · 3/3 nivåer`:a?`${LEVEL_NAMES[a.level-1]} · ${done}/3 klara`:`${LEVEL_NAMES[currentLevel-1]} · ${done}/3 klara`;$('bookBtn').textContent=`Uppdragsboken · ${c.id}/10`;
+ $('chapterBadge').textContent=done===3?'✓ Mästare i detta kapitel':done===2?'✓ Gesäll klar · Mästare återstår':done===1?'✓ Lärling klar · Gesäll återstår':'Inga nivåer klara ännu';$('bookBtn').textContent=`Uppdragsboken · ${c.id}/10`;
  $('instruction').textContent=engine.objective();$('back').hidden=view==='town';$('back').textContent=view==='work'?'← Pausa och gå tillbaka':'← Till staden';
  $('mapLinks').hidden=view!=='town';$('gateBtn').hidden=false;$('bagBtn').hidden=view==='work';$('work').hidden=view!=='work';$('puzzle').hidden=true;$('pressItems').hidden=true;$('pressTarget').hidden=true;
  $('timeline').hidden=view!=='town';const time=TIMELINES[c.id];$('timelineLabel').textContent=time.label;$('timeRange').style.left=((time.start-1719)/90*100)+'%';$('timeRange').style.width=Math.max(.8,(time.end-time.start)/90*100)+'%';
@@ -261,7 +261,7 @@ function openDialog(id){stopWalking();narrator.stop();speechEnd=0;closeDialogs()
 $('bagBtn').onclick=()=>{showBag();openDialog('bag')};$('bagClose').onclick=()=>$('bag').close();$('reviewBtn').onclick=goMentor;$('bookMentor').onclick=goMentor;
 $('bookBtn').onclick=()=>{
  const c=engine.current(),done=engine.progress().done,l=engine.level(),a=engine.active();
- $('bookIntro').textContent=`${c.title} · ${done} av 3 nivåer. Lärling öppnar stadsportens prov. Gesäll och mästare är frivilliga. ${done===3?'Mästarstämpel intjänad!':LEVEL_NAMES[l.level-1]+' · '+LEVEL_TASKS[l.level-1]}`;
+ $('bookIntro').textContent=`${c.title} · ${done} av 3 nivåer avklarade. Lärling öppnar vägen vidare. Gesäll och mästare är frivilliga. ${done===3?'Mästarstämpel intjänad i detta kapitel!':`Nästa frivilliga nivå: ${LEVEL_NAMES[l.level-1]}.`}`;
  $('currentOrder').replaceChildren();
  for(const [heading,text] of [['Beställning',l.request],['Just nu',engine.objective()],['Sedan',a?.phase==='work'?`Lämna ${l.artifact.toLowerCase()} på ${PLACES[l.recipient].name.toLowerCase()}.`:a?l.title:done===3?c.next:`Ta emot uppdraget på ${PLACES[l.giver].name.toLowerCase()}.`]]){const p=document.createElement('p'),strong=document.createElement('strong');strong.textContent=heading+': ';p.append(strong,document.createTextNode(text));$('currentOrder').append(p)}
  $('chapterList').replaceChildren();$('chapterSelect').replaceChildren();
