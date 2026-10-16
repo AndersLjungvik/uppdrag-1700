@@ -34,8 +34,13 @@ const locations=[
  {name:'Byn',x:3650,y:350,area:'Landsbygden'},
  {name:'Kvarnen',x:3890,y:670,area:'Landsbygden'}
 ];
-function poly(points,color){ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle=color;ctx.fill()}
-function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h)}
+// Reuse one deterministic paper grain for the whole world.
+const grain=document.createElement('canvas');grain.width=grain.height=128;
+const gx=grain.getContext('2d');let seed=1700;
+for(let i=0;i<1500;i++){seed=(1664525*seed+1013904223)>>>0;const x=seed%128;seed=(1664525*seed+1013904223)>>>0;const y=seed%128;gx.fillStyle=i%3?'#fff5dc':'#4a3a2d';gx.globalAlpha=i%3?.13:.09;gx.fillRect(x,y,1+i%2,1+i%2)}
+const paperGrain=ctx.createPattern(grain,'repeat');
+function poly(points,color){ctx.save();ctx.shadowColor='#473e2d35';ctx.shadowOffsetX=3;ctx.shadowOffsetY=5;ctx.shadowBlur=1;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.shadowColor='transparent';ctx.clip();ctx.globalAlpha=.22;ctx.fillStyle=paperGrain;ctx.fillRect(0,0,W,H);ctx.restore()}
+function rect(x,y,w,h,color){ctx.save();ctx.shadowColor='#473e2d22';ctx.shadowOffsetX=2;ctx.shadowOffsetY=3;ctx.fillStyle=color;ctx.fillRect(x,y,w,h);ctx.shadowColor='transparent';ctx.globalAlpha=.24;ctx.fillStyle=paperGrain;ctx.fillRect(x,y,w,h);ctx.restore()}
 function road(points,width=110){ctx.lineJoin='round';ctx.lineCap='round';for(const [w,c] of [[width+12,'#b5a993'],[width,'#f2e4cc']]){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke()}}
 function building(x,y,w,h,roof='#655e54'){rect(x+9,y+13,w,h,'#96816b');rect(x,y,w,h,'#d3c6af');poly([[x-9,y+3],[x+w*.54,y-12],[x+w+7,y],[x+w+7,y+h],[x,y+h+5]],roof);ctx.strokeStyle='#f0dfc1';ctx.lineWidth=4;ctx.strokeRect(x+2,y+2,w-4,h-4)}
 function tree(x,y,r=24){rect(x-5,y+7,10,r,'#776b53');poly([[x,y-r],[x+r,y+7],[x-r,y+7]],'#73836a');poly([[x,y-r-12],[x+r*.72,y-2],[x-r*.72,y-2]],'#8a9878')}
@@ -55,6 +60,14 @@ function backdrop(){
  // Continuous mainland: the shoreline stays below the workshops and residential streets.
  poly([[2700,1490],[3200,1480],[4200,1450],[4200,1700],[2700,1700]],'#4b758c');
  for(let i=0;i<70;i++){const x=(i*193+103)%4200,y=(i*139+70)%1700;if((x>1420&&x<2750&&y>450&&y<1210)||y>1200)continue;tree(x,y,14+(i%3)*5)}
+ // A real departure quay, separate from the streets and the workshops.
+ rect(2440,1155,54,295,'#80694e');rect(2350,1370,240,45,'#8e7453');
+ for(const x of [2380,2480,2560])rect(x,1400,16,65,'#5f5545');
+ poly([[2610,1490],[2870,1490],[2810,1550],[2660,1550]],'#705b47');
+ rect(2720,1260,12,230,'#75664e');
+ poly([[2735,1280],[2830,1465],[2735,1465]],'#f1e4c9');
+ poly([[2705,1330],[2630,1460],[2705,1460]],'#d6c8a9');
+ for(let i=0;i<5;i++)poly([[2570+i*140,1580],[2600+i*140,1574],[2630+i*140,1580]],'#bdd0c8');
  // Palace and science quarter to the west.
  building(670,345,340,180,'#6e6459');building(750,590,250,155,'#7d6858');building(1110,965,205,140,'#685a54');
  for(let i=0;i<4;i++)rect(710+i*70,405,35,65,'#f1e4c9');
