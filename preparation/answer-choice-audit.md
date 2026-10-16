@@ -1,11 +1,25 @@
-# Granskning av frågebanken, 2026-10-16
+# Kvalitetsgranskning av svarsalternativ – 2026-10-16
 
-139 rättningsbara frågor: 97 kortsvar och 42 sambandsuppgifter.
+## Genomfört
+- Den aktiva banken innehåller 139 frågor: 97 kortsvar och 42 sambandsuppgifter.
+- 88 av 97 kortsvar har fått två ämnesanknutna, individuellt skrivna felalternativ. Varje alternativ har kontrollerats maskinellt mot facit och stavningstoleransen; inga kollisioner kvarstår.
+- Samtliga 42 sambandsuppgifter (126 meningsdelar) har fått omarbetade felalternativ i en första pedagogisk genomgång. Varje del har tre olika val, varav exakt ett är facitsvaret.
+- Slumpmässigt valda svar från andra frågor används inte längre.
+- Tolv reflektionsfrågor är fortfarande öppna och utan automatisk rättning.
+- Elevens sparade kunskapsframsteg ska behållas: bankens ID och facit har inte ändrats.
 
-83 kortsvar har fått individuellt skrivna, ämnesanknutna felalternativ. Automatisk kontroll mot stavningstoleransen hittade två felaktigt godkända distraktorer, som har rättats. 14 kortsvar saknar fortfarande granskade alternativ och ska inte få slumpmässigt hämtade svar.
+## Nio kortsvar utan kontrollerade flervalsalternativ
+sos-daldans, sos-tryckfrihet-forst, sos-skifte, sos-prostituerad, sos-lenngren, sos-barnhus-arbete, sos-ogift-straff, sos-marie-cecile, sos-landsforvisad.
 
-8 sambandsuppgifter har reviderats. Resterande 34 behöver manuell pedagogisk och historisk granskning. Varningsord som ”alla”, ”bara” och ”aldrig” kan göra felalternativ alltför enkla, men måste bedömas i sammanhang.
+Dessa frågor ska erbjuda kortsvar och källhänvisning, inte fabricerade distraktorer. Några kräver källkontroll eller en annan frågeform innan trovärdiga alternativ kan skrivas.
 
-Kvar: jämför varje påstående med respektive källhänvisning, granska återstående alternativ och testa fördröjd återkallning med elever. Flervalsstöd är guidad träning, inte bevis för självständig återkallning.
+## Viktiga begränsningar
+Detta är en första pedagogisk konstruktionsgranskning och automatisk konsekvenskontroll, inte en oberoende faktagranskning av samtliga historiska uppgifter mot originalkällorna. Att alternativen är ämnesnära bevisar inte att de är lika svåra eller välfungerande för elever.
 
-Källkod: curriculum/vetted-distractors.mjs och curriculum/vetted-chain-options.mjs. Bygg: curriculum/build.mjs.
+Sambandsuppgifterna är guidad övning, inte bevis på självständigt formulerade resonemang. Bedöm långsiktig effekt genom självständig och fördröjd återkallning.
+
+## Spårbarhet
+- curriculum/vetted-distractors.mjs
+- curriculum/vetted-chain-options.mjs
+- curriculum/build.mjs
+- docs/classroom-bank.json och docs/classroom-curriculum.js
