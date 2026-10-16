@@ -330,5 +330,25 @@ export const vettedDistractors = {
   "sos-karl-hayden": [
     "Budbärare",
     "Fältläkare"
+  ],
+  "sos-bellman": [
+    "Carl Gustaf af Leopold",
+    "Johan Stagnell"
+  ],
+  "sos-svenska-akademien": [
+    "Kungliga Vetenskapsakademien",
+    "Kungliga Vitterhetsakademien"
+  ],
+  "sos-teatrar": [
+    "Kungliga Operan och Drottningholms slottsteater",
+    "Dramatiska Teatern och Göteborgs stadsteater"
+  ],
+  "sos-tobak-uppfattning": [
+    "Man trodde att den var skadlig",
+    "Man trodde att den saknade påverkan"
+  ],
+  "sos-krig-ingen-seger": [
+    "Finland",
+    "Delar av Ryssland"
   ]
 };
