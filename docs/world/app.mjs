@@ -55,7 +55,7 @@ function updateChrome(){
  document.body.dataset.view=view;$('location').textContent=view==='work'?'ARBETSBORDET':PLACES[view]?.name.toUpperCase()||'STADEN';
  $('chapterBadge').textContent=a?.repeat?`Repetition · ${LEVEL_NAMES[a.level-1]} · ${done}/3 klara`:done===3?`Mästare klar ✓ · 3/3 nivåer`:a?`${LEVEL_NAMES[a.level-1]} · ${done}/3 klara`:`${LEVEL_NAMES[currentLevel-1]} · ${done}/3 klara`;$('bookBtn').textContent=`Uppdragsboken · ${c.id}/10`;
  $('instruction').textContent=engine.objective();$('back').hidden=view==='town';$('back').textContent=view==='work'?'← Pausa och gå tillbaka':'← Till staden';
- $('mapLinks').hidden=view!=='town';$('gateBtn').hidden=!extras().length;$('bagBtn').hidden=view==='work';$('work').hidden=view!=='work';$('puzzle').hidden=true;$('pressItems').hidden=true;$('pressTarget').hidden=true;
+ $('mapLinks').hidden=view!=='town';$('gateBtn').hidden=false;$('bagBtn').hidden=view==='work';$('work').hidden=view!=='work';$('puzzle').hidden=true;$('pressItems').hidden=true;$('pressTarget').hidden=true;
  $('timeline').hidden=view!=='town';const time=TIMELINES[c.id];$('timelineLabel').textContent=time.label;$('timeRange').style.left=((time.start-1719)/90*100)+'%';$('timeRange').style.width=Math.max(.8,(time.end-time.start)/90*100)+'%';
  speechControls();layout();updateDiscovery();
 }
