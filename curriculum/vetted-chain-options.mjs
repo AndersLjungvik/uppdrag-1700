@@ -502,5 +502,89 @@ export const vettedChainOptions = {
       "välja ledamöter till riksrådet",
       "bosätta sig fritt i varje stad utan begränsningar"
     ]
+  ],
+  "sos-maskerad-forlopp": [
+    [
+      "ett besked om ett planerat fredsavtal",
+      "ett brev om att hovet flyttat till Uppsala"
+    ],
+    [
+      "fängslades Anckarström före attentatet",
+      "angreps kungen av en motståndare utan skott"
+    ],
+    [
+      "avgick Gustav III från tronen",
+      "återhämtade sig Gustav III och återtog makten"
+    ]
+  ],
+  "sos-adel-missnoje": [
+    [
+      "att riksrådet fått mer makt än kungen",
+      "att adeln ensam behövde betala nya skatter"
+    ],
+    [
+      "gett adeln större inflytande i riksdagen",
+      "överlåtit besluten till riksrådet"
+    ],
+    [
+      "ville tvinga honom att abdikera genom riksdagen",
+      "planerade att lämna landet i protest"
+    ]
+  ],
+  "sos-mord-foljder": [
+    [
+      "dog omedelbart på maskeraden",
+      "återhämtade sig efter attentatet"
+    ],
+    [
+      "fick fängelsestraff och frigavs senare",
+      "landsförvisades efter en kort rättegång"
+    ],
+    [
+      "dömdes till böter och stannade i Sverige",
+      "friades och återgick till sina tjänster"
+    ]
+  ],
+  "sos-franska-revolutionen": [
+    [
+      "riksrådet och adeln gjorde uppror mot kungens reformer",
+      "kungens soldater gjorde uppror mot den svenska riksdagen"
+    ],
+    [
+      "stärkte sin makt genom nya privilegier",
+      "delade makten med Sveriges riksråd"
+    ],
+    [
+      "att adeln skulle få ökad makt i Sverige",
+      "att revolutionen skulle stärka kungamakten i Sverige"
+    ]
+  ],
+  "sos-finland-forlopp": [
+    [
+      "Frankrike och Danmark mot Storbritannien",
+      "Frankrike och Ryssland mot Storbritannien"
+    ],
+    [
+      "bytte Storbritannien sida och anföll Finland",
+      "anföll Ryssland Sverige via Norge"
+    ],
+    [
+      "blev Finland självständigt 1809",
+      "fortsatte Finland styras från Stockholm"
+    ]
+  ],
+  "sos-krig-manniskor": [
+    [
+      "att unga pojkar främst arbetade hemma under kriget",
+      "att soldaternas barn inte fick följa armén"
+    ],
+    [
+      "förhandlade fram en fred med de ryska styrkorna",
+      "lämnade området innan ryska styrkor kom"
+    ],
+    [
+      "behöll Sverige Finland men förlorade Åland",
+      "övertog Sverige områden öster om Finland"
+    ]
   ]
 };
