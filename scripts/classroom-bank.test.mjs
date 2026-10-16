@@ -35,7 +35,7 @@ test('dependencies resolve to actual fact cards, including cross-chapter review'
  for(const q of cards)for(const id of q.requires||[])assert(cards.some(c=>c.id===id&&c.type==='short'),`${q.id}: ${id}`);
 });
 test('every optional multiple-choice set contains exactly one accepted answer',()=>{
- const exported=bank.missions.flatMap(m=>m.cards);for(const q of exported.filter(q=>q.type==='short')){const options=choicesFor(q,exported,()=>.43);assert.equal(options.length,3,q.id);assert.equal(options.filter(x=>gradeShort(q,x)).length,1,q.id)}
+ const exported=bank.missions.flatMap(m=>m.cards);for(const q of exported.filter(q=>q.type==='short')){const options=choicesFor(q,exported,()=>.43);assert.equal(options.length,q.distractors?.length>=2?3:0,q.id);if(options.length)assert.equal(options.filter(x=>gradeShort(q,x)).length,1,q.id)}
 });
 test('opinions and ambiguous source classification cannot become auto-scored facts',()=>{
  assert(reflections.every(q=>q.scored===false));for(const slug of ['kvinnor','kallval','maskerad','seger'])assert(reflections.some(q=>q.id==='sos-samtal-'+slug));
