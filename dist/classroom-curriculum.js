@@ -661,8 +661,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "kungens envälde upphörde",
               "options": [
                 "kungens envälde upphörde",
-                "alla människor fick lika makt",
-                "alla samhällsregler försvann"
+                "riksdagen förlorade rätten att besluta om skatter",
+                "riksrådet ersattes av kungens hov"
               ]
             },
             {
@@ -670,8 +670,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "riksdagen och riksrådet",
               "options": [
                 "riksdagen och riksrådet",
-                "alla barn på barnhus",
-                "bara kungen"
+                "kungen och hovet",
+                "armén och landshövdingarna"
               ]
             },
             {
@@ -679,8 +679,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "olika för olika grupper",
               "options": [
                 "olika för olika grupper",
-                "lika stor för alla",
-                "större för barnen än för alla andra"
+                "störst för personer utan politiskt inflytande",
+                "fördelad enligt samma regler som i dag"
               ]
             }
           ],
@@ -727,8 +727,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "läsa",
               "options": [
                 "läsa",
-                "välja kungen genom lika rösträtt",
-                "slippa alla lagar"
+                "skriva på latin",
+                "räkna med decimaler"
               ]
             },
             {
@@ -736,8 +736,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "studera och jämföra texter",
               "options": [
                 "studera och jämföra texter",
-                "anta att varje bok var sann",
-                "sluta ställa frågor"
+                "låta prästerna tolka fler texter åt dem",
+                "sprida texter utan att själva kunna läsa"
               ]
             },
             {
@@ -745,8 +745,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "ifrågasätta makthavare",
               "options": [
                 "ifrågasätta makthavare",
-                "låta kungen ensam tolka alla texter",
-                "göra alla böcker överflödiga"
+                "acceptera makthavarnas beslut utan insyn",
+                "överlåta besluten till hovets tjänstemän"
               ]
             }
           ],
@@ -797,7 +797,7 @@ window.CLASSROOM_CURRICULUM={
               "options": [
                 "från Sveriges sida till Frankrikes",
                 "från Frankrikes sida till Sveriges",
-                "från Finland till Marstrand"
+                "från Storbritanniens sida till Sveriges"
               ]
             },
             {
@@ -805,8 +805,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "Finland som då hörde till Sverige",
               "options": [
                 "Finland som då hörde till Sverige",
-                "Kina som då hörde till Sverige",
-                "Marstrand som då hörde till Frankrike"
+                "Sveriges västra gränsområden mot Norge",
+                "svenska hamnar längs västkusten"
               ]
             },
             {
@@ -814,8 +814,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "Finland och Åland blev ryska 1809",
               "options": [
                 "Finland och Åland blev ryska 1809",
-                "Ryssland blev svenskt 1772",
-                "Sverige fick tillbaka alla områden 1792"
+                "Finland blev självständigt 1809",
+                "Finland fortsatte styras från Stockholm efter 1809"
               ]
             }
           ],
@@ -866,8 +866,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "berätta om den personens erfarenheter",
               "options": [
                 "berätta om den personens erfarenheter",
-                "visa alla människors tankar",
-                "bevisa att alla levde likadant"
+                "berätta vilka lagar som gällde i hela landet",
+                "visa vad riksdagen beslutade samma år"
               ]
             },
             {
@@ -875,8 +875,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "ge uppgifter om befolkningen",
               "options": [
                 "ge uppgifter om befolkningen",
-                "återge varje samtal på gatan",
-                "ersätta alla dagböcker"
+                "visa vilka personer som ägde handelskompaniet",
+                "återge kungens beslut om utrikespolitik"
               ]
             },
             {
@@ -884,8 +884,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "ge exempel på hur livet i staden skildrades",
               "options": [
                 "ge exempel på hur livet i staden skildrades",
-                "visa varje invånares exakta liv",
-                "fungera som fullständiga befolkningsregister"
+                "ge säkra siffror över stadens invånare",
+                "återge protokoll från riksdagens möten"
               ]
             }
           ],
@@ -932,8 +932,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "kläder, föremål och miljö",
               "options": [
                 "kläder, föremål och miljö",
-                "bara om bilden har en ram",
-                "bara hur många bokstäver namnet har"
+                "vem som beställde och målade porträtten",
+                "när konstnärerna ställde ut sina målningar"
               ]
             },
             {
@@ -941,8 +941,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "människornas samhällsställning",
               "options": [
                 "människornas samhällsställning",
-                "vilket år varje person dog",
-                "exakt vad varje person tänkte"
+                "vilken politisk grupp personerna röstade på",
+                "hur stora inkomster personerna hade"
               ]
             },
             {
@@ -950,8 +950,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "undersöka likheter och skillnader i levnadsvillkor",
               "options": [
                 "undersöka likheter och skillnader i levnadsvillkor",
-                "anta att alla hade samma vardag",
-                "slippa läsa andra källor"
+                "bestämma vilka lagar som gällde vid varje tillfälle",
+                "fastställa personernas egna tankar"
               ]
             }
           ],
@@ -987,8 +987,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "tidigare fick liten plats i historieskrivningen",
               "options": [
                 "tidigare fick liten plats i historieskrivningen",
-                "alltid hade störst plats i alla historieböcker",
-                "saknade bevarade uppgifter"
+                "redan var välkänd genom läroböckerna",
+                "främst beskrevs genom kungarnas beslut"
               ]
             },
             {
@@ -996,8 +996,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "register och protokoll om kolonin",
               "options": [
                 "register och protokoll om kolonin",
-                "bara sagor utan koppling till ön",
-                "bara dokument från Kina"
+                "handelslistor från Ostindiska kompaniet",
+                "berättelser skrivna långt efter kolonitiden"
               ]
             },
             {
@@ -1005,8 +1005,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "fler människors erfarenheter och Sveriges roll synliggöras",
               "options": [
                 "fler människors erfarenheter och Sveriges roll synliggöras",
-                "alla gamla dokument försvinna",
-                "historien bevisas aldrig ha hänt"
+                "handelsföretagens perspektiv bli den enda berättelsen",
+                "äldre uppgifter bli mindre tillgängliga för forskning"
               ]
             }
           ],
@@ -1553,8 +1553,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "envälde avskaffades",
               "options": [
                 "envälde avskaffades",
-                "envälde förstärktes",
-                "riksdag avskaffades"
+                "envälde infördes på nytt",
+                "makt flyttades från riksdagen till hovet"
               ]
             },
             {
@@ -1562,8 +1562,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "riksdagen och riksrådet mer makt",
               "options": [
                 "riksdagen och riksrådet mer makt",
-                "kungen all makt",
-                "alla barn makten"
+                "kungen och hovet större makt",
+                "armén och landshövdingarna större makt"
               ]
             },
             {
@@ -1571,8 +1571,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "frihetstiden",
               "options": [
                 "frihetstiden",
-                "gustavianska tiden",
-                "stormaktstiden"
+                "stormaktstiden",
+                "gustavianska tiden"
               ]
             }
           ],
@@ -1619,8 +1619,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "ett handelsföretag",
               "options": [
                 "ett handelsföretag",
-                "ett riksdagsparti",
-                "ett barnhus"
+                "en statlig domstol",
+                "ett militärt förband"
               ]
             },
             {
@@ -1628,8 +1628,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "från Göteborg till Kina",
               "options": [
                 "från Göteborg till Kina",
-                "från Kina till Dalarna",
-                "från Dalarna till Stockholm"
+                "från Göteborg till Västindien",
+                "från Stockholm till Ryssland"
               ]
             },
             {
@@ -1637,8 +1637,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "te, siden och porslin för att sälja i Sverige",
               "options": [
                 "te, siden och porslin för att sälja i Sverige",
-                "åkrar för att genomföra skiften",
-                "röster för att välja riksrådet"
+                "järn, koppar och timmer för att sälja i Kina",
+                "socker, kaffe och tobak från Västindien"
               ]
             }
           ],
