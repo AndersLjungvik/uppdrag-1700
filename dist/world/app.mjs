@@ -99,7 +99,8 @@ function updateDiscovery(){
 function placeMenu(override=null){
  $('puzzle').hidden=true;$('work').hidden=true;$('pressItems').hidden=true;$('pressTarget').hidden=true;
  const a=engine.active(),l=engine.level(),c=engine.current(),done=engine.progress().done,place=view,name=npcName(place),choices=[];let line=override;
- if(a&&engine.target()===place){
+ if(a?.repeat){choices.push(['Avsluta repetitionen',()=>{engine.cancelRepeat();placeMenu('Repetitionen är avslutad. Dina tidigare stämplar finns kvar.')} ,true]);}
+  if(a&&engine.target()===place){
   if(a.phase==='pickup'){const p=l.pickups[a.pickup];line||=p.text;choices.push(primaryChoice(p.label,()=>{engine.pickup(place);cue('paper')}));}
   else if(a.phase==='work'){line||=a.repeat?`Du repeterar ”${l.title.toLowerCase()}”. Pröva vad du minns. Du har redan klarat den här nivån.`:`Här arbetar vi med ”${l.title.toLowerCase()}”. ${l.recipient===place?'Du är redan på rätt plats för att lämna resultatet när det är färdigt.':`När underlaget är klart ska det till ${PLACES[l.recipient].name.toLowerCase()}.`}`;choices.push([a.quiz?'Fortsätt repetitionen':a.repeat?'Börja repetitionen':`Börja ${LEVEL_NAMES[a.level-1].toLowerCase()}suppdraget`,()=>{if(engine.beginWork(place).ok)openQuiz()}]);}
   else if(a.phase==='materials'){line||='Manuset är kontrollerat. Lägg svärta, papper och typer direkt i pressen. Provtrycket ska sedan till Maja.';choices.push(['Till pressen',openPress]);}
@@ -107,13 +108,13 @@ function placeMenu(override=null){
   else if(a.phase==='handoff'){const p=l.handoffs[a.handoff];line||=p.text;choices.push(primaryChoice(p.label,()=>{engine.handoff(place);cue('paper')}));}
   else if(a.phase==='deliver'){line||=`Du har med dig ${l.artifact.toLowerCase()}. Vi tittar på resultatet tillsammans.`;choices.push([`Lämna ${l.artifact.toLowerCase()}`,()=>{const result=engine.deliver(place);if(result.ok){cue('paper');notify(`${LEVEL_NAMES[l.level-1]} klar · stämpel i uppdragsboken · ${result.pay} daler`);updateChrome();placeMenu(result.text)}}]);}
  }else if(a){line||=`Nästa steg finns på ${PLACES[engine.target()].name.toLowerCase()}. ${a.phase==='deliver'?'Där väntar mottagaren.':'Ta med underlaget dit.'}`;}
- else if(done<3&&l.giver===place){line||=l.request;choices.push(primaryChoice(`Ta uppdraget · ${LEVEL_NAMES[l.level-1]}`,()=>engine.accept(place)));}
- else if(done===3){line||=place==='cafe'?c.next:'Tack för hjälpen med det här avsnittet. Du kan ta ett nytt arbetspass eller gå vidare i boken.';}
+ else if(done<3&&l.giver===place){line||=l.request;choices.push(primaryChoice(`Starta ${LEVEL_NAMES[l.level-1].toLowerCase()}nivån · frivilligt`,()=>engine.accept(place)));}
+ else if(done===3){line||='Du har redan klarat mästarnivån i det här avsnittet. Gå till stadsporten för att fortsätta, eller repetera frivilligt.';}
  else{line||=place==='print'?'Välkommen till tryckeriet. Börja med beställningen på kaffehuset. Materialet använder vi här när ett tryck ska göras.':`Ditt nästa uppdrag börjar på ${PLACES[l.giver].name.toLowerCase()}. Du får en beställning innan något ska hämtas.`;}
  if(!a&&c.id===1&&done===0&&place==='print'){line='Här på tryckeriet gör vi anslag som människor kan läsa och diskutera. Maja på kaffehuset har beställningen. Fråga henne först, så hjälper jag dig sedan med manuset.';choices.unshift(['Gå till Maja på kaffehuset',()=>{enter('town',{quiet:true});walkTo(points.cafe,()=>enter('cafe'))}]);}
   if(!a&&c.id===1&&done===0&&place==='cafe'){line='Vi behöver ett anslag om vem som styr Sverige under frihetstiden. Ta beställningen här, och gå sedan till Brita i tryckeriet. Hon hjälper dig att granska uppgifterna.';}
-  if(!a){const repeat=c.levels.filter(x=>x.level<=done&&x.giver===place);if(repeat.length)choices.push(['Nytt arbetspass',()=>{say(name,'Vilken nivå vill du arbeta med igen? Du får ett nytt arvode.');actions(repeat.map(x=>[`${LEVEL_NAMES[x.level-1]} · steg ${x.level}/3`,()=>{engine.accept(place,{repeatLevel:x.level});placeMenu('Vi använder kunskaperna igen i ett nytt arbetspass.')}]))},true]);
-  if(c.id<10&&engine.world().unlocked>c.id)choices.push(['Nästa avsnitt',()=>changeChapter(c.id+1),choices.length>0]);}
+  if(!a){const repeat=c.levels.filter(x=>x.level<=done&&x.giver===place);if(repeat.length)choices.push(['Repetera en avklarad nivå',()=>{say(name,'Vilken nivå vill du arbeta med igen? Du får ett nytt arvode.');actions(repeat.map(x=>[`${LEVEL_NAMES[x.level-1]} · steg ${x.level}/3`,()=>{engine.accept(place,{repeatLevel:x.level});placeMenu('Vi använder kunskaperna igen i ett nytt arbetspass.')}]))},true]);
+  if(c.id<10&&engine.world().unlocked>c.id)choices.unshift(['Fortsätt till nästa avsnitt',()=>changeChapter(c.id+1)]);}
  if(place==='archive')choices.push(['Repetera hos läromästaren Rut',mentorMenu,choices.length>0]);
   if(place===discoveryPlace()&&discoveries().length)choices.push(['Läs och fundera · frivilligt',()=>showDiscovery(),true]);
  if(place==='cafe'||place==='quay')choices.push(['Prata en stund',()=>social(place),true]);
