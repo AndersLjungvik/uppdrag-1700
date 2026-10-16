@@ -8,3 +8,6 @@
 
 /* Keep the beginning of the question visible on mobile. */
 @media(max-width:760px){body[data-view=work] #work{top:10px;transform:translateX(-50%);max-height:calc(100% - 20px)}#chainParts h3{font:600 12px/1.2 system-ui,sans-serif;color:#79694f}#chainParts .chain-prompt{margin:0 0 4px}#chainPreview:empty{display:none}}
+
+/* Celebrate the actual completed explanation, not just a generic answer key. */
+#chainPreview:has(>strong){background:#fff6de;border:2px solid #698577;border-radius:12px;padding:18px 20px;margin:14px 0;box-shadow:0 3px 0 #a8b6a3}#chainPreview>strong{display:block;font:700 17px/1.4 system-ui,sans-serif;color:#37584d;margin-bottom:12px}#chainPreview>p{font:clamp(20px,4vw,27px)/1.55 Georgia,serif;color:#302a23;margin:0;overflow-wrap:break-word}
