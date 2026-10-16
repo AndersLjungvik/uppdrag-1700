@@ -4913,8 +4913,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "långt från sina hem och familjer",
               "options": [
                 "långt från sina hem och familjer",
-                "alltid frivilligt till ett nytt arbete",
-                "till riksdagen för att bestämma"
+                "till arbete med samma villkor som fria",
+                "mellan plantager på samma ö utan tvång"
               ]
             },
             {
@@ -4922,8 +4922,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "arbeta utan frihet och utsattes för våld",
               "options": [
                 "arbeta utan frihet och utsattes för våld",
-                "välja sina löner själva",
-                "bestämma över handelsmännen"
+                "arbeta med lön och möjlighet att säga upp sig",
+                "arbeta enligt samma avtal som fria handelsmän"
               ]
             },
             {
@@ -4931,8 +4931,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "motstånd genom flykt och uppror",
               "options": [
                 "motstånd genom flykt och uppror",
-                "inga försök att förändra sin situation",
-                "gemensamma regler som alla ägare lydde"
+                "motstånd genom att förhandla som fria löntagare",
+                "motstånd genom att rösta i kolonins riksdag"
               ]
             }
           ],
@@ -4977,8 +4977,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "krävde rättigheter, rymde och gjorde uppror",
               "options": [
                 "krävde rättigheter, rymde och gjorde uppror",
-                "accepterade alltid slavägarnas makt",
-                "hade samma makt som ägarna"
+                "förhandlade om fria arbetsavtal med ägarna",
+                "fick politiskt inflytande genom val"
               ]
             },
             {
@@ -4986,8 +4986,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "ifrågasätta handel med människor",
               "options": [
                 "ifrågasätta handel med människor",
-                "förbjuda all kritik mot handeln",
-                "kräva att alla blev slavar"
+                "stödja fortsatt handel med människor",
+                "förespråka att handeln skulle utökas"
               ]
             },
             {
@@ -4995,8 +4995,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "1847, alltså på 1800-talet",
               "options": [
                 "1847, alltså på 1800-talet",
-                "1772, när frihetstiden slutade",
-                "1792, samma kväll som maskeraden"
+                "1792 under Gustav III:s regering",
+                "1809 vid förlusten av Finland"
               ]
             }
           ],
@@ -5037,8 +5037,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "tortyr",
               "options": [
                 "tortyr",
-                "allt jordbruk",
-                "alla tidningar"
+                "dödsstraff",
+                "landsförvisning"
               ]
             },
             {
@@ -5046,8 +5046,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "fortfarande utsättas för grymma straff",
               "options": [
                 "fortfarande utsättas för grymma straff",
-                "välja alla lagar själva",
-                "åtnjuta samma frihet som fria handelsmän"
+                "få samma rättigheter som fria handelsmän",
+                "bestämma sina egna arbetsvillkor"
               ]
             },
             {
@@ -5055,8 +5055,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "reformerna inte gällde lika för alla",
               "options": [
                 "reformerna inte gällde lika för alla",
-                "alla hade lika rättigheter",
-                "kolonins lagar saknade betydelse"
+                "reformerna gav lika rättigheter även i kolonin",
+                "reformerna avskaffade skillnaden mellan fria och förslavade"
               ]
             }
           ],
@@ -5098,8 +5098,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "områden Sverige tidigare förlorat",
               "options": [
                 "områden Sverige tidigare förlorat",
-                "makten från Ostindiska kompaniet",
-                "barnhusens matransoner"
+                "de svenska kolonierna i Karibien",
+                "de områden som Ostindiska kompaniet handlade med"
               ]
             },
             {
@@ -5107,8 +5107,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "göra honom mer populär",
               "options": [
                 "göra honom mer populär",
-                "göra honom till rysk tsar",
-                "avskaffa alla skatter"
+                "göra riksrådet mer populärt än kungen",
+                "minska kungens inflytande i riksdagen"
               ]
             },
             {
@@ -5116,8 +5116,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "för att starta ett anfallskrig",
               "options": [
                 "för att starta ett anfallskrig",
-                "för att försvara Sverige om landet anfölls",
-                "för varje kulturevenemang"
+                "för att försvara landet mot ett angrepp",
+                "för att förhandla fram en fred utan krig"
               ]
             }
           ],
@@ -5510,8 +5510,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "hållas skyddad från att bli avslöjad av familjen",
               "options": [
                 "hållas skyddad från att bli avslöjad av familjen",
-                "inte längre lämna sin bostad",
-                "ensam välja riksrådet"
+                "registreras offentligt i kyrkans handlingar",
+                "förhöras inför hela församlingen"
               ]
             },
             {
@@ -5519,8 +5519,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "kalla barnet mindre äkta i sina papper",
               "options": [
                 "kalla barnet mindre äkta i sina papper",
-                "lära barn att läsa",
-                "tala om kristendom alls"
+                "anteckna moderns namn i kyrkoboken",
+                "undervisa om kyrkans syn på äktenskap"
               ]
             },
             {
@@ -5528,8 +5528,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "behandlas illa trots de nya reglerna",
               "options": [
                 "behandlas illa trots de nya reglerna",
-                "bestämma över alla män",
-                "slippa alla svårigheter automatiskt"
+                "möta fördomar trots förändringarna",
+                "få samma politiska rättigheter som männen"
               ]
             }
           ],
@@ -5571,8 +5571,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "armén för att ta makten",
               "options": [
                 "armén för att ta makten",
-                "en budkavle för att bli bonde",
-                "forskning för att avskaffa armén"
+                "riksdagen för att ge bönderna mer makt",
+                "riksrådet för att avskaffa kungamakten"
               ]
             },
             {
@@ -5580,8 +5580,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "ledande politiker i riksrådet",
               "options": [
                 "ledande politiker i riksrådet",
-                "alla barnhusbarn",
-                "alla forskare"
+                "ledande personer i Ostindiska kompaniet",
+                "höga befäl i den ryska armén"
               ]
             },
             {
@@ -5589,8 +5589,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "kungen bestämma mycket mer själv",
               "options": [
                 "kungen bestämma mycket mer själv",
-                "riksrådet ensamt styra",
-                "alla invånare rösta om varje beslut"
+                "riksdagen besluta utan kungens medverkan",
+                "riksrådet utse en ny kung varje år"
               ]
             }
           ],
@@ -5636,8 +5636,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "tortyr förbjöds",
               "options": [
                 "tortyr förbjöds",
-                "alla straff avskaffades",
-                "alla fick lika rösträtt"
+                "skamstraff försvann helt",
+                "kroppsstraff avskaffades i varje situation"
               ]
             },
             {
@@ -5645,8 +5645,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "judar och katoliker fick flytta till Sverige",
               "options": [
                 "judar och katoliker fick flytta till Sverige",
-                "alla fick bo och arbeta precis var de ville",
-                "alla protestanter måste lämna sin religion"
+                "judar och katoliker fick politiska rättigheter som stånd",
+                "religiösa minoriteter fick samma rättigheter som lutheraner"
               ]
             },
             {
@@ -5654,8 +5654,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "försämrades",
               "options": [
                 "försämrades",
-                "blev obegränsad",
-                "ersatte riksdagen"
+                "förblev lika omfattande som under frihetstiden",
+                "utökades så att kungen inte kunde ingripa"
               ]
             }
           ],
@@ -5702,8 +5702,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "förbättringar i vissa lagar",
               "options": [
                 "förbättringar i vissa lagar",
-                "bara lagar om potatis",
-                "ett avskaffande av alla straff"
+                "samma rättigheter till olika grupper",
+                "en ny ordning där riksdagen fick större makt"
               ]
             },
             {
@@ -5711,8 +5711,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "mer makt hos sig själv",
               "options": [
                 "mer makt hos sig själv",
-                "all makt hos bönderna",
-                "all makt hos barnen"
+                "mer makt hos riksrådet",
+                "mer makt hos bondeståndet"
               ]
             },
             {
@@ -5720,8 +5720,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "bara bo i vissa städer och hade begränsade yrkesmöjligheter",
               "options": [
                 "bara bo i vissa städer och hade begränsade yrkesmöjligheter",
-                "ensamma välja riksrådet",
-                "samma frihet på alla platser"
+                "välja ledamöter till riksrådet",
+                "bosätta sig fritt i varje stad utan begränsningar"
               ]
             }
           ],
