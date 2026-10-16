@@ -10,6 +10,7 @@ main{position:relative;flex:1;min-height:0;overflow:hidden;background:#d1c8b5;to
 #hud{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:9px 12px;background:#eee2c8;border-top:2px solid #b5a17d}
 button{font:14px system-ui,sans-serif;min-height:43px;padding:8px 13px;background:#d5bd8e;border:1px solid #a88e62;border-radius:5px;color:#352c20}
 #status{font:12px/1.4 system-ui,sans-serif}#help{font-size:12px}
+@media(max-width:640px){header{padding:6px 10px}h1{font-size:17px}header span{display:none}#hud{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:6px}#status{grid-column:1/-1;grid-row:1;text-align:center}#hud button{font-size:12px;min-height:38px;padding:7px 6px}#info{left:8px;bottom:8px;max-width:calc(100% - 16px);font-size:12px;padding:8px 10px}#zoom{display:none}#home{display:none}}
 </style></head><body>
 <header><h1>UPPDRAG 1700 <small>· DEMO 2.0</small></h1><span>Världen · utan uppdrag</span></header>
 <main id="stage"><canvas id="world" aria-label="Utforskbar värld, dra för att panorera och tryck på en byggnad för att undersöka den"></canvas><div id="info">Dra kartan för att se hur staden fortsätter. Tryck på marken för att gå, eller på en byggnad för att besöka den.</div></main>
@@ -19,7 +20,7 @@ button{font:14px system-ui,sans-serif;min-height:43px;padding:8px 13px;backgroun
 const canvas=document.querySelector('#world'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage'),info=document.querySelector('#info'),status=document.querySelector('#status');
 const W=4200,H=1700,old={x:1450,y:470,w:1280,h:720};
 const original=new Image();original.src='../world/assets/town.webp';
-let camera={x:old.x+640,y:old.y+360},scale=0.68,drag=null,moved=false,ready=false,walkingTo=null,region='main',sailing=null,pendingSail=null;const player={x:old.x+610,y:old.y+405};
+let camera={x:old.x+640,y:old.y+360},scale=0.68,drag=null,moved=false,ready=false,walkingTo=null,region='main',sailing=null,pendingSail=null,followPlayer=true;const player={x:old.x+610,y:old.y+405};
 const locations=[
  {name:'Kaffehuset',x:2150,y:730,area:'Gamla staden'},
  {name:'Tryckeriet',x:1810,y:850,area:'Gamla staden'},
@@ -100,7 +101,7 @@ function sail(destination){
 }
 function returnToHarbor(){
  region='main';sailing=null;walkingTo=null;player.x=old.x+1040;player.y=old.y+420;
- camera={x:player.x,y:player.y};clamp();updateRegion();draw();
+ camera={x:player.x,y:player.y};followPlayer=true;clamp();updateRegion();draw();
 }
 function updateRegion(){
  document.querySelector('#returnHarbor').hidden=region==='main';
@@ -113,6 +114,7 @@ function updateRegion(){
 
 function avatar(){const x=player.x,y=player.y;ctx.fillStyle='#486c72';ctx.beginPath();ctx.arc(x,y-12,13,0,Math.PI*2);ctx.fill();poly([[x-14,y],[x+14,y],[x+10,y+29],[x-10,y+29]],'#486c72')}
 function draw(){
+ const width=stage.clientWidth,height=stage.clientHeight;scale=Math.min(1.05,Math.max(.58,Math.min(width/630,height/650)));if(followPlayer&&!drag&&!sailing){camera.x+=(player.x-camera.x)*.14;camera.y+=(player.y-camera.y)*.14;clamp()}
  const d=Math.min(devicePixelRatio||1,2),r=stage.getBoundingClientRect();canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.max(1,Math.round(r.height*d));
  ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
  ctx.translate(r.width/2-camera.x*scale,r.height/2-camera.y*scale);ctx.scale(scale,scale);
@@ -120,15 +122,15 @@ function draw(){
 }
 function worldPoint(e){const r=canvas.getBoundingClientRect();return{x:camera.x+(e.clientX-r.left-r.width/2)/scale,y:camera.y+(e.clientY-r.top-r.height/2)/scale}}
 function clamp(){const r=stage.getBoundingClientRect();camera.x=Math.max(r.width/(2*scale),Math.min(W-r.width/(2*scale),camera.x));camera.y=Math.max(r.height/(2*scale),Math.min(H-r.height/(2*scale),camera.y))}
-function focus(){if(region!=='main')return;camera={x:old.x+640,y:old.y+360};clamp();draw()}
+function focus(){if(region!=='main')return;camera={x:player.x,y:player.y};clamp();draw()}
 canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,cx:camera.x,cy:camera.y};moved=false});
-canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>9)moved=true;camera.x=drag.cx-dx/scale;camera.y=drag.cy-dy/scale;clamp();draw()});
-canvas.addEventListener('pointerup',e=>{if(!moved){const p=worldPoint(e),near=(region==='main'?locations:seaSites[region]).find(l=>Math.hypot(l.x-p.x,l.y-p.y)<125);if(near){info.textContent=near.name+' · '+near.area+' (miljön finns, uppdragen kommer senare)';if(near.area)status.textContent=near.area;walkingTo={x:near.x,y:near.y}}else{walkingTo={x:p.x,y:p.y};info.textContent='Du går vidare genom den utbyggda världen.'}}drag=null});
-canvas.addEventListener('wheel',e=>{e.preventDefault();camera.x+=e.deltaX/scale;camera.y+=e.deltaY/scale;clamp();draw()},{passive:false});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>9)moved=true;camera.x=drag.cx-dx/scale;camera.y=drag.cy-dy/scale;followPlayer=false;clamp();draw()});
+canvas.addEventListener('pointerup',e=>{if(!moved){const p=worldPoint(e),near=(region==='main'?locations:seaSites[region]).find(l=>Math.hypot(l.x-p.x,l.y-p.y)<125);if(near){info.textContent=near.name+' · '+near.area+' (miljön finns, uppdragen kommer senare)';if(near.area)status.textContent=near.area;walkingTo={x:near.x,y:near.y};followPlayer=true}else{walkingTo={x:p.x,y:p.y};followPlayer=true;info.textContent='Du går vidare genom den utbyggda världen.'}}drag=null});
+canvas.addEventListener('wheel',e=>{e.preventDefault();camera.x+=e.deltaX/scale;camera.y+=e.deltaY/scale;followPlayer=false;clamp();draw()},{passive:false});
 document.querySelector('#sailMarstrand').onclick=()=>sail('marstrand');document.querySelector('#sailColony').onclick=()=>sail('colony');document.querySelector('#returnHarbor').onclick=returnToHarbor;
-document.querySelector('#home').onclick=focus;document.querySelector('#zoom').onclick=()=>{scale=scale===.68?.45:.68;clamp();draw()};
+document.querySelector('#home').onclick=()=>{followPlayer=true;focus()};document.querySelector('#zoom').onclick=()=>{followPlayer=!followPlayer;if(followPlayer)focus();else{camera.x=old.x+640;camera.y=old.y+360;clamp();draw()}};
 window.addEventListener('resize',()=>{clamp();draw()});
-function animate(){if(sailing&&performance.now()-sailing.started>1500){region=sailing.destination;sailing=null;walkingTo=null;player.x=760;player.y=1020;camera={x:1150,y:760};clamp();updateRegion();info.textContent=region==='marstrand'?'Du har anlänt till Marstrand. Utforska hamnen och fästningen.':'Du har anlänt till Gustavia på Saint Barthélemy. Utforska hamnen och handelsplatsen.';draw()}if(walkingTo){const dx=walkingTo.x-player.x,dy=walkingTo.y-player.y,d=Math.hypot(dx,dy);if(d<4){walkingTo=null;if(pendingSail){const destination=pendingSail;pendingSail=null;sail(destination)}}else{const speed=Math.min(d,4);player.x+=dx/d*speed;player.y+=dy/d*speed}draw()}requestAnimationFrame(animate)}
+function animate(){if(sailing&&performance.now()-sailing.started>1500){region=sailing.destination;sailing=null;walkingTo=null;player.x=760;player.y=1020;camera={x:player.x,y:player.y};followPlayer=true;clamp();updateRegion();info.textContent=region==='marstrand'?'Du har anlänt till Marstrand. Utforska hamnen och fästningen.':'Du har anlänt till Gustavia på Saint Barthélemy. Utforska hamnen och handelsplatsen.';draw()}if(walkingTo){const dx=walkingTo.x-player.x,dy=walkingTo.y-player.y,d=Math.hypot(dx,dy);if(d<4){walkingTo=null;if(pendingSail){const destination=pendingSail;pendingSail=null;sail(destination)}}else{const speed=Math.min(d,4);player.x+=dx/d*speed;player.y+=dy/d*speed}draw()}else if(followPlayer)draw();requestAnimationFrame(animate)}
 original.onload=draw;original.onerror=()=>{info.textContent='Originalbilden kunde inte laddas. De nya kvarteren kan ändå utforskas.';draw()};
 focus();updateRegion();requestAnimationFrame(animate);
 </script></body></html>
