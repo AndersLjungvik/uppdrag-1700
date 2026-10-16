@@ -104,11 +104,11 @@ function renderQuestion(){
  $('showOptions').textContent=(chain?'Visa byggdelarna · gratis (nödvändiga för uppgiften)':'Visa svarsalternativ')+(engine.optionsCost()?` · 1 äpple (${engine.state.inventory.apple||0} kvar)`:' · gratis');
  $('choiceArea').hidden=chain||!session.optionsShown||!!feedback;$('choiceArea').replaceChildren();
  $('helpText').hidden=!session.clue;$('helpText').textContent=session.clue||'';$('sourceText').textContent=q.bookReference||engine.current().pages;$('questionSource').open=false;$('feedback').hidden=!feedback;$('next').hidden=!feedback?.correct;$('retry').hidden=!feedback||feedback.correct;$('hint').hidden=session.kind!=='story'||!!feedback;$('hint').textContent=session.clue?'Läs ledtråden igen':`Ge ett äpple för en ledtråd (${engine.state.inventory.apple||0})`;
- if(feedback){$('feedback').className=feedback.correct?'good':'bad';$('feedback').textContent=(feedback.correct?'Rätt. ':'Vi tittar på det igen. ')+feedback.explanation;$('next').textContent=session.index===session.ids.length-1?'Avsluta arbetet':'Nästa fråga';readable($('feedback').textContent);}
+ if(feedback){if(chain){const preview=$('chainPreview');preview.hidden=false;preview.replaceChildren();const heading=document.createElement('strong');heading.textContent=feedback.correct?'Du byggde den här förklaringen!':'Din förklaring – försök igen';const paragraph=document.createElement('p');paragraph.textContent=q.steps.map((part,i)=>[part.connector,session.draft[i]].filter(Boolean).join(' ')).join('. ').replace(/\s+/g,' ').trim()+'.';preview.append(heading,paragraph);$('feedback').hidden=feedback.correct;$('chainForm').hidden=true;}else $('chainPreview').hidden=true;$('feedback').className=feedback.correct?'good':'bad';$('feedback').textContent=(feedback.correct?'Rätt. ':'Vi tittar på det igen. ')+feedback.explanation;$('next').textContent=session.index===session.ids.length-1?'Avsluta arbetet':'Nästa fråga';readable($('feedback').textContent);}
  else{
   $('answer').value='';$('answer').disabled=false;
   if(!chain&&session.optionsShown)for(const choice of choicesFor(q,[...engine.content.cards.values()])){const b=document.createElement('button');b.type='button';b.textContent=choice;b.onclick=()=>submitAnswer(choice,true);$('choiceArea').append(b)}
-  if(chain&&session.optionsShown)renderChain(q,session);
+  if(chain&&session.optionsShown){$('chainPreview').hidden=false;renderChain(q,session);}
   readable($('question').textContent+(chain?' Fundera på sambandet innan du visar delarna.':''));
   if(!chain&&!session.optionsShown)requestAnimationFrame(()=>$('answer').focus({preventScroll:true}));
  }
