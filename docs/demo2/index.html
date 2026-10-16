@@ -12,14 +12,14 @@ button{font:14px system-ui,sans-serif;min-height:43px;padding:8px 13px;backgroun
 #status{font:12px/1.4 system-ui,sans-serif}#help{font-size:12px}
 </style></head><body>
 <header><h1>UPPDRAG 1700 <small>· DEMO 2.0</small></h1><span>Världen · utan uppdrag</span></header>
-<main id="stage"><canvas id="world" aria-label="Utforskbar värld, dra för att panorera och tryck på en byggnad för att undersöka den"></canvas><div id="info">Dra kartan för att se hur staden fortsätter. Tryck på en byggnad för att se vad den är.</div></main>
+<main id="stage"><canvas id="world" aria-label="Utforskbar värld, dra för att panorera och tryck på en byggnad för att undersöka den"></canvas><div id="info">Dra kartan för att se hur staden fortsätter. Tryck på marken för att gå, eller på en byggnad för att besöka den.</div></main>
 <div id="hud"><button id="home">Till gamla staden</button><span id="status">Gamla staden</span><button id="zoom">Visa mer</button></div>
 <script>
 'use strict';
 const canvas=document.querySelector('#world'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage'),info=document.querySelector('#info'),status=document.querySelector('#status');
 const W=4200,H=1700,old={x:1450,y:470,w:1280,h:720};
 const original=new Image();original.src='../world/assets/town.webp';
-let camera={x:old.x+640,y:old.y+360},scale=0.68,drag=null,moved=false,ready=false;
+let camera={x:old.x+640,y:old.y+360},scale=0.68,drag=null,moved=false,ready=false,walkingTo=null;const player={x:old.x+610,y:old.y+405};
 const locations=[
  {name:'Kaffehuset',x:2150,y:730,area:'Gamla staden'},
  {name:'Tryckeriet',x:1810,y:850,area:'Gamla staden'},
@@ -69,7 +69,7 @@ function backdrop(){
  label('Barnhuskvarteren',3090,550);label('Verkstäderna',3470,920);
  label('Landsbygden',3750,300);
 }
-function avatar(){const x=old.x+610,y=old.y+405;ctx.fillStyle='#486c72';ctx.beginPath();ctx.arc(x,y-12,13,0,Math.PI*2);ctx.fill();poly([[x-14,y],[x+14,y],[x+10,y+29],[x-10,y+29]],'#486c72')}
+function avatar(){const x=player.x,y=player.y;ctx.fillStyle='#486c72';ctx.beginPath();ctx.arc(x,y-12,13,0,Math.PI*2);ctx.fill();poly([[x-14,y],[x+14,y],[x+10,y+29],[x-10,y+29]],'#486c72')}
 function draw(){
  const d=Math.min(devicePixelRatio||1,2),r=stage.getBoundingClientRect();canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.max(1,Math.round(r.height*d));
  ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
@@ -81,10 +81,11 @@ function clamp(){const r=stage.getBoundingClientRect();camera.x=Math.max(r.width
 function focus(){camera={x:old.x+640,y:old.y+360};clamp();draw()}
 canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,cx:camera.x,cy:camera.y};moved=false});
 canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>9)moved=true;camera.x=drag.cx-dx/scale;camera.y=drag.cy-dy/scale;clamp();draw()});
-canvas.addEventListener('pointerup',e=>{if(!moved){const p=worldPoint(e),near=locations.find(l=>Math.hypot(l.x-p.x,l.y-p.y)<125);if(near){info.textContent=near.name+' · '+near.area+' (miljön finns, uppdragen kommer senare)';status.textContent=near.area}}drag=null});
+canvas.addEventListener('pointerup',e=>{if(!moved){const p=worldPoint(e),near=locations.find(l=>Math.hypot(l.x-p.x,l.y-p.y)<125);if(near){info.textContent=near.name+' · '+near.area+' (miljön finns, uppdragen kommer senare)';status.textContent=near.area;walkingTo={x:near.x,y:near.y}}else{walkingTo={x:p.x,y:p.y};info.textContent='Du går vidare genom den utbyggda världen.'}}drag=null});
 canvas.addEventListener('wheel',e=>{e.preventDefault();camera.x+=e.deltaX/scale;camera.y+=e.deltaY/scale;clamp();draw()},{passive:false});
 document.querySelector('#home').onclick=focus;document.querySelector('#zoom').onclick=()=>{scale=scale===.68?.45:.68;clamp();draw()};
 window.addEventListener('resize',()=>{clamp();draw()});
+function animate(){if(walkingTo){const dx=walkingTo.x-player.x,dy=walkingTo.y-player.y,d=Math.hypot(dx,dy);if(d<4){walkingTo=null}else{const speed=Math.min(d,4);player.x+=dx/d*speed;player.y+=dy/d*speed}draw()}requestAnimationFrame(animate)}
 original.onload=draw;original.onerror=()=>{info.textContent='Originalbilden kunde inte laddas. De nya kvarteren kan ändå utforskas.';draw()};
-focus();
+focus();requestAnimationFrame(animate);
 </script></body></html>
