@@ -1,9 +1,9 @@
-import {createEngine,validBank,SAVE_KEY,BANK_KEY} from './engine.mjs?v=0.6.3-chainfix';
-import {PLACES,LEVEL_NAMES,LEVEL_TASKS,TIMELINES} from './content.mjs?v=0.6.3-chainfix';
-import {choicesFor,shuffle} from './learning.mjs?v=0.6.3-chainfix';
-import {createRenderer} from './render.mjs?v=0.6.3-chainfix';
-import {createNarrator} from './narration.mjs?v=0.6.3-chainfix';
-import {route,walkable} from '../demo/core.mjs?v=0.6.3-chainfix';
+import {createEngine,validBank,SAVE_KEY,BANK_KEY} from './engine.mjs?v=0.6.4-sentence';
+import {PLACES,LEVEL_NAMES,LEVEL_TASKS,TIMELINES} from './content.mjs?v=0.6.4-sentence';
+import {choicesFor,shuffle} from './learning.mjs?v=0.6.4-sentence';
+import {createRenderer} from './render.mjs?v=0.6.4-sentence';
+import {createNarrator} from './narration.mjs?v=0.6.4-sentence';
+import {route,walkable} from '../demo/core.mjs?v=0.6.4-sentence';
 
 const $=id=>document.getElementById(id),canvas=$('world');
 const read=key=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
