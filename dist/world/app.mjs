@@ -1,9 +1,9 @@
-import {createEngine,validBank,SAVE_KEY,BANK_KEY} from './engine.mjs?v=0.6.14-bankqa';
-import {PLACES,LEVEL_NAMES,LEVEL_TASKS,TIMELINES} from './content.mjs?v=0.6.14-bankqa';
-import {choicesFor,shuffle} from './learning.mjs?v=0.6.14-bankqa';
-import {createRenderer} from './render.mjs?v=0.6.14-bankqa';
-import {createNarrator} from './narration.mjs?v=0.6.14-bankqa';
-import {route,walkable} from '../demo/core.mjs?v=0.6.14-bankqa';
+import {createEngine,validBank,SAVE_KEY,BANK_KEY} from './engine.mjs?v=0.6.16-flow';
+import {PLACES,LEVEL_NAMES,LEVEL_TASKS,TIMELINES} from './content.mjs?v=0.6.16-flow';
+import {choicesFor,shuffle} from './learning.mjs?v=0.6.16-flow';
+import {createRenderer} from './render.mjs?v=0.6.16-flow';
+import {createNarrator} from './narration.mjs?v=0.6.16-flow';
+import {route,walkable} from '../demo/core.mjs?v=0.6.16-flow';
 
 const $=id=>document.getElementById(id),canvas=$('world');
 const read=key=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
@@ -62,7 +62,7 @@ function updateChrome(){
  $('timeline').hidden=view!=='town';const time=TIMELINES[c.id];$('timelineLabel').textContent=time.label;$('timeRange').style.left=((time.start-1719)/90*100)+'%';$('timeRange').style.width=Math.max(.8,(time.end-time.start)/90*100)+'%';
  speechControls();layout();updateDiscovery();
 }
-function enter(place,{quiet=false}={}){if(place!=='town')rutEscort=false;if(!engine.arrive(place).ok){notify('Den platsen öppnas i ett senare avsnitt.');return}stopWalking();hush();view=place;selected=null;updateChrome();actions();if(place==='town'){if(!quiet){if(engine.current().id===1&&!engine.active()&&engine.progress().done===0){say('Kvinnan på torget','Det talas om nya maktförhållanden i Sverige. Maja på kaffehuset behöver hjälp att få ett anslag tryckt. Gå dit och fråga vad som ska stå på bladet.');actions([['Visa vägen till kaffehuset',()=>{hush();actions();walkTo(points.cafe,()=>enter('cafe'))}],['Jag utforskar själv',()=>{hush();actions()},true]])}else $('instruction').textContent=engine.objective()}}else{placeMenu();const greet=playerArrival(place),key=engine.current().id+':'+(engine.active()?.level||0)+':'+(engine.active()?.phase||'')+':'+place;if(greet&&key!==greetedAt){greetedAt=key;const currentActions=[...$('actions').querySelectorAll('button')].map(b=>({label:b.textContent,click:b.onclick}));say('Du',greet);actions([['Fortsätt samtalet',()=>placeMenu()]])}}resize();updateDiscovery()}
+function enter(place,{quiet=false}={}){if(place!=='town')rutEscort=false;if(!engine.arrive(place).ok){notify('Den platsen öppnas i ett senare avsnitt.');return}stopWalking();hush();view=place;selected=null;updateChrome();actions();if(place==='town'){if(!quiet){if(engine.current().id===1&&!engine.active()&&engine.progress().done===0){say('Kvinnan på torget','Det talas om nya maktförhållanden i Sverige. Maja på kaffehuset behöver hjälp att få ett anslag tryckt. Gå dit och fråga vad som ska stå på bladet.');actions([['Visa vägen till kaffehuset',()=>{hush();actions();walkTo(points.cafe,()=>enter('cafe'))}],['Jag utforskar själv',()=>{hush();actions()},true]])}else $('instruction').textContent=engine.objective()}}else{placeMenu();const greet=playerArrival(place),key=engine.current().id+':'+(engine.active()?.level||0)+':'+(engine.active()?.phase||'')+':'+place;if(greet&&key!==greetedAt){greetedAt=key;say('Du',greet);actions([['Fortsätt samtalet',()=>placeMenu()]])}}resize();updateDiscovery()}
 function walkTo(point,onArrival){if(view!=='town'||modalOpen())return;hush();queue=route(engine.world().player,point);arrival=onArrival||null;walkStart=performance.now();if(!queue.length){if(Math.hypot(engine.world().player.x-point.x,engine.world().player.y-point.y)<35){const fn=arrival;arrival=null;fn?.()}else notify('Välj den öppna marken eller en plats med namn.')}canvas.focus({preventScroll:true})}
 for(const b of document.querySelectorAll('[data-place]'))b.onclick=()=>walkTo(points[b.dataset.place],()=>b.dataset.place==='gate'?gateway():enter(b.dataset.place));
 canvas.addEventListener('pointerdown',e=>{if(view!=='town'||modalOpen())return;const rect=canvas.getBoundingClientRect(),tap=renderer.unproject(e.clientX-rect.left,e.clientY-rect.top);if(Math.hypot(tap.x-rutAt(performance.now()).x,tap.y-rutAt(performance.now()).y)<58){meetRut();return}const r=canvas.getBoundingClientRect();walkTo(renderer.unproject(e.clientX-r.left,e.clientY-r.top));actions()});
