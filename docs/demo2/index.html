@@ -17,7 +17,7 @@ button{font:14px system-ui,sans-serif;min-height:43px;padding:8px 13px;backgroun
 <div id="hud"><button id="home">Till gamla staden</button><span id="status">Gamla staden</span><button id="zoom">Visa mer</button><button id="sailMarstrand">Segla till Marstrand</button><button id="sailColony">Segla till Saint Barthélemy</button><button id="returnHarbor" hidden>Åter till kajen</button></div>
 <script>
 'use strict';
-const canvas=document.querySelector('#world'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage'),info=document.querySelector('#info'),status=document.querySelector('#status');
+const canvas=document.querySelector('#world');let ctx=canvas.getContext('2d');const stage=document.querySelector('#stage'),info=document.querySelector('#info'),status=document.querySelector('#status');
 const W=4200,H=1700,old={x:1450,y:470,w:1280,h:720};
 const original=new Image();original.src='../world/assets/town.webp';
 let camera={x:old.x+640,y:old.y+360},scale=0.68,drag=null,moved=false,ready=false,walkingTo=null,region='main',sailing=null,pendingSail=null,followPlayer=true;const player={x:old.x+610,y:old.y+405};
@@ -169,12 +169,21 @@ function updateRegion(){
 }
 
 function avatar(){const x=player.x,y=player.y;ctx.fillStyle='#486c72';ctx.beginPath();ctx.arc(x,y-12,13,0,Math.PI*2);ctx.fill();poly([[x-14,y],[x+14,y],[x+10,y+29],[x-10,y+29]],'#486c72')}
+// Render the large world once to an offscreen paper layer, instead of redrawing
+// hundreds of textured cutouts every animation frame on a phone.
+const worldLayer=document.createElement('canvas');worldLayer.width=3150;worldLayer.height=1275;
+let worldReady=false;
+function prepareWorld(){
+ const screen=ctx;ctx=worldLayer.getContext('2d');
+ ctx.setTransform(.75,0,0,.75,0,0);ctx.clearRect(0,0,W,H);backdrop();
+ ctx=screen;worldReady=true;
+}
 function draw(){
  const width=stage.clientWidth,height=stage.clientHeight;scale=Math.min(1.05,Math.max(.58,Math.min(width/630,height/650)));if(followPlayer&&!drag&&!sailing){camera.x+=(player.x-camera.x)*.14;camera.y+=(player.y-camera.y)*.14;clamp()}
- const d=Math.min(devicePixelRatio||1,2),r=stage.getBoundingClientRect();canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.max(1,Math.round(r.height*d));
+ const d=Math.min(devicePixelRatio||1,2),r=stage.getBoundingClientRect();if(canvas.width!==Math.max(1,Math.round(r.width*d))||canvas.height!==Math.max(1,Math.round(r.height*d))){canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.max(1,Math.round(r.height*d))}
  ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
  ctx.translate(r.width/2-camera.x*scale,r.height/2-camera.y*scale);ctx.scale(scale,scale);
- if(region==='main')backdrop();else islandScene(region);avatar();if(sailing){rect(camera.x-1100,camera.y-700,2200,1400,'#203c4b88');ctx.fillStyle='#f3e6c9';ctx.font='bold 50px Georgia';ctx.textAlign='center';ctx.fillText(sailing.destination==='marstrand'?'Mot Marstrand':'Över Atlanten',camera.x,camera.y)}
+ if(region==='main'){if(!worldReady)prepareWorld();ctx.drawImage(worldLayer,0,0,W,H)}else islandScene(region);avatar();if(sailing){rect(camera.x-1100,camera.y-700,2200,1400,'#203c4b88');ctx.fillStyle='#f3e6c9';ctx.font='bold 50px Georgia';ctx.textAlign='center';ctx.fillText(sailing.destination==='marstrand'?'Mot Marstrand':'Över Atlanten',camera.x,camera.y)}
 }
 function worldPoint(e){const r=canvas.getBoundingClientRect();return{x:camera.x+(e.clientX-r.left-r.width/2)/scale,y:camera.y+(e.clientY-r.top-r.height/2)/scale}}
 function clamp(){const r=stage.getBoundingClientRect();camera.x=Math.max(r.width/(2*scale),Math.min(W-r.width/(2*scale),camera.x));camera.y=Math.max(r.height/(2*scale),Math.min(H-r.height/(2*scale),camera.y))}
@@ -187,6 +196,6 @@ document.querySelector('#sailMarstrand').onclick=()=>sail('marstrand');document.
 document.querySelector('#home').onclick=()=>{followPlayer=true;focus()};document.querySelector('#zoom').onclick=()=>{followPlayer=!followPlayer;if(followPlayer)focus();else{camera.x=old.x+640;camera.y=old.y+360;clamp();draw()}};
 window.addEventListener('resize',()=>{clamp();draw()});
 let lastPaint=0;function animate(now){if(sailing&&performance.now()-sailing.started>1500){region=sailing.destination;sailing=null;walkingTo=null;player.x=760;player.y=1020;camera={x:player.x,y:player.y};followPlayer=true;clamp();updateRegion();info.textContent=region==='marstrand'?'Du har anlänt till Marstrand. Utforska hamnen och fästningen.':'Du har anlänt till Gustavia på Saint Barthélemy. Utforska hamnen och handelsplatsen.';draw()}if(walkingTo){const dx=walkingTo.x-player.x,dy=walkingTo.y-player.y,d=Math.hypot(dx,dy);if(d<4){walkingTo=null;if(pendingSail){const destination=pendingSail;pendingSail=null;sail(destination)}}else{const speed=Math.min(d,4);player.x+=dx/d*speed;player.y+=dy/d*speed}draw()}else if(followPlayer&&now-lastPaint>45){draw();lastPaint=now}requestAnimationFrame(animate)}
-original.onload=draw;original.onerror=()=>{info.textContent='Originalbilden kunde inte laddas. De nya kvarteren kan ändå utforskas.';draw()};
+original.onload=()=>{worldReady=false;prepareWorld();draw()};original.onerror=()=>{info.textContent='Originalbilden kunde inte laddas. De nya kvarteren kan ändå utforskas.';worldReady=false;prepareWorld();draw()};
 focus();updateRegion();requestAnimationFrame(animate);
 </script></body></html>
