@@ -45,7 +45,7 @@ export const vettedDistractors = {
   ],
   "sos-kompani": [
     "Svenska Afrikakompaniet",
-    "Svenska Västindiska kompaniet"
+    "Svenska Västindiska handelsbolaget"
   ],
   "sos-kina": [
     "Indien",
@@ -205,7 +205,7 @@ export const vettedDistractors = {
   ],
   "sos-skampale": [
     "Spöpåle",
-    "Skampall"
+    "Straffstock"
   ],
   "sos-marstrand": [
     "Gotland",
