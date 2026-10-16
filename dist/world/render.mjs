@@ -1,5 +1,5 @@
-import {fittedScene} from '../demo/core.mjs?v=0.6.0';
-import {PLACES} from './content.mjs?v=0.6.0';
+import {fittedScene} from '../demo/core.mjs?v=0.6.1-rut';
+import {PLACES} from './content.mjs?v=0.6.1-rut';
 export function createRenderer(canvas,{reduced=false,onReady=()=>{},artImages=null,canvasFactory=()=>document.createElement('canvas')}={}){
 const ctx=canvas.getContext('2d');
 let state={player:{x:610,y:405},placed:[]},view='town',speaker='',speechStarted=0,speechUntil=0,busy=false,petUntil=0,heading=0,moving=false,pressFlight=null;
