@@ -1,9 +1,9 @@
-import {createEngine,validBank,SAVE_KEY,BANK_KEY} from './engine.mjs?v=0.6.16-flow';
-import {PLACES,LEVEL_NAMES,LEVEL_TASKS,TIMELINES} from './content.mjs?v=0.6.16-flow';
-import {choicesFor,shuffle} from './learning.mjs?v=0.6.16-flow';
-import {createRenderer} from './render.mjs?v=0.6.16-flow';
-import {createNarrator} from './narration.mjs?v=0.6.16-flow';
-import {route,walkable} from '../demo/core.mjs?v=0.6.16-flow';
+import {createEngine,validBank,SAVE_KEY,BANK_KEY} from './engine.mjs?v=0.6.17-enter';
+import {PLACES,LEVEL_NAMES,LEVEL_TASKS,TIMELINES} from './content.mjs?v=0.6.17-enter';
+import {choicesFor,shuffle} from './learning.mjs?v=0.6.17-enter';
+import {createRenderer} from './render.mjs?v=0.6.17-enter';
+import {createNarrator} from './narration.mjs?v=0.6.17-enter';
+import {route,walkable} from '../demo/core.mjs?v=0.6.17-enter';
 
 const $=id=>document.getElementById(id),canvas=$('world');
 const read=key=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
@@ -228,6 +228,24 @@ function refreshSound(){$('sound').textContent=window.UPPDRAG_SOUND?.enabled?'Ef
 $('sound').onclick=async()=>{const enabled=await window.UPPDRAG_SOUND?.setEnabled(!window.UPPDRAG_SOUND?.enabled);refreshSound();if(enabled){cue('wood');try{ambientAudio||=new (window.AudioContext||window.webkitAudioContext)();await ambientAudio.resume()}catch{}}};
 function water(){if(!ambientAudio||ambientAudio.state!=='running'||!window.UPPDRAG_SOUND?.enabled)return;const rate=ambientAudio.sampleRate,duration=1.8,buffer=ambientAudio.createBuffer(1,rate*duration,rate),samples=buffer.getChannelData(0);let v=0;for(let i=0;i<samples.length;i++){v+=(Math.random()*2-1-v)*.025;samples[i]=v*Math.sin(Math.PI*i/samples.length)}const src=ambientAudio.createBufferSource(),gain=ambientAudio.createGain();gain.gain.value=(window.UPPDRAG_SOUND?.status.volume||.75)*.13;src.buffer=buffer;src.connect(gain).connect(ambientAudio.destination);src.start();src.onended=()=>{src.disconnect();gain.disconnect()}}
 $('home').onclick=()=>enter('town');$('back').onclick=()=>{if(view==='work'){engine.pauseWork();enter(engine.world().scene)}else enter('town')};
+// Enter is the default action throughout the game. Text inputs retain their
+// native form submission; dialogs and selectable answers use the focused control.
+document.addEventListener('keydown',e=>{
+ if(e.key!=='Enter'||e.isComposing||e.repeat||e.altKey||e.ctrlKey||e.metaKey)return;
+ const target=e.target;
+ if(target?.matches?.('textarea,[contenteditable="true"]'))return;
+ if(target?.matches?.('input,select,button,a,summary'))return;
+ const dialog=document.querySelector('dialog[open]');
+ if(dialog){const preferred=dialog.querySelector('button:not([disabled]):not([hidden])');if(preferred){e.preventDefault();preferred.click()}return}
+ if(view==='work'){
+  const q=engine.question(),session=engine.currentQuiz();
+  if(session?.feedback){const b=session.feedback.correct?$('next'):$('retry');if(b&&!b.hidden){e.preventDefault();b.click()}return}
+  if(q?.type==='chain'){const b=$('chainParts').querySelector('.chain-option');if(b){e.preventDefault();b.focus()}else if(!$('submitChain').hidden){e.preventDefault();$('submitChain').click()}return}
+  const answer=$('answer');if(!answer.disabled&&!$('answerForm').hidden){e.preventDefault();if(answer.value.trim())$('answerForm').requestSubmit();else answer.focus()}return
+ }
+ const buttons=[...$('actions').querySelectorAll('button:not([disabled])')].filter(b=>b.offsetParent!==null);
+ if(buttons.length){e.preventDefault();buttons[0].click()}
+});
 window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modalOpen())return;if(view==='work'){engine.pauseWork();enter(engine.world().scene)}else if(view!=='town')enter('town');else{hush();actions()}return}if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||modalOpen()||view!=='town')return;const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d'].includes(k)){e.preventDefault();hush();actions();queue=[];arrival=null;keys.add(k)}});
 window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>keys.clear());
 document.addEventListener('visibilitychange',()=>{keys.clear();lastFrame=performance.now();if(document.hidden){narrator.stop();speechEnd=0;engine.save();ambientAudio?.suspend()}else if(window.UPPDRAG_SOUND?.enabled)ambientAudio?.resume().catch(()=>{})});
