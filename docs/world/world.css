@@ -24,3 +24,23 @@
 #discoveryDialog .discovery-note{font:14px/1.5 system-ui,sans-serif;color:#5c554a}
 #discoveryDialog button{background:#ddc596;padding:10px 15px;border-radius:7px}
 @media(max-width:760px){#discoveryDialog{padding:17px}#discoveryDialog blockquote{font-size:20px}#discoverNotice{font-size:13px;padding:9px}}
+
+
+/* Panoramic chapter-gated world atlas: the player can look everywhere, but travel only to unlocked regions. */
+#atlasButton{position:absolute;right:12px;top:12px;z-index:5;background:#f6e7c6;border:2px solid #7b684b;border-radius:8px;padding:8px 14px;font:600 15px system-ui,sans-serif;box-shadow:0 3px 6px #0003}
+#worldAtlas{width:min(980px,96vw);max-width:96vw;max-height:88dvh;padding:0;background:#f4e7cc;border:2px solid #806c4c;border-radius:12px;color:#342e24;box-shadow:0 15px 45px #0005}
+#worldAtlas::backdrop{background:#201b15aa}
+.atlas-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px 0;gap:10px}
+.atlas-head h2{margin:0;font-size:25px}.atlas-head button{padding:5px 12px;background:#e2d0ab;border-radius:6px}
+#worldAtlas>p{padding:0 18px;font:14px/1.45 system-ui,sans-serif;max-width:700px}
+.atlas-viewport{overflow:auto;overscroll-behavior:contain;max-height:65dvh;background:#e5d8b8;border-top:1px solid #ad9976;touch-action:pan-x pan-y}
+.atlas-land{position:relative;width:2110px;height:780px;background:radial-gradient(ellipse at 16% 40%,#b3b88d 0%,transparent 29%),radial-gradient(ellipse at 49% 45%,#aab78e 0%,transparent 36%),radial-gradient(ellipse at 80% 30%,#b8bd97 0%,transparent 35%),#d3d4b0}
+.atlas-land::before{content:"";position:absolute;left:0;bottom:0;width:100%;height:105px;background:repeating-linear-gradient(130deg,#94b7ba 0 15px,#a8c6c9 15px 30px);opacity:.8}
+.atlas-roads{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.atlas-district{position:absolute;width:300px;min-height:188px;background:#f5e7c8f2;border:3px solid #806c4c;border-radius:13px;padding:14px;box-shadow:5px 7px 0 #0002}
+.atlas-district h3{font:600 22px/1.25 Georgia,serif;margin:0 0 6px}
+.atlas-district p{font:13px/1.4 system-ui,sans-serif;margin:0 0 9px}
+.atlas-district button{background:#e2cfaa;border:1px solid #8d7855;border-radius:7px;padding:7px 11px;margin:3px;font:14px system-ui,sans-serif}
+.atlas-district.atlas-locked{background:#ded9c8ed;border-style:dashed;color:#605c52}
+.atlas-district small{display:block;margin-top:8px;font:12px/1.4 system-ui,sans-serif}
+@media(max-width:700px){#atlasButton{top:6px;right:6px;font-size:12px;padding:6px 9px}.atlas-viewport{max-height:58dvh}#worldAtlas>p{font-size:12px}.atlas-district{width:290px}}
