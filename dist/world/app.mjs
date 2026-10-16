@@ -99,8 +99,8 @@ function renderQuestion(){
  $('workTitle').textContent=session.kind==='story'?`${LEVEL_NAMES[engine.active().level-1]} · steg ${engine.active().level} av 3 · ${LEVEL_TASKS[engine.active().level-1]}`:session.kind==='promotion'?'Yrkesprov':session.kind==='legacy'?'Ditt pågående arbete':session.kind==='gate'?'Stadsportens kunskapsprov':'Repetition hos Rut';
  $('progress').textContent=`Fråga ${session.index+1} av ${session.ids.length}`;
  $('question').textContent=engine.state.simpleText&&q.simpleQuestion?q.simpleQuestion:q.question;
- const feedback=session.feedback,chain=q.type==='chain';
- $('answerForm').hidden=chain||!!feedback;$('chainForm').hidden=!chain||!session.optionsShown||!!feedback;$('showOptions').hidden=!!feedback||session.optionsShown;
+ const feedback=session.feedback,chain=q.type==='chain';if(chain&&!session.optionsShown){engine.showOptions();session.optionsShown=true;}
+ $('answerForm').hidden=chain||!!feedback;$('chainForm').hidden=!chain||!session.optionsShown||!!feedback;$('showOptions').hidden=!!feedback||session.optionsShown||chain;
  $('showOptions').textContent=(chain?'Visa byggdelarna · gratis (nödvändiga för uppgiften)':'Visa svarsalternativ')+(engine.optionsCost()?` · 1 äpple (${engine.state.inventory.apple||0} kvar)`:' · gratis');
  $('choiceArea').hidden=chain||!session.optionsShown||!!feedback;$('choiceArea').replaceChildren();
  $('helpText').hidden=!session.clue;$('helpText').textContent=session.clue||'';$('sourceText').textContent=q.bookReference||engine.current().pages;$('questionSource').open=false;$('feedback').hidden=!feedback;$('next').hidden=!feedback?.correct;$('retry').hidden=!feedback||feedback.correct;$('hint').hidden=session.kind!=='story'||!!feedback;$('hint').textContent=session.clue?'Läs ledtråden igen':`Ge ett äpple för en ledtråd (${engine.state.inventory.apple||0})`;
@@ -112,13 +112,13 @@ function renderQuestion(){
   readable($('question').textContent+(chain?' Fundera på sambandet innan du visar delarna.':''));
   if(!chain&&!session.optionsShown)requestAnimationFrame(()=>$('answer').focus({preventScroll:true}));
  }
- $('instruction').textContent=chain?'Bygg förklaringen av delarna. De är gratis och behövs för att kunna svara.':'Tänk efter först. Enter fungerar för kortsvar.';$('work').scrollTop=0;
+ $('instruction').textContent=chain?'Bygg en mening: välj hur förklaringen fortsätter, en del i taget.':'Tänk efter först. Enter fungerar för kortsvar.';$('work').scrollTop=0;
 }
 function renderChain(q,session){
  $('chainParts').replaceChildren();
- q.steps.forEach((part,i)=>{const row=document.createElement('label');row.className='chain-row';const text=document.createElement('span');text.textContent=part.connector||`Del ${i+1}`;const select=document.createElement('select');select.setAttribute('aria-label',`Del ${i+1} av förklaringen`);const empty=document.createElement('option');empty.value='';empty.textContent='Välj en del …';select.append(empty);for(const choice of shuffle(part.options)){const o=document.createElement('option');o.value=choice;o.textContent=choice;select.append(o)}select.value=session.draft[i]||'';select.onchange=()=>{engine.setDraft(i,select.value);updatePreview()};row.append(text,select);$('chainParts').append(row)});updatePreview();
+ q.steps.forEach((part,i)=>{const row=document.createElement('label');row.className='chain-row';const text=document.createElement('span');text.textContent=`${i+1}. ${part.connector||'Fortsätt förklaringen'}`;const select=document.createElement('select');select.setAttribute('aria-label',`Del ${i+1} av förklaringen`);const empty=document.createElement('option');empty.value='';empty.textContent='Välj hur meningen fortsätter …';select.append(empty);for(const choice of shuffle(part.options)){const o=document.createElement('option');o.value=choice;o.textContent=choice;select.append(o)}select.value=session.draft[i]||'';select.onchange=()=>{engine.setDraft(i,select.value);updatePreview();const next=$('chainParts').querySelectorAll('select')[i+1];if(next&&select.value)next.focus()};row.append(text,select);$('chainParts').append(row)});updatePreview();
 }
-function updatePreview(){const q=engine.question(),s=engine.currentQuiz();$('chainPreview').textContent=q.steps.map((p,i)=>s.draft[i]?`${p.connector||''} ${s.draft[i]}`:'').filter(Boolean).join('. ')}
+function updatePreview(){const q=engine.question(),s=engine.currentQuiz();$('chainPreview').textContent='Din förklaring: '+q.steps.map((p,i)=>`${p.connector||''} ${s.draft[i]||'…'}`).join(' ')}
 function submitAnswer(value,supported=false){const r=engine.answer(value,{supported});if(!r.ok){notify(r.reason==='incomplete'?'Välj en del på varje rad.':'Skriv ett svar först.');return}cue('paper');renderQuestion()}
 $('answerForm').onsubmit=e=>{e.preventDefault();submitAnswer($('answer').value)};
 $('chainForm').onsubmit=e=>{e.preventDefault();submitAnswer(engine.currentQuiz().draft,true)};
