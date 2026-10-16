@@ -101,7 +101,7 @@ export function createEngine({bank,practice,initial=null,now=()=>Date.now(),rng=
  function score(id){const p=state.practice[id];return !p?100:p.lastCorrect===false?80:p.nextDueAt<=now()?60:0}
  function optionsCost(){const quiz=currentQuiz();return quiz?.kind==='story'&&active()?.level>=2&&question()?.type!=='chain'?1:0}
  function showOptions(){const quiz=currentQuiz();if(!quiz||quiz.feedback)return{ok:false,reason:'unavailable'};if(quiz.optionsShown)return{ok:true,cost:0};const cost=optionsCost();if(cost&&!(state.inventory.apple>=cost))return{ok:false,reason:'no-apple'};if(cost){state.inventory.apple-=cost;if(!state.inventory.apple)delete state.inventory.apple;quiz.hint=true}quiz.optionsShown=true;save();return{ok:true,cost}}
- function setDraft(index,value){const quiz=currentQuiz(),q=question();if(!quiz||quiz.feedback||q?.type!=='chain'||!Number.isInteger(index)||!q.steps[index]?.options.includes(value))return false;quiz.draft[index]=value;save();return true}
+ function setDraft(index,value){const quiz=currentQuiz(),q=question();if(!quiz||quiz.feedback||q?.type!=='chain'||!Number.isInteger(index)||!(value===''||q.steps[index]?.options.includes(value)))return false;quiz.draft[index]=value;save();return true}
  function clueText(q){return q.type==='short'?`Svaret börjar med ”${q.answer.slice(0,2)}…”. Tänk på ${content.chapters[(q.storyChapter||current().id)-1].title.toLowerCase()}.`:`Börja med första ledet: ${q.steps[0].connector} ${q.steps[0].answer}. Fundera sedan på vad det leder till.`}
  function hint(){const quiz=currentQuiz(),q=question();if(!quiz||!q||quiz.kind!=='story'||quiz.feedback)return{ok:false,reason:'unavailable'};
   if(quiz.clue)return{ok:true,text:quiz.clue,alreadyPaid:true};
