@@ -46,52 +46,87 @@ function building(x,y,w,h,roof='#655e54'){rect(x+9,y+13,w,h,'#96816b');rect(x,y,
 function tree(x,y,r=24){rect(x-5,y+7,10,r,'#776b53');poly([[x,y-r],[x+r,y+7],[x-r,y+7]],'#73836a');poly([[x,y-r-12],[x+r*.72,y-2],[x-r*.72,y-2]],'#8a9878')}
 function label(t,x,y){ctx.font='bold 25px Georgia';const width=ctx.measureText(t).width+35;rect(x-width/2,y-33,width,41,'#f1e3c7');ctx.strokeStyle='#b6a17f';ctx.lineWidth=2;ctx.strokeRect(x-width/2,y-33,width,41);ctx.fillStyle='#4c4030';ctx.textAlign='center';ctx.fillText(t,x,y-5)}
 function backdrop(){
+ // The original town image remains unaltered. Surrounding land is constructed in
+ // the same flat overhead paper-cut language, with roads that join its boundaries.
  rect(0,0,W,H,'#cfc6b4');
- // Water and rural fields continue the original paper-cut palette.
- poly([[0,1430],[1150,1450],[1450,1510],[2450,1490],[3200,1480],[4200,1450],[4200,1700],[0,1700]],'#49738b');
- for(let i=0;i<9;i++)poly([[3440+i*85,50],[3510+i*85,65],[3490+i*85,260],[3410+i*85,235]],i%2?'#b6ae82':'#c9bb8e');
- road([[80,810],[500,810],[970,805],[1370,825],[1450,825]],100);
- road([[2730,825],[2980,825],[3220,825],[3570,810],[4050,800]],100);
- road([[3140,820],[3290,560],[3520,390],[4090,400]],85);
- road([[900,810],[990,550],[1120,365],[1350,365],[1450,490]],75);
- road([[1060,840],[1100,1080],[1410,1180],[1600,1150]],70);
- road([[3650,800],[3810,1050],[4010,1140]],70);
- // Water boundary on the south and at the original quay.
- // Continuous mainland: the shoreline stays below the workshops and residential streets.
- poly([[2700,1490],[3200,1480],[4200,1450],[4200,1700],[2700,1700]],'#4b758c');
- for(let i=0;i<70;i++){const x=(i*193+103)%4200,y=(i*139+70)%1700;if((x>1420&&x<2750&&y>450&&y<1210)||y>1200)continue;tree(x,y,14+(i%3)*5)}
- // A real departure quay, separate from the streets and the workshops.
- rect(2440,1155,54,295,'#80694e');rect(2350,1370,240,45,'#8e7453');
- for(const x of [2380,2480,2560])rect(x,1400,16,65,'#5f5545');
- poly([[2610,1490],[2870,1490],[2810,1550],[2660,1550]],'#705b47');
- rect(2720,1260,12,230,'#75664e');
- poly([[2735,1280],[2830,1465],[2735,1465]],'#f1e4c9');
- poly([[2705,1330],[2630,1460],[2705,1460]],'#d6c8a9');
- for(let i=0;i<5;i++)poly([[2570+i*140,1580],[2600+i*140,1574],[2630+i*140,1580]],'#bdd0c8');
- // Palace and science quarter to the west.
- building(670,345,340,180,'#6e6459');building(750,590,250,155,'#7d6858');building(1110,965,205,140,'#685a54');
- for(let i=0;i<4;i++)rect(710+i*70,405,35,65,'#f1e4c9');
- // Children's quarter and workshop quarter to the east.
- building(2930,560,330,190,'#9d5645');building(3310,920,350,165,'#5c5953');
- building(2860,925,230,140,'#6a6559');building(3680,570,240,165,'#846b55');
- building(3730,260,275,150,'#755f4c');
- for(let i=0;i<5;i++){rect(3370+i*50,970,14,95,'#8c7356')}
- // Houses and alleyways.
- [[3100,320,170,120],[3200,1120,160,115],[1120,650,160,120],[430,840,190,130],[3450,480,130,90]].forEach(([x,y,w,h],i)=>building(x,y,w,h,['#5e5a53','#a35b4a','#655f58'][i%3]));
+ // Land patches, not separate map cards.
+ poly([[0,0],[1400,0],[1430,465],[1350,650],[1240,1120],[930,1430],[0,1390]],'#b9bea5');
+ poly([[2730,0],[4200,0],[4200,1440],[3490,1460],[3090,1370],[2740,1210]],'#c8c2a8');
+ poly([[0,1400],[600,1440],[1080,1390],[1450,1480],[2460,1500],[3130,1480],[4200,1450],[4200,1700],[0,1700]],'#4d7489');
+ // Agricultural fields on the eastern ridge.
+ for(let i=0;i<9;i++){
+  const x=3460+(i%5)*144,y=80+Math.floor(i/5)*155;
+  poly([[x,y],[x+124,y+8],[x+114,y+135],[x-4,y+126]],i%2?'#aab18b':'#d0bd91');
+  for(let j=0;j<4;j++)road([[x+18,y+23+j*27],[x+105,y+28+j*27]],2);
+ }
+ // Western palace grounds and scholarly gardens.
+ poly([[360,160],[1230,155],[1370,660],[1120,980],[330,1030]],'#b1b9a0');
+ for(let i=0;i<6;i++)rect(450+i*124,190,70,210,i%2?'#a7b08c':'#c1bd9b');
+ // Streets form a connected network. The old town retains its original streets.
+ road([[0,840],[380,825],[820,810],[1200,835],[1450,835]],78);
+ road([[2730,835],[2820,835],[3020,825],[3320,845],[3700,825],[4200,825]],84);
+ road([[2900,825],[2910,580],[3130,420],[3450,360],[3890,350]],58);
+ road([[3200,845],[3200,1110],[3480,1160],[3800,1120]],58);
+ road([[3650,825],[3760,590],[3970,510]],52);
+ road([[1000,830],[1020,560],[980,410],[1070,230]],60);
+ road([[1210,830],[1180,1120],[1400,1220]],50);
+ // A narrow stream is the only local water crossing; the quay remains on the coast.
+ poly([[2820,0],[2860,0],[2870,210],[2840,410],[2860,610],[2880,740],[2880,940],[2870,1150],[2830,1300],[2800,1450],[2735,1450],[2780,1230],[2810,1000],[2800,780],[2780,610],[2790,400],[2810,220]],'#7895a0');
+ // Bridge across the stream at the main street.
+ rect(2750,778,165,116,'#9b866b');
+ for(let i=0;i<7;i++)rect(2762+i*21,785,11,104,'#ddca9f');
+ rect(2750,771,165,9,'#76694f');rect(2750,896,165,9,'#76694f');
+ // Secondary footbridge north of the city.
+ rect(2785,380,100,38,'#a08b6c');
+ for(let i=0;i<5;i++)rect(2790+i*19,383,10,32,'#ddcba8');
+ // Tree-lined palace gardens and city edge.
+ for(let i=0;i<18;i++){tree(160+(i*137)%1190,140+(i*211)%1130,18+i%4*5)}
+ for(let i=0;i<19;i++){const x=2920+(i*97)%1180,y=110+(i*233)%1230;
+  if((x>2990&&x<3360&&y>470&&y<810)||(x>3270&&x<3740&&y>850&&y<1120))continue;tree(x,y,17+i%4*4)}
+ // Palace, scientific rooms and opera to the west of the original.
+ building(760,250,300,170,'#6a6157');
+ building(920,510,220,125,'#8d6959');
+ building(1120,990,215,140,'#665e54');
+ rect(870,320,35,68,'#f1e4c9');rect(935,320,35,68,'#f1e4c9');
+ for(let i=0;i<4;i++)rect(560+i*82,500,50,115,'#c4b598');
+ // Barnhuskvarteren, streets, workshops and yards.
+ const eastHouses=[
+ [2940,490,300,180,'#995b4b'],[3270,470,180,125,'#8a6654'],
+ [3520,510,205,135,'#6c655c'],[2990,1000,195,140,'#7c6255'],
+ [3330,935,320,175,'#5b5953'],[3770,900,235,145,'#8b6353'],
+ [3670,560,235,165,'#7b6857'],[3160,200,170,115,'#a66c53'],
+ [3060,1160,145,100,'#965f4d'],[3480,1220,165,100,'#a06550']
+ ];
+ eastHouses.forEach(([x,y,w,h,c])=>building(x,y,w,h,c));
+ // Courtyard, vegetable patch, washing lines and craft material.
+ rect(3040,735,175,58,'#b9aa8b');
+ for(let i=0;i<5;i++)rect(3060+i*32,750,16,28,'#7b956d');
+ rect(3370,1120,16,105,'#77634b');rect(3590,1120,16,105,'#77634b');
+ for(let i=0;i<5;i++)rect(3410+i*35,1125,22,10,'#eee1c8');
+ for(let i=0;i<5;i++)rect(3400+i*55,1000,15,90,'#8b7355');
+ // Countryside buildings and a simple mill on the right.
+ building(3690,220,215,140,'#88694e');
+ rect(3920,530,22,150,'#7a6650');
+ poly([[3931,520],[3890,590],[3931,565],[3970,590]],'#eee1c8');
+ poly([[3931,565],[3885,520],[3915,580],[3885,620]],'#d6c7a5');
+ // Harbor and pier stay at the southern waterfront, not between quarters.
+ rect(2440,1170,52,295,'#80694e');rect(2360,1390,235,40,'#8e7453');
+ for(const x of [2390,2480,2570])rect(x,1420,15,57,'#5f5545');
+ poly([[2610,1510],[2870,1510],[2820,1565],[2650,1565]],'#705b47');
+ rect(2720,1290,12,220,'#75664e');
+ poly([[2735,1310],[2820,1485],[2735,1485]],'#f1e4c9');
+ poly([[2705,1350],[2630,1485],[2705,1485]],'#d6c8a9');
+ // Overlay the ORIGINAL map only in its unchanged geographic bounds.
  if(original.complete&&original.naturalWidth)ctx.drawImage(original,old.x,old.y,old.w,old.h);
- // A continuous land corridor links the old town to the working-class district.
- // Keep the original waterfront south of the quay; do not create a sea crossing between neighborhoods.
- poly([[2600,505],[2760,490],[2910,500],[3070,590],[3070,1080],[2910,1140],[2710,1110],[2600,1040]],'#cec5b4');
- road([[2550,850],[2670,835],[2820,835],[2980,825],[3220,825]],94);
- road([[2830,835],[2870,680],[3020,630]],48);
- for(const [x,y,w,h,c] of [[2680,570,115,95,'#985d4d'],[2870,960,150,112,'#675e55'],[3000,570,135,90,'#985a49']])building(x,y,w,h,c);
- for(const [x,y] of [[2670,1030],[2810,560],[2970,1090]])tree(x,y,19);
- // The quay remains at the sea, while streets lead naturally into the next quarter.
- label('Vetenskap',920,770);label('Slottet',850,330);label('Operan',1210,1140);
- label('Barnhuskvarteren',3090,550);label('Verkstäderna',3470,920);
+ // The seam is a road/bridge, not an expanse of sea.
+ road([[2710,835],[2760,835],[2820,835]],55);
+ label('Vetenskapens kvarter',960,760);
+ label('Slottet',970,375);
+ label('Operan',1210,1140);
+ label('Barnhuskvarteren',3090,550);
+ label('Verkstäderna',3470,920);
  label('Landsbygden',3750,300);
 }
-
 const seaSites={
  marstrand:[{name:'Fästningen',x:1180,y:460},{name:'Hamnen',x:820,y:920},{name:'Stadens hus',x:1590,y:760}],
  colony:[{name:'Gustavia',x:1180,y:560},{name:'Hamnen',x:740,y:1010},{name:'Handelsplatsen',x:1650,y:850}]
