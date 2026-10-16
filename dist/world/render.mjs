@@ -65,7 +65,7 @@ function draw(t,{world,place='town',speaker:sp='',speechAt=0,speechEnd=0,blocked
  if(view==='town'){
   base('town');overhead(state.player.x,state.player.y,'#486c72',heading,moving,t);overhead(1040,420,'#a4804c',-.3,false,t);overhead(860,465,'#8e614b',.1,false,t,true);cut(936,565,9,90,'#66513c');cut(1065,565,9,90,'#66513c');cut(936,565,138,14,'#785f43');ctx.fillStyle='#f2e4c5';ctx.font='bold 17px Georgia';ctx.textAlign='center';ctx.fillText('STADSPORT',1004,552);overhead(975,630,'#435c68',0,false,t);const rutPos=rut||{x:570,y:445};overhead(rutPos.x,rutPos.y,'#77548a',.2,true,t,true);ctx.font='bold 17px Georgia';ctx.textAlign='center';ctx.fillStyle='#fff1cf';ctx.fillText('RUT · ÄPPLEN',rutPos.x,rutPos.y-35);dog(t);
   poly([[1020,0],[1280,0],[1280,140],[1220,119],[1170,107],[1110,71]],'#ece0c7');
- }else if(view==='work')base('work');
+ }else if(view==='work'){cut(0,0,1280,720,'#d9cbb0');cut(0,0,1280,400,'#d8c9ac');cut(0,410,1280,310,'#b59a73');cut(90,115,240,230,'#8a907e');cut(108,133,204,194,'#c7d0bc');cut(202,133,14,194,'#8a907e');cut(108,226,204,13,'#8a907e');cut(180,545,920,38,'#795d43');cut(220,583,34,130,'#654b37');cut(1010,583,34,130,'#654b37');oval(790,535,46,15,'#f6ebd3');oval(790,523,33,20,'#f4e6c8');oval(790,520,23,11,'#79563e');ctx.strokeStyle='#f4e6c8';ctx.lineWidth=9;ctx.beginPath();ctx.arc(823,519,13,-1.2,1.2);ctx.stroke();cut(340,495,285,13,'#eadcbf');cut(358,477,265,18,'#eee1c6');ctx.fillStyle='#63533c';ctx.font='bold 21px Georgia';ctx.fillText('ARBETS- OCH LÄSBORDET',370,453);}
  else if(view==='quay'||view==='marstrand'){base('quay');puppet(525,690,'#466b70',true,t,speaker==='Du');puppet(790,690,who.color,false,t,speaker===who.npc);}
  else if(view==='print')drawPress();else room(view,t,who);
 }
