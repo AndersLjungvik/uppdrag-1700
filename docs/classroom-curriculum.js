@@ -1686,8 +1686,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "mindre makt",
               "options": [
                 "mindre makt",
-                "ensam makt",
-                "mer makt än tidigare"
+                "större makt över riksdagen",
+                "rätt att styra utan riksrådet"
               ]
             },
             {
@@ -1695,8 +1695,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "fortfarande inte bestämma fritt över sig själva",
               "options": [
                 "fortfarande inte bestämma fritt över sig själva",
-                "samma makt som alla män",
-                "välja alla i riksrådet"
+                "rösta i riksdagen genom ett eget stånd",
+                "välja riksrådets ledamöter"
               ]
             },
             {
@@ -1704,8 +1704,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "inte välja riksrådets medlemmar",
               "options": [
                 "inte välja riksrådets medlemmar",
-                "ensamma välja riksrådet",
-                "ensamma styra landet"
+                "utse riksrådets medlemmar",
+                "bestämma över de andra ståndens röster"
               ]
             }
           ],
@@ -1751,8 +1751,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "ett av riksdagens fyra stånd",
               "options": [
                 "ett av riksdagens fyra stånd",
-                "inte representerade alls i riksdagen",
-                "de enda som fick välja riksrådet"
+                "ett av riksdagens tre stånd",
+                "en grupp utanför riksdagens stånd"
               ]
             },
             {
@@ -1760,8 +1760,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "vara med och välja riksrådets medlemmar",
               "options": [
                 "vara med och välja riksrådets medlemmar",
-                "odla sina åkrar",
-                "vara med på något riksdagsmöte alls"
+                "rösta i bondeståndets egna frågor",
+                "delta i riksdagens gemensamma möten"
               ]
             },
             {
@@ -1769,8 +1769,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "på särskilda möten utan bönderna",
               "options": [
                 "på särskilda möten utan bönderna",
-                "enbart av bönderna",
-                "av alla barn i landet"
+                "på möten där bondeståndet ensamt bestämde",
+                "efter omröstning där samtliga stånd deltog"
               ]
             }
           ],
@@ -2118,8 +2118,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "gick dåligt och många dog",
               "options": [
                 "gick dåligt och många dog",
-                "gav Sverige en seger",
-                "gjorde slut på alla skatter"
+                "slutade med en tydlig svensk seger",
+                "gav Sverige nya områden vid Östersjön"
               ]
             },
             {
@@ -2127,8 +2127,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "marscherade från Dalarna till Stockholm",
               "options": [
                 "marscherade från Dalarna till Stockholm",
-                "seglade till Kina",
-                "flyttade till Marstrand"
+                "reste från Dalarna till Göteborg för att protestera",
+                "förhandlade enbart genom brev med hovet"
               ]
             },
             {
@@ -2136,8 +2136,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "slog militären ned upproret",
               "options": [
                 "slog militären ned upproret",
-                "fick bönderna all makt",
-                "avskaffades barnhusen"
+                "slöts ett avtal som gav bönderna kontroll över riksrådet",
+                "lämnade militären Stockholm utan att ingripa"
               ]
             }
           ],
@@ -2183,8 +2183,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "skydda riksrådet mot svenska bönder",
               "options": [
                 "skydda riksrådet mot svenska bönder",
-                "skydda bönderna mot riksrådet",
-                "segla med Ostindiska kompaniet"
+                "bevaka Sveriges gräns mot Danmark",
+                "stödja bönderna i upproret mot riksrådet"
               ]
             },
             {
@@ -2192,8 +2192,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "mer att säga till om i Sverige",
               "options": [
                 "mer att säga till om i Sverige",
-                "mindre möjlighet att påverka Sverige",
-                "ingen kontakt med Sverige"
+                "mindre att säga till om i Sveriges politik",
+                "större inflytande över Sveriges handel med Kina"
               ]
             },
             {
@@ -2201,8 +2201,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "vem som skulle bli svensk kung",
               "options": [
                 "vem som skulle bli svensk kung",
-                "vilken potatis som odlades",
-                "vem som skrev Bellmans sånger"
+                "hur riksdagen skulle fördela sina stånd",
+                "vem som skulle leda Ostindiska kompaniet"
               ]
             }
           ],
@@ -2243,8 +2243,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "för att sprida information",
               "options": [
                 "för att sprida information",
-                "för att mäta temperaturen",
-                "för att trycka böcker"
+                "för att bekräfta en handelsaffär",
+                "för att visa att en lag hade ändrats"
               ]
             },
             {
@@ -2252,8 +2252,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "för att samla bönder till uppror",
               "options": [
                 "för att samla bönder till uppror",
-                "för att välja Celsius till kung",
-                "för att ordna en maskerad"
+                "för att kalla samman riksrådets medlemmar",
+                "för att samla soldater till flottan"
               ]
             },
             {
@@ -2261,8 +2261,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "den är bevarad och berättar om det som hände då",
               "options": [
                 "den är bevarad och berättar om det som hände då",
-                "den ger svar på alla historiska frågor",
-                "alla gamla saker berättar hela sanningen"
+                "den innehåller spår av hur människor organiserade sig",
+                "den visar vad kungen tyckte om upproret"
               ]
             }
           ],
@@ -2890,8 +2890,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "kunde de själva studera texter",
               "options": [
                 "kunde de själva studera texter",
-                "måste de tro på alla texter",
-                "försvann alla böcker"
+                "behövde fler uppläsare för att förstå texter",
+                "fick läsa kungens beslut men inte andra texter"
               ]
             },
             {
@@ -2899,8 +2899,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "att prästers ord inte alltid stämde med Bibeln",
               "options": [
                 "att prästers ord inte alltid stämde med Bibeln",
-                "att alla människor hade rösträtt",
-                "att alla fick lika mycket makt"
+                "att riksrådet hade fler ledamöter än riksdagen",
+                "att samma lagar gällde i varje europeiskt land"
               ]
             },
             {
@@ -2908,8 +2908,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "ifrågasätta makthavarna",
               "options": [
                 "ifrågasätta makthavarna",
-                "bevisa att kungen alltid hade rätt",
-                "avskaffa alla samhällsregler"
+                "låta prästerna ensamma avgöra vad texterna betydde",
+                "acceptera kungens beslut utan att undersöka dem"
               ]
             }
           ],
@@ -2959,8 +2959,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "fred oftare",
               "options": [
                 "fred oftare",
-                "krig varje dag",
-                "förbjudet att läsa"
+                "fler krig pågick samtidigt",
+                "utrikeshandeln helt upphörde"
               ]
             },
             {
@@ -2968,8 +2968,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "tid och pengar till forskning",
               "options": [
                 "tid och pengar till forskning",
-                "pengar enbart till armén",
-                "anledning att förbjuda böcker"
+                "tid och pengar till större arméer",
+                "tid och pengar till nya krigståg"
               ]
             },
             {
@@ -2977,8 +2977,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "hur naturen och världen fungerar",
               "options": [
                 "hur naturen och världen fungerar",
-                "bara vilka kläder kungen bar",
-                "enbart hur man väljer riksrådet"
+                "hur krig skulle föras vid gränsen",
+                "hur hovets tjänstemän utsågs"
               ]
             }
           ],
@@ -3019,8 +3019,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "potatis",
               "options": [
                 "potatis",
-                "syre",
-                "termometrar"
+                "vete",
+                "sockerbetor"
               ]
             },
             {
@@ -3028,8 +3028,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "till mjöl och brännvin",
               "options": [
                 "till mjöl och brännvin",
-                "till porslin och siden",
-                "till att mäta temperatur"
+                "till färgämnen och papper",
+                "till socker och salt"
               ]
             },
             {
@@ -3037,8 +3037,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "potatisen blev mer populär",
               "options": [
                 "potatisen blev mer populär",
-                "alla behövde sluta odla potatis",
-                "Celsius började skriva sånger"
+                "fler började odla råg i stället",
+                "färre ville använda potatis som livsmedel"
               ]
             }
           ],
@@ -3085,8 +3085,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "att ordna och namnge växter och djur",
               "options": [
                 "att ordna och namnge växter och djur",
-                "att skriva visor om Stockholm",
-                "att avskaffa riksrådet"
+                "att mäta temperatur med instrument",
+                "att studera kemiska gaser i luften"
               ]
             },
             {
@@ -3094,8 +3094,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "temperatur och en termometerskala",
               "options": [
                 "temperatur och en termometerskala",
-                "hur en armé styrs",
-                "hur skiften genomförs"
+                "hur växter och djur får namn",
+                "hur ämnen reagerar med varandra"
               ]
             },
             {
@@ -3103,8 +3103,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "kunskap från 1700-talet som fortfarande används",
               "options": [
                 "kunskap från 1700-talet som fortfarande används",
-                "att all forskning från förr är fel",
-                "att all forskning gällde kungens makt"
+                "teorier som övergavs före 1800-talet",
+                "metoder som främst gällde politiska beslut"
               ]
             }
           ],
@@ -3533,8 +3533,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "pengar till konstnärer och författare",
               "options": [
                 "pengar till konstnärer och författare",
-                "inga pengar till kulturen",
-                "alla författare makten över riksrådet"
+                "pengar till riksdagens stånd",
+                "bidrag till militära förband"
               ]
             },
             {
@@ -3542,8 +3542,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "fortsätta med sitt skapande",
               "options": [
                 "fortsätta med sitt skapande",
-                "slippa skriva eller skapa något",
-                "välja alla lagar själva"
+                "finansiera nya tryckpressar för myndigheterna",
+                "bygga vägar för handelskompaniet"
               ]
             },
             {
@@ -3551,8 +3551,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "dikter och sånger som hyllade kungen",
               "options": [
                 "dikter och sånger som hyllade kungen",
-                "bara kritik mot all forskning",
-                "bara listor över skiftade åkrar"
+                "texter som ifrågasatte kungens rätt att styra",
+                "rapporter om skiften och jordbrukets avkastning"
               ]
             }
           ],
