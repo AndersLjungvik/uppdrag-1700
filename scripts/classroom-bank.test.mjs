@@ -37,6 +37,27 @@ test('dependencies resolve to actual fact cards, including cross-chapter review'
 test('every optional multiple-choice set contains exactly one accepted answer',()=>{
  const exported=bank.missions.flatMap(m=>m.cards);for(const q of exported.filter(q=>q.type==='short')){const options=choicesFor(q,exported,()=>.43);assert.equal(options.length,q.distractors?.length>=2?3:0,q.id);if(options.length)assert.equal(options.filter(x=>gradeShort(q,x)).length,1,q.id)}
 });
+test('vetted answer choices never collide with accepted short answers',()=>{
+ const exported=bank.missions.flatMap(m=>m.cards);
+ const shorts=exported.filter(q=>q.type==='short');
+ assert.equal(shorts.length,97);
+ assert.equal(shorts.filter(q=>q.distractors?.length===2).length,88);
+ for(const q of shorts){const options=choicesFor(q,exported,()=>.37);
+  if(!q.distractors){assert.deepEqual(options,[],q.id);continue}
+  assert.equal(options.length,3,q.id);
+  assert.equal(options.filter(x=>gradeShort(q,x)).length,1,q.id);
+  assert.equal(new Set(options).size,3,q.id);
+ }
+ const chains=exported.filter(q=>q.type==='chain');assert.equal(chains.length,42);
+ for(const q of chains)for(let i=0;i<3;i++){
+  const step=q.steps[i];assert.equal(step.options.length,3,q.id);
+  assert.equal(new Set(step.options).size,3,q.id);
+  for(const wrong of step.options.filter(x=>x!==step.answer)){
+   const answer=q.steps.map(s=>s.answer);answer[i]=wrong;
+   assert(!grade(q,answer),q.id+' part '+(i+1));
+  }
+ }
+});
 test('opinions and ambiguous source classification cannot become auto-scored facts',()=>{
  assert(reflections.every(q=>q.scored===false));for(const slug of ['kvinnor','kallval','maskerad','seger'])assert(reflections.some(q=>q.id==='sos-samtal-'+slug));
  assert(!cards.some(q=>q.type==='short'&&/varför tror du|vad tycker du/i.test(q.question)));
