@@ -14,8 +14,9 @@ export function grade(q,value){return q.type==='chain'?Array.isArray(value)&&val
 export function shuffle(values,rng=Math.random){const a=[...values];for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 export function choicesFor(q,cards,rng=Math.random){
  if(q.type!=='short')return[];
- const dates=/^\d+$/.test(q.answer),pool=[...(q.distractors||[]),...cards.filter(c=>c.type==='short'&&c.missionId===q.missionId&&/^\d+$/.test(c.answer)===dates).map(c=>c.answer),...cards.filter(c=>c.type==='short'&&/^\d+$/.test(c.answer)===dates).map(c=>c.answer)];
- const unique=[...new Set(pool)].filter(x=>!gradeShort(q,x)&&x!=='Vet inte');
- return shuffle([q.answer,...shuffle(unique,rng).slice(0,2)],rng);
+ // Never generate misleading options from unrelated questions.
+ // Only vetted distractors authored for this exact question may be used.
+ const distractors=[...new Set(q.distractors||[])].filter(x=>typeof x==='string'&&x.trim()&&!gradeShort(q,x));
+ return distractors.length>=2?shuffle([q.answer,...shuffle(distractors,rng).slice(0,2)],rng):[];
 }
 export function csvCell(value){let s=String(value??'');if(/^[=+@\-\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
