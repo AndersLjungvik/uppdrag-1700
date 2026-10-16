@@ -78,6 +78,34 @@ const districts=[
  {name:'Landsbygden',chapters:[6],x:920,y:450,places:[['Byn','farm']]},
  {name:'Hav och handelsvägar',chapters:[7,9,10],x:1650,y:430,places:[['Marstrand','marstrand'],['Saint Barthélemy','colony']]}
 ];
+
+function worldPainting(){
+ const trees=[[70,100],[150,65],[240,90],[340,80],[490,85],[660,65],[830,80],[980,85],[1150,85],[1330,100],[1500,80],[1740,100],[1960,90],[90,610],[230,710],[420,650],[600,720],[800,690],[1050,740],[1230,720],[1450,700],[1610,710]];
+ const houses=[[130,250,1],[280,185,.9],[350,365,.8],[500,265,1],[600,380,.8],[730,210,1],[835,365,.9],[980,225,1],[1150,330,.9],[1310,190,1.1],[1460,365,.85],[1610,230,1],[1790,300,.9]];
+ const svg=['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2110 850" aria-hidden="true" class="atlas-illustration">',
+ '<defs><pattern id="paperDots" width="17" height="17" patternUnits="userSpaceOnUse"><circle cx="3" cy="4" r="1" fill="#65583b" opacity=".09"/></pattern></defs>',
+ '<rect width="2110" height="850" fill="#d6d7b4"/>',
+ '<path d="M0 0H2110V200Q1830 135 1570 190T1000 165T420 175T0 140Z" fill="#a4b795" opacity=".65"/>',
+ '<path d="M0 580Q350 520 600 610T1190 580T1730 550L2110 570V850H0Z" fill="#b7bf91"/>',
+ '<path d="M0 800Q360 735 590 775T1200 745T1760 770L2110 730V850H0Z" fill="#96b0a5" opacity=".35"/>',
+ '<path d="M1800 0Q1690 180 1800 325T1840 560Q1880 680 2110 690V850H2110V0Z" fill="#88b8ba"/>',
+ '<path d="M1810 0Q1700 180 1810 325T1850 560Q1890 680 2110 690" fill="none" stroke="#dce1c8" stroke-width="14"/>',
+ '<path d="M0 425Q320 370 550 450T1000 410T1450 420T1770 490" stroke="#b39d79" stroke-width="70" fill="none" stroke-linecap="round"/>',
+ '<path d="M0 425Q320 370 550 450T1000 410T1450 420T1770 490" stroke="#e6d6ad" stroke-width="53" fill="none" stroke-linecap="round"/>',
+ '<path d="M600 450Q700 610 1000 610T1550 575" stroke="#e8d6ae" stroke-width="33" fill="none"/>',
+ '<path d="M1000 410Q1030 260 1170 210T1500 205" stroke="#e8d6ae" stroke-width="30" fill="none"/>',
+ '<path d="M1480 420Q1540 540 1740 600" stroke="#e8d6ae" stroke-width="32" fill="none"/>'];
+ for(const [x,y] of trees){svg.push('<g transform="translate('+x+' '+y+')"><path d="M0 8V52" stroke="#776f4e" stroke-width="11"/><circle cy="-2" r="35" fill="#708d6d"/><circle cx="-21" cy="9" r="23" fill="#91a67b"/><circle cx="20" cy="5" r="26" fill="#7c9971"/></g>')}
+ for(const [x,y,scale] of houses){svg.push('<g transform="translate('+x+' '+y+') scale('+scale+')"><rect x="-48" y="-22" width="96" height="79" fill="#d3b58e" stroke="#755e49" stroke-width="3"/><path d="M-58 -24L0 -65L58 -24Z" fill="#945d4b" stroke="#6e4f42" stroke-width="3"/><rect x="-9" y="10" width="22" height="47" fill="#705e4c"/><rect x="-36" y="-8" width="20" height="21" fill="#eee1b9"/><rect x="18" y="-8" width="20" height="21" fill="#eee1b9"/></g>')}
+ svg.push('<g transform="translate(1050 565)"><path d="M-120 0H170M-120 45H170M-120 90H170" stroke="#9eab74" stroke-width="7"/><path d="M-110 -25V115M-30 -25V115M55 -25V115M145 -25V115" stroke="#9eab74" stroke-width="6"/><rect x="-80" y="-120" width="155" height="95" fill="#bfa47e"/><path d="M-95 -120L0 -178L90 -120Z" fill="#86594a"/></g>',
+ '<g transform="translate(1420 210)"><rect x="-100" y="-70" width="200" height="145" fill="#c8ad8a" stroke="#78664d" stroke-width="5"/><path d="M-110 -70L0 -125L110 -70Z" fill="#8d6654"/><rect x="-18" y="-10" width="36" height="85" fill="#77624b"/><rect x="-80" y="-30" width="35" height="40" fill="#efe2c4"/><rect x="45" y="-30" width="35" height="40" fill="#efe2c4"/></g>',
+ '<g transform="translate(1920 550)"><path d="M-120 0L90 0L55 42H-75Z" fill="#705a44"/><path d="M0 -120V0M0 -120L80 -12H0Z" fill="#f4e8c8" stroke="#786a55" stroke-width="5"/><path d="M-70 45Q-30 75 30 45" stroke="#eff3dc" stroke-width="5" fill="none"/></g>',
+ '<path d="M0 0H2110V850H0Z" fill="url(#paperDots)"/>',
+ '<g fill="#4b4c39" font-family="Georgia,serif" font-weight="bold" font-size="29" text-anchor="middle"><text x="320" y="125">GAMLA STADEN</text><text x="790" y="130">BARNHUSKVARTEREN</text><text x="1130" y="125">VETENSKAP</text><text x="1460" y="68">SLOTTET</text><text x="1110" y="785">LANDSBYGDEN</text><text x="1870" y="150">HAMNEN</text></g>',
+ '<g transform="translate(555 440)"><rect x="-9" y="-60" width="18" height="105" fill="#7b6048"/><path d="M9 -59L110 -59L110 -22L9 -22Z" fill="#f4e4b9" stroke="#7b6048" stroke-width="4"/><text x="59" y="-33" text-anchor="middle" font-family="Georgia" font-size="16" fill="#483e2c">VIDARE →</text><circle cx="-26" cy="12" r="15" fill="#ddc59c"/><path d="M-40 30L-15 30L-10 68H-44Z" fill="#536b6b"/></g>',
+ '</svg>'];return svg.join('');
+}
+
 function openAtlas(){
  atlas.replaceChildren();
  const heading=document.createElement('div');heading.className='atlas-head';
@@ -86,15 +114,13 @@ function openAtlas(){
  const close=document.createElement('button');close.textContent='Stäng ×';close.onclick=()=>atlas.close();heading.append(title,close);
  const viewport=document.createElement('div');viewport.className='atlas-viewport';
  const world=document.createElement('div');world.className='atlas-land';
- const roads=document.createElement('svg');roads.setAttribute('viewBox','0 0 2110 780');roads.classList.add('atlas-roads');
- roads.innerHTML='<path d="M210 245 C340 250 430 240 590 225 S930 255 1080 235 S1370 210 1530 260 S1840 265 1930 520 M1080 235 Q1070 395 1040 565 M1530 260 Q1570 390 1790 555" stroke="#f5e7c7" stroke-width="45" fill="none" stroke-linecap="round"/><path d="M210 245 C340 250 430 240 590 225 S930 255 1080 235 S1370 210 1530 260 S1840 265 1930 520 M1080 235 Q1070 395 1040 565 M1530 260 Q1570 390 1790 555" stroke="#ad956f" stroke-width="2" stroke-dasharray="9 9" fill="none"/>';
- world.append(roads);
+ world.insertAdjacentHTML('afterbegin',worldPainting());
  const unlocked=engine.world().unlocked;
  districts.forEach((d,i)=>{
-  const card=document.createElement('section');card.className='atlas-district';card.style.left=d.x+'px';card.style.top=d.y+'px';
+  const card=document.createElement('section');card.className='atlas-district atlas-place-sign';card.style.left=(d.x+100)+'px';card.style.top=(d.y+115)+'px';
   const open=d.chapters.some(c=>c<=unlocked);card.classList.toggle('atlas-locked',!open);
   const h=document.createElement('h3');h.textContent=d.name;card.append(h);
-  const status=document.createElement('p');status.textContent=open?'Öppet · Utforska platserna':'Synligt · Vägen är ännu stängd';card.append(status);
+  const status=document.createElement('p');status.textContent=open?'Öppet':'Vägen stängd';card.append(status);
   for(const [label,place]of d.places){const btn=document.createElement('button');btn.textContent=label;btn.disabled=!open||!engine.availablePlaces().includes(place);btn.onclick=()=>{atlas.close();travelTo(place)};card.append(btn)}
   if(!open){const info=document.createElement('small');info.textContent='Fortsätt berättelsen vid vägvisaren för att komma hit.';card.append(info)}
   world.append(card);
