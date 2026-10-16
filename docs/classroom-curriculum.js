@@ -3656,8 +3656,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "på flera små jordbitar",
               "options": [
                 "på flera små jordbitar",
-                "alltid på en enda stor åker",
-                "bara inne i staden"
+                "samlade kring en gård",
+                "på samma stora åker för hela byn"
               ]
             },
             {
@@ -3665,8 +3665,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "mer samlade",
               "options": [
                 "mer samlade",
-                "helt avskaffade",
-                "alltid lika stora för alla"
+                "mer utspridda mellan gårdarna",
+                "uppdelade i fler mindre tegar"
               ]
             },
             {
@@ -3674,8 +3674,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "odlingen effektivare men splittra bygemenskapen",
               "options": [
                 "odlingen effektivare men splittra bygemenskapen",
-                "allt arbete onödigt",
-                "alla bönder lika rika"
+                "bönderna tvungna att flytta till staden",
+                "fler små tegar men oförändrad bygemenskap"
               ]
             }
           ],
@@ -3716,8 +3716,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "billigare att anställa",
               "options": [
                 "billigare att anställa",
-                "dyrare än vuxna",
-                "de enda som ägde fabriker"
+                "dyrare att anställa än vuxna",
+                "lika dyra som utbildade hantverkare"
               ]
             },
             {
@@ -3725,8 +3725,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "långa arbetsdagar",
               "options": [
                 "långa arbetsdagar",
-                "högre lön än de vuxnas",
-                "frihet från alla krav"
+                "korta arbetsdagar med högre lön",
+                "färre arbetsuppgifter än i skolan"
               ]
             },
             {
@@ -3734,8 +3734,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "spara pengar åt ägaren och vara tungt för barnet",
               "options": [
                 "spara pengar åt ägaren och vara tungt för barnet",
-                "vara lika bra för alla",
-                "ge barnet makt över ägaren"
+                "sänka ägarens kostnader och ge barnet större inflytande",
+                "öka ägarens kostnader men ge barnet mer fritid"
               ]
             }
           ],
@@ -3781,8 +3781,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "under den tid vi undersöker",
               "options": [
                 "under den tid vi undersöker",
-                "efter att ha sett dagens filmer",
-                "bara om framtiden"
+                "långt efter den tid som skildras",
+                "under 1800-talets senare del"
               ]
             },
             {
@@ -3790,8 +3790,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "människor och livet i staden",
               "options": [
                 "människor och livet i staden",
-                "bara hur man odlar potatis",
-                "bara riksrådets möten"
+                "människor och vardag i byarnas jordbruk",
+                "riksdagens beslut och protokoll"
               ]
             },
             {
@@ -3799,8 +3799,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "ge kunskap om livet på 1700-talet",
               "options": [
                 "ge kunskap om livet på 1700-talet",
-                "ersätta alla andra källor",
-                "visa varje människas exakta vardag"
+                "visa hur Bellman valde att skildra sin samtid",
+                "bevisa vilka regler som gällde i Sveriges städer"
               ]
             }
           ],
@@ -3841,8 +3841,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "göra odlingen lättare och mer lönsam",
               "options": [
                 "göra odlingen lättare och mer lönsam",
-                "göra all odling omöjlig",
-                "göra alla jordbitar lika"
+                "göra åkrarna mer utspridda och svårare att bruka",
+                "öka antalet små tegar per gård"
               ]
             },
             {
@@ -3850,8 +3850,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "gemenskap och hjälp mellan grannar minska",
               "options": [
                 "gemenskap och hjälp mellan grannar minska",
-                "alla få mer gemenskap automatiskt",
-                "städerna försvinna"
+                "bygemenskapen stärkas genom att gårdarna låg tätare",
+                "samarbetet mellan grannar bli oförändrat trots flytt"
               ]
             },
             {
@@ -3859,8 +3859,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "några bli rikare och andra fattigare",
               "options": [
                 "några bli rikare och andra fattigare",
-                "alla få samma resultat",
-                "ingen påverkas av förändringen"
+                "skillnaderna mellan gårdarna minska på samma sätt överallt",
+                "samma ekonomiska följder uppstå för varje hushåll"
               ]
             }
           ],
@@ -4146,8 +4146,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "kunde utsättas för straff och skam",
               "options": [
                 "kunde utsättas för straff och skam",
-                "fick bestämma över hela samhället",
-                "hade samma ställning som kungen"
+                "få samma rättigheter som gifta kvinnor",
+                "få laglig rätt att välja riksrådet"
               ]
             },
             {
@@ -4155,8 +4155,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "att sex hörde till äktenskapet",
               "options": [
                 "att sex hörde till äktenskapet",
-                "att äktenskap var förbjudet",
-                "att skamstraff hade avskaffats"
+                "att äktenskapet inte påverkade synen på barn",
+                "att ogifta kvinnor hade samma ställning som gifta"
               ]
             },
             {
@@ -4164,8 +4164,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "rädd för att graviditeten skulle upptäckas",
               "options": [
                 "rädd för att graviditeten skulle upptäckas",
-                "säker på att slippa alla svårigheter",
-                "fri att välja riksrådet"
+                "trygg i att hon inte kunde straffas",
+                "säker på att samhället accepterade barnet"
               ]
             }
           ],
@@ -4210,8 +4210,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "arbetade långa dagar",
               "options": [
                 "arbetade långa dagar",
-                "bestämde över personalen",
-                "fick högre lön än vuxna"
+                "studerade utan att behöva arbeta",
+                "arbetade endast någon timme i veckan"
               ]
             },
             {
@@ -4219,8 +4219,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "lite mat och bli slagna",
               "options": [
                 "lite mat och bli slagna",
-                "lika mycket frihet som riksdagen",
-                "välja om de ville arbeta"
+                "regelbunden vila och lön för sitt arbete",
+                "mycket mat och möjlighet att välja arbete"
               ]
             },
             {
@@ -4228,8 +4228,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "fick också lära sig läsa, skriva eller räkna",
               "options": [
                 "fick också lära sig läsa, skriva eller räkna",
-                "var ledamöter i riksrådet",
-                "ägde alla stadens fabriker"
+                "fick utbildning i hantverk på samma villkor som vuxna",
+                "kunde lämna barnhuset när de själva ville"
               ]
             }
           ],
@@ -4280,8 +4280,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "barn som ingen kunde ta hand om",
               "options": [
                 "barn som ingen kunde ta hand om",
-                "bara barn till kungar",
-                "bara barn som ägde mark"
+                "barn till förmögna familjer som ville studera",
+                "barn vars föräldrar arbetade i riksdagen"
               ]
             },
             {
@@ -4289,8 +4289,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "utsättas för hårt arbete, hunger och våld",
               "options": [
                 "utsättas för hårt arbete, hunger och våld",
-                "slippa arbete och få hög lön",
-                "bestämma över de vuxna"
+                "få samma lön och villkor som vuxna arbetare",
+                "välja sina arbetsuppgifter och boende"
               ]
             },
             {
@@ -4298,8 +4298,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "både att barnen fick bo där och hur de behandlades",
               "options": [
                 "både att barnen fick bo där och hur de behandlades",
-                "bara att huset fanns",
-                "bara de vuxnas önskemål"
+                "enbart vad barnhusen var avsedda för",
+                "enbart hur personalen beskrev verksamheten"
               ]
             }
           ],
@@ -4738,8 +4738,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "anmälde mannen som vägrade betala och slog dem",
               "options": [
                 "anmälde mannen som vägrade betala och slog dem",
-                "bestämde lagarna på ön",
-                "fick välja Sveriges kung"
+                "krävde att få äga handelsföretaget",
+                "anmälde att de hindrades från att resa till Sverige"
               ]
             },
             {
@@ -4747,8 +4747,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "betala deras löner och böter",
               "options": [
                 "betala deras löner och böter",
-                "bli svensk kung",
-                "slippa betala något alls"
+                "lämna ön och förlora sin egendom",
+                "betala kvinnorna men inte dömas till böter"
               ]
             },
             {
@@ -4756,8 +4756,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "kvinnorna var förslavade",
               "options": [
                 "kvinnorna var förslavade",
-                "de hade fått samma rättigheter som alla fria",
-                "domstolen saknade lagar"
+                "kvinnorna var fria medborgare",
+                "mannen hade rätt att behålla deras lön"
               ]
             }
           ],
@@ -4791,8 +4791,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "nästan inga skatter",
               "options": [
                 "nästan inga skatter",
-                "förbjudet att bedriva handel",
-                "bara bönder som fick arbeta"
+                "högre tullar än i resten av landet",
+                "särskilda skatter på varje hantverk"
               ]
             },
             {
@@ -4800,8 +4800,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "tillhöra ett skrå för att arbeta",
               "options": [
                 "tillhöra ett skrå för att arbeta",
-                "ha något arbete alls",
-                "följa några lagar överhuvudtaget"
+                "betala medlemsavgift i flera skrån",
+                "söka tillstånd från ett hantverksskrå"
               ]
             },
             {
@@ -4809,8 +4809,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "vem som helst flytta dit",
               "options": [
                 "vem som helst flytta dit",
-                "bara adel flytta dit",
-                "ingen invandra dit"
+                "enbart handlare med kungligt tillstånd flytta dit",
+                "bara personer födda i Sverige flytta dit"
               ]
             }
           ],
@@ -4848,8 +4848,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "förädlade varor, till exempel vapen och alkohol",
               "options": [
                 "förädlade varor, till exempel vapen och alkohol",
-                "bara bönder från Dalarna",
-                "bara te från Kina"
+                "råvaror från de amerikanska kolonierna",
+                "varor som odlats på afrikanska plantager"
               ]
             },
             {
@@ -4857,8 +4857,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "människor som förslavats",
               "options": [
                 "människor som förslavats",
-                "enbart svenska kungar",
-                "enbart potatisfrön"
+                "kolonialvaror odlade i Amerika",
+                "handelsvaror tillverkade i Europa"
               ]
             },
             {
@@ -4866,8 +4866,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "kolonialvaror, till exempel socker och kaffe",
               "options": [
                 "kolonialvaror, till exempel socker och kaffe",
-                "riksrådets medlemmar",
-                "alla människor tillbaka till sina hem"
+                "vapen och textilier från europeiska verkstäder",
+                "järn och koppar som bröts i Afrika"
               ]
             }
           ],
