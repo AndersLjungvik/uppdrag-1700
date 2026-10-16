@@ -101,7 +101,7 @@ function renderQuestion(){
  $('question').textContent=engine.state.simpleText&&q.simpleQuestion?q.simpleQuestion:q.question;
  const feedback=session.feedback,chain=q.type==='chain';
  $('answerForm').hidden=chain||!!feedback;$('chainForm').hidden=!chain||!session.optionsShown||!!feedback;$('showOptions').hidden=!!feedback||session.optionsShown;
- $('showOptions').textContent=(chain?'Visa delarna till förklaringen':'Visa svarsalternativ')+(engine.optionsCost()?` · 1 äpple (${engine.state.inventory.apple||0} kvar)`:' · gratis svarsstöd');
+ $('showOptions').textContent=(chain?'Visa byggdelarna · gratis (nödvändiga för uppgiften)':'Visa svarsalternativ')+(engine.optionsCost()?` · 1 äpple (${engine.state.inventory.apple||0} kvar)`:' · gratis');
  $('choiceArea').hidden=chain||!session.optionsShown||!!feedback;$('choiceArea').replaceChildren();
  $('helpText').hidden=!session.clue;$('helpText').textContent=session.clue||'';$('sourceText').textContent=q.bookReference||engine.current().pages;$('questionSource').open=false;$('feedback').hidden=!feedback;$('next').hidden=!feedback?.correct;$('retry').hidden=!feedback||feedback.correct;$('hint').hidden=session.kind!=='story'||!!feedback;$('hint').textContent=session.clue?'Läs ledtråden igen':`Ge ett äpple för en ledtråd (${engine.state.inventory.apple||0})`;
  if(feedback){$('feedback').className=feedback.correct?'good':'bad';$('feedback').textContent=(feedback.correct?'Rätt. ':'Vi tittar på det igen. ')+feedback.explanation;$('next').textContent=session.index===session.ids.length-1?'Avsluta arbetet':'Nästa fråga';readable($('feedback').textContent);}
@@ -112,7 +112,7 @@ function renderQuestion(){
   readable($('question').textContent+(chain?' Fundera på sambandet innan du visar delarna.':''));
   if(!chain&&!session.optionsShown)requestAnimationFrame(()=>$('answer').focus({preventScroll:true}));
  }
- $('instruction').textContent='Texten väntar på dig. Enter fungerar för kortsvar.';$('work').scrollTop=0;
+ $('instruction').textContent=chain?'Bygg förklaringen av delarna. De är gratis och behövs för att kunna svara.':'Tänk efter först. Enter fungerar för kortsvar.';$('work').scrollTop=0;
 }
 function renderChain(q,session){
  $('chainParts').replaceChildren();
