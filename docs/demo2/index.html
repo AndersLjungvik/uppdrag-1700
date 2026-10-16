@@ -151,12 +151,12 @@ function islandScene(which){
 }
 function sail(destination){
  if(region!=='main')return;
- const quay={x:old.x+1040,y:old.y+420};if(Math.hypot(player.x-quay.x,player.y-quay.y)>95){walkingTo=quay;pendingSail=destination;info.textContent='Först går du till kajen för att gå ombord.';return}
- walkingTo=null;sailing={destination,started:performance.now()};
+ const quay={x:old.x+1040,y:old.y+420};if(Math.hypot(player.x-quay.x,player.y-quay.y)>95){walkRoute=findWalk(player,quay);walkingTo=quay;pendingSail=destination;info.textContent='Först går du till kajen för att gå ombord.';return}
+ walkingTo=null;walkRoute=[];sailing={destination,started:performance.now()};
  info.textContent=destination==='marstrand'?'Du går ombord på båten mot Marstrand.':'Du går ombord på ett fartyg för den långa Atlantresan.';
 }
 function returnToHarbor(){
- region='main';sailing=null;walkingTo=null;player.x=old.x+1040;player.y=old.y+420;
+ region='main';sailing=null;walkingTo=null;walkRoute=[];player.x=old.x+1040;player.y=old.y+420;
  camera={x:player.x,y:player.y};followPlayer=true;clamp();updateRegion();draw();
 }
 function updateRegion(){
@@ -167,6 +167,41 @@ function updateRegion(){
  document.querySelector('#zoom').hidden=region!=='main';
  status.textContent=region==='main'?'Huvudstaden':region==='marstrand'?'Marstrand':'Saint Barthélemy';
 }
+
+
+const blockingHouses=[
+ [670,345,340,180],[750,590,250,155],[1110,965,205,140],
+ [2940,490,300,180],[3270,470,180,125],[3520,510,205,135],
+ [2990,1000,195,140],[3330,935,320,175],[3770,900,235,145],
+ [3670,560,235,165],[3160,200,170,115],[3060,1160,145,100],[3480,1220,165,100]
+];
+function isWater(x,y){
+ const shore=1470+(x<1450?0:x<2700?25:-(x-2700)*.025);
+ const stream=x>=1320&&x<=1450&&y<470||x>=2780&&x<=2885&&y<750;
+ const bridgeMain=x>=1310&&x<=1445&&y>=362&&y<=480;
+ const bridgeEast=x>=2750&&x<=2915&&y>=771&&y<=905;
+ return y>shore||(stream&&!bridgeMain&&!bridgeEast);
+}
+function walkablePoint(x,y){
+ if(x<30||x>W-30||y<30||y>H-30||isWater(x,y))return false;
+ if(blockingHouses.some(([a,b,w,h])=>x>a-15&&x<a+w+15&&y>b-15&&y<b+h+15))return false;
+ // The original town already contains authored walkable areas. In the new
+ // districts, allow streets and courtyards but never sea or building interiors.
+ return true;
+}
+const STEP=30,COLS=Math.ceil(W/STEP),ROWS=Math.ceil(H/STEP);
+function findWalk(start,goal){
+ const toCell=p=>({x:Math.max(1,Math.min(COLS-2,Math.round(p.x/STEP))),y:Math.max(1,Math.min(ROWS-2,Math.round(p.y/STEP)))});
+ const a=toCell(start),b=toCell(goal),key=(x,y)=>y*COLS+x;
+ const open=[a],visited=new Uint8Array(COLS*ROWS),prev=new Int32Array(COLS*ROWS).fill(-1);visited[key(a.x,a.y)]=1;
+ let found=false;
+ for(let i=0;i<open.length;i++){const p=open[i];if(p.x===b.x&&p.y===b.y){found=true;break}
+ for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const x=p.x+dx,y=p.y+dy,k=key(x,y);if(x<1||y<1||x>=COLS-1||y>=ROWS-1||visited[k]||!walkablePoint(x*STEP,y*STEP))continue;visited[k]=1;prev[k]=key(p.x,p.y);open.push({x,y})}}
+ if(!found)return[];
+ const route=[];let k=key(b.x,b.y);while(k!==key(a.x,a.y)&&k>=0){route.push({x:k%COLS*STEP,y:Math.floor(k/COLS)*STEP});k=prev[k]}
+ return route.reverse();
+}
+let walkRoute=[];
 
 function avatar(){const x=player.x,y=player.y;ctx.fillStyle='#486c72';ctx.beginPath();ctx.arc(x,y-12,13,0,Math.PI*2);ctx.fill();poly([[x-14,y],[x+14,y],[x+10,y+29],[x-10,y+29]],'#486c72')}
 // Render the large world once to an offscreen paper layer, instead of redrawing
@@ -190,12 +225,12 @@ function clamp(){const r=stage.getBoundingClientRect();camera.x=Math.max(r.width
 function focus(){if(region!=='main')return;camera={x:player.x,y:player.y};clamp();draw()}
 canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,cx:camera.x,cy:camera.y};moved=false});
 canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>9)moved=true;camera.x=drag.cx-dx/scale;camera.y=drag.cy-dy/scale;followPlayer=false;clamp();draw()});
-canvas.addEventListener('pointerup',e=>{if(!moved){const p=worldPoint(e),near=(region==='main'?locations:seaSites[region]).find(l=>Math.hypot(l.x-p.x,l.y-p.y)<125);if(near){info.textContent=near.name+' · '+near.area+' (miljön finns, uppdragen kommer senare)';if(near.area)status.textContent=near.area;walkingTo={x:near.x,y:near.y};followPlayer=true}else{walkingTo={x:p.x,y:p.y};followPlayer=true;info.textContent='Du går vidare genom den utbyggda världen.'}}drag=null});
+canvas.addEventListener('pointerup',e=>{if(!moved){const p=worldPoint(e),near=(region==='main'?locations:seaSites[region]).find(l=>Math.hypot(l.x-p.x,l.y-p.y)<125);if(near){info.textContent=near.name+' · '+near.area+' (miljön finns, uppdragen kommer senare)';if(near.area)status.textContent=near.area;walkRoute=findWalk(player,{x:near.x,y:near.y});walkingTo=null;followPlayer=true}else{walkRoute=findWalk(player,p);walkingTo=null;followPlayer=true;info.textContent='Du går vidare genom den utbyggda världen.'}}drag=null});
 canvas.addEventListener('wheel',e=>{e.preventDefault();camera.x+=e.deltaX/scale;camera.y+=e.deltaY/scale;followPlayer=false;clamp();draw()},{passive:false});
 document.querySelector('#sailMarstrand').onclick=()=>sail('marstrand');document.querySelector('#sailColony').onclick=()=>sail('colony');document.querySelector('#returnHarbor').onclick=returnToHarbor;
 document.querySelector('#home').onclick=()=>{followPlayer=true;focus()};document.querySelector('#zoom').onclick=()=>{followPlayer=!followPlayer;if(followPlayer)focus();else{camera.x=old.x+640;camera.y=old.y+360;clamp();draw()}};
 window.addEventListener('resize',()=>{clamp();draw()});
-let lastPaint=0;function animate(now){if(sailing&&performance.now()-sailing.started>1500){region=sailing.destination;sailing=null;walkingTo=null;player.x=760;player.y=1020;camera={x:player.x,y:player.y};followPlayer=true;clamp();updateRegion();info.textContent=region==='marstrand'?'Du har anlänt till Marstrand. Utforska hamnen och fästningen.':'Du har anlänt till Gustavia på Saint Barthélemy. Utforska hamnen och handelsplatsen.';draw()}if(walkingTo){const dx=walkingTo.x-player.x,dy=walkingTo.y-player.y,d=Math.hypot(dx,dy);if(d<4){walkingTo=null;if(pendingSail){const destination=pendingSail;pendingSail=null;sail(destination)}}else{const speed=Math.min(d,4);player.x+=dx/d*speed;player.y+=dy/d*speed}draw()}else if(followPlayer&&now-lastPaint>45){draw();lastPaint=now}requestAnimationFrame(animate)}
+let lastPaint=0;function animate(now){if(sailing&&performance.now()-sailing.started>1500){region=sailing.destination;sailing=null;walkingTo=null;player.x=760;player.y=1020;camera={x:player.x,y:player.y};followPlayer=true;clamp();updateRegion();info.textContent=region==='marstrand'?'Du har anlänt till Marstrand. Utforska hamnen och fästningen.':'Du har anlänt till Gustavia på Saint Barthélemy. Utforska hamnen och handelsplatsen.';draw()}if(walkRoute.length){const target=walkRoute[0],dx=target.x-player.x,dy=target.y-player.y,d=Math.hypot(dx,dy);if(d<5)walkRoute.shift();else{const step=Math.min(d,4);player.x+=dx/d*step;player.y+=dy/d*step}draw()}if(walkingTo){const dx=walkingTo.x-player.x,dy=walkingTo.y-player.y,d=Math.hypot(dx,dy);if(d<4){walkingTo=null;if(pendingSail){const destination=pendingSail;pendingSail=null;sail(destination)}}else{const speed=Math.min(d,4);player.x+=dx/d*speed;player.y+=dy/d*speed}draw()}else if(followPlayer&&now-lastPaint>45){draw();lastPaint=now}requestAnimationFrame(animate)}
 original.onload=()=>{worldReady=false;prepareWorld();draw()};original.onerror=()=>{info.textContent='Originalbilden kunde inte laddas. De nya kvarteren kan ändå utforskas.';worldReady=false;prepareWorld();draw()};
 focus();updateRegion();requestAnimationFrame(animate);
 </script></body></html>
