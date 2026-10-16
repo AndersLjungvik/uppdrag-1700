@@ -58,12 +58,12 @@ function room(kind,t,who){
  puppet(525,690,'#466b70',true,t,speaker==='Du');
  puppet(790,690,who.color||'#736d57',false,t,speaker===who.npc,false,who.woman||false);
 }
-function draw(t,{world,place='town',speaker:sp='',speechAt=0,speechEnd=0,blocked=false,direction=0,walking=false,dogUntil=0,flight=null}={}){
+function draw(t,{world,place='town',speaker:sp='',speechAt=0,speechEnd=0,blocked=false,direction=0,walking=false,dogUntil=0,flight=null,rut=null}={}){
  if(!world)return;state=world;view=place;const who=PLACES[place]||PLACES.archive;speaker=place!=='town'&&sp&&sp!=='Du'&&sp!=='Berättaren'?(place==='print'?'Brita':who.npc):sp;speechStarted=speechAt;speechUntil=speechEnd;busy=blocked;heading=direction;moving=walking;petUntil=dogUntil;pressFlight=flight;
  const {scale,x,y,d}=projection;if(!canvas.width||!canvas.height)return;
  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#d8d0bc';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.setTransform(d*scale,0,0,d*scale,d*x,d*y);
  if(view==='town'){
-  base('town');overhead(state.player.x,state.player.y,'#486c72',heading,moving,t);overhead(1040,420,'#a4804c',-.3,false,t);overhead(860,465,'#8e614b',.1,false,t,true);overhead(570,445,'#77548a',.2,false,t,true);ctx.font='bold 17px Georgia';ctx.textAlign='center';ctx.fillStyle='#fff1cf';ctx.fillText('RUT · ÄPPLEN',570,410);dog(t);
+  base('town');overhead(state.player.x,state.player.y,'#486c72',heading,moving,t);overhead(1040,420,'#a4804c',-.3,false,t);overhead(860,465,'#8e614b',.1,false,t,true);const rutPos=rut||{x:570,y:445};overhead(rutPos.x,rutPos.y,'#77548a',.2,true,t,true);ctx.font='bold 17px Georgia';ctx.textAlign='center';ctx.fillStyle='#fff1cf';ctx.fillText('RUT · ÄPPLEN',rutPos.x,rutPos.y-35);dog(t);
   poly([[1020,0],[1280,0],[1280,140],[1220,119],[1170,107],[1110,71]],'#ece0c7');
  }else if(view==='work')base('work');
  else if(view==='quay'||view==='marstrand'){base('quay');puppet(525,690,'#466b70',true,t,speaker==='Du');puppet(790,690,who.color,false,t,speaker===who.npc);}
