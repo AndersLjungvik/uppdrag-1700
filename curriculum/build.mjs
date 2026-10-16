@@ -3,6 +3,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import cards,{sources,chapterTitles,reflections} from './classroom.mjs';
 import {vettedDistractors} from './vetted-distractors.mjs';
+import {vettedChainOptions} from './vetted-chain-options.mjs';
 import {coverage} from './coverage.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const out=(name,data)=>fs.writeFileSync(path.join(root,name),data);
@@ -17,7 +18,8 @@ const bank={version:4,bankId:'sos-classroom-2026-10-16-v1',title:'Uppdrag 1700 �
  concepts:cards.filter(q=>q.concept).map(q=>({term:q.concept,mission:topics[q.storyChapter],chapter:q.chapter,question:q.id})),
  assessments:[{id:'del1',title:'Träning inför det uppladdade provet del 1',ids:cards.filter(q=>q.references.some(r=>r.source==='P1')).map(q=>q.id),reflections:reflections.filter(q=>q.references.some(r=>r.source==='P1')).map(q=>q.id)},{id:'del2',title:'Träning inför det uppladdade provet del 2',ids:cards.filter(q=>q.references.some(r=>r.source==='P2')).map(q=>q.id),reflections:reflections.filter(q=>q.references.some(r=>r.source==='P2')).map(q=>q.id)}]
 };
-for(const q of cards){const mission=topics[q.storyChapter];const record={...q,missionId:mission,bookReference:asText(q.references),...(q.type==='short'&&vettedDistractors[q.id]?{distractors:vettedDistractors[q.id]}:{})};bank.missions.find(m=>m.id===mission).cards.push(record)}
+for(const q of cards){const mission=topics[q.storyChapter];const steps=q.type==='chain'&&vettedChainOptions[q.id]?q.steps.map((step,i)=>({...step,options:[step.answer,...vettedChainOptions[q.id][i]]})):q.steps;
+ const record={...q,...(steps?{steps}:{}),missionId:mission,bookReference:asText(q.references),...(q.type==='short'&&vettedDistractors[q.id]?{distractors:vettedDistractors[q.id]}:{})};bank.missions.find(m=>m.id===mission).cards.push(record)}
 for(const m of bank.missions)m.notes=[...new Set(m.cards.filter(q=>q.type==='short').map(q=>q.explanation))];
 const count=cards.length;
 out('dist/classroom-bank.json',JSON.stringify(bank,null,2)+'\n');
