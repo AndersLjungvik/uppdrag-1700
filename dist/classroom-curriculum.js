@@ -3815,8 +3815,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "ge kunskap om livet på 1700-talet",
               "options": [
                 "ge kunskap om livet på 1700-talet",
-                "visa hur Bellman valde att skildra sin samtid",
-                "bevisa vilka regler som gällde i Sveriges städer"
+                "ange exakt hur många invånare Stockholm hade",
+                "visa vilka lagar riksdagen beslutade om"
               ]
             }
           ],
@@ -5548,8 +5548,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "behandlas illa trots de nya reglerna",
               "options": [
                 "behandlas illa trots de nya reglerna",
-                "möta fördomar trots förändringarna",
-                "få samma politiska rättigheter som männen"
+                "få samma politiska rättigheter som männen",
+                "välja riksrådets medlemmar"
               ]
             }
           ],
