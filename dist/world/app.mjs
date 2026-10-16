@@ -103,7 +103,7 @@ function worldPainting(){
  '<path d="M0 0H2110V850H0Z" fill="url(#paperDots)"/>',
  '<g fill="#4b4c39" font-family="Georgia,serif" font-weight="bold" font-size="29" text-anchor="middle"><text x="320" y="125">GAMLA STADEN</text><text x="790" y="130">BARNHUSKVARTEREN</text><text x="1130" y="125">VETENSKAP</text><text x="1460" y="68">SLOTTET</text><text x="1110" y="785">LANDSBYGDEN</text><text x="1870" y="150">HAMNEN</text></g>',
  '<g transform="translate(555 440)"><rect x="-9" y="-60" width="18" height="105" fill="#7b6048"/><path d="M9 -59L110 -59L110 -22L9 -22Z" fill="#f4e4b9" stroke="#7b6048" stroke-width="4"/><text x="59" y="-33" text-anchor="middle" font-family="Georgia" font-size="16" fill="#483e2c">VIDARE →</text><circle cx="-26" cy="12" r="15" fill="#ddc59c"/><path d="M-40 30L-15 30L-10 68H-44Z" fill="#536b6b"/></g>',
- '</svg>'];return svg.join('');
+ '</svg>');return svg.join('');
 }
 
 function openAtlas(){
