@@ -390,5 +390,117 @@ export const vettedChainOptions = {
       "vapen och textilier från europeiska verkstäder",
       "järn och koppar som bröts i Afrika"
     ]
+  ],
+  "sos-slaveri-foljder": [
+    [
+      "till arbete med samma villkor som fria",
+      "mellan plantager på samma ö utan tvång"
+    ],
+    [
+      "arbeta med lön och möjlighet att säga upp sig",
+      "arbeta enligt samma avtal som fria handelsmän"
+    ],
+    [
+      "motstånd genom att förhandla som fria löntagare",
+      "motstånd genom att rösta i kolonins riksdag"
+    ]
+  ],
+  "sos-motstand-avskaffande": [
+    [
+      "förhandlade om fria arbetsavtal med ägarna",
+      "fick politiskt inflytande genom val"
+    ],
+    [
+      "stödja fortsatt handel med människor",
+      "förespråka att handeln skulle utökas"
+    ],
+    [
+      "1792 under Gustav III:s regering",
+      "1809 vid förlusten av Finland"
+    ]
+  ],
+  "sos-rattigheter-ojamnt": [
+    [
+      "dödsstraff",
+      "landsförvisning"
+    ],
+    [
+      "få samma rättigheter som fria handelsmän",
+      "bestämma sina egna arbetsvillkor"
+    ],
+    [
+      "reformerna gav lika rättigheter även i kolonin",
+      "reformerna avskaffade skillnaden mellan fria och förslavade"
+    ]
+  ],
+  "sos-krig-popularitet": [
+    [
+      "de svenska kolonierna i Karibien",
+      "de områden som Ostindiska kompaniet handlade med"
+    ],
+    [
+      "göra riksrådet mer populärt än kungen",
+      "minska kungens inflytande i riksdagen"
+    ],
+    [
+      "för att försvara landet mot ett angrepp",
+      "för att förhandla fram en fred utan krig"
+    ]
+  ],
+  "sos-ogifta-forandring": [
+    [
+      "registreras offentligt i kyrkans handlingar",
+      "förhöras inför hela församlingen"
+    ],
+    [
+      "anteckna moderns namn i kyrkoboken",
+      "undervisa om kyrkans syn på äktenskap"
+    ],
+    [
+      "möta fördomar trots förändringarna",
+      "få samma politiska rättigheter som männen"
+    ]
+  ],
+  "sos-kupp-forlopp": [
+    [
+      "riksdagen för att ge bönderna mer makt",
+      "riksrådet för att avskaffa kungamakten"
+    ],
+    [
+      "ledande personer i Ostindiska kompaniet",
+      "höga befäl i den ryska armén"
+    ],
+    [
+      "riksdagen besluta utan kungens medverkan",
+      "riksrådet utse en ny kung varje år"
+    ]
+  ],
+  "sos-reformer-begransningar": [
+    [
+      "skamstraff försvann helt",
+      "kroppsstraff avskaffades i varje situation"
+    ],
+    [
+      "judar och katoliker fick politiska rättigheter som stånd",
+      "religiösa minoriteter fick samma rättigheter som lutheraner"
+    ],
+    [
+      "förblev lika omfattande som under frihetstiden",
+      "utökades så att kungen inte kunde ingripa"
+    ]
+  ],
+  "sos-kung-motsagelse": [
+    [
+      "samma rättigheter till olika grupper",
+      "en ny ordning där riksdagen fick större makt"
+    ],
+    [
+      "mer makt hos riksrådet",
+      "mer makt hos bondeståndet"
+    ],
+    [
+      "välja ledamöter till riksrådet",
+      "bosätta sig fritt i varje stad utan begränsningar"
+    ]
   ]
 };
