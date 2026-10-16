@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Uppdrag 1700 – Demo 2.0</title>
+<style>
+:root{font-family:Georgia,serif;color:#3b3328;background:#e9ddc2}*{box-sizing:border-box}body{margin:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 15px;background:#eee2c8;border-bottom:2px solid #b5a17d}
+h1{font-size:clamp(18px,4vw,26px);font-weight:normal;margin:0}header span{font:12px system-ui,sans-serif}
+main{position:relative;flex:1;min-height:0;overflow:hidden;background:#d1c8b5;touch-action:none}canvas{width:100%;height:100%;display:block;touch-action:none}
+#info{position:absolute;left:12px;bottom:12px;background:#f3e7ceef;border:1px solid #ac9570;padding:10px 13px;border-radius:5px;max-width:min(320px,75vw);pointer-events:none;font:14px/1.4 system-ui,sans-serif}
+#hud{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:9px 12px;background:#eee2c8;border-top:2px solid #b5a17d}
+button{font:14px system-ui,sans-serif;min-height:43px;padding:8px 13px;background:#d5bd8e;border:1px solid #a88e62;border-radius:5px;color:#352c20}
+#status{font:12px/1.4 system-ui,sans-serif}#help{font-size:12px}
+</style></head><body>
+<header><h1>UPPDRAG 1700 <small>· DEMO 2.0</small></h1><span>Världen · utan uppdrag</span></header>
+<main id="stage"><canvas id="world" aria-label="Utforskbar värld, dra för att panorera och tryck på en byggnad för att undersöka den"></canvas><div id="info">Dra kartan för att se hur staden fortsätter. Tryck på en byggnad för att se vad den är.</div></main>
+<div id="hud"><button id="home">Till gamla staden</button><span id="status">Gamla staden</span><button id="zoom">Visa mer</button></div>
+<script>
+'use strict';
+const canvas=document.querySelector('#world'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage'),info=document.querySelector('#info'),status=document.querySelector('#status');
+const W=4200,H=1700,old={x:1450,y:470,w:1280,h:720};
+const original=new Image();original.src='../world/assets/town.webp';
+let camera={x:old.x+640,y:old.y+360},scale=0.68,drag=null,moved=false,ready=false;
+const locations=[
+ {name:'Kaffehuset',x:2150,y:730,area:'Gamla staden'},
+ {name:'Tryckeriet',x:1810,y:850,area:'Gamla staden'},
+ {name:'Kajen',x:2490,y:890,area:'Gamla staden'},
+ {name:'Arkivet',x:1930,y:1025,area:'Gamla staden'},
+ {name:'Barnhuset',x:3130,y:710,area:'Barnhuskvarteren'},
+ {name:'Verkstäderna',x:3370,y:970,area:'Barnhuskvarteren'},
+ {name:'Vetenskapens hus',x:960,y:690,area:'Vetenskapens kvarter'},
+ {name:'Slottet',x:980,y:400,area:'Slottshöjden'},
+ {name:'Operan',x:1200,y:1020,area:'Slottshöjden'},
+ {name:'Byn',x:3650,y:350,area:'Landsbygden'},
+ {name:'Kvarnen',x:3890,y:670,area:'Landsbygden'}
+];
+function poly(points,color){ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle=color;ctx.fill()}
+function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h)}
+function road(points,width=110){ctx.lineJoin='round';ctx.lineCap='round';for(const [w,c] of [[width+12,'#b5a993'],[width,'#f2e4cc']]){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke()}}
+function building(x,y,w,h,roof='#655e54'){rect(x+9,y+13,w,h,'#96816b');rect(x,y,w,h,'#d3c6af');poly([[x-9,y+3],[x+w*.54,y-12],[x+w+7,y],[x+w+7,y+h],[x,y+h+5]],roof);ctx.strokeStyle='#f0dfc1';ctx.lineWidth=4;ctx.strokeRect(x+2,y+2,w-4,h-4)}
+function tree(x,y,r=24){rect(x-5,y+7,10,r,'#776b53');poly([[x,y-r],[x+r,y+7],[x-r,y+7]],'#73836a');poly([[x,y-r-12],[x+r*.72,y-2],[x-r*.72,y-2]],'#8a9878')}
+function label(t,x,y){ctx.font='bold 25px Georgia';const width=ctx.measureText(t).width+35;rect(x-width/2,y-33,width,41,'#f1e3c7');ctx.strokeStyle='#b6a17f';ctx.lineWidth=2;ctx.strokeRect(x-width/2,y-33,width,41);ctx.fillStyle='#4c4030';ctx.textAlign='center';ctx.fillText(t,x,y-5)}
+function backdrop(){
+ rect(0,0,W,H,'#cfc6b4');
+ // Water and rural fields continue the original paper-cut palette.
+ poly([[0,1150],[1300,1230],[1450,1400],[2800,1380],[3100,1560],[4200,1470],[4200,1700],[0,1700]],'#49738b');
+ for(let i=0;i<9;i++)poly([[3440+i*85,50],[3510+i*85,65],[3490+i*85,260],[3410+i*85,235]],i%2?'#b6ae82':'#c9bb8e');
+ road([[80,810],[500,810],[970,805],[1370,825],[1450,825]],100);
+ road([[2730,825],[2980,825],[3220,825],[3570,810],[4050,800]],100);
+ road([[3140,820],[3290,560],[3520,390],[4090,400]],85);
+ road([[900,810],[990,550],[1120,365],[1350,365],[1450,490]],75);
+ road([[1060,840],[1100,1080],[1410,1180],[1600,1150]],70);
+ road([[3650,800],[3810,1050],[4010,1140]],70);
+ // Water boundary on the south and at the original quay.
+ poly([[2710,1010],[3000,1100],[3200,1250],[4200,1200],[4200,1700],[2800,1700]],'#4b758c');
+ for(let i=0;i<70;i++){const x=(i*193+103)%4200,y=(i*139+70)%1700;if((x>1420&&x<2750&&y>450&&y<1210)||y>1200)continue;tree(x,y,14+(i%3)*5)}
+ // Palace and science quarter to the west.
+ building(670,345,340,180,'#6e6459');building(750,590,250,155,'#7d6858');building(1110,965,205,140,'#685a54');
+ for(let i=0;i<4;i++)rect(710+i*70,405,35,65,'#f1e4c9');
+ // Children's quarter and workshop quarter to the east.
+ building(2930,560,330,190,'#9d5645');building(3310,920,350,165,'#5c5953');
+ building(2860,925,230,140,'#6a6559');building(3680,570,240,165,'#846b55');
+ building(3730,260,275,150,'#755f4c');
+ for(let i=0;i<5;i++){rect(3370+i*50,970,14,95,'#8c7356')}
+ // Houses and alleyways.
+ [[3100,320,170,120],[3200,1120,160,115],[1120,650,160,120],[430,840,190,130],[3450,480,130,90]].forEach(([x,y,w,h],i)=>building(x,y,w,h,['#5e5a53','#a35b4a','#655f58'][i%3]));
+ if(original.complete&&original.naturalWidth)ctx.drawImage(original,old.x,old.y,old.w,old.h);
+ // Simple visible connection at the edge of the original town.
+ label('Vetenskap',920,770);label('Slottet',850,330);label('Operan',1210,1140);
+ label('Barnhuskvarteren',3090,550);label('Verkstäderna',3470,920);
+ label('Landsbygden',3750,300);
+}
+function avatar(){const x=old.x+610,y=old.y+405;ctx.fillStyle='#486c72';ctx.beginPath();ctx.arc(x,y-12,13,0,Math.PI*2);ctx.fill();poly([[x-14,y],[x+14,y],[x+10,y+29],[x-10,y+29]],'#486c72')}
+function draw(){
+ const d=Math.min(devicePixelRatio||1,2),r=stage.getBoundingClientRect();canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.max(1,Math.round(r.height*d));
+ ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
+ ctx.translate(r.width/2-camera.x*scale,r.height/2-camera.y*scale);ctx.scale(scale,scale);
+ backdrop();avatar();
+}
+function worldPoint(e){const r=canvas.getBoundingClientRect();return{x:camera.x+(e.clientX-r.left-r.width/2)/scale,y:camera.y+(e.clientY-r.top-r.height/2)/scale}}
+function clamp(){const r=stage.getBoundingClientRect();camera.x=Math.max(r.width/(2*scale),Math.min(W-r.width/(2*scale),camera.x));camera.y=Math.max(r.height/(2*scale),Math.min(H-r.height/(2*scale),camera.y))}
+function focus(){camera={x:old.x+640,y:old.y+360};clamp();draw()}
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,cx:camera.x,cy:camera.y};moved=false});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>9)moved=true;camera.x=drag.cx-dx/scale;camera.y=drag.cy-dy/scale;clamp();draw()});
+canvas.addEventListener('pointerup',e=>{if(!moved){const p=worldPoint(e),near=locations.find(l=>Math.hypot(l.x-p.x,l.y-p.y)<125);if(near){info.textContent=near.name+' · '+near.area+' (miljön finns, uppdragen kommer senare)';status.textContent=near.area}}drag=null});
+canvas.addEventListener('wheel',e=>{e.preventDefault();camera.x+=e.deltaX/scale;camera.y+=e.deltaY/scale;clamp();draw()},{passive:false});
+document.querySelector('#home').onclick=focus;document.querySelector('#zoom').onclick=()=>{scale=scale===.68?.45:.68;clamp();draw()};
+window.addEventListener('resize',()=>{clamp();draw()});
+original.onload=draw;original.onerror=()=>{info.textContent='Originalbilden kunde inte laddas. De nya kvarteren kan ändå utforskas.';draw()};
+focus();
+</script></body></html>
