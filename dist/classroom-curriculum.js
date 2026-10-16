@@ -520,7 +520,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "press",
-          "bookReference": "Grundboken s. 102–103 · 103; Prov – 1700-talets Sverige del 1 · 7; Elevernas arbetsbok s. 24–39 · 31"
+          "bookReference": "Grundboken s. 102–103 · 103; Prov – 1700-talets Sverige del 1 · 7; Elevernas arbetsbok s. 24–39 · 31",
+          "distractors": [
+            "Historisk roman",
+            "Historisk tolkning"
+          ]
         },
         {
           "id": "sos-kyrkbocker",
@@ -551,7 +555,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "press",
-          "bookReference": "Grundboken s. 102–103 · 103; Prov – 1700-talets Sverige del 2 · 3"
+          "bookReference": "Grundboken s. 102–103 · 103; Prov – 1700-talets Sverige del 2 · 3",
+          "distractors": [
+            "Skattelängder från handelskompanierna",
+            "Riksdagens protokoll"
+          ]
         },
         {
           "id": "sos-daglig-allehanda",
@@ -575,7 +583,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "press",
-          "bookReference": "Grundboken s. 102–103 · 103"
+          "bookReference": "Grundboken s. 102–103 · 103",
+          "distractors": [
+            "Post- och Inrikes Tidningar",
+            "Stockholms-Posten"
+          ]
         },
         {
           "id": "sos-latinska-forskning",
@@ -599,7 +611,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "press",
-          "bookReference": "Grundboken s. 102–103 · 103"
+          "bookReference": "Grundboken s. 102–103 · 103",
+          "distractors": [
+            "Franska",
+            "Tyska"
+          ]
         },
         {
           "id": "sos-forskningsspridning",
@@ -624,7 +640,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "press",
-          "bookReference": "Grundboken s. 102–103 · 103"
+          "bookReference": "Grundboken s. 102–103 · 103",
+          "distractors": [
+            "Svenska Akademien",
+            "Kungliga Vitterhetsakademien"
+          ]
         },
         {
           "id": "sos-huvudmal-frihet",
@@ -1078,7 +1098,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "frihetstiden",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Elevernas arbetsbok s. 24–39 · 1"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Elevernas arbetsbok s. 24–39 · 1",
+          "distractors": [
+            "Stormaktstiden",
+            "Gustavianska tiden"
+          ]
         },
         {
           "id": "sos-riksdag",
@@ -1111,7 +1135,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Bedömningsstöd del 1 · 1; Elevernas arbetsbok s. 24–39 · 1"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Bedömningsstöd del 1 · 1; Elevernas arbetsbok s. 24–39 · 1",
+          "distractors": [
+            "Riksrådet",
+            "Kungliga hovet"
+          ]
         },
         {
           "id": "sos-riksrad",
@@ -1139,7 +1167,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "riksrådet",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1",
+          "distractors": [
+            "Riksdagen",
+            "Kungliga hovet"
+          ]
         },
         {
           "id": "sos-grundlag",
@@ -1175,7 +1207,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "grundlag",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Prov – 1700-talets Sverige del 1 · 3c; Elevernas arbetsbok s. 24–39 · 4a"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Prov – 1700-talets Sverige del 1 · 3c; Elevernas arbetsbok s. 24–39 · 4a",
+          "distractors": [
+            "Förordning",
+            "Riksdagsbeslut"
+          ]
         },
         {
           "id": "sos-stand",
@@ -1253,7 +1289,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Prov – 1700-talets Sverige del 1 · 3a"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Prov – 1700-talets Sverige del 1 · 3a",
+          "distractors": [
+            "Adel, präster, soldater och bönder",
+            "Adel, präster, borgare och ämbetsmän"
+          ]
         },
         {
           "id": "sos-bonder-inflytande",
@@ -1286,7 +1326,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bedömningsstöd del 1 · 2; Lärarguide – Frihetstiden · facit s.65 fråga 3; Elevernas arbetsbok s. 24–39 · 4c"
+          "bookReference": "Bedömningsstöd del 1 · 2; Lärarguide – Frihetstiden · facit s.65 fråga 3; Elevernas arbetsbok s. 24–39 · 4c",
+          "distractors": [
+            "Borgarna",
+            "Prästerna"
+          ]
         },
         {
           "id": "sos-kompani",
@@ -1323,7 +1367,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "Ostindiska kompaniet",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 2; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Prov – 1700-talets Sverige del 1 · 2; Elevernas arbetsbok s. 24–39 · 3"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 2; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Prov – 1700-talets Sverige del 1 · 2; Elevernas arbetsbok s. 24–39 · 3",
+          "distractors": [
+            "Svenska Afrikakompaniet",
+            "Svenska Västindiska kompaniet"
+          ]
         },
         {
           "id": "sos-kina",
@@ -1347,7 +1395,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 2"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 2",
+          "distractors": [
+            "Indien",
+            "Japan"
+          ]
         },
         {
           "id": "sos-goteborg",
@@ -1371,7 +1423,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 2"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 2",
+          "distractors": [
+            "Stockholm",
+            "Karlskrona"
+          ]
         },
         {
           "id": "sos-kompanivaror",
@@ -1405,7 +1461,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 2; Prov – 1700-talets Sverige del 1 · 1a"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 2; Prov – 1700-talets Sverige del 1 · 1a",
+          "distractors": [
+            "Te, bomull och kryddor",
+            "Kaffe, socker och tobak"
+          ]
         },
         {
           "id": "sos-tsar",
@@ -1429,7 +1489,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 1a"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 1a",
+          "distractors": [
+            "Sultan",
+            "Storfurste"
+          ]
         },
         {
           "id": "sos-grundlag-svarandrad",
@@ -1468,7 +1532,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Bedömningsstöd del 1 · 2; Prov – 1700-talets Sverige del 1 · 3c; Elevernas arbetsbok s. 24–39 · 4b"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Bedömningsstöd del 1 · 2; Prov – 1700-talets Sverige del 1 · 3c; Elevernas arbetsbok s. 24–39 · 4b",
+          "distractors": [
+            "Den ändras av en enda minister",
+            "Den ändras automatiskt varje år"
+          ]
         },
         {
           "id": "sos-frihet-forklaring",
@@ -1768,7 +1836,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "hattar och mössor",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Prov – 1700-talets Sverige del 1 · 6; Elevernas arbetsbok s. 24–39 · 8"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 1; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Prov – 1700-talets Sverige del 1 · 6; Elevernas arbetsbok s. 24–39 · 8",
+          "distractors": [
+            "Hattar och västar",
+            "Mössor och rockar"
+          ]
         },
         {
           "id": "sos-hattar-krig",
@@ -1797,7 +1869,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Lärarguide – Krig eller fred? · Hattar och mössor; Elevernas arbetsbok s. 24–39 · 8"
+          "bookReference": "Lärarguide – Krig eller fred? · Hattar och mössor; Elevernas arbetsbok s. 24–39 · 8",
+          "distractors": [
+            "Mössorna",
+            "Böndernas stånd"
+          ]
         },
         {
           "id": "sos-hattar-frankrike",
@@ -1825,7 +1901,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Lärarguide – Krig eller fred? · Hattar och mössor; Elevernas arbetsbok s. 24–39 · 8"
+          "bookReference": "Lärarguide – Krig eller fred? · Hattar och mössor; Elevernas arbetsbok s. 24–39 · 8",
+          "distractors": [
+            "Storbritannien",
+            "Ryssland"
+          ]
         },
         {
           "id": "sos-mossor-england",
@@ -1854,7 +1934,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Lärarguide – Krig eller fred? · Hattar och mössor; Elevernas arbetsbok s. 24–39 · 8"
+          "bookReference": "Lärarguide – Krig eller fred? · Hattar och mössor; Elevernas arbetsbok s. 24–39 · 8",
+          "distractors": [
+            "Frankrike",
+            "Spanien"
+          ]
         },
         {
           "id": "sos-ryssland-1741",
@@ -1886,7 +1970,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 2; Lärarguide – Krig eller fred? · Krig eller fred; Elevernas arbetsbok s. 24–39 · 9"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 2; Lärarguide – Krig eller fred? · Krig eller fred; Elevernas arbetsbok s. 24–39 · 9",
+          "distractors": [
+            "Danmark",
+            "Preussen"
+          ]
         },
         {
           "id": "sos-daldans",
@@ -1947,7 +2035,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 7; Bedömningsstöd del 1 · 5"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 7; Bedömningsstöd del 1 · 5",
+          "distractors": [
+            "Sigillbrev",
+            "Protokoll"
+          ]
         },
         {
           "id": "sos-adolf-fredrik",
@@ -1975,7 +2067,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 2; Elevernas arbetsbok s. 24–39 · 9"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 2; Elevernas arbetsbok s. 24–39 · 9",
+          "distractors": [
+            "Fredrik I",
+            "Gustav III"
+          ]
         },
         {
           "id": "sos-david",
@@ -2001,7 +2097,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 2"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 2",
+          "distractors": [
+            "Anders Celsius",
+            "Jacob Johan Anckarström"
+          ]
         },
         {
           "id": "sos-daldans-forlopp",
@@ -2246,7 +2346,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "tryckfrihet",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 6; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Elevernas arbetsbok s. 24–39 · 12"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 6; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Elevernas arbetsbok s. 24–39 · 12",
+          "distractors": [
+            "Yttrandefrihet",
+            "Offentlighetsprincipen"
+          ]
         },
         {
           "id": "sos-censur",
@@ -2270,7 +2374,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "censur",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 6"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 6",
+          "distractors": [
+            "Källkritik",
+            "Tryckfrihet"
+          ]
         },
         {
           "id": "sos-offentlighet",
@@ -2302,7 +2410,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "offentlighetsprincipen",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 6; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Elevernas arbetsbok s. 24–39 · 12"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 6; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Elevernas arbetsbok s. 24–39 · 12",
+          "distractors": [
+            "Tryckfrihetsförordningen",
+            "Censurförordningen"
+          ]
         },
         {
           "id": "sos-katekesen",
@@ -2326,7 +2438,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "katekesen",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 6"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 6",
+          "distractors": [
+            "Psalmboken",
+            "Husförhörslängden"
+          ]
         },
         {
           "id": "sos-kyrkan-lasning",
@@ -2351,7 +2467,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Lärarguide – Nya tider, nya tankar · facit s.80 fråga 1"
+          "bookReference": "Lärarguide – Nya tider, nya tankar · facit s.80 fråga 1",
+          "distractors": [
+            "Riksdagen",
+            "Skråna"
+          ]
         },
         {
           "id": "sos-vetenskap",
@@ -2379,7 +2499,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "vetenskap",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Bra att veta – 1700-talets Sverige · 3"
+          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Bra att veta – 1700-talets Sverige · 3",
+          "distractors": [
+            "Filosofi",
+            "Folktro"
+          ]
         },
         {
           "id": "sos-linne",
@@ -2414,7 +2538,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 14"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 14",
+          "distractors": [
+            "Anders Celsius",
+            "Carl Wilhelm Scheele"
+          ]
         },
         {
           "id": "sos-latin",
@@ -2446,7 +2574,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 14b"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 14b",
+          "distractors": [
+            "Grekiska",
+            "Franska"
+          ]
         },
         {
           "id": "sos-celsius",
@@ -2479,7 +2611,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 13"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 13",
+          "distractors": [
+            "Carl von Linné",
+            "Carl Wilhelm Scheele"
+          ]
         },
         {
           "id": "sos-scheele",
@@ -2509,7 +2645,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 13"
+          "bookReference": "Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 13",
+          "distractors": [
+            "Anders Celsius",
+            "Carl von Linné"
+          ]
         },
         {
           "id": "sos-syre",
@@ -2537,7 +2677,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 13"
+          "bookReference": "Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 13",
+          "distractors": [
+            "Kväve",
+            "Koldioxid"
+          ]
         },
         {
           "id": "sos-ekeblad",
@@ -2566,7 +2710,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Elevernas arbetsbok s. 24–39 · 15"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Elevernas arbetsbok s. 24–39 · 15",
+          "distractors": [
+            "Anna Maria Lenngren",
+            "Hedvig Charlotta Nordenflycht"
+          ]
         },
         {
           "id": "sos-potatis",
@@ -2599,7 +2747,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 15"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 15",
+          "distractors": [
+            "Rovor",
+            "Vete"
+          ]
         },
         {
           "id": "sos-potatismjol",
@@ -2628,7 +2780,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 15c"
+          "bookReference": "Bedömningsstöd del 1 · 6; Elevernas arbetsbok s. 24–39 · 15c",
+          "distractors": [
+            "Socker",
+            "Salt"
+          ]
         },
         {
           "id": "sos-potatis-ursprung",
@@ -2656,7 +2812,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 1a; Lärarguide – Nya tider, nya tankar · Jonas Alströmer"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 1a; Lärarguide – Nya tider, nya tankar · Jonas Alströmer",
+          "distractors": [
+            "Nordamerika",
+            "Asien"
+          ]
         },
         {
           "id": "sos-vetenskapsakademi",
@@ -2685,7 +2845,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "nature",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 9a; Lärarguide – Nya tider, nya tankar · Jonas Alströmer"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 9a; Lärarguide – Nya tider, nya tankar · Jonas Alströmer",
+          "distractors": [
+            "Svenska Akademien",
+            "Kungliga Vitterhetsakademien"
+          ]
         },
         {
           "id": "sos-tryckfrihet-forst",
@@ -3065,7 +3229,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "fabriker",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "farm",
-          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 2; Bra att veta – 1700-talets Sverige · 5; Elevernas arbetsbok s. 24–39 · 19"
+          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 2; Bra att veta – 1700-talets Sverige · 5; Elevernas arbetsbok s. 24–39 · 19",
+          "distractors": [
+            "Verkstad",
+            "Magasin"
+          ]
         },
         {
           "id": "sos-barn-lon",
@@ -3101,7 +3269,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "farm",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 5; Lärarguide – Livet på landet och i staden · facit s.89 fråga 1; Elevernas arbetsbok s. 24–39 · 20"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 5; Lärarguide – Livet på landet och i staden · facit s.89 fråga 1; Elevernas arbetsbok s. 24–39 · 20",
+          "distractors": [
+            "De arbetade färre dagar",
+            "De betalade för att få arbeta"
+          ]
         },
         {
           "id": "sos-tobak",
@@ -3129,7 +3301,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "tobak",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "farm",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 5; Prov – 1700-talets Sverige del 2 · 1"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 5; Prov – 1700-talets Sverige del 2 · 1",
+          "distractors": [
+            "Hampa",
+            "Humle"
+          ]
         },
         {
           "id": "sos-dass",
@@ -3153,7 +3329,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "dass",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "farm",
-          "bookReference": "Prov – 1700-talets Sverige del 2 · 1"
+          "bookReference": "Prov – 1700-talets Sverige del 2 · 1",
+          "distractors": [
+            "Badstuga",
+            "Tvätthus"
+          ]
         },
         {
           "id": "sos-prostituerad",
@@ -3268,7 +3448,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "kultur",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "farm",
-          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 2"
+          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 2",
+          "distractors": [
+            "Näringsliv",
+            "Statsförvaltning"
+          ]
         },
         {
           "id": "sos-svenska-akademien",
@@ -3451,7 +3635,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "farm",
-          "bookReference": "Grundboken s. 86–87 · 87; Elevernas arbetsbok s. 24–39 · 19"
+          "bookReference": "Grundboken s. 86–87 · 87; Elevernas arbetsbok s. 24–39 · 19",
+          "distractors": [
+            "Tvätterskor",
+            "Vattenbärerskor"
+          ]
         },
         {
           "id": "sos-skifte-foljder",
@@ -3749,7 +3937,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "barnhus",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "ideas",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Elevernas arbetsbok s. 24–39 · 7"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 3; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Elevernas arbetsbok s. 24–39 · 7",
+          "distractors": [
+            "Fattighus",
+            "Arbetshus"
+          ]
         },
         {
           "id": "sos-barnhus-arbete",
@@ -3811,7 +4003,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "aga",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "ideas",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 6; Elevernas arbetsbok s. 24–39 · 5"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 6; Elevernas arbetsbok s. 24–39 · 5",
+          "distractors": [
+            "Förmaning",
+            "Böter"
+          ]
         },
         {
           "id": "sos-kolt",
@@ -3835,7 +4031,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "kolt",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "ideas",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 6"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 6",
+          "distractors": [
+            "Livstycke",
+            "Kappa"
+          ]
         },
         {
           "id": "sos-oakta",
@@ -3863,7 +4063,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "oäkta",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "ideas",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 6; Grundboken s. 82–83 · 83"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 6; Grundboken s. 82–83 · 83",
+          "distractors": [
+            "Föräldralös",
+            "Omyndig"
+          ]
         },
         {
           "id": "sos-skampale",
@@ -3887,7 +4091,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "skampåle",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "ideas",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 6"
+          "bookReference": "Prov – 1700-talets Sverige del 1 · 6",
+          "distractors": [
+            "Spöpåle",
+            "Skampall"
+          ]
         },
         {
           "id": "sos-ogift-straff",
@@ -4175,7 +4383,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Grundboken s. 90–91 · 90; Elevernas arbetsbok s. 24–39 · 23"
+          "bookReference": "Grundboken s. 90–91 · 90; Elevernas arbetsbok s. 24–39 · 23",
+          "distractors": [
+            "Gotland",
+            "Öland"
+          ]
         },
         {
           "id": "sos-skra",
@@ -4203,7 +4415,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "skrå",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Prov – 1700-talets Sverige del 2 · 1; Grundboken s. 90–91 · 90"
+          "bookReference": "Prov – 1700-talets Sverige del 2 · 1; Grundboken s. 90–91 · 90",
+          "distractors": [
+            "Gille",
+            "Handelskompani"
+          ]
         },
         {
           "id": "sos-koloni",
@@ -4235,7 +4451,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "koloni",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 2; Prov – 1700-talets Sverige del 2 · 1; Bra att veta – 1700-talets Sverige · 5"
+          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 2; Prov – 1700-talets Sverige del 2 · 1; Bra att veta – 1700-talets Sverige · 5",
+          "distractors": [
+            "Självständig republik",
+            "Handelsförbund"
+          ]
         },
         {
           "id": "sos-saint-barthelemy",
@@ -4270,7 +4490,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "Saint Barthélemy",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 5; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 2; Elevernas arbetsbok s. 24–39 · 23"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 5; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 2; Elevernas arbetsbok s. 24–39 · 23",
+          "distractors": [
+            "Martinique",
+            "Guadeloupe"
+          ]
         },
         {
           "id": "sos-gustavia",
@@ -4294,7 +4518,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Grundboken s. 90–91 · 90"
+          "bookReference": "Grundboken s. 90–91 · 90",
+          "distractors": [
+            "Gustavsborg",
+            "Fredriksstad"
+          ]
         },
         {
           "id": "sos-slavhandel",
@@ -4326,7 +4554,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "slavhandel",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 2; Bra att veta – 1700-talets Sverige · 5; Elevernas arbetsbok s. 24–39 · 24"
+          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 2; Bra att veta – 1700-talets Sverige · 5; Elevernas arbetsbok s. 24–39 · 24",
+          "distractors": [
+            "Tvångsarbete",
+            "Kolonialhandel"
+          ]
         },
         {
           "id": "sos-rasism",
@@ -4354,7 +4586,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "rasism",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Prov – 1700-talets Sverige del 2 · 1; Grundboken s. 92–93 · 92"
+          "bookReference": "Prov – 1700-talets Sverige del 2 · 1; Grundboken s. 92–93 · 92",
+          "distractors": [
+            "Klasskillnader",
+            "Religionsfrihet"
+          ]
         },
         {
           "id": "sos-1847",
@@ -4382,7 +4618,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Grundboken s. 94–95 · 94; Elevernas arbetsbok s. 24–39 · 26"
+          "bookReference": "Grundboken s. 94–95 · 94; Elevernas arbetsbok s. 24–39 · 26",
+          "distractors": [
+            "1834",
+            "1863"
+          ]
         },
         {
           "id": "sos-1788",
@@ -4410,7 +4650,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Grundboken s. 94–95 · 95; Elevernas arbetsbok s. 24–39 · 27"
+          "bookReference": "Grundboken s. 94–95 · 95; Elevernas arbetsbok s. 24–39 · 27",
+          "distractors": [
+            "1786",
+            "1790"
+          ]
         },
         {
           "id": "sos-kolonialvaror",
@@ -4446,7 +4690,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Grundboken s. 90–91 · 91; Bedömningsstöd del 2 · 4; Elevernas arbetsbok s. 24–39 · 24"
+          "bookReference": "Grundboken s. 90–91 · 91; Bedömningsstöd del 2 · 4; Elevernas arbetsbok s. 24–39 · 24",
+          "distractors": [
+            "Timmer",
+            "Järnmalm"
+          ]
         },
         {
           "id": "sos-marie-cecile",
@@ -4952,7 +5200,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Grundboken s. 96–97 · 96; Elevernas arbetsbok s. 24–39 · 27b"
+          "bookReference": "Grundboken s. 96–97 · 96; Elevernas arbetsbok s. 24–39 · 27b",
+          "distractors": [
+            "Riksdagen",
+            "Kungliga hovet"
+          ]
         }
       ]
     },
@@ -5020,7 +5272,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 80–81 · 81; Elevernas arbetsbok s. 24–39 · 16"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 80–81 · 81; Elevernas arbetsbok s. 24–39 · 16",
+          "distractors": [
+            "Gustav IV Adolf",
+            "Fredrik I"
+          ]
         },
         {
           "id": "sos-1772",
@@ -5052,7 +5308,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 80–81 · 81; Elevernas arbetsbok s. 24–39 · 16b"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 80–81 · 81; Elevernas arbetsbok s. 24–39 · 16b",
+          "distractors": [
+            "1766",
+            "1789"
+          ]
         },
         {
           "id": "sos-1771",
@@ -5080,7 +5340,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 80–81 · 81"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 80–81 · 81",
+          "distractors": [
+            "1772",
+            "1792"
+          ]
         },
         {
           "id": "sos-upplysning",
@@ -5116,7 +5380,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "upplysningen",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Bedömningsstöd del 2 · 5; Prov – 1700-talets Sverige del 2 · 7; Elevernas arbetsbok s. 24–39 · 17"
+          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Bedömningsstöd del 2 · 5; Prov – 1700-talets Sverige del 2 · 7; Elevernas arbetsbok s. 24–39 · 17",
+          "distractors": [
+            "Romantiken",
+            "Renässansen"
+          ]
         },
         {
           "id": "sos-religionsfrihet",
@@ -5144,7 +5412,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "religionsfrihet",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Elevernas arbetsbok s. 24–39 · 17"
+          "bookReference": "Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Elevernas arbetsbok s. 24–39 · 17",
+          "distractors": [
+            "Tryckfrihet",
+            "Mötesfrihet"
+          ]
         },
         {
           "id": "sos-tortyr",
@@ -5180,7 +5452,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 82–83 · 82; Prov – 1700-talets Sverige del 2 · 5a; Elevernas arbetsbok s. 24–39 · 17"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 82–83 · 82; Prov – 1700-talets Sverige del 2 · 5a; Elevernas arbetsbok s. 24–39 · 17",
+          "distractors": [
+            "Landsförvisning",
+            "Spöstraff"
+          ]
         },
         {
           "id": "sos-judar-katoliker",
@@ -5213,7 +5489,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 84–85 · 84; Prov – 1700-talets Sverige del 2 · 5a"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 84–85 · 84; Prov – 1700-talets Sverige del 2 · 5a",
+          "distractors": [
+            "Protestanter och ortodoxa",
+            "Buddhister och muslimer"
+          ]
         },
         {
           "id": "sos-ogifta-forandring",
@@ -5502,7 +5782,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 98–99 · 98–99; Elevernas arbetsbok s. 24–39 · 28"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 4; Grundboken s. 98–99 · 98–99; Elevernas arbetsbok s. 24–39 · 28",
+          "distractors": [
+            "1789",
+            "1809"
+          ]
         },
         {
           "id": "sos-operan",
@@ -5532,7 +5816,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Grundboken s. 98–99 · 98; Elevernas arbetsbok s. 24–39 · 28"
+          "bookReference": "Grundboken s. 98–99 · 98; Elevernas arbetsbok s. 24–39 · 28",
+          "distractors": [
+            "Drottningholms slottsteater",
+            "Dramatiska Teatern"
+          ]
         },
         {
           "id": "sos-anckarstrom",
@@ -5562,7 +5850,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Grundboken s. 98–99 · 99; Elevernas arbetsbok s. 24–39 · 28"
+          "bookReference": "Grundboken s. 98–99 · 99; Elevernas arbetsbok s. 24–39 · 28",
+          "distractors": [
+            "Adolf Ludvig Ribbing",
+            "Claes Fredrik Horn"
+          ]
         },
         {
           "id": "sos-landsforvisad",
@@ -5803,7 +6095,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Grundboken s. 100–101 · 100; Bra att veta – 1700-talets Sverige · 6; Elevernas arbetsbok s. 24–39 · 29"
+          "bookReference": "Grundboken s. 100–101 · 100; Bra att veta – 1700-talets Sverige · 6; Elevernas arbetsbok s. 24–39 · 29",
+          "distractors": [
+            "Gustav III",
+            "Karl XIII"
+          ]
         },
         {
           "id": "sos-revolution-land",
@@ -5835,7 +6131,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Grundboken s. 100–101 · 100; Bra att veta – 1700-talets Sverige · 6; Prov – 1700-talets Sverige del 2 · 8"
+          "bookReference": "Grundboken s. 100–101 · 100; Bra att veta – 1700-talets Sverige · 6; Prov – 1700-talets Sverige del 2 · 8",
+          "distractors": [
+            "England",
+            "Ryssland"
+          ]
         },
         {
           "id": "sos-napoleon",
@@ -5864,7 +6164,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Grundboken s. 100–101 · 100; Bra att veta – 1700-talets Sverige · 6"
+          "bookReference": "Grundboken s. 100–101 · 100; Bra att veta – 1700-talets Sverige · 6",
+          "distractors": [
+            "Ludvig XVI",
+            "Maximilien Robespierre"
+          ]
         },
         {
           "id": "sos-allierade",
@@ -5899,7 +6203,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 6; Grundboken s. 100–101 · 100; Elevernas arbetsbok s. 24–39 · 30"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 6; Grundboken s. 100–101 · 100; Elevernas arbetsbok s. 24–39 · 30",
+          "distractors": [
+            "Danmark och Preussen",
+            "Frankrike och Spanien"
+          ]
         },
         {
           "id": "sos-ryskt-sidbyte",
@@ -5931,7 +6239,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 6; Grundboken s. 100–101 · 100; Elevernas arbetsbok s. 24–39 · 30"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 6; Grundboken s. 100–101 · 100; Elevernas arbetsbok s. 24–39 · 30",
+          "distractors": [
+            "Storbritannien",
+            "Preussen"
+          ]
         },
         {
           "id": "sos-har",
@@ -5955,7 +6267,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": "här",
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Prov – 1700-talets Sverige del 2 · 1"
+          "bookReference": "Prov – 1700-talets Sverige del 2 · 1",
+          "distractors": [
+            "Flotta",
+            "Garnison"
+          ]
         },
         {
           "id": "sos-finska-kriget",
@@ -5982,7 +6298,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 6"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 6",
+          "distractors": [
+            "1806–1807",
+            "1810–1811"
+          ]
         },
         {
           "id": "sos-1809",
@@ -6014,7 +6334,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 6; Grundboken s. 102–103 · 102; Elevernas arbetsbok s. 24–39 · 30"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 6; Grundboken s. 102–103 · 102; Elevernas arbetsbok s. 24–39 · 30",
+          "distractors": [
+            "1808",
+            "1812"
+          ]
         },
         {
           "id": "sos-finland-ryssland",
@@ -6046,7 +6370,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Bra att veta – 1700-talets Sverige · 6; Grundboken s. 102–103 · 102; Elevernas arbetsbok s. 24–39 · 30"
+          "bookReference": "Bra att veta – 1700-talets Sverige · 6; Grundboken s. 102–103 · 102; Elevernas arbetsbok s. 24–39 · 30",
+          "distractors": [
+            "Danmark",
+            "Frankrike"
+          ]
         },
         {
           "id": "sos-karl-hayden",
@@ -6072,7 +6400,11 @@ window.CLASSROOM_CURRICULUM={
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "king",
-          "bookReference": "Grundboken s. 100–101 · 101"
+          "bookReference": "Grundboken s. 100–101 · 101",
+          "distractors": [
+            "Budbärare",
+            "Fältläkare"
+          ]
         },
         {
           "id": "sos-franska-revolutionen",
