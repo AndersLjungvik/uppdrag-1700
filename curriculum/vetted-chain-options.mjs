@@ -289,8 +289,8 @@ export const vettedChainOptions = {
       "riksdagens beslut och protokoll"
     ],
     [
-      "visa hur Bellman valde att skildra sin samtid",
-      "bevisa vilka regler som gällde i Sveriges städer"
+      "ange exakt hur många invånare Stockholm hade",
+      "visa vilka lagar riksdagen beslutade om"
     ]
   ],
   "sos-skifte-olika": [
@@ -457,8 +457,8 @@ export const vettedChainOptions = {
       "undervisa om kyrkans syn på äktenskap"
     ],
     [
-      "möta fördomar trots förändringarna",
-      "få samma politiska rättigheter som männen"
+      "få samma politiska rättigheter som männen",
+      "välja riksrådets medlemmar"
     ]
   ],
   "sos-kupp-forlopp": [
