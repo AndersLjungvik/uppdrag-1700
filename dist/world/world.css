@@ -11,3 +11,16 @@
 
 /* Celebrate the actual completed explanation, not just a generic answer key. */
 #chainPreview:has(>strong){background:#fff6de;border:2px solid #698577;border-radius:12px;padding:18px 20px;margin:14px 0;box-shadow:0 3px 0 #a8b6a3}#chainPreview>strong{display:block;font:700 17px/1.4 system-ui,sans-serif;color:#37584d;margin-bottom:12px}#chainPreview>p{font:clamp(20px,4vw,27px)/1.55 Georgia,serif;color:#302a23;margin:0;overflow-wrap:break-word}
+
+/* Optional readable objects in the world. */
+#discoverNotice{position:absolute;z-index:3;transform:translate(-50%,-50%);padding:11px 13px;min-height:48px;border:2px solid #766445;border-radius:6px;background:#f7e9c6;color:#342c22;font:600 15px/1.2 system-ui,sans-serif;box-shadow:0 3px 0 #4b3b2a66}
+#discoveryDialog{max-width:min(580px,calc(100vw - 28px));max-height:82dvh;overflow:auto;border:2px solid #a89165;border-radius:12px;background:#f5e7c8;color:#342c22;padding:24px;box-shadow:0 12px 36px #2a201e55}
+#discoveryDialog::backdrop{background:#221c18aa}
+#discoveryDialog .discovery-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
+#discoveryDialog .discovery-head small{font:12px/1.4 system-ui,sans-serif;letter-spacing:.06em}
+#discoveryDialog h2{font:600 26px/1.25 Georgia,serif;margin:20px 0 12px}
+#discoveryDialog p{font:17px/1.5 Georgia,serif}
+#discoveryDialog blockquote{margin:18px 0;padding:17px;border-left:4px solid #587268;background:#fff7e3;font:22px/1.4 Georgia,serif}
+#discoveryDialog .discovery-note{font:14px/1.5 system-ui,sans-serif;color:#5c554a}
+#discoveryDialog button{background:#ddc596;padding:10px 15px;border-radius:7px}
+@media(max-width:760px){#discoveryDialog{padding:17px}#discoveryDialog blockquote{font-size:20px}#discoverNotice{font-size:13px;padding:9px}}
