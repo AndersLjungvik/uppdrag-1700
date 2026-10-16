@@ -47,7 +47,7 @@ function layout(){
  const items=renderer.project(140,550);$('pressItems').style.left=items.x+'px';$('pressItems').style.top=items.y+'px';
  const press=renderer.project(835,420);Object.assign($('pressTarget').style,{left:press.x+'px',top:press.y+'px',width:260*scale+'px',height:310*scale+'px'});
 }
-function resize(){const r=canvas.getBoundingClientRect();if(!r.width||!r.height)return;renderer.resize(r.width,r.height,devicePixelRatio||1);layout();draw(performance.now())}
+function resize(){const r=canvas.getBoundingClientRect();if(!r.width||!r.height)return;renderer.resize(r.width,r.height,devicePixelRatio||1);layout();updateDiscovery();draw(performance.now())}
 new ResizeObserver(resize).observe($('stage'));
 function draw(t){renderer.draw(t,{world:engine.world(),place:view,speaker,speechAt,speechEnd,blocked:modalOpen(),direction:heading,walking:moving,dogUntil,flight,rut:rutAt(t)});if(flight&&t-flight.at>500)flight=null}
 function updateChrome(){
@@ -57,9 +57,9 @@ function updateChrome(){
  $('instruction').textContent=engine.objective();$('back').hidden=view==='town';$('back').textContent=view==='work'?'← Pausa och gå tillbaka':'← Till staden';
  $('mapLinks').hidden=view!=='town';$('gateBtn').hidden=!extras().length;$('bagBtn').hidden=view==='work';$('work').hidden=view!=='work';$('puzzle').hidden=true;$('pressItems').hidden=true;$('pressTarget').hidden=true;
  $('timeline').hidden=view!=='town';const time=TIMELINES[c.id];$('timelineLabel').textContent=time.label;$('timeRange').style.left=((time.start-1719)/90*100)+'%';$('timeRange').style.width=Math.max(.8,(time.end-time.start)/90*100)+'%';
- speechControls();layout();
+ speechControls();layout();updateDiscovery();
 }
-function enter(place,{quiet=false}={}){if(place!=='town')rutEscort=false;if(!engine.arrive(place).ok){notify('Den platsen öppnas i ett senare avsnitt.');return}stopWalking();hush();view=place;selected=null;updateChrome();actions();if(place==='town'){if(!quiet){if(engine.current().id===1&&!engine.active()&&engine.progress().done===0){say('Kvinnan på torget','Det talas om nya maktförhållanden i Sverige. Maja på kaffehuset behöver hjälp att få ett anslag tryckt. Gå dit och fråga vad som ska stå på bladet.');actions([['Visa vägen till kaffehuset',()=>{hush();actions();walkTo(points.cafe,()=>enter('cafe'))}],['Jag utforskar själv',()=>{hush();actions()},true]])}else $('instruction').textContent=engine.objective()}}else placeMenu();resize()}
+function enter(place,{quiet=false}={}){if(place!=='town')rutEscort=false;if(!engine.arrive(place).ok){notify('Den platsen öppnas i ett senare avsnitt.');return}stopWalking();hush();view=place;selected=null;updateChrome();actions();if(place==='town'){if(!quiet){if(engine.current().id===1&&!engine.active()&&engine.progress().done===0){say('Kvinnan på torget','Det talas om nya maktförhållanden i Sverige. Maja på kaffehuset behöver hjälp att få ett anslag tryckt. Gå dit och fråga vad som ska stå på bladet.');actions([['Visa vägen till kaffehuset',()=>{hush();actions();walkTo(points.cafe,()=>enter('cafe'))}],['Jag utforskar själv',()=>{hush();actions()},true]])}else $('instruction').textContent=engine.objective()}}else placeMenu();resize();updateDiscovery()}
 function walkTo(point,onArrival){if(view!=='town'||modalOpen())return;hush();queue=route(engine.world().player,point);arrival=onArrival||null;walkStart=performance.now();if(!queue.length){if(Math.hypot(engine.world().player.x-point.x,engine.world().player.y-point.y)<35){const fn=arrival;arrival=null;fn?.()}else notify('Välj den öppna marken eller en plats med namn.')}canvas.focus({preventScroll:true})}
 for(const b of document.querySelectorAll('[data-place]'))b.onclick=()=>walkTo(points[b.dataset.place],()=>b.dataset.place==='gate'?gateway():enter(b.dataset.place));
 canvas.addEventListener('pointerdown',e=>{if(view!=='town'||modalOpen())return;const rect=canvas.getBoundingClientRect(),tap=renderer.unproject(e.clientX-rect.left,e.clientY-rect.top);if(Math.hypot(tap.x-rutAt(performance.now()).x,tap.y-rutAt(performance.now()).y)<58){meetRut();return}const r=canvas.getBoundingClientRect();walkTo(renderer.unproject(e.clientX-r.left,e.clientY-r.top));actions()});
@@ -67,6 +67,35 @@ $('skipWalk').onclick=()=>{if(queue.length){engine.world().player={...queue.at(-
 function gateway(){const c=engine.current(),done=engine.progress().done,open=engine.world().unlocked>c.id;if(c.id===10){say('Stadsvakten','Du har nått bokens sista avsnitt. Du kan återvända till tidigare uppdrag och samla mästarstämplar.');actions([['Tillbaka till staden',()=>enter('town')]]);return}say('Stadsvakten',done<1?'Du behöver först klara lärlingsuppdraget i detta avsnitt. Gesäll och mästare är frivilliga.':open?'Du har redan klarat stadsportens kunskapsprov. Vägen vidare är öppen.':'Visa vad du minns från lärlingsuppdraget. Fem blandade frågor väntar. Du behöver minst 70 procent rätt på första försöket utan stöd. Gesäll och mästare är frivilliga.');actions([...(done>=1&&!open?[['Gör stadsportens kunskapsprov',()=>{const r=engine.beginGateExam();if(r.ok)openQuiz();else notify('Avsluta först det pågående repetitionspasset.') }]]:[]),...(open?[['Gå till nästa avsnitt',()=>changeChapter(c.id+1)]]:[]),...extras().map(p=>[PLACES[p].name,()=>enter(p)]),['Tillbaka till staden',()=>enter('town'),true]])}
 function npcName(place){return place==='print'&&engine.current().id>=5?'Tryckeriets ansvariga':PLACES[place]?.npc||'Berättaren'}
 function primaryChoice(label,fn){return[label,()=>{fn();updateChrome();placeMenu()}]}
+// Optional historical discoveries: use the classroom bank's existing, unscored reflections.
+const discoveryButton=document.createElement('button');
+discoveryButton.id='discoverNotice';discoveryButton.type='button';
+discoveryButton.textContent='Läs anslaget';discoveryButton.setAttribute('aria-label','Läs anslaget på väggen');
+$('stage').append(discoveryButton);
+const discoveryDialog=document.createElement('dialog');discoveryDialog.id='discoveryDialog';
+discoveryDialog.setAttribute('aria-label','Historisk upptäckt');document.body.append(discoveryDialog);
+function discoveries(){return (bank.reflections||[]).filter(x=>x.storyChapter===engine.current().id)}
+function discoveryPlace(){return engine.current().id===10?'archive':engine.current().id===4?'print':engine.current().id===7?'quay':'cafe'}
+function showDiscovery(index=0){
+ const entries=discoveries();if(!entries.length)return;
+ const entry=entries[Math.max(0,Math.min(index,entries.length-1))];discoveryDialog.replaceChildren();
+ const head=document.createElement('div');head.className='discovery-head';
+ const tag=document.createElement('small');tag.textContent='UPPDRAG 1700 · '+PLACES[view].name;
+ const close=document.createElement('button');close.type='button';close.textContent='Stäng ×';close.onclick=()=>discoveryDialog.close();head.append(tag,close);
+ const title=document.createElement('h2');title.textContent=engine.current().id===1?'Vem var egentligen fri?':'Tankar från 1700-talet';
+ const intro=document.createElement('p');intro.textContent=engine.current().id===1?'Under frihetstiden minskade kungens makt och riksdagen fick större inflytande. Men alla människor fick inte samma möjligheter.':'Människor kan se samma historiska händelse på olika sätt.';
+ const question=document.createElement('blockquote');question.textContent=entry.question;
+ const note=document.createElement('p');note.className='discovery-note';note.textContent='Fundera själv eller prata med någon. Inget svar behöver lämnas in.';
+ discoveryDialog.append(head,title,intro,question,note);
+ if(entries.length>1){const more=document.createElement('button');more.type='button';more.textContent='Läs nästa tanke →';more.onclick=()=>showDiscovery((index+1)%entries.length);discoveryDialog.append(more)}
+ if(!discoveryDialog.open)openDialog('discoveryDialog');
+}
+discoveryButton.onclick=()=>showDiscovery();
+function updateDiscovery(){
+ const enabled=view===discoveryPlace()&&discoveries().length>0;
+ discoveryButton.hidden=!enabled;
+ if(enabled){discoveryButton.textContent=view==='cafe'?'Läs anslaget':view==='archive'?'Läs handlingen':view==='print'?'Läs trycket':'Läs nyheten';const p=renderer.project(190,220);discoveryButton.style.left=p.x+'px';discoveryButton.style.top=p.y+'px'}
+}
 function placeMenu(override=null){
  $('puzzle').hidden=true;$('work').hidden=true;$('pressItems').hidden=true;$('pressTarget').hidden=true;
  const a=engine.active(),l=engine.level(),c=engine.current(),done=engine.progress().done,place=view,name=npcName(place),choices=[];let line=override;
@@ -86,6 +115,7 @@ function placeMenu(override=null){
   if(!a){const repeat=c.levels.filter(x=>x.level<=done&&x.giver===place);if(repeat.length)choices.push(['Nytt arbetspass',()=>{say(name,'Vilken nivå vill du arbeta med igen? Du får ett nytt arvode.');actions(repeat.map(x=>[`${LEVEL_NAMES[x.level-1]} · steg ${x.level}/3`,()=>{engine.accept(place,{repeatLevel:x.level});placeMenu('Vi använder kunskaperna igen i ett nytt arbetspass.')}]))},true]);
   if(c.id<10&&engine.world().unlocked>c.id)choices.push(['Nästa avsnitt',()=>changeChapter(c.id+1),choices.length>0]);}
  if(place==='archive')choices.push(['Repetera hos läromästaren Rut',mentorMenu,choices.length>0]);
+  if(place===discoveryPlace()&&discoveries().length)choices.push(['Läs och fundera · frivilligt',()=>showDiscovery(),true]);
  if(place==='cafe'||place==='quay')choices.push(['Prata en stund',()=>social(place),true]);
  say(name,line);actions(choices);$('instruction').textContent=engine.objective();layout();
 }
