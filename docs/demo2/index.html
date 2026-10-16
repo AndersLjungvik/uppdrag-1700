@@ -19,7 +19,7 @@ button{font:14px system-ui,sans-serif;min-height:43px;padding:8px 13px;backgroun
 const canvas=document.querySelector('#world'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage'),info=document.querySelector('#info'),status=document.querySelector('#status');
 const W=4200,H=1700,old={x:1450,y:470,w:1280,h:720};
 const original=new Image();original.src='../world/assets/town.webp';
-let camera={x:old.x+640,y:old.y+360},scale=0.68,drag=null,moved=false,ready=false,walkingTo=null,region='main',sailing=null;const player={x:old.x+610,y:old.y+405};
+let camera={x:old.x+640,y:old.y+360},scale=0.68,drag=null,moved=false,ready=false,walkingTo=null,region='main',sailing=null,pendingSail=null;const player={x:old.x+610,y:old.y+405};
 const locations=[
  {name:'Kaffehuset',x:2150,y:730,area:'Gamla staden'},
  {name:'Tryckeriet',x:1810,y:850,area:'Gamla staden'},
@@ -94,6 +94,7 @@ function islandScene(which){
 }
 function sail(destination){
  if(region!=='main')return;
+ const quay={x:old.x+1040,y:old.y+420};if(Math.hypot(player.x-quay.x,player.y-quay.y)>95){walkingTo=quay;pendingSail=destination;info.textContent='Först går du till kajen för att gå ombord.';return}
  walkingTo=null;sailing={destination,started:performance.now()};
  info.textContent=destination==='marstrand'?'Du går ombord på båten mot Marstrand.':'Du går ombord på ett fartyg för den långa Atlantresan.';
 }
@@ -115,7 +116,7 @@ function draw(){
  const d=Math.min(devicePixelRatio||1,2),r=stage.getBoundingClientRect();canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.max(1,Math.round(r.height*d));
  ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
  ctx.translate(r.width/2-camera.x*scale,r.height/2-camera.y*scale);ctx.scale(scale,scale);
- if(region==='main')backdrop();else islandScene(region);avatar();
+ if(region==='main')backdrop();else islandScene(region);avatar();if(sailing){rect(camera.x-1100,camera.y-700,2200,1400,'#203c4b88');ctx.fillStyle='#f3e6c9';ctx.font='bold 50px Georgia';ctx.textAlign='center';ctx.fillText(sailing.destination==='marstrand'?'Mot Marstrand':'Över Atlanten',camera.x,camera.y)}
 }
 function worldPoint(e){const r=canvas.getBoundingClientRect();return{x:camera.x+(e.clientX-r.left-r.width/2)/scale,y:camera.y+(e.clientY-r.top-r.height/2)/scale}}
 function clamp(){const r=stage.getBoundingClientRect();camera.x=Math.max(r.width/(2*scale),Math.min(W-r.width/(2*scale),camera.x));camera.y=Math.max(r.height/(2*scale),Math.min(H-r.height/(2*scale),camera.y))}
@@ -127,7 +128,7 @@ canvas.addEventListener('wheel',e=>{e.preventDefault();camera.x+=e.deltaX/scale;
 document.querySelector('#sailMarstrand').onclick=()=>sail('marstrand');document.querySelector('#sailColony').onclick=()=>sail('colony');document.querySelector('#returnHarbor').onclick=returnToHarbor;
 document.querySelector('#home').onclick=focus;document.querySelector('#zoom').onclick=()=>{scale=scale===.68?.45:.68;clamp();draw()};
 window.addEventListener('resize',()=>{clamp();draw()});
-function animate(){if(sailing&&performance.now()-sailing.started>1500){region=sailing.destination;sailing=null;walkingTo=null;player.x=760;player.y=1020;camera={x:1150,y:760};clamp();updateRegion();info.textContent=region==='marstrand'?'Du har anlänt till Marstrand. Utforska hamnen och fästningen.':'Du har anlänt till Gustavia på Saint Barthélemy. Utforska hamnen och handelsplatsen.';draw()}if(walkingTo){const dx=walkingTo.x-player.x,dy=walkingTo.y-player.y,d=Math.hypot(dx,dy);if(d<4){walkingTo=null}else{const speed=Math.min(d,4);player.x+=dx/d*speed;player.y+=dy/d*speed}draw()}requestAnimationFrame(animate)}
+function animate(){if(sailing&&performance.now()-sailing.started>1500){region=sailing.destination;sailing=null;walkingTo=null;player.x=760;player.y=1020;camera={x:1150,y:760};clamp();updateRegion();info.textContent=region==='marstrand'?'Du har anlänt till Marstrand. Utforska hamnen och fästningen.':'Du har anlänt till Gustavia på Saint Barthélemy. Utforska hamnen och handelsplatsen.';draw()}if(walkingTo){const dx=walkingTo.x-player.x,dy=walkingTo.y-player.y,d=Math.hypot(dx,dy);if(d<4){walkingTo=null;if(pendingSail){const destination=pendingSail;pendingSail=null;sail(destination)}}else{const speed=Math.min(d,4);player.x+=dx/d*speed;player.y+=dy/d*speed}draw()}requestAnimationFrame(animate)}
 original.onload=draw;original.onerror=()=>{info.textContent='Originalbilden kunde inte laddas. De nya kvarteren kan ändå utforskas.';draw()};
 focus();updateRegion();requestAnimationFrame(animate);
 </script></body></html>
