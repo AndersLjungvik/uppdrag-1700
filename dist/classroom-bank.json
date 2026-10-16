@@ -3390,7 +3390,11 @@
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "farm",
-          "bookReference": "Bedömningsstöd del 2 · 3; Lärarguide – Livet på landet och i staden · facit s.89 fråga 2; Elevernas arbetsbok s. 24–39 · 21"
+          "bookReference": "Bedömningsstöd del 2 · 3; Lärarguide – Livet på landet och i staden · facit s.89 fråga 2; Elevernas arbetsbok s. 24–39 · 21",
+          "distractors": [
+            "Carl Gustaf af Leopold",
+            "Johan Stagnell"
+          ]
         },
         {
           "id": "sos-lenngren",
@@ -3484,7 +3488,11 @@
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "farm",
-          "bookReference": "Grundboken s. 88–89 · 89; Prov – 1700-talets Sverige del 2 · 5a; Elevernas arbetsbok s. 24–39 · 22"
+          "bookReference": "Grundboken s. 88–89 · 89; Prov – 1700-talets Sverige del 2 · 5a; Elevernas arbetsbok s. 24–39 · 22",
+          "distractors": [
+            "Kungliga Vetenskapsakademien",
+            "Kungliga Vitterhetsakademien"
+          ]
         },
         {
           "id": "sos-teatrar",
@@ -3515,7 +3523,11 @@
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "farm",
-          "bookReference": "Grundboken s. 88–89 · 89; Elevernas arbetsbok s. 24–39 · 22"
+          "bookReference": "Grundboken s. 88–89 · 89; Elevernas arbetsbok s. 24–39 · 22",
+          "distractors": [
+            "Kungliga Operan och Drottningholms slottsteater",
+            "Dramatiska Teatern och Göteborgs stadsteater"
+          ]
         },
         {
           "id": "sos-kultur-stod",
@@ -3603,7 +3615,11 @@
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "farm",
-          "bookReference": "Prov – 1700-talets Sverige del 2 · 5a"
+          "bookReference": "Prov – 1700-talets Sverige del 2 · 5a",
+          "distractors": [
+            "Man trodde att den var skadlig",
+            "Man trodde att den saknade påverkan"
+          ]
         },
         {
           "id": "sos-latrintommerskor",
@@ -5171,7 +5187,11 @@
           "concept": null,
           "origin": "bearbetning av klassrumsmaterial",
           "missionId": "trade",
-          "bookReference": "Grundboken s. 96–97 · 96; Elevernas arbetsbok s. 24–39 · 27b"
+          "bookReference": "Grundboken s. 96–97 · 96; Elevernas arbetsbok s. 24–39 · 27b",
+          "distractors": [
+            "Finland",
+            "Delar av Ryssland"
+          ]
         },
         {
           "id": "sos-krig-riksrad",
