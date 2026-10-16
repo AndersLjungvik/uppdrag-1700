@@ -5899,8 +5899,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "ett varningsbrev",
               "options": [
                 "ett varningsbrev",
-                "besked att han redan hade dött",
-                "besked att Finland blivit självständigt"
+                "ett besked om ett planerat fredsavtal",
+                "ett brev om att hovet flyttat till Uppsala"
               ]
             },
             {
@@ -5908,8 +5908,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "sköts han av Anckarström",
               "options": [
                 "sköts han av Anckarström",
-                "avsattes Gustav IV Adolf",
-                "avskaffades slaveriet"
+                "fängslades Anckarström före attentatet",
+                "angreps kungen av en motståndare utan skott"
               ]
             },
             {
@@ -5917,8 +5917,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "dog Gustav III av sin skada",
               "options": [
                 "dog Gustav III av sin skada",
-                "tog Gustav III tillbaka Finland",
-                "utsågs Bellman till kung"
+                "avgick Gustav III från tronen",
+                "återhämtade sig Gustav III och återtog makten"
               ]
             }
           ],
@@ -5957,8 +5957,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "att kungen hade tagit mer makt",
               "options": [
                 "att kungen hade tagit mer makt",
-                "att kungen vägrade stödja kulturen",
-                "att riksdagen bestämde allt"
+                "att riksrådet fått mer makt än kungen",
+                "att adeln ensam behövde betala nya skatter"
               ]
             },
             {
@@ -5966,8 +5966,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "trängt undan dem från makten",
               "options": [
                 "trängt undan dem från makten",
-                "gett adeln ensam makt",
-                "avskaffat all militär"
+                "gett adeln större inflytande i riksdagen",
+                "överlåtit besluten till riksrådet"
               ]
             },
             {
@@ -5975,8 +5975,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "planerade att döda honom",
               "options": [
                 "planerade att döda honom",
-                "skrev bara en kokbok",
-                "seglade till Kina för att välja riksrådet"
+                "ville tvinga honom att abdikera genom riksdagen",
+                "planerade att lämna landet i protest"
               ]
             }
           ],
@@ -6021,8 +6021,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "dog inte direkt på balen utan senare av sin skada",
               "options": [
                 "dog inte direkt på balen utan senare av sin skada",
-                "dog innan balen började",
-                "överlevde och regerade till 1809"
+                "dog omedelbart på maskeraden",
+                "återhämtade sig efter attentatet"
               ]
             },
             {
@@ -6030,8 +6030,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "dömdes till döden",
               "options": [
                 "dömdes till döden",
-                "blev svensk kung",
-                "landsförvisades utan dom"
+                "fick fängelsestraff och frigavs senare",
+                "landsförvisades efter en kort rättegång"
               ]
             },
             {
@@ -6039,8 +6039,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "fick sina dödsstraff ändrade till landsförvisning",
               "options": [
                 "fick sina dödsstraff ändrade till landsförvisning",
-                "blev medlemmar i riksrådet som belöning",
-                "återinsatte Gustav III"
+                "dömdes till böter och stannade i Sverige",
+                "friades och återgick till sina tjänster"
               ]
             }
           ],
@@ -6421,8 +6421,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "bönder och fattiga stadsbor uppror",
               "options": [
                 "bönder och fattiga stadsbor uppror",
-                "svenska barnhusbarn en statskupp",
-                "bara svenska adelsmän uppror"
+                "riksrådet och adeln gjorde uppror mot kungens reformer",
+                "kungens soldater gjorde uppror mot den svenska riksdagen"
               ]
             },
             {
@@ -6430,8 +6430,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "störtades från makten",
               "options": [
                 "störtades från makten",
-                "fick ensam makt",
-                "utsågs till svenska riksråd"
+                "stärkte sin makt genom nya privilegier",
+                "delade makten med Sveriges riksråd"
               ]
             },
             {
@@ -6439,8 +6439,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "att själv förlora makten",
               "options": [
                 "att själv förlora makten",
-                "att tvingas bli potatisforskare",
-                "att Bellman skulle erövra Frankrike"
+                "att adeln skulle få ökad makt i Sverige",
+                "att revolutionen skulle stärka kungamakten i Sverige"
               ]
             }
           ],
@@ -6487,8 +6487,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "Storbritannien och Ryssland mot Frankrike",
               "options": [
                 "Storbritannien och Ryssland mot Frankrike",
-                "Frankrike mot Storbritannien och Ryssland",
-                "Ryssland mot Finland som eget land"
+                "Frankrike och Danmark mot Storbritannien",
+                "Frankrike och Ryssland mot Storbritannien"
               ]
             },
             {
@@ -6496,8 +6496,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "bytte Ryssland sida och anföll Finland",
               "options": [
                 "bytte Ryssland sida och anföll Finland",
-                "anföll Frankrike Stockholm från Dalarna",
-                "blev Ryssland svenskt"
+                "bytte Storbritannien sida och anföll Finland",
+                "anföll Ryssland Sverige via Norge"
               ]
             },
             {
@@ -6505,8 +6505,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "blev Finland och Åland ryska",
               "options": [
                 "blev Finland och Åland ryska",
-                "blev Ryssland en del av Sverige",
-                "fick Sverige tillbaka alla förlorade områden"
+                "blev Finland självständigt 1809",
+                "fortsatte Finland styras från Stockholm"
               ]
             }
           ],
@@ -6554,8 +6554,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "att även unga pojkar deltog i kriget",
               "options": [
                 "att även unga pojkar deltog i kriget",
-                "att bara vuxna deltog",
-                "att krig bara gällde kungar"
+                "att unga pojkar främst arbetade hemma under kriget",
+                "att soldaternas barn inte fick följa armén"
               ]
             },
             {
@@ -6563,8 +6563,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "gjorde motstånd mot ockupationen",
               "options": [
                 "gjorde motstånd mot ockupationen",
-                "var alla överens med de ryska soldaterna",
-                "flyttade alla till Frankrike"
+                "förhandlade fram en fred med de ryska styrkorna",
+                "lämnade området innan ryska styrkor kom"
               ]
             },
             {
@@ -6572,8 +6572,8 @@ window.CLASSROOM_CURRICULUM={
               "answer": "förlorade landet omkring en tredjedel av riket",
               "options": [
                 "förlorade landet omkring en tredjedel av riket",
-                "förlorade Ryssland hela Finland",
-                "blev alla soldater kungar"
+                "behöll Sverige Finland men förlorade Åland",
+                "övertog Sverige områden öster om Finland"
               ]
             }
           ],
