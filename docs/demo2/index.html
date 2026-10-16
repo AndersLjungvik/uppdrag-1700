@@ -182,8 +182,27 @@ function isWater(x,y){
  const bridgeEast=x>=2750&&x<=2915&&y>=771&&y<=905;
  return y>shore||(stream&&!bridgeMain&&!bridgeEast);
 }
+let originalPixels=null;
+function scanOriginalWater(){
+ if(!original.naturalWidth)return;
+ const probe=document.createElement('canvas');probe.width=1280;probe.height=720;
+ const p=probe.getContext('2d',{willReadFrequently:true});p.drawImage(original,0,0,1280,720);
+ originalPixels=p.getImageData(0,0,1280,720).data;
+}
+function originalWater(x,y){
+ if(!originalPixels)return false;
+ const lx=Math.round(x-old.x),ly=Math.round(y-old.y);
+ if(lx<0||ly<0||lx>=1280||ly>=720)return false;
+ // Test a small footprint, not just the avatar centre.
+ for(const [dx,dy] of [[0,0],[-12,0],[12,0],[0,-12],[0,12]]){
+  const px=Math.max(0,Math.min(1279,lx+dx)),py=Math.max(0,Math.min(719,ly+dy));
+  const i=(py*1280+px)*4,r=originalPixels[i],g=originalPixels[i+1],b=originalPixels[i+2];
+  if(b>r*1.22&&b>g*1.10&&b-r>26)return true;
+ }
+ return false;
+}
 function walkablePoint(x,y){
- if(x<30||x>W-30||y<30||y>H-30||isWater(x,y))return false;
+ if(x<30||x>W-30||y<30||y>H-30||isWater(x,y)||originalWater(x,y))return false;
  // Respect the first demo's authored collision map inside the original image.
  if(x>=old.x&&x<=old.x+old.w&&y>=old.y&&y<=old.y+old.h){
   const lx=x-old.x,ly=y-old.y;
@@ -237,6 +256,6 @@ document.querySelector('#sailMarstrand').onclick=()=>sail('marstrand');document.
 document.querySelector('#home').onclick=()=>{followPlayer=true;focus()};document.querySelector('#zoom').onclick=()=>{followPlayer=!followPlayer;if(followPlayer)focus();else{camera.x=old.x+640;camera.y=old.y+360;clamp();draw()}};
 window.addEventListener('resize',()=>{clamp();draw()});
 let lastPaint=0;function animate(now){if(sailing&&performance.now()-sailing.started>1500){region=sailing.destination;sailing=null;walkingTo=null;player.x=760;player.y=1020;camera={x:player.x,y:player.y};followPlayer=true;clamp();updateRegion();info.textContent=region==='marstrand'?'Du har anlänt till Marstrand. Utforska hamnen och fästningen.':'Du har anlänt till Gustavia på Saint Barthélemy. Utforska hamnen och handelsplatsen.';draw()}if(walkRoute.length){const target=walkRoute[0],dx=target.x-player.x,dy=target.y-player.y,d=Math.hypot(dx,dy);if(d<5)walkRoute.shift();else{const step=Math.min(d,4);if(region!=='main'||walkablePoint(player.x+dx/d*step,player.y+dy/d*step)){player.x+=dx/d*step;player.y+=dy/d*step}else{walkRoute=[];pendingSail=null;info.textContent='Vägen är spärrad.'}}draw()}if(walkingTo){walkingTo=null;if(pendingSail&&!walkRoute.length){const destination=pendingSail;pendingSail=null;sail(destination)}}else if(followPlayer&&now-lastPaint>45){draw();lastPaint=now}requestAnimationFrame(animate)}
-original.onload=()=>{worldReady=false;prepareWorld();draw()};original.onerror=()=>{info.textContent='Originalbilden kunde inte laddas. De nya kvarteren kan ändå utforskas.';worldReady=false;prepareWorld();draw()};
+original.onload=()=>{scanOriginalWater();worldReady=false;prepareWorld();draw()};original.onerror=()=>{info.textContent='Originalbilden kunde inte laddas. De nya kvarteren kan ändå utforskas.';worldReady=false;prepareWorld();draw()};
 focus();updateRegion();requestAnimationFrame(animate);
 </script></body></html>
