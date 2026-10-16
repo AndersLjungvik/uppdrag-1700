@@ -18,7 +18,7 @@ export const PLACES={
  cafe:{name:'Kaffehuset',npc:'Maja',view:'cafe',color:'#69785e',woman:true},
  print:{name:'Tryckeriet',npc:'Brita',view:'press',color:'#6e6b5b',woman:true},
  quay:{name:'Kajen',npc:'Hamnskrivaren Jo',view:'quay',color:'#a17f49'},
- archive:{name:'Arkivet',npc:'Skrivaren Elias',view:'archive',color:'#67695a'},
+ archive:{name:'Arkivet',npc:'Läromästaren Rut',view:'archive',color:'#67695a'},
  barnhus:{name:'Barnhuset',npc:'Barnhuskökets medhjälpare',view:'barnhus',color:'#90735b',woman:true},
  garden:{name:'Trädgården',npc:'Sam',view:'garden',color:'#657866'},
  farm:{name:'Byn',npc:'Bonden Karin',view:'farm',color:'#94744e',woman:true},
@@ -77,7 +77,7 @@ export function buildContent(bank){
  ]},
  {id:3,title:'Krig eller fred?',pages:'70–74',workbook:'8–10',date:'1741–1743 · krig och uppror',next:'En läsare undrar hur man kan kontrollera makthavarnas påståenden. Nästa blad handlar om läsning och insyn.',levels:[
   stage('Budet från Dalarna','cafe','archive','print',['power-parties','power-rebellion','power-four-estates','story-adolf','story-david'],
-   'Någon säger att bönderna bara vill bråka. Ta budet till Elias i arkivet, red ut bakgrunden och lämna underlaget hos Brita.','Budets bakgrund är utredd. Nu behöver vi få händelserna i rätt sammanhang.',{artifact:'Underlag från Dalarna',pickups:[stop('archive','Här finns budet och protokollet. Undersök vilka som protesterar och varför.','Lägg fram budet på bordet')]}),
+   'Någon säger att bönderna bara vill bråka. Ta budet till Rut i arkivet, red ut bakgrunden och lämna underlaget hos Brita.','Budets bakgrund är utredd. Nu behöver vi få händelserna i rätt sammanhang.',{artifact:'Underlag från Dalarna',pickups:[stop('archive','Här finns budet och protokollet. Undersök vilka som protesterar och varför.','Lägg fram budet på bordet')]}),
   stage('Kriget och protesten','print','print','print',['power-reason-2'],
    'Hjälp mig förklara varför bönderna marscherade mot Stockholm. Vi väntar sedan på nästa besked.','Förklaringen är klar. Jo har fått ett senare besked vid kajen.',{artifact:'Utkast om protesten'}),
   stage('Det senare beskedet','print','quay','cafe',['power-reason-3'],
@@ -85,7 +85,7 @@ export function buildContent(bank){
  ]},
  {id:4,title:'Nya tider, nya tankar',pages:'75–80',workbook:'11–15',date:'1766 · läsning, forskning och insyn',next:'Den första delen av boken är klar. Nästa avsnitt öppnar den gustavianska tiden med ett besked från 1772.',levels:[
   stage('Vad står i beslutet','cafe','archive','cafe',[...factIds(bank,'press').filter(id=>id!=='press-sources'),...factIds(bank,'nature')],
-   'Vi har hört olika saker om ett beslut. Elias har handlingen i arkivet. Hjälp oss återkalla orden och forskarna som hör till avsnittet.','Handlingen kan granskas. Ta nu vägen till tryckeriet; forskarbladen behöver ordnas.',{artifact:'Uppgifter ur handlingen'}),
+   'Vi har hört olika saker om ett beslut. Rut har handlingen i arkivet. Hjälp oss återkalla orden och forskarna som hör till avsnittet.','Handlingen kan granskas. Ta nu vägen till tryckeriet; forskarbladen behöver ordnas.',{artifact:'Uppgifter ur handlingen'}),
   stage('Forskarbladen','print','garden','print',['press-reason-1','press-reason-2','nature-reason-1','nature-reason-2'],
    'Sam i trädgården hjälper oss få forskarbladen rätt. Gå via vägen vidare och kom tillbaka med de ordnade förklaringarna.','Forskarbladen är klara. Maja har även beställt en kokbok till läsbordet.',{artifact:'Ordnade forskarblad'}),
   stage('Böcker till läsbordet','print','print','cafe',['nature-reason-3'],
@@ -133,7 +133,7 @@ export function buildContent(bank){
  ]},
  {id:10,title:'Hur kan vi veta något om 1700-talets Sverige?',pages:'103–105',workbook:'31–35',date:'Källorna · tillbaka på hela berättelsen',next:'Boken står på kaffehusets bord. Du kan fortsätta arbeta och repetera i de delar du har besökt.',levels:[
   stage('Hämta källorna','cafe','archive','archive',['press-sources','power-era','press-reading','king-finland'],
-   'Arkivet vill visa boken. Hämta bykartan hos Karin, en handling i tryckeriet och bilden från kaffehuset. Ta dem till Elias.', 'Samlingen är här. Nu måste vi pröva vilka påståenden källorna kan stödja.',{artifact:'Källsamlingen',pickups:[stop('farm','Här är den sparade bykartan. Den visar var gårdar och åkrar låg.','Ta kartan'),stop('print','Här är handlingen ur vår samling. Den har en avsändare och ett datum.','Ta handlingen'),stop('cafe','Här är efterhandsbilden av maskeraden. Den gjordes efter händelsen.','Ta bilden')]}),
+   'Arkivet vill visa boken. Hämta bykartan hos Karin, en handling i tryckeriet och bilden från kaffehuset. Ta dem till Rut.', 'Samlingen är här. Nu måste vi pröva vilka påståenden källorna kan stödja.',{artifact:'Källsamlingen',pickups:[stop('farm','Här är den sparade bykartan. Den visar var gårdar och åkrar låg.','Ta kartan'),stop('print','Här är handlingen ur vår samling. Den har en avsändare och ett datum.','Ta handlingen'),stop('cafe','Här är efterhandsbilden av maskeraden. Den gjordes efter händelsen.','Ta bilden')]}),
   stage('Vad räcker källan till','archive','archive','archive',['press-reason-2','press-reason-3'],
    'Koppla uppgifterna till vad källorna faktiskt kan berätta. En bevarad text är inte automatiskt hela sanningen.','Källornas möjligheter och begränsningar är tydligare. Nu kan bokens avslutning granskas.',{artifact:'Granskade källkopplingar'}),
   stage('Boken till kaffehuset','archive','archive','cafe',['power-reason-1','press-reason-1','king-reason-2'],
