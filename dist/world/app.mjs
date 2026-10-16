@@ -53,7 +53,7 @@ function draw(t){renderer.draw(t,{world:engine.world(),place:view,speaker,speech
 function updateChrome(){
  const c=engine.current(),a=engine.active(),done=engine.progress().done,currentLevel=a?.level||Math.min(3,done+1);
  document.body.dataset.view=view;$('location').textContent=view==='work'?'ARBETSBORDET':PLACES[view]?.name.toUpperCase()||'STADEN';
- $('chapterBadge').textContent=`${LEVEL_NAMES[currentLevel-1]} · ${done}/3 nivåer (mästare frivillig)`;$('bookBtn').textContent=`Uppdragsboken · ${c.id}/10`;
+ $('chapterBadge').textContent=a?.repeat?`Repetition · ${LEVEL_NAMES[a.level-1]} · ${done}/3 klara`:done===3?`Mästare klar ✓ · 3/3 nivåer`:a?`${LEVEL_NAMES[a.level-1]} · ${done}/3 klara`:`${LEVEL_NAMES[currentLevel-1]} · ${done}/3 klara`;$('bookBtn').textContent=`Uppdragsboken · ${c.id}/10`;
  $('instruction').textContent=engine.objective();$('back').hidden=view==='town';$('back').textContent=view==='work'?'← Pausa och gå tillbaka':'← Till staden';
  $('mapLinks').hidden=view!=='town';$('gateBtn').hidden=!extras().length;$('bagBtn').hidden=view==='work';$('work').hidden=view!=='work';$('puzzle').hidden=true;$('pressItems').hidden=true;$('pressTarget').hidden=true;
  $('timeline').hidden=view!=='town';const time=TIMELINES[c.id];$('timelineLabel').textContent=time.label;$('timeRange').style.left=((time.start-1719)/90*100)+'%';$('timeRange').style.width=Math.max(.8,(time.end-time.start)/90*100)+'%';
@@ -101,7 +101,7 @@ function placeMenu(override=null){
  const a=engine.active(),l=engine.level(),c=engine.current(),done=engine.progress().done,place=view,name=npcName(place),choices=[];let line=override;
  if(a&&engine.target()===place){
   if(a.phase==='pickup'){const p=l.pickups[a.pickup];line||=p.text;choices.push(primaryChoice(p.label,()=>{engine.pickup(place);cue('paper')}));}
-  else if(a.phase==='work'){line||=`Här arbetar vi med ”${l.title.toLowerCase()}”. När underlaget är klart ska det till ${PLACES[l.recipient].name.toLowerCase()}.`;choices.push([a.quiz?'Fortsätt arbetspasset':`Börja ${LEVEL_NAMES[a.level-1].toLowerCase()}suppdraget`,()=>{if(engine.beginWork(place).ok)openQuiz()}]);}
+  else if(a.phase==='work'){line||=a.repeat?`Du repeterar ”${l.title.toLowerCase()}”. Pröva vad du minns. Du har redan klarat den här nivån.`:`Här arbetar vi med ”${l.title.toLowerCase()}”. ${l.recipient===place?'Du är redan på rätt plats för att lämna resultatet när det är färdigt.':`När underlaget är klart ska det till ${PLACES[l.recipient].name.toLowerCase()}.`}`;choices.push([a.quiz?'Fortsätt repetitionen':a.repeat?'Börja repetitionen':`Börja ${LEVEL_NAMES[a.level-1].toLowerCase()}suppdraget`,()=>{if(engine.beginWork(place).ok)openQuiz()}]);}
   else if(a.phase==='materials'){line||='Manuset är kontrollerat. Lägg svärta, papper och typer direkt i pressen. Provtrycket ska sedan till Maja.';choices.push(['Till pressen',openPress]);}
   else if(a.phase==='puzzle'){line||='Nu behöver kartorna jämföras innan leveransen kan fortsätta.';choices.push(['Jämför kartorna',openPuzzle]);}
   else if(a.phase==='handoff'){const p=l.handoffs[a.handoff];line||=p.text;choices.push(primaryChoice(p.label,()=>{engine.handoff(place);cue('paper')}));}
