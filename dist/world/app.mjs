@@ -95,7 +95,7 @@ function openAtlas(){
   const open=d.chapters.some(c=>c<=unlocked);card.classList.toggle('atlas-locked',!open);
   const h=document.createElement('h3');h.textContent=d.name;card.append(h);
   const status=document.createElement('p');status.textContent=open?'Öppet · Utforska platserna':'Synligt · Vägen är ännu stängd';card.append(status);
-  for(const [label,place]of d.places){const btn=document.createElement('button');btn.textContent=label;btn.disabled=!open;btn.onclick=()=>{atlas.close();travelTo(place)};card.append(btn)}
+  for(const [label,place]of d.places){const btn=document.createElement('button');btn.textContent=label;btn.disabled=!open||!engine.availablePlaces().includes(place);btn.onclick=()=>{atlas.close();travelTo(place)};card.append(btn)}
   if(!open){const info=document.createElement('small');info.textContent='Fortsätt berättelsen vid vägvisaren för att komma hit.';card.append(info)}
   world.append(card);
  });
