@@ -250,5 +250,145 @@ export const vettedChainOptions = {
       "texter som ifrågasatte kungens rätt att styra",
       "rapporter om skiften och jordbrukets avkastning"
     ]
+  ],
+  "sos-skifte-foljder": [
+    [
+      "samlade kring en gård",
+      "på samma stora åker för hela byn"
+    ],
+    [
+      "mer utspridda mellan gårdarna",
+      "uppdelade i fler mindre tegar"
+    ],
+    [
+      "bönderna tvungna att flytta till staden",
+      "fler små tegar men oförändrad bygemenskap"
+    ]
+  ],
+  "sos-barn-fabrik": [
+    [
+      "dyrare att anställa än vuxna",
+      "lika dyra som utbildade hantverkare"
+    ],
+    [
+      "korta arbetsdagar med högre lön",
+      "färre arbetsuppgifter än i skolan"
+    ],
+    [
+      "sänka ägarens kostnader och ge barnet större inflytande",
+      "öka ägarens kostnader men ge barnet mer fritid"
+    ]
+  ],
+  "sos-bellman-kalla": [
+    [
+      "långt efter den tid som skildras",
+      "under 1800-talets senare del"
+    ],
+    [
+      "människor och vardag i byarnas jordbruk",
+      "riksdagens beslut och protokoll"
+    ],
+    [
+      "visa hur Bellman valde att skildra sin samtid",
+      "bevisa vilka regler som gällde i Sveriges städer"
+    ]
+  ],
+  "sos-skifte-olika": [
+    [
+      "göra åkrarna mer utspridda och svårare att bruka",
+      "öka antalet små tegar per gård"
+    ],
+    [
+      "bygemenskapen stärkas genom att gårdarna låg tätare",
+      "samarbetet mellan grannar bli oförändrat trots flytt"
+    ],
+    [
+      "skillnaderna mellan gårdarna minska på samma sätt överallt",
+      "samma ekonomiska följder uppstå för varje hushåll"
+    ]
+  ],
+  "sos-ogift-press": [
+    [
+      "få samma rättigheter som gifta kvinnor",
+      "få laglig rätt att välja riksrådet"
+    ],
+    [
+      "att äktenskapet inte påverkade synen på barn",
+      "att ogifta kvinnor hade samma ställning som gifta"
+    ],
+    [
+      "trygg i att hon inte kunde straffas",
+      "säker på att samhället accepterade barnet"
+    ]
+  ],
+  "sos-barnhus-vardag": [
+    [
+      "studerade utan att behöva arbeta",
+      "arbetade endast någon timme i veckan"
+    ],
+    [
+      "regelbunden vila och lön för sitt arbete",
+      "mycket mat och möjlighet att välja arbete"
+    ],
+    [
+      "fick utbildning i hantverk på samma villkor som vuxna",
+      "kunde lämna barnhuset när de själva ville"
+    ]
+  ],
+  "sos-barnhus-perspektiv": [
+    [
+      "barn till förmögna familjer som ville studera",
+      "barn vars föräldrar arbetade i riksdagen"
+    ],
+    [
+      "få samma lön och villkor som vuxna arbetare",
+      "välja sina arbetsuppgifter och boende"
+    ],
+    [
+      "enbart vad barnhusen var avsedda för",
+      "enbart hur personalen beskrev verksamheten"
+    ]
+  ],
+  "sos-domstol-ojamlikhet": [
+    [
+      "krävde att få äga handelsföretaget",
+      "anmälde att de hindrades från att resa till Sverige"
+    ],
+    [
+      "lämna ön och förlora sin egendom",
+      "betala kvinnorna men inte dömas till böter"
+    ],
+    [
+      "kvinnorna var fria medborgare",
+      "mannen hade rätt att behålla deras lön"
+    ]
+  ],
+  "sos-marstrand-regler": [
+    [
+      "högre tullar än i resten av landet",
+      "särskilda skatter på varje hantverk"
+    ],
+    [
+      "betala medlemsavgift i flera skrån",
+      "söka tillstånd från ett hantverksskrå"
+    ],
+    [
+      "enbart handlare med kungligt tillstånd flytta dit",
+      "bara personer födda i Sverige flytta dit"
+    ]
+  ],
+  "sos-triangelhandel": [
+    [
+      "råvaror från de amerikanska kolonierna",
+      "varor som odlats på afrikanska plantager"
+    ],
+    [
+      "kolonialvaror odlade i Amerika",
+      "handelsvaror tillverkade i Europa"
+    ],
+    [
+      "vapen och textilier från europeiska verkstäder",
+      "järn och koppar som bröts i Afrika"
+    ]
   ]
 };
