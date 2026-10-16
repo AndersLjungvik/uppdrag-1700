@@ -67,6 +67,43 @@ function walkTo(point,onArrival){if(view!=='town'||modalOpen())return;hush();que
 for(const b of document.querySelectorAll('[data-place]'))b.onclick=()=>walkTo(points[b.dataset.place],()=>b.dataset.place==='gate'?gateway():enter(b.dataset.place));
 canvas.addEventListener('pointerdown',e=>{if(view!=='town'||modalOpen())return;const rect=canvas.getBoundingClientRect(),tap=renderer.unproject(e.clientX-rect.left,e.clientY-rect.top);if(Math.hypot(tap.x-rutAt(performance.now()).x,tap.y-rutAt(performance.now()).y)<58){meetRut();return}const r=canvas.getBoundingClientRect();walkTo(renderer.unproject(e.clientX-r.left,e.clientY-r.top));actions()});
 $('skipWalk').onclick=()=>{if(queue.length){engine.world().player={...queue.at(-1)};const fn=arrival;stopWalking();engine.save();fn?.()}};
+
+const atlas=document.createElement('dialog');atlas.id='worldAtlas';atlas.setAttribute('aria-label','Världskartan');document.body.append(atlas);
+const atlasButton=document.createElement('button');atlasButton.id='atlasButton';atlasButton.textContent='Världskarta';atlasButton.type='button';$('stage').append(atlasButton);
+const districts=[
+ {name:'Gamla staden',chapters:[1],x:48,y:80,places:[['Kaffehuset','cafe'],['Tryckeriet','print'],['Kajen','quay'],['Arkivet','archive']]},
+ {name:'Barnhuskvarteren',chapters:[2,3],x:540,y:65,places:[['Barnhuset','barnhus']]},
+ {name:'Vetenskapens kvarter',chapters:[4],x:990,y:65,places:[['Trädgården','garden']]},
+ {name:'Slottet och operan',chapters:[5,8],x:1460,y:75,places:[['Slottet','palace'],['Operan','opera']]},
+ {name:'Landsbygden',chapters:[6],x:920,y:450,places:[['Byn','farm']]},
+ {name:'Hav och handelsvägar',chapters:[7,9,10],x:1650,y:430,places:[['Marstrand','marstrand'],['Saint Barthélemy','colony']]}
+];
+function openAtlas(){
+ atlas.replaceChildren();
+ const heading=document.createElement('div');heading.className='atlas-head';
+ const title=document.createElement('h2');title.textContent='Världen omkring dig';
+ const help=document.createElement('p');help.textContent='Dra eller skrolla för att upptäcka fler platser. Områden öppnas när du har klarat lärlingsuppdraget och vägens kunskapsprov.';
+ const close=document.createElement('button');close.textContent='Stäng ×';close.onclick=()=>atlas.close();heading.append(title,close);
+ const viewport=document.createElement('div');viewport.className='atlas-viewport';
+ const world=document.createElement('div');world.className='atlas-land';
+ const roads=document.createElement('svg');roads.setAttribute('viewBox','0 0 2110 780');roads.classList.add('atlas-roads');
+ roads.innerHTML='<path d="M210 245 C340 250 430 240 590 225 S930 255 1080 235 S1370 210 1530 260 S1840 265 1930 520 M1080 235 Q1070 395 1040 565 M1530 260 Q1570 390 1790 555" stroke="#f5e7c7" stroke-width="45" fill="none" stroke-linecap="round"/><path d="M210 245 C340 250 430 240 590 225 S930 255 1080 235 S1370 210 1530 260 S1840 265 1930 520 M1080 235 Q1070 395 1040 565 M1530 260 Q1570 390 1790 555" stroke="#ad956f" stroke-width="2" stroke-dasharray="9 9" fill="none"/>';
+ world.append(roads);
+ const unlocked=engine.world().unlocked;
+ districts.forEach((d,i)=>{
+  const card=document.createElement('section');card.className='atlas-district';card.style.left=d.x+'px';card.style.top=d.y+'px';
+  const open=d.chapters.some(c=>c<=unlocked);card.classList.toggle('atlas-locked',!open);
+  const h=document.createElement('h3');h.textContent=d.name;card.append(h);
+  const status=document.createElement('p');status.textContent=open?'Öppet · Utforska platserna':'Synligt · Vägen är ännu stängd';card.append(status);
+  for(const [label,place]of d.places){const btn=document.createElement('button');btn.textContent=label;btn.disabled=!open;btn.onclick=()=>{atlas.close();travelTo(place)};card.append(btn)}
+  if(!open){const info=document.createElement('small');info.textContent='Fortsätt berättelsen vid vägvisaren för att komma hit.';card.append(info)}
+  world.append(card);
+ });
+ viewport.append(world);atlas.append(heading,help,viewport);
+ atlas.showModal();const selected=districts.find(d=>d.chapters.includes(engine.current().id))||districts[0];viewport.scrollLeft=Math.max(0,selected.x-120);
+}
+atlasButton.onclick=openAtlas;
+
 function gateway(){const c=engine.current(),done=engine.progress().done,open=engine.world().unlocked>c.id;if(c.id===10){say('Stadsvakten','Du har nått bokens sista avsnitt. Du kan återvända till tidigare uppdrag och samla mästarstämplar.');actions([['Tillbaka till staden',()=>enter('town')]]);return}say('Stadsvakten',done<1?'Du behöver först klara lärlingsuppdraget i detta avsnitt. Gesäll och mästare är frivilliga.':open?'Du har redan klarat stadsportens kunskapsprov. Vägen vidare är öppen.':'Visa vad du minns från lärlingsuppdraget. Fem blandade frågor väntar. Du behöver minst 70 procent rätt på första försöket utan stöd. Gesäll och mästare är frivilliga.');actions([...(done>=1&&!open?[['Gör stadsportens kunskapsprov',()=>{const r=engine.beginGateExam();if(r.ok)openQuiz();else notify('Avsluta först det pågående repetitionspasset.') }]]:[]),...(open?[['Gå till nästa avsnitt',()=>changeChapter(c.id+1)]]:[]),...extras().map(p=>[PLACES[p].name,()=>enter(p)]),['Tillbaka till staden',()=>enter('town'),true]])}
 function npcName(place){return place==='print'&&engine.current().id>=5?'Tryckeriets ansvariga':PLACES[place]?.npc||'Berättaren'}
 function primaryChoice(label,fn){return[label,()=>{fn();updateChrome();placeMenu()}]}
@@ -179,7 +216,7 @@ function meetRut(){walkTo(rutAt(performance.now()),()=>{say('Läromästaren Rut'
 function mentorMenu(){const n=engine.reviewIds().length;say('Läromästaren Rut',n?`Vi repeterar upp till ${n} frågor som du redan har mött. Minst ${Math.ceil(n*.7)} rätt på första försöket utan stöd ger ett äpple och 1 daler. Du kan komma tillbaka när du vill.`:'Gör ett första uppdrag och läs en fråga. Sedan kan vi repetera den tillsammans.');actions(n?[[engine.world().review?'Fortsätt repetitionspasset':'Börja repetera',startReview],...(engine.world().review?[['Avbryt repetitionspasset',()=>{engine.cancelReview();placeMenu()},true]]:[]),['Jag går vidare',()=>placeMenu(),true]]:[['Jag går vidare',()=>placeMenu()]])}
 function goMentor(){closeDialogs();if(view==='work')engine.pauseWork();enter('town',{quiet:true});walkTo(points.archive,()=>{enter('archive');mentorMenu()})}
 function startReview(){closeDialogs();engine.arrive('archive');const r=engine.beginReview();if(!r.ok){notify('Gör ett första uppdrag så kan Rut repetera det du har arbetat med.');return}openQuiz()}
-function changeChapter(id,unlock=false){if(!engine.setChapter(id,{unlock})){notify('Avsluta eller avbryt repetitionspasset innan du byter avsnitt.');return}closeDialogs();enter('town');say('Berättaren',`${engine.current().date}. ${engine.current().title}. Ditt nästa ärende börjar på ${PLACES[engine.level().giver].name.toLowerCase()}.`);actions([['Jag går vidare',()=>{hush();actions()}]]);resize()}
+function changeChapter(id,unlock=false){if(!engine.setChapter(id,{unlock})){notify('Avsluta eller avbryt repetitionspasset innan du byter avsnitt.');return}closeDialogs();enter('town');openAtlas();say('Berättaren',`${engine.current().date}. ${engine.current().title}. Ditt nästa ärende börjar på ${PLACES[engine.level().giver].name.toLowerCase()}.`);actions([['Jag går vidare',()=>{hush();actions()}]]);resize()}
 function social(place='town'){
  const c=engine.current().id,name=place==='town'?'Kvinnan på torget':npcName(place);
  const theme=c<=1?{start:'De kallar det en fri tid. Jag undrar vem som får känna den friheten.',explain:'Kungen bestämmer mindre. Men alla får inte vara med i riksdagen eller bestämma över sina liv.',question:'Vems frihet skulle du vilja veta mer om?',answers:[['Barnens','Ja. Deras liv kunde bero mycket på familjen och arbetet.'],['Kvinnornas','Ja. Många kvinnor fick inte själva bestämma över sina liv.']]}:c<=4?{start:'Jag tänker på barnen som ingen kunde ta hand om.',explain:'Ett barnhus kunde ge tak över huvudet, men barnen fick ofta arbeta hårt och kunde bli illa behandlade.',question:'Vad tycker du vi ska fråga om?',answers:[['Hur barnen själva upplevde det','Deras röster behövs också i berättelsen.'],['Vad de fick göra om dagarna','Ja, en arbetsdag kan berätta mycket om deras villkor.']]}:c<=8?{start:'Några försvarar Gustav III. Andra är mycket arga på honom.',explain:'Människor kan uppskatta vissa reformer och ändå vara oroliga för att kungen bestämmer allt mer.',question:'Vad vill du fråga vidare om?',answers:[['Vilka som gillade förändringarna','Ja. Olika grupper kunde ha olika skäl.'],['Om ett vunnet krig hade ändrat bilden','Det kunde ha påverkat några. Men vi kan inte veta säkert hur alla skulle ha tänkt.']]}:{start:'Kartor och brev berättar olika delar av det som hände.',explain:'Kartan visar gränser och platser. Ett brev kan berätta hur en människa upplevde en händelse.',question:'Vilken fråga vill du börja med?',answers:[['Vems berättelse saknas','Det är en bra sak att undersöka i samlingen.'],['När källan gjordes','Ja. Ett minne nedskrivet långt senare behöver granskas på sitt sätt.']]};
