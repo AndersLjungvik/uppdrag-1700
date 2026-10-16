@@ -115,10 +115,18 @@ function renderQuestion(){
  $('instruction').textContent=chain?'Bygg en mening: välj hur förklaringen fortsätter, en del i taget.':'Tänk efter först. Enter fungerar för kortsvar.';$('work').scrollTop=0;
 }
 function renderChain(q,session){
- $('chainParts').replaceChildren();
- q.steps.forEach((part,i)=>{const row=document.createElement('label');row.className='chain-row';const text=document.createElement('span');text.textContent=`${i+1}. ${part.connector||'Fortsätt förklaringen'}`;const select=document.createElement('select');select.setAttribute('aria-label',`Del ${i+1} av förklaringen`);const empty=document.createElement('option');empty.value='';empty.textContent='Välj hur meningen fortsätter …';select.append(empty);for(const choice of shuffle(part.options)){const o=document.createElement('option');o.value=choice;o.textContent=choice;select.append(o)}select.value=session.draft[i]||'';select.onchange=()=>{engine.setDraft(i,select.value);updatePreview();const next=$('chainParts').querySelectorAll('select')[i+1];if(next&&select.value)next.focus()};row.append(text,select);$('chainParts').append(row)});updatePreview();
+ const host=$('chainParts');host.replaceChildren();
+ const firstEmpty=session.draft.findIndex(v=>!v);const step=firstEmpty<0&&session.draft.length===3?3:firstEmpty<0?session.draft.length:firstEmpty;
+ $('chainForm').querySelector('button[type="submit"]').hidden=step<3;
+ if(step===3){const title=document.createElement('strong');title.textContent='Din förklaring är färdig!';host.append(title);const back=document.createElement('button');back.type='button';back.textContent='Ändra sista delen';back.onclick=()=>{engine.setDraft(2,'');renderChain(q,engine.currentQuiz())};host.append(back);updatePreview();return}
+ const part=q.steps[step],heading=document.createElement('h3');heading.textContent='Del '+(step+1)+' av 3';host.append(heading);
+ const sentence=document.createElement('p');sentence.className='chain-prompt';sentence.textContent=part.connector||'Fortsätt förklaringen';host.append(sentence);
+ const prompt=document.createElement('p');prompt.textContent='Välj hur meningen fortsätter:';host.append(prompt);
+ for(const choice of shuffle(part.options)){const b=document.createElement('button');b.type='button';b.className='chain-option';b.textContent=choice;b.onclick=()=>{engine.setDraft(step,choice);renderChain(q,engine.currentQuiz())};host.append(b)}
+ if(step>0){const back=document.createElement('button');back.type='button';back.textContent='← Ändra föregående del';back.onclick=()=>{engine.setDraft(step-1,'');renderChain(q,engine.currentQuiz())};host.append(back)}
+ updatePreview();
 }
-function updatePreview(){const q=engine.question(),s=engine.currentQuiz();$('chainPreview').textContent='Din förklaring: '+q.steps.map((p,i)=>`${p.connector||''} ${s.draft[i]||'…'}`).join(' ')}
+function updatePreview(){const q=engine.question(),s=engine.currentQuiz();$('chainPreview').textContent='Din förklaring hittills: '+q.steps.map((p,i)=>s.draft[i]?((p.connector||'')+' '+s.draft[i]):'').filter(Boolean).join(' · ')}
 function submitAnswer(value,supported=false){const r=engine.answer(value,{supported});if(!r.ok){notify(r.reason==='incomplete'?'Välj en del på varje rad.':'Skriv ett svar först.');return}cue('paper');renderQuestion()}
 $('answerForm').onsubmit=e=>{e.preventDefault();submitAnswer($('answer').value)};
 $('chainForm').onsubmit=e=>{e.preventDefault();submitAnswer(engine.currentQuiz().draft,true)};
