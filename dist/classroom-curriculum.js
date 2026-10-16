@@ -1370,7 +1370,7 @@ window.CLASSROOM_CURRICULUM={
           "bookReference": "Bra att veta – 1700-talets Sverige · 2; Ord och begrepp – 1700-talets Sverige (pdf (1).pdf) · 1; Prov – 1700-talets Sverige del 1 · 2; Elevernas arbetsbok s. 24–39 · 3",
           "distractors": [
             "Svenska Afrikakompaniet",
-            "Svenska Västindiska kompaniet"
+            "Svenska Västindiska handelsbolaget"
           ]
         },
         {
@@ -4094,7 +4094,7 @@ window.CLASSROOM_CURRICULUM={
           "bookReference": "Prov – 1700-talets Sverige del 1 · 6",
           "distractors": [
             "Spöpåle",
-            "Skampall"
+            "Straffstock"
           ]
         },
         {
