@@ -1,4 +1,4 @@
-/* Demo 3.4: the existing paper-stage interiors, recomposed for narrow screens.
+/* Demo 3.4.1: one room, one floor line, furniture supported by that floor.
  * Furniture geometry: docs/world/render.mjs (drawPress, material, room).
  * Paper samples: docs/world/assets/town.webp. No navigation or progression here.
  */
@@ -54,27 +54,84 @@ window.UPPDRAG_ROOM_ART = (() => {
   function scroll(g,x,y,s=1){place(g,x,y,s,g=>{cut(g,-3,0,119,65,'paper');oval(g,0,32,11,32,'paper');oval(g,116,32,11,32,'paper');lines(g,23,17,60,3,13);cut(g,52,-4,8,73,'red');});}
   function quill(g,x,y){poly(g,[[x,y],[x+35,y-90],[x+55,y-103],[x+49,y-67]],'paper');g.save();g.strokeStyle='#817053';g.lineWidth=2;g.beginPath();g.moveTo(x,y+14);g.lineTo(x+43,y-87);g.stroke();g.restore();}
   function door(g,x,y,w,h){cut(g,x,y,w,h,'dark');cut(g,x+8,y+7,w-16,h-7,'wood');for(let i=1;i<5;i++)cut(g,x+8+i*(w-16)/5,y+9,2,h-12,'dark',false);cut(g,x-10,y+h,w+20,15,'paper');oval(g,x+w-25,y+h*.55,5,5,'paper');}
+  function groundShadow(g,x,y,rx){
+    g.save();g.fillStyle='#4f402926';g.beginPath();g.ellipse(x,y,rx,8,0,0,Math.PI*2);g.fill();g.restore();
+  }
+  function flatBook(g,x,y,w){g.save();g.translate(x,y);g.scale(1,.30);openBook(g,0,0,w);g.restore();}
   function scene(g,id,w,h){
     const tall=w/h<1.02,D=tall?{w:720,h:1040}:{w:1280,h:720};
     const scale=Math.min(w/D.w,h/D.h),ox=(w-D.w*scale)/2,oy=(h-D.h*scale)/2;
-    g.fillStyle=mat(g,'wall');g.fillRect(0,0,w,h);g.fillStyle=mat(g,'floor');g.fillRect(0,oy+D.h*.64*scale,w,h);
+    // A single shared wall/floor junction, also used for the door threshold.
+    // Extend the same materials into letterboxing instead of drawing a second floor.
+    const floor=tall?650:500,screenFloor=oy+floor*scale;
+    g.fillStyle=mat(g,'wall');g.fillRect(0,0,w,h);
+    g.fillStyle=mat(g,'floor');g.fillRect(0,screenFloor,w,h-screenFloor);
     g.save();g.translate(ox,oy);g.scale(scale,scale);
-    const floor=tall?660:500;
-    cut(g,0,floor,D.w,D.h-floor,'floor',false);cut(g,0,floor-8,D.w,10,'wood',false);
-    for(let y=floor+58;y<D.h;y+=58){g.save();g.strokeStyle='#78644544';g.lineWidth=2;g.beginPath();g.moveTo(0,y);g.lineTo(D.w,y);g.stroke();g.restore();}
-    cut(g,0,33,D.w,16,'wood');
-    if(id==='cafe'){
-      if(tall){windowPane(g,48,110,213,257);noticeBoard(g,345,143,304,205);chair(g,150,572,1.0);chair(g,523,572,1.0);table(g,113,602,505,157);cup(g,230,568,1.28);cup(g,486,570,.93);cut(g,300,561,114,18,'paper');cut(g,300,548,114,12,'paper');table(g,380,810,238,107);cup(g,484,782,1);}
-      else{windowPane(g,80,100,250,270);noticeBoard(g,455,130,280,195);chair(g,807,459,.78);chair(g,1087,459,.78);table(g,800,475,360,162);cup(g,925,442,1.05);cup(g,1060,451,.76);cut(g,972,427,56,22,'paper');table(g,475,539,235,115);cup(g,581,507,.9);}
-    }else if(id==='print'){
-      if(tall){cut(g,37,100,15,560,'wood');cut(g,648,100,15,560,'wood');place(g,339,148,.89,press);table(g,54,548,242,148);material(g,'ink',95,516,.85);material(g,'paper',196,555,1.06);table(g,294,830,344,117);material(g,'paper',377,838,1.2);material(g,'type',475,813,1);material(g,'ink',566,809,1.05);}
-      else{cut(g,110,50,24,550,'wood');cut(g,1120,50,24,550,'wood');table(g,120,510,370,150);place(g,684,140,1,press);['ink','paper','type'].forEach((a,i)=>material(g,a,185+i*130,a==='paper'?517:490,1));cut(g,188,153,240,100,'wood');scroll(g,235,168,.95);}
-    }else{
-      if(tall){bookcase(g,50,109,280,393);bookcase(g,373,109,277,393);table(g,197,652,420,166);openBook(g,269,521,226);material(g,'ink',542,625,.78);quill(g,542,586);scroll(g,94,536,.72);scroll(g,509,851,.72);}
-      else{bookcase(g,70,115,310,340);bookcase(g,850,115,310,340);table(g,449,500,335,149);openBook(g,492,388,215);material(g,'ink',731,475,.68);quill(g,731,438);scroll(g,128,507,.88);}
+    const left=-ox/scale,right=(w-ox)/scale,bottom=(h-oy)/scale;
+    cut(g,left,floor-8,right-left,10,'wood',false);
+    let gap=30;for(let y=floor+gap;y<bottom;y+=gap){
+      g.save();g.strokeStyle='#78644544';g.lineWidth=1.5;
+      g.beginPath();g.moveTo(left,y);g.lineTo(right,y);g.stroke();g.restore();gap+=12;
     }
-    const exit=tall?{x:44,y:756,w:107,h:230}:{x:52,y:498,w:84,h:188};door(g,exit.x,exit.y,exit.w,exit.h);
-    // Empty rooms for this production stage; named characters are added later.
+    cut(g,left,33,right-left,14,'wood',false);
+    // The door is in the back wall: its bottom meets the floor, not the foreground.
+    const exit=tall?{x:48,y:320,w:132,h:330}:{x:60,y:170,w:145,h:330};
+    door(g,exit.x,exit.y,exit.w,exit.h);
+    if(id==='print'){
+      // Retain the original press shape and materials. Its feet are below the
+      // wall/floor junction; a single workbench sits in front, not in a second room.
+      if(tall){
+        const pressScale=.94,feet=floor+90;
+        groundShadow(g,492,feet+3,151);
+        place(g,335,feet-510*pressScale,pressScale,press);
+        groundShadow(g,450,975,203);
+        table(g,243,808,411,164);
+        material(g,'paper',323,807,1.0);
+        material(g,'type',448,796,1.0);
+        material(g,'ink',571,789,.92);
+      }else{
+        const pressScale=1.04,feet=floor+143;
+        groundShadow(g,935,feet+3,171);
+        place(g,775,feet-510*pressScale,pressScale,press);
+        groundShadow(g,531,654,180);
+        table(g,354,482,361,169);
+        material(g,'paper',421,483,.95);
+        material(g,'type',535,470,1.0);
+        material(g,'ink',649,465,.95);
+      }
+    }else if(id==='cafe'){
+      if(tall){
+        windowPane(g,47,104,210,178);noticeBoard(g,350,138,290,200);
+        groundShadow(g,474,785,174);
+        chair(g,324,582,.90);chair(g,552,582,.90);
+        table(g,299,610,357,172);
+        cup(g,378,574,.95);cup(g,581,576,.83);
+        cut(g,440,573,83,14,'paper');cut(g,441,563,79,12,'paper');
+      }else{
+        windowPane(g,280,100,230,240);noticeBoard(g,574,134,255,195);
+        groundShadow(g,978,644,185);
+        chair(g,809,448,.85);chair(g,1082,448,.85);
+        table(g,795,470,365,171);
+        cup(g,882,435,1.02);cup(g,1073,438,.79);
+        cut(g,945,438,74,14,'paper');cut(g,946,428,70,10,'paper');
+      }
+    }else{
+      if(tall){
+        // Bookcases stand on the same floor as the press and the cafe furniture.
+        bookcase(g,238,177,196,482);bookcase(g,464,177,199,482);
+        groundShadow(g,446,983,208);
+        table(g,236,789,427,190);flatBook(g,286,757,227);
+        material(g,'ink',592,771,.70);quill(g,592,727);
+
+      }else{
+        bookcase(g,264,175,251,331);bookcase(g,918,175,280,331);
+        groundShadow(g,704,654,165);
+        table(g,539,490,332,161);flatBook(g,575,456,184);
+        material(g,'ink',810,472,.70);quill(g,810,428);
+
+      }
+    }
+    // These are visitable environments, not new tasks or NPC interactions.
     g.restore();
     return {x:ox+exit.x*scale,y:oy+exit.y*scale,w:exit.w*scale,h:(exit.h+15)*scale};
   }
