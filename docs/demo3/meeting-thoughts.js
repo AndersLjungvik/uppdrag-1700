@@ -217,7 +217,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   let direction=0;
   function drawMapPlayer(g,pos,route,now){
     if(route.length){const goal=route[0],dx=goal.x-pos.x,dy=goal.y-pos.y;if(Math.hypot(dx,dy)>1)direction=Math.atan2(dy,dx)+Math.PI/2;}
-    puppets(g).map(pos.x,pos.y,CAST.player.color,heading,moving,t,false);
+    puppets(g).map(pos.x,pos.y,direction,route.length>0,now);
   }
   window.UPPDRAG_MEETINGS={tick,drawMapPlayer,get state(){return {room:current()?.key||null,npc:current()?.cast?.name||null,talking:!!dialogue,line:dialogue?.index??null};}};
   document.documentElement.dataset.meetings='ready';tick(performance.now());
