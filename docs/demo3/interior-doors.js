@@ -25,11 +25,11 @@ function finishDoorArrival(){
   pendingRoom=null;interior={...request,outside:{...player,id:request.entry},camera:{...camera}};
   pending=null;returnPending=false;drag=null;
   document.querySelector('#interiorTitle').textContent=request.name;
-  document.querySelector('#roomReturnText').textContent='Utanför '+request.name.toLowerCase();
+  document.querySelector('#roomReturnText').textContent='Du är i '+request.name.toLowerCase();
   roomCanvas.setAttribute('aria-label',{
-    cafe:'Kaffehuset: bord med kaffekoppar, stolar och anslagstavla. Dörren finns längst ned till vänster.',
-    print:'Tryckeriet: handpress, papper, trycksvärta och bokstavstyper. Dörren finns längst ned till vänster.',
-    archive:'Arkivet: bokhyllor, buntade handlingar och läsbord. Dörren finns längst ned till vänster.'
+    cafe:'Kaffehuset: bord med kaffekoppar, stolar och anslagstavla. Dörren finns till vänster i bakväggen.',
+    print:'Tryckeriet: handpress, papper, trycksvärta och bokstavstyper. Dörren finns till vänster i bakväggen.',
+    archive:'Arkivet: bokhyllor, buntade handlingar och läsbord. Dörren finns till vänster i bakväggen.'
   }[request.kind]);
   document.body.dataset.room=request.kind;
   document.querySelector('#world').hidden=true;document.querySelector('#message').hidden=true;
