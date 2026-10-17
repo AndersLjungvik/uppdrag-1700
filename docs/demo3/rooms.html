@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Uppdrag 1700 · Demo 3.4 – Tre interiörer</title>
+<title>Uppdrag 1700 · Demo 3.4.1 – Tre interiörer</title>
 <style>
 :root{font-family:Georgia,"Times New Roman",serif;color:#3d352a;background:#d6cdbb}*{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:#d6cdbb}
@@ -29,12 +29,12 @@ button:focus-visible,canvas:focus-visible{outline:3px solid #355e68;outline-offs
 </style>
 </head>
 <body>
-<header><h1>UPPDRAG 1700 · DEMO 3.4 · INTERIÖRER</h1><small>Vägen du ser är vägen spelaren följer</small></header>
+<header><h1>UPPDRAG 1700 · DEMO 3.4.1 · INTERIÖRER</h1><small>Vägen du ser är vägen spelaren följer</small></header>
 <main id="stage"><canvas id="world" tabindex="0" aria-label="Utforskbar pappersvärld. Dra för att panorera och tryck på en väg eller byggnad."></canvas><div id="message"><strong>Gamla staden</strong>Tryck på en väg eller byggnad. Kaffehuset, tryckeriet och arkivet går att gå in i.</div><section id="interiorView" hidden role="region" aria-labelledby="interiorTitle"><div class="room-top"><h2 id="interiorTitle"></h2></div><canvas id="interiorCanvas" role="img" aria-label="Interiör"></canvas></section></main>
 <footer id="worldFooter"><button data-go="square">Gamla staden</button><button data-go="barn">Barnhuskvarteren</button><button data-go="science">Vetenskap</button><button data-go="manor">Herrgården</button><button id="sailM">Marstrand</button><button id="sailS">Saint Barthélemy</button><button id="return" hidden>Segla tillbaka till kajen</button><button id="follow">Följ spelaren</button><span id="status">Gamla staden</span></footer><footer id="roomFooter" hidden><button id="leaveRoom" type="button">← Gå ut</button><span id="roomReturnText"></span></footer>
 <script src="paper-look.js?v=3.3-paper"></script>
-<script src="interior-art.js?v=3.4.0"></script>
-<script src="interior-doors.js?v=3.4.0"></script>
+<script src="interior-art.js?v=3.4.1"></script>
+<script src="interior-doors.js?v=3.4.1"></script>
 <script>
 'use strict';
 const canvas=document.querySelector('#world'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage'),message=document.querySelector('#message'),status=document.querySelector('#status');
