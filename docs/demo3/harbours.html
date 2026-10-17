@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Uppdrag 1700 · Demo 3.6 – Kajen och hamnarna</title>
+<title>Uppdrag 1700 · Demo 3.6.1 – Kajen och hamnarna</title>
 <style>
 :root{font-family:Georgia,"Times New Roman",serif;color:#3d352a;background:#d6cdbb}*{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:#d6cdbb}
@@ -35,13 +35,13 @@ body[data-room^="waterfront-"] #roomReturnText{display:none}
 </style>
 </head>
 <body>
-<header><h1>UPPDRAG 1700 · DEMO 3.6 · HAMNAR</h1><small>Vägen du ser är vägen spelaren följer</small></header>
+<header><h1>UPPDRAG 1700 · DEMO 3.6.1 · HAMNAR</h1><small>Vägen du ser är vägen spelaren följer</small></header>
 <main id="stage"><canvas id="world" tabindex="0" aria-label="Utforskbar pappersvärld. Dra för att panorera och tryck på en väg eller byggnad."></canvas><div id="message"><strong>Gamla staden</strong>Tryck på en byggnad för att gå in. Kajen och hamnarna är egna utomhusmiljöer – öppna Kajen för att se fartyget.</div><section id="interiorView" hidden role="region" aria-labelledby="interiorTitle"><div class="room-top"><h2 id="interiorTitle"></h2></div><canvas id="interiorCanvas" role="img" aria-label="Interiör"></canvas></section></main>
 <footer id="worldFooter"><button id="visitHarbour" type="button">Kajen</button><button data-go="square">Gamla staden</button><button data-go="barn">Barnhuskvarteren</button><button data-go="science">Vetenskap</button><button data-go="manor">Herrgården</button><button id="sailM">Marstrand</button><button id="sailS">Saint Barthélemy</button><button id="return" hidden>Segla tillbaka till kajen</button><button id="follow">Följ spelaren</button><span id="status">Gamla staden</span></footer><footer id="roomFooter" hidden><button id="leaveRoom" type="button">← Gå ut</button><div id="harbourActions" hidden role="group" aria-label="Båtresor"></div><span id="roomReturnText"></span></footer>
 <script src="paper-look.js?v=3.3-paper"></script>
 <script src="interior-art.js?v=3.4.2"></script>
 <script src="more-room-art.js?v=3.5.0"></script>
-<script src="harbour-art.js?v=3.6.0"></script>
+<script src="harbour-art.js?v=3.6.1-wide"></script>
 <script src="harbour-visits.js?v=3.6.0"></script>
 <script>
 'use strict';
