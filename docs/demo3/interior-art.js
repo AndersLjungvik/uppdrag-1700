@@ -1,4 +1,4 @@
-/* Demo 3.4.1: one room, one floor line, furniture supported by that floor.
+/* Demo 3.4.2: cafe fixtures and seating share the doorway scale and floor.
  * Furniture geometry: docs/world/render.mjs (drawPress, material, room).
  * Paper samples: docs/world/assets/town.webp. No navigation or progression here.
  */
@@ -58,12 +58,47 @@ window.UPPDRAG_ROOM_ART = (() => {
     g.save();g.fillStyle='#4f402926';g.beginPath();g.ellipse(x,y,rx,8,0,0,Math.PI*2);g.fill();g.restore();
   }
   function flatBook(g,x,y,w){g.save();g.translate(x,y);g.scale(1,.30);openBook(g,0,0,w);g.restore();}
+  // Side chairs face into the table. All dimensions belong to one furniture
+  // group: seat below the tabletop, backs above it, feet on the same floor.
+  function diningChair(g,x,feet,towardsRight){
+    g.save();g.translate(x,feet);if(!towardsRight)g.scale(-1,1);
+    groundShadow(g,43,3,54);
+    cut(g,8,-98,14,98,'dark');cut(g,74,-101,14,101,'dark');
+    cut(g,12,-36,70,8,'wood');
+    poly(g,[[2,-214],[40,-221],[44,-104],[5,-96]],'dark');
+    cut(g,8,-207,28,14,'wood');cut(g,10,-143,26,12,'wood');
+    cut(g,11,-188,7,41,'wood');cut(g,28,-190,7,43,'wood');
+    poly(g,[[4,-109],[77,-120],[94,-101],[21,-91]],'wood');
+    cut(g,20,-100,74,13,'wood');
+    g.restore();
+  }
+  function cafeFurnishings(g,tall,floor){
+    // The window is beside the door, not above it. The noticeboard is below
+    // the window lintel and within the same standing person's viewing height.
+    if(tall){
+      windowPane(g,276,floor-349,178,204);
+      noticeBoard(g,491,floor-302,179,172);
+    }else{
+      windowPane(g,337,floor-348,230,210);
+      noticeBoard(g,705,floor-300,264,172);
+    }
+    // Keep the scale of chairs/cups/table together across orientations.
+    const anchor=tall?{x:0,y:0,s:1}:{x:140,y:-515,s:1.25};
+    place(g,anchor.x,anchor.y,anchor.s,()=>{
+      diningChair(g,197,940,true);
+      diningChair(g,680,940,false);
+      groundShadow(g,441,974,163);
+      table(g,294,817,292,154);
+      cup(g,360,773,.62);cup(g,520,775,.56);
+      cut(g,415,792,78,8,'paper');cut(g,416,785,75,8,'paper');
+    });
+  }
   function scene(g,id,w,h){
     const tall=w/h<1.02,D=tall?{w:720,h:1040}:{w:1280,h:720};
     const scale=Math.min(w/D.w,h/D.h),ox=(w-D.w*scale)/2,oy=(h-D.h*scale)/2;
     // A single shared wall/floor junction, also used for the door threshold.
     // Extend the same materials into letterboxing instead of drawing a second floor.
-    const floor=tall?650:500,screenFloor=oy+floor*scale;
+    const floor=id==='cafe'?(tall?620:440):(tall?650:500),screenFloor=oy+floor*scale;
     g.fillStyle=mat(g,'wall');g.fillRect(0,0,w,h);
     g.fillStyle=mat(g,'floor');g.fillRect(0,screenFloor,w,h-screenFloor);
     g.save();g.translate(ox,oy);g.scale(scale,scale);
@@ -75,7 +110,7 @@ window.UPPDRAG_ROOM_ART = (() => {
     }
     cut(g,left,33,right-left,14,'wood',false);
     // The door is in the back wall: its bottom meets the floor, not the foreground.
-    const exit=tall?{x:48,y:320,w:132,h:330}:{x:60,y:170,w:145,h:330};
+    const exit=id==='cafe'?(tall?{x:56,y:floor-350,w:156,h:350}:{x:92,y:floor-350,w:156,h:350}):(tall?{x:48,y:320,w:132,h:330}:{x:60,y:170,w:145,h:330});
     door(g,exit.x,exit.y,exit.w,exit.h);
     if(id==='print'){
       // Retain the original press shape and materials. Its feet are below the
@@ -100,21 +135,7 @@ window.UPPDRAG_ROOM_ART = (() => {
         material(g,'ink',649,465,.95);
       }
     }else if(id==='cafe'){
-      if(tall){
-        windowPane(g,47,104,210,178);noticeBoard(g,350,138,290,200);
-        groundShadow(g,474,785,174);
-        chair(g,324,582,.90);chair(g,552,582,.90);
-        table(g,299,610,357,172);
-        cup(g,378,574,.95);cup(g,581,576,.83);
-        cut(g,440,573,83,14,'paper');cut(g,441,563,79,12,'paper');
-      }else{
-        windowPane(g,280,100,230,240);noticeBoard(g,574,134,255,195);
-        groundShadow(g,978,644,185);
-        chair(g,809,448,.85);chair(g,1082,448,.85);
-        table(g,795,470,365,171);
-        cup(g,882,435,1.02);cup(g,1073,438,.79);
-        cut(g,945,438,74,14,'paper');cut(g,946,428,70,10,'paper');
-      }
+      cafeFurnishings(g,tall,floor);
     }else{
       if(tall){
         // Bookcases stand on the same floor as the press and the cafe furniture.
