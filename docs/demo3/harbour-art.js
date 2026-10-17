@@ -1,5 +1,5 @@
-/* Demo 3.6: outdoor waterfronts, not interiors. Material and sailing vessel
- * are sampled from the original docs/world/assets/quay.webp. No game state.
+/* Demo 3.6.1: desktop-first harbour, one scene and a portrait camera crop.
+ * Original docs/world/assets/quay.webp; no navigation or voyage changes.
  * Island skylines are stylised scenery, not historical reconstructions.
  */
 'use strict';
@@ -45,59 +45,101 @@ window.UPPDRAG_HARBOUR_ART = (() => {
     else{poly(g,[[x,foot-49],[x+w,foot-49],[x+w*.88,foot],[x+w*.14,foot]],'wood',true);
       box(g,x+w*.55,foot-h,7,h-31,'wood');poly(g,[[x+w*.55,foot-h+18],[x+w*.1,foot-68],[x+w*.52,foot-61]],'paper');
       poly(g,[[x+w*.58,foot-h+54],[x+w*.9,foot-64],[x+w*.58,foot-61]],'paper');}}
-  function render(canvas,id){const r=canvas.getBoundingClientRect();if(!r.width||!r.height)return null;
-    const d=Math.min(window.devicePixelRatio||1,2),W=Math.round(r.width*d),H=Math.round(r.height*d);
-    if(canvas.width!==W)canvas.width=W;if(canvas.height!==H)canvas.height=H;
-    const g=canvas.getContext('2d');g.setTransform(d,0,0,d,0,0);
-    const tall=r.width/r.height<1.02,D=tall?{w:720,h:1040}:{w:1280,h:720};
-    const s=Math.min(r.width/D.w,r.height/D.h),ox=(r.width-D.w*s)/2,oy=(r.height-D.h*s)/2;
-    const horizon=tall?456:299,edge=tall?718:526,front=edge+52;
-    // Extend sky/ground beyond the composition without cropping the vessel.
-    g.fillStyle=material(g,'sky');g.fillRect(0,0,r.width,r.height);
-    g.fillStyle=material(g,'ground');g.fillRect(0,oy+front*s,r.width,r.height-oy-front*s);
-    g.save();g.translate(ox,oy);g.scale(s,s);const left=-ox/s,right=(r.width-ox)/s,bottom=(r.height-oy)/s;
+  // One composition in world coordinates. A narrow screen changes only the
+  // camera, never the size/position of an individual building, ship or prop.
+  const SCENE=Object.freeze({w:1280,h:720,coreWidth:520,focusX:1000});
+  const VESSEL=Object.freeze({x:939,y:190,w:292,h:249});
+  const EXIT=Object.freeze({x:774,y:658,w:97,h:55});
+  const sceneLayers=new Map();
+  function project(width,height){
+    const scale=Math.min(Math.max(width/SCENE.w,height/SCENE.h),
+      width/SCENE.coreWidth,height/560);
+    const visibleWidth=width/scale;
+    const center=visibleWidth>=SCENE.w?SCENE.w/2:
+      Math.max(visibleWidth/2,Math.min(SCENE.focusX,SCENE.w-visibleWidth/2));
+    const visibleHeight=height/scale;
+    const centerY=visibleHeight>=SCENE.h?SCENE.h/2:
+      Math.min(446,SCENE.h-visibleHeight/2);
+    return {scale,x:width/2-center*scale,y:height/2-centerY*scale,
+      left:center-visibleWidth/2,right:center+visibleWidth/2};
+  }
+  function skyline(g,id,left,right){
     if(id==='marstrand'){
-      poly(g,[[left,horizon],[D.w*.24,horizon-24],[D.w*.56,horizon-85],[D.w*.91,horizon-19],[right,horizon]],'green');
-      const x=D.w*.47,y=horizon-140;box(g,x,y+29,131,54,'stone');box(g,x+30,y,67,40,'stone');
-      for(let n=0;n<4;n++)box(g,x+11+n*29,y+42,9,17,'dark');
+      poly(g,[[left,377],[430,373],[610,333],[820,346],[1050,371],[right,377]],'green');
+      box(g,556,303,172,52,'stone');box(g,613,270,64,43,'stone');
+      for(let i=0;i<5;i++)box(g,573+i*29,319,9,17,'dark');
     }else if(id==='colony'){
-      poly(g,[[left,horizon],[D.w*.22,horizon-21],[D.w*.54,horizon-41],[right,horizon-13],[right,horizon+3]],'green');
-      const x=tall?225:427;box(g,x,horizon-65,180,61,'paper');poly(g,[[x-7,horizon-65],[x+87,horizon-91],[x+189,horizon-63]],'red');
-      for(let n=0;n<5;n++)box(g,x+14+n*33,horizon-44,13,26,'green');palm(g,tall?171:322,horizon, .75);palm(g,tall?673:1200,horizon,.9);
-    }else{
-      poly(g,[[left,horizon],[D.w*.52,horizon-9],[D.w*.81,horizon-34],[right,horizon-8],[right,horizon]],'green');
+      poly(g,[[left,377],[360,372],[650,354],[940,361],[right,377]],'green');
+      for(const x of [436,632,823]){
+        box(g,x,324,155,48,'paper');
+        poly(g,[[x-6,325],[x+72,301],[x+161,326]],'red');
+        for(let n=0;n<4;n++)box(g,x+13+n*34,340,14,26,'green');
+      }
+      palm(g,393,377,.57);palm(g,1017,377,.56);
     }
-    box(g,left,horizon,right-left,edge-horizon+7,'water');
-    for(let i=0;i<9;i++){const x=230+(i*137)%(D.w-240),y=horizon+50+(i*47)%Math.max(50,edge-horizon-62);
-      poly(g,[[x,y],[x+18,y-4],[x+36,y+1],[x+63,y-3],[x+45,y+5],[x+14,y+5]],'paper');}
-    // Reuse the original red warehouse silhouette, separated from the harbour.
-    const wh={x:tall?-11:0,y:edge-(tall?300:389),w:tall?209:279,h:tall?300:389};
-    poly(g,[[wh.x,edge],[wh.x,wh.y+59],[wh.x+wh.w*.48,wh.y],[wh.x+wh.w,wh.y+58],[wh.x+wh.w-6,edge]],id==='colony'?'paper':'red',true);
-    box(g,wh.x+wh.w*.23,wh.y+wh.h*.41,wh.w*.49,wh.h*.59,'dark');
-    if(id==='colony'){box(g,wh.x+8,wh.y+85,24,65,'green');}
-    const vessel={x:tall?337:791,w:tall?348:411,foot:edge-22};
-    ship(g,vessel.x,vessel.foot,vessel.w);
-    // One continuous stone quay in the foreground; the boarding plank reaches
-    // the boat's deck, rather than putting the vessel or its mast on dry land.
-    box(g,left,edge,right-left,front-edge,'stone',true);box(g,left,edge-4,right-left,14,'ground');
-    for(let x=left+72;x<right;x+=105)stroke(g,[[x,edge+13],[x-5,front-1]],'#51473470',2);
-    const plankX=tall?436:889;
-    poly(g,[[plankX,front+18],[plankX+51,front+18],[vessel.x+vessel.w*.57,vessel.foot-30],[vessel.x+vessel.w*.43,vessel.foot-28]],'wood',true);
-    for(const x of [tall?42:83,tall?664:1210]){box(g,x,edge-37,31,front-edge+34,'wood',true);
-      box(g,x-5,edge-4,41,11,'paper');}
-    stroke(g,[[vessel.x+vessel.w*.89,vessel.foot-36],[tall?680:1225,edge-4]],'#bdab87',3);
-    barrel(g,tall?210:339,tall?885:646,tall?1.02:1);crate(g,tall?292:465,tall?946:658,tall?146:161,112);
-    box(g,tall?312:486,tall?814:526,87,19,'paper',true);
-    stroke(g,[[tall?324:496,tall?822:534],[tall?379:552,tall?822:534]],'#857251',2);
-    // Back to the town is a path arrow on the quay, never an indoor door.
-    const exit={x:31,y:tall?934:647,w:123,h:58};
-    poly(g,[[exit.x+85,exit.y+19],[exit.x+30,exit.y+19],[exit.x+30,exit.y+7],[exit.x+4,exit.y+31],[exit.x+30,exit.y+51],[exit.x+30,exit.y+38],[exit.x+85,exit.y+38]],'paper');
-    g.restore();const rect=p=>({x:ox+p.x*s,y:oy+p.y*s,w:p.w*s,h:p.h*s});
-    return {exit:rect(exit),ship:rect({x:vessel.x,y:vessel.foot-vessel.w*249/292,w:vessel.w,h:vessel.w*249/292+18})};
+  }
+  function paintSurroundings(g,left,right){
+    // Additional scenery is allowed outside the portrait crop. None of it
+    // carries an exit, a clue, a travel action or any other required interaction.
+    g.fillStyle=material(g,'sky');g.fillRect(left,-720,right-left,1440);
+    g.fillStyle=material(g,'water');g.fillRect(left,377,right-left,166);
+    g.fillStyle=material(g,'stone');g.fillRect(left,503,right-left,62);
+    g.fillStyle=material(g,'ground');g.fillRect(left,565,right-left,1440);
+  }
+
+  function scene(id){
+    const key=id+(loaded?'-original':'-fallback');
+    if(sceneLayers.has(key))return sceneLayers.get(key);
+    const c=document.createElement('canvas');c.width=SCENE.w;c.height=SCENE.h;
+    const g=c.getContext('2d');paintSurroundings(g,0,SCENE.w);
+    // The original wide artwork is the actual playable scene, not a thumbnail
+    // squeezed into a portrait arrangement. Preserve its torn-paper edges.
+    if(loaded)g.drawImage(source,0,0,SCENE.w,SCENE.h);
+    else{
+      poly(g,[[0,503],[0,130],[114,69],[247,139],[292,299],[292,503]],'red',true);
+      box(g,32,258,166,245,'dark');ship(g,VESSEL.x,VESSEL.y+VESSEL.h,VESSEL.w);
+    }
+    skyline(g,id,300,1280);
+    if(id==='colony'){
+      poly(g,[[0,503],[0,130],[114,69],[247,139],[292,299],[292,503]],'paper',true);
+      box(g,32,258,166,245,'dark');box(g,221,319,30,71,'green');
+    }
+    // Fixed world-space boarding point. The same gangway and click target
+    // remain visible in portrait, landscape and desktop compositions.
+    poly(g,[[979,588],[1020,588],[1090,399],[1064,398]],'wood',true);
+    stroke(g,[[990,575],[1071,414]],'#cbb895',2);
+    stroke(g,[[1009,575],[1081,414]],'#4f4037',2);
+    stroke(g,[[982,582],[1016,582]],'#504532',2);
+    crate(g,870,661,89,73);box(g,882,576,68,14,'paper',true);
+    stroke(g,[[892,582],[936,582]],'#857251',2);
+    const x=EXIT.x,y=EXIT.y;
+    poly(g,[[x+88,y+19],[x+31,y+19],[x+31,y+8],[x+7,y+29],
+      [x+31,y+49],[x+31,y+37],[x+88,y+37]],'paper');
+    sceneLayers.set(key,c);return c;
+  }
+  function render(canvas,id){
+    const r=canvas.getBoundingClientRect();if(!r.width||!r.height)return null;
+    const d=Math.min(window.devicePixelRatio||1,2);
+    const W=Math.round(r.width*d),H=Math.round(r.height*d);
+    if(canvas.width!==W)canvas.width=W;if(canvas.height!==H)canvas.height=H;
+    const g=canvas.getContext('2d'),p=project(r.width,r.height);
+    g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,r.width,r.height);
+    g.save();g.translate(p.x,p.y);g.scale(p.scale,p.scale);
+    // Extremely short landscape viewports get quiet paper side margins,
+    // not mirrored houses/ships or fabricated extensions of the coastline.
+    g.fillStyle=material(g,'ground');
+    g.fillRect(p.left,-720,p.right-p.left,2160);
+    g.save();g.beginPath();g.rect(0,-720,SCENE.w,2160);g.clip();
+    paintSurroundings(g,0,SCENE.w);g.drawImage(scene(id),0,0);
+    g.restore();g.restore();
+    const rect=b=>({x:p.x+b.x*p.scale,y:p.y+b.y*p.scale,w:b.w*p.scale,h:b.h*p.scale});
+    // Small portraits may not show decorative warehouses; required controls
+    // and boarding remain in the core and all travel buttons stay in the DOM.
+    return {exit:rect(EXIT),ship:rect(VESSEL)};
   }
   let settled=false,resolve;const ready=new Promise(r=>resolve=r);
   function done(ok){if(settled)return;settled=true;resolve(ok);}
   const img=new Image();img.onload=()=>{try{source.getContext('2d').drawImage(img,0,0,1280,720);loaded=true;samples.clear();makeBoat();done(true);window.dispatchEvent(new Event('uppdrag-harbour-ready'));}catch(e){done(false);}};
   img.onerror=()=>done(false);img.src=new URL('../world/assets/quay.webp',document.baseURI).href;setTimeout(()=>done(loaded),8000);
-  return {render,ready,get loaded(){return loaded;},sourcePath:'../world/assets/quay.webp'};
+  return {render,ready,project,get loaded(){return loaded;},sourcePath:'../world/assets/quay.webp'};
 })();
