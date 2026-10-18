@@ -4,7 +4,7 @@ Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.17 – En levande
 
 ## Börja här
 
-[Starta Demo 3.17](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.17.0). Startfilen är `docs/demo3/living-world.html`.
+[Starta Demo 3.17](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.17.1). Startfilen är `docs/demo3/living-world.html`.
 
 Utgå från denna startfil vid nästa ändring. `/demo3/` och `game.html` visar fortfarande den äldre 3.2.1-demon. Huvudversionen 0.6.0 är ett bevarat förlopp med hela uppdragssystemet; hela det systemet har inte överförts till denna demo.
 
@@ -120,15 +120,17 @@ Den accepterade [3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/con
 
 Originalfrågorna återfanns i `curriculum/classroom.mjs` vid commit `f277b2a3fb9cc138f2b4d5ac30ca5765767a5eb7`. Den äldre samtalsformen finns i `docs/game.js`. Originalposter, hänvisningar och provenance bevaras i datafilen som underlag. De tolv replikerna är redaktionella bearbetningar av dessa teman enligt användarens exempel. Inget nytt AI-frågebibliotek kopplas in.
 
-## Verifiering av 3.17
+## Verifiering av 3.17.1
 
-Den samlade 3.17-versionen passerade `living-world-check.cjs` med `errors: []` och `changedFilesSinceSnapshot: []`. Hela 3.16-kontrollen med 13 personer, 16 vardagsrepliker, fyra presentationer, gamla sparningar, återbesök och Ruts dokumentövning passerar fortfarande.
+Den samlade 3.17.1-versionen passerade `living-world-check.cjs` med `errors: []` och `changedFilesSinceSnapshot: []`. Hela 3.16-kontrollen med 13 personer, 16 vardagsrepliker, fyra presentationer, gamla sparningar, återbesök och Ruts dokumentövning passerar fortfarande.
 
 Hållna pilar ger tidsstyrd hastighet och normaliserad diagonal. Hus, vatten, världens gränser och den befintliga bron har kontrollerats. Dialog, textfält och tappat fokus nollställer gång; mellanslag interagerar en gång och bevarar native-knapparnas egen klickhändelse. Den befintliga figurrenderern får riktning och gång från den faktiska tangentförflyttningen.
 
 Jo-provet börjar med stängd utomhusreplik och Kajen-knappen, följer hela spelarens verkliga spår och bekräftar att ingången väntar medan Jo är fryst längre bort. När han släpps följer han samtliga hörn utan hopp. Inne finns ingen utomhusdubblett eller upprepad presentation/hälsning. Efter utgång går han tillbaka till exakt tidigare promenadposition och fas och kan mötas längs den faktiska återvägen. Manuell gång bevarar ett påbörjat följe; ett annat uttryckligt mål ger mjuk retur. Två navigeringspunkter har säker marginal runt arkivet medan ursprungliga kartdata är oförändrade.
 
 Ett separat, riktat följeprov kontrollerade att Jo väntar när spelaren först passerar honom, återstart under retur, stillhet under rumsbesök och nödvändig förflyttning utan gånggest vid minskad rörelse. Den publicerade versionens mellanslag och gemensamma färd provas också i webbläsaren; exakt URL och bild redovisas i leveransen. Hållna piltangenter provas med verkliga bildrutor i integrationstestet, eftersom webbläsarverktyget endast erbjuder enskilda tangenttryck.
+
+Webbläsarprovet av 3.17.0 bekräftade mellanslag för att öppna och stänga utomhussamtal, Kajen-knappens native mellanslag, ankomst med Jo samt pilval och mellanslag i hans rumssamtal. Det fångade också ett äldre inledande ”Hej!” i själva resefrågan. 3.17.1 tar bort just det ordet, så frågan börjar ”Är det här jag går ombord?” efter det gemensamma mötet. Den exakta resefrågan är också verifierad i den fulla 3.17.1-integrationskontrollen. Beteendet och den visuella formen är i övrigt samma.
 
 ## Tidigare verifiering av 3.16
 

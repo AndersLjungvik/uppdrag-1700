@@ -19,7 +19,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     quay:{name:'Jo',choices:[
       {id:'who',thought:'Undrar vad han gör vid kajen?',lines:[['Du','Hej! Jag är ny lärling. Vad arbetar du med här?'],['Jo','Jag heter Jo och är hamnskrivare. Välkommen till kajen! Jag håller ordning på fartygens last och handlingar.']]},
       {id:'greet',thought:'Där är Jo. Jag hälsar.',lines:[['Du','Hej igen, Jo.'],['Jo','Välkommen tillbaka till kajen! Vill du resa vidare?']]},
-      {id:'travel',thought:'Hur kommer jag med fartyget?',lines:[['Du','Hej! Är det här jag går ombord?'],['Jo','Ja. Välj resmål vid fartyget när du vill segla. Du kommer fram till hamnen på den plats du valt.']]}
+      {id:'travel',thought:'Hur kommer jag med fartyget?',lines:[['Du','Är det här jag går ombord?'],['Jo','Ja. Välj resmål vid fartyget när du vill segla. Du kommer fram till hamnen på den plats du valt.']]}
     ]}
   };
 

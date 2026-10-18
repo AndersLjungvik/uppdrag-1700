@@ -2,7 +2,7 @@
 
 ## Aktuell arbetsversion: Demo 3.17
 
-[Öppna Demo 3.17 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.17.0).
+[Öppna Demo 3.17 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.17.1).
 
 **Piltangenterna styr gång; mellanslag pratar, väljer och fortsätter.** Ute kan spelaren gå fritt på land, med stopp vid hus, vatten och världens kant. Nära en person, ingång eller kaj används mellanslag för att interagera. I samtal väljer pilarna bland befintliga tankar och mellanslag bekräftar; under den korta utomhusrepliken stänger mellanslag bubblan. Mus och pekskärm fungerar fortfarande.
 
