@@ -1,4 +1,5 @@
-/* 3.13: optional reflections; 3.12.1 one returning greeting per room visit for Maja, Brita and Jo.
+/* 3.14: room conversations keep their accepted 3.12.1 flow. Ambient thoughts belong to people outdoors. */
+/* 3.12.1: one returning greeting per room visit for Maja, Brita and Jo.
  * Retains existing topics. No tasks, learning-progress or world writes.
  * The existing meeting renderer supplies geometry and the single animation loop.
  */
@@ -71,7 +72,6 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     const heading=document.createElement('h3');heading.id='placeHeading';heading.tabIndex=-1;heading.textContent='Du tänker …';bubble.append(heading);
     const known=isKnown(key);
     for(const choice of TOPICS[key].choices.filter(c=>(c.id!=='who'||!known)&&(c.id!=='greet'||known&&!greetedThisVisit))){const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought=choice.id;b.textContent=choice.thought;bubble.append(b);}
-    if(window.UPPDRAG_LIVING_CONTENT?.roomTopics[key]?.length){const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.action='reflect';b.textContent='Undrar vad '+TOPICS[key].name+' funderar på?';bubble.append(b);}
     const actions=document.createElement('div');actions.className='actions';
     const skip=document.createElement('button');skip.type='button';skip.className='quiet';skip.dataset.action='close';skip.textContent='Inte nu';actions.append(skip);bubble.append(actions);
     position();heading.focus({preventScroll:true});return true;
@@ -92,7 +92,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
   }
   function advance(){if(mode!=='speech')return;if(++line<topic.lines.length)showLine();else if(topic.id==='who'){remember(key);greetedThisVisit=true;open();}else if(topic.id==='greet')open();else close();}
   root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-    if(b.dataset.thought)speak(b.dataset.thought);else if(b.dataset.action==='reflect'){close(false);window.UPPDRAG_LIVING_DIALOGUES?.openRoom(key);}else if(b.dataset.action==='close')close();else if(b.dataset.action==='next')advance();
+    if(b.dataset.thought)speak(b.dataset.thought);else if(b.dataset.action==='close')close();else if(b.dataset.action==='next')advance();
   });
   // No preselected thought. Enter confirms only an intentionally focused choice.
   window.addEventListener('keydown',e=>{

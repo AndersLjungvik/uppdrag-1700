@@ -1,3 +1,4 @@
+/* 3.14: room conversations keep their accepted 3.12.1 flow. Ambient thoughts belong to people outdoors. */
 /* 3.12.1. One returning greeting per room visit; existing archive practice.
  * Fictional practice notes, not historical sources. No quiz-bank/progress writes.
  * Backgrounds and the existing walking/door/voyage engine are not changed.
@@ -69,7 +70,7 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
   function close(restore=true){setMode(null);tail.replaceChildren();if(restore){const b=document.querySelector('#meetingPerson');b.hidden=false;b.focus({preventScroll:true});}return true;}
   function thoughts(){
     if(!active)return false;setMode('thoughts');panel.className='thought';
-    panel.innerHTML=`<h3 id="rutHeading">Du tänker …</h3>${isKnown("archive")?(greetedThisVisit?'':'<button class="thoughtChoice" data-thought="greet">Där är Rut. Jag hälsar.</button>'):'<button class="thoughtChoice" data-thought="who">Undrar vem hon är?</button>'}<button class="thoughtChoice" data-thought="papers">Varför har hon två berättelser?</button>${window.UPPDRAG_LIVING_CONTENT?.roomTopics.archive?.length?'<button class="thoughtChoice" data-action="reflect">Undrar vad Rut funderar på?</button>':''}<div class="rutActions"><button class="quiet" data-action="close">Inte nu</button></div>`;
+    panel.innerHTML=`<h3 id="rutHeading">Du tänker …</h3>${isKnown("archive")?(greetedThisVisit?'':'<button class="thoughtChoice" data-thought="greet">Där är Rut. Jag hälsar.</button>'):'<button class="thoughtChoice" data-thought="who">Undrar vem hon är?</button>'}<button class="thoughtChoice" data-thought="papers">Varför har hon två berättelser?</button><div class="rutActions"><button class="quiet" data-action="close">Inte nu</button></div>`;
     position();focusHeading(panel.querySelector('h3'));return true;
   }
   function speak(key){topic=key;line=0;setMode('speech');showLine();}
@@ -103,7 +104,7 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
   }
   root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
     if(b.dataset.thought)speak(b.dataset.thought);else if(b.dataset.answer)answer(b.dataset.answer);
-    else if(b.dataset.action==='reflect'){close(false);window.UPPDRAG_LIVING_DIALOGUES?.openRoom('archive');}else if(b.dataset.action==='close')close();else if(b.dataset.action==='next')advance();
+    else if(b.dataset.action==='close')close();else if(b.dataset.action==='next')advance();
     else if(b.dataset.action==='conclusion'){setMode('speech');speak('conclusion');}
   });paperButton.addEventListener('click',openPapers);
   // No default thought/answer. Enter on a heading does nothing; Tab/arrows or

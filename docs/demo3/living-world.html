@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Uppdrag 1700 · Demo 3.13.0 – En levande pappersvärld</title>
+<title>Uppdrag 1700 · Demo 3.14.0 – En levande pappersvärld</title>
 <style>
 :root{font-family:Georgia,"Times New Roman",serif;color:#3d352a;background:#d6cdbb}*{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:#d6cdbb}
@@ -35,16 +35,16 @@ body[data-room^="waterfront-"] #roomReturnText{display:none}
 </style>
 </head>
 <body>
-<header><h1>UPPDRAG 1700 · DEMO 3.13 · PAPPERSVÄRLD</h1><small>Möt människor. Följ en tanke. Utforska världen.</small></header>
-<main id="stage"><canvas id="world" tabindex="0" aria-label="Utforskbar pappersvärld. Dra för att panorera och tryck på en väg eller byggnad."></canvas><div id="message"><strong>Gamla staden</strong>Tryck på människorna du möter för att prata en stund. Maja, Brita, Rut och Jo finns också kvar på sina platser.</div><section id="interiorView" hidden role="region" aria-labelledby="interiorTitle"><div class="room-top"><h2 id="interiorTitle"></h2></div><canvas id="interiorCanvas" role="img" aria-label="Interiör"></canvas></section></main>
+<header><h1>UPPDRAG 1700 · DEMO 3.14 · PAPPERSVÄRLD</h1><small>Möt människor. Följ en tanke. Utforska världen.</small></header>
+<main id="stage"><canvas id="world" tabindex="0" aria-label="Utforskbar pappersvärld. Dra för att panorera och tryck på en väg eller byggnad."></canvas><div id="message"><strong>Gamla staden</strong>Stanna hos människorna längs vägen och hör vad de funderar på. Maja, Brita, Rut och Jo finns också kvar på sina platser.</div><section id="interiorView" hidden role="region" aria-labelledby="interiorTitle"><div class="room-top"><h2 id="interiorTitle"></h2></div><canvas id="interiorCanvas" role="img" aria-label="Interiör"></canvas></section></main>
 <footer id="worldFooter"><button id="visitHarbour" type="button">Kajen</button><button data-go="square">Gamla staden</button><button data-go="barn">Barnhuskvarteren</button><button data-go="science">Vetenskap</button><button data-go="countrySouth">Landsbygden</button><button data-go="manor">Herrgården</button><button id="sailM">Marstrand</button><button id="sailS">Saint Barthélemy</button><button id="return" hidden>Segla tillbaka till kajen</button><button id="follow">Följ spelaren</button><span id="status">Gamla staden</span></footer><footer id="roomFooter" hidden><button id="leaveRoom" type="button">← Gå ut</button><div id="harbourActions" hidden role="group" aria-label="Båtresor"></div><span id="roomReturnText"></span></footer>
-<script src="paper-fibres.js?v=3.13.0"></script>
+<script src="paper-fibres.js?v=3.14.0"></script>
 <script src="paper-look.js?v=3.3-paper"></script>
-<script src="interior-fibre-art.js?v=3.13.0"></script>
-<script src="more-room-fibre-art.js?v=3.13.0"></script>
-<script src="harbour-fibre-art.js?v=3.13.0"></script>
+<script src="interior-fibre-art.js?v=3.14.0"></script>
+<script src="more-room-fibre-art.js?v=3.14.0"></script>
+<script src="harbour-fibre-art.js?v=3.14.0"></script>
 <script src="harbour-merchant-visits.js?v=3.7.0"></script>
-<script src="living-conversation-data.js?v=3.13.0-final"></script>
+<script src="living-conversation-data.js?v=3.14.0"></script>
 <script>
 'use strict';
 const canvas=document.querySelector('#world'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage'),message=document.querySelector('#message'),status=document.querySelector('#status');
@@ -80,41 +80,93 @@ Object.values(REGIONS).forEach(validate);
 let player={...MAIN.map.get(MAIN.start)},camera={...MAIN.map.get(MAIN.start)},path=[],follow=true,drag=null,sailing=null,pending=null,returnPending=false,last=performance.now(),layout={w:1,h:1,d:1,scale:.8};
 function bfs(r,start,goal){if(start===goal)return[start];const prev=new Map([[start,null]]),q=[start];for(let i=0;i<q.length;i++){const id=q[i];for(const n of r.graph.get(id))if(!prev.has(n)){prev.set(n,id);q.push(n);if(n===goal){const out=[n];let k=id;while(k){out.push(k);k=prev.get(k)}return out.reverse()}}}return[]}
 function nearestNode(r,x,y){let best=r.nodes[0],d=Infinity;for(const n of r.nodes){const z=(n.x-x)**2+(n.y-y)**2;if(z<d){d=z;best=n}}return best}
-function go(id,title=''){if(interior||sailing||window.UPPDRAG_LIVING_DIALOGUES?.busy)return false;pendingPerson=null;pendingRoom=null;const from=path.length?path[0].id:nearestNode(region,player.x,player.y).id,ids=bfs(region,from,id);if(!ids.length){setMessage('Stopp','Ingen sammanhängande väg hittades.');return false}path=ids.map(k=>region.map.get(k)).filter((n,i)=>i>0||Math.hypot(n.x-player.x,n.y-player.y)>1);follow=true;if(title)setMessage(title,'Du följer vägen hela vägen fram.');return true}
-function switchRegion(id,arrival=null){pendingPerson=null;hoverPersonId=null;window.UPPDRAG_LIVING_DIALOGUES?.close(false);pendingRoom=null;region=REGIONS[id];path=[];sailing=null;pending=null;returnPending=false;const startId=arrival||region.start;player={...region.map.get(startId)};camera={...player};follow=true;document.querySelector('#return').hidden=id==='main';document.querySelector('#sailM').hidden=id!=='main';document.querySelector('#sailS').hidden=id!=='main';document.querySelectorAll('[data-go]').forEach(b=>b.hidden=id!=='main');layers.delete(id);setMessage(region.name,id==='main'?'Fartyget har lagt till vid kajen. Du går i land där du reste ifrån.':'Du har kommit fram. Alla byggnader har en ansluten ingång.');syncHarbourUI();requestHarbour();}
+function cancelPersonArrival(){if(pendingPerson)window.UPPDRAG_WORLD_LIFE?.release(pendingPerson.id);pendingPerson=null;}
+function roadProjection(point,edge){
+  const a=region.map.get(edge.a),b=region.map.get(edge.b),dx=b.x-a.x,dy=b.y-a.y;
+  const t=Math.max(0,Math.min(1,((point.x-a.x)*dx+(point.y-a.y)*dy)/(dx*dx+dy*dy)));
+  return {x:a.x+dx*t,y:a.y+dy*t,t,edge};
+}
+// Insert temporary meeting points into the existing road graph. The map itself
+// never changes, and clicking again mid-walk cannot leave an invalid node ID.
+function routeAlongRoads(target,targetEdge=null){
+  if(!target)return null;
+  const start=region.edges.map(edge=>roadProjection(player,edge)).sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y))[0];
+  if(!start)return null;
+  const points=new Map(region.map),links=new Map(region.nodes.map(node=>[node.id,[]]));
+  const connect=(a,b)=>{const pa=points.get(a),pb=points.get(b),cost=Math.hypot(pa.x-pb.x,pa.y-pb.y);links.get(a).push({id:b,cost});links.get(b).push({id:a,cost});};
+  for(const edge of region.edges)connect(edge.a,edge.b);
+  points.set('@start',{x:start.x,y:start.y});links.set('@start',[]);connect('@start',start.edge.a);connect('@start',start.edge.b);
+  const goal=targetEdge?'@meeting':target.id;
+  if(targetEdge){
+    points.set(goal,{x:target.x,y:target.y});links.set(goal,[]);connect(goal,targetEdge.a);connect(goal,targetEdge.b);
+    if([start.edge.a,start.edge.b].every(id=>id===targetEdge.a||id===targetEdge.b))connect('@start',goal);
+  }
+  if(!points.has(goal))return null;
+  const costs=new Map([['@start',0]]),previous=new Map(),unseen=new Set(points.keys());
+  while(unseen.size){
+    let current=null,best=Infinity;for(const id of unseen)if((costs.get(id)??Infinity)<best){current=id;best=costs.get(id);}
+    if(current===null)break;unseen.delete(current);if(current===goal)break;
+    for(const next of links.get(current)){const cost=best+next.cost;if(cost<(costs.get(next.id)??Infinity)){costs.set(next.id,cost);previous.set(next.id,current);}}
+  }
+  if(!costs.has(goal))return null;
+  const ids=[goal];while(ids[0]!=='@start'){const before=previous.get(ids[0]);if(!before)return null;ids.unshift(before);}
+  const result=[];let cursor=player;
+  for(const id of ids){const point={...points.get(id),id};if(Math.hypot(point.x-cursor.x,point.y-cursor.y)>1){result.push(point);cursor=point;}}
+  return result;
+}
+function go(id,title=''){
+  if(interior||sailing||window.UPPDRAG_LIVING_DIALOGUES?.busy)return false;
+  cancelPersonArrival();pendingRoom=null;const next=routeAlongRoads(region.map.get(id));
+  if(!next){setMessage('Stopp','Ingen sammanhängande väg hittades.');return false;}
+  path=next;follow=true;if(title)setMessage(title,'Du följer vägen hela vägen fram.');return true;
+}
+function switchRegion(id,arrival=null){cancelPersonArrival();hoverPersonId=null;window.UPPDRAG_LIVING_DIALOGUES?.close(false);pendingRoom=null;region=REGIONS[id];path=[];sailing=null;pending=null;returnPending=false;const startId=arrival||region.start;player={...region.map.get(startId)};camera={...player};follow=true;document.querySelector('#return').hidden=id==='main';document.querySelector('#sailM').hidden=id!=='main';document.querySelector('#sailS').hidden=id!=='main';document.querySelectorAll('[data-go]').forEach(b=>b.hidden=id!=='main');layers.delete(id);setMessage(region.name,id==='main'?'Fartyget har lagt till vid kajen. Du går i land där du reste ifrån.':'Du har kommit fram. Alla byggnader har en ansluten ingång.');syncHarbourUI();requestHarbour();}
 function sail(id){if(interior||sailing||region!==MAIN)return;pendingRoom=null;pending=id;if(Math.hypot(player.x-MAIN.map.get('quay').x,player.y-MAIN.map.get('quay').y)<55){sailing={to:id,at:performance.now()};path=[];return}if(go('quay','Till kajen'))setMessage('Till kajen','Vägen går hela vägen fram till fartyget.')}
 function returnByBoat(){if(interior||sailing||region===MAIN)return;pendingRoom=null;returnPending=true;const port=region.map.get(region.harbor);if(Math.hypot(player.x-port.x,player.y-port.y)<55){returnPending=false;sailing={to:'main',at:performance.now(),returning:true};path=[];setMessage('Ombord','Fartyget lämnar hamnen och seglar tillbaka mot kajen.');return}if(go(region.harbor,'Till hamnen'))setMessage('Till hamnen','Du går tillbaka till båten innan hemresan börjar.')}
 function resize(){const r=stage.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);layout={w:r.width,h:r.height,d,scale:Math.min(1.08,Math.max(.62,Math.min(r.width/620,r.height/620)))};clamp()}
 function clamp(){const hw=layout.w/(2*layout.scale),hh=layout.h/(2*layout.scale);camera.x=Math.max(hw,Math.min(region.w-hw,camera.x));camera.y=Math.max(hh,Math.min(region.h-hh,camera.y))}
 function screen(e){const r=canvas.getBoundingClientRect();return{x:camera.x+(e.clientX-r.left-r.width/2)/layout.scale,y:camera.y+(e.clientY-r.top-r.height/2)/layout.scale}}
 function draw(){if(interior)return;const{w,h,d,scale}=layout;ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);ctx.translate(w/2-camera.x*scale,h/2-camera.y*scale);ctx.scale(scale,scale);ctx.drawImage(layer(region),0,0);window.UPPDRAG_WORLD_LIFE?.draw(ctx,{region,now:performance.now(),activePersonId:window.UPPDRAG_LIVING_DIALOGUES?.personId||pendingPerson?.id,hoverId:hoverPersonId});if(window.UPPDRAG_MEETINGS){UPPDRAG_MEETINGS.drawMapPlayer(ctx,player,path,performance.now());}else{ctx.fillStyle='#476d75';ctx.beginPath();ctx.arc(player.x,player.y+8,14,0,Math.PI*2);ctx.fill();ctx.fillStyle='#e0c09b';ctx.beginPath();ctx.arc(player.x,player.y-9,10,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f4e5c7';ctx.lineWidth=3;ctx.beginPath();ctx.arc(player.x,player.y,22,0,Math.PI*2);ctx.stroke();}if(sailing){ctx.fillStyle='#213d4b99';ctx.fillRect(camera.x-w/(2*scale),camera.y-h/(2*scale),w/scale,h/scale);ctx.fillStyle='#f2e5c7';ctx.font='bold 42px Georgia';ctx.textAlign='center';ctx.fillText(sailing.to==='main'?'Tillbaka mot kajen':sailing.to==='marstrand'?'Mot Marstrand':'Över Atlanten',camera.x,camera.y)}status.textContent=region.name}
-canvas.addEventListener('pointerdown',e=>{if(interior||sailing||window.UPPDRAG_LIVING_DIALOGUES?.busy)return;canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,cx:camera.x,cy:camera.y,moved:false}});canvas.addEventListener('pointermove',e=>{if(!drag){hoverPersonId=window.UPPDRAG_WORLD_LIFE?.hit(region,screen(e))?.id||null;canvas.style.cursor=hoverPersonId?'pointer':'default';return;}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>8)drag.moved=true;if(drag.moved){follow=false;camera.x=drag.cx-dx/layout.scale;camera.y=drag.cy-dy/layout.scale;clamp()}});canvas.addEventListener('pointerup',e=>{if(!drag)return;const moved=drag.moved;drag=null;if(moved||interior||sailing||window.UPPDRAG_LIVING_DIALOGUES?.busy)return;pendingPerson=null;pending=null;returnPending=false;pendingRoom=null;const p=screen(e),person=window.UPPDRAG_WORLD_LIFE?.hit(region,p);if(person){requestPerson(person);return;}if(harbourMapHit(p)){requestHarbour();return;}const b=region.buildings.find(b=>inRect(p.x,p.y,b,15));if(b){if(roomKind(b))requestInterior(b);else go(b.entry,b.name);return}const n=nearestNode(region,p.x,p.y);go(n.id)});canvas.addEventListener('wheel',e=>{e.preventDefault();if(window.UPPDRAG_LIVING_DIALOGUES?.busy)return;follow=false;camera.x+=e.deltaX/layout.scale;camera.y+=e.deltaY/layout.scale;clamp()},{passive:false});
+canvas.addEventListener('pointerdown',e=>{if(interior||sailing||window.UPPDRAG_LIVING_DIALOGUES?.busy)return;canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,cx:camera.x,cy:camera.y,moved:false}});canvas.addEventListener('pointermove',e=>{if(!drag){hoverPersonId=window.UPPDRAG_WORLD_LIFE?.hit(region,screen(e))?.id||null;canvas.style.cursor=hoverPersonId?'pointer':'default';return;}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>8)drag.moved=true;if(drag.moved){follow=false;camera.x=drag.cx-dx/layout.scale;camera.y=drag.cy-dy/layout.scale;clamp()}});canvas.addEventListener('pointerup',e=>{if(!drag)return;const moved=drag.moved;drag=null;if(moved||interior||sailing||window.UPPDRAG_LIVING_DIALOGUES?.busy)return;cancelPersonArrival();pending=null;returnPending=false;pendingRoom=null;const p=screen(e),person=window.UPPDRAG_WORLD_LIFE?.hit(region,p);if(person){requestPerson(person);return;}if(harbourMapHit(p)){requestHarbour();return;}const b=region.buildings.find(b=>inRect(p.x,p.y,b,15));if(b){if(roomKind(b))requestInterior(b);else go(b.entry,b.name);return}const n=nearestNode(region,p.x,p.y);go(n.id)});canvas.addEventListener('wheel',e=>{e.preventDefault();if(window.UPPDRAG_LIVING_DIALOGUES?.busy)return;follow=false;camera.x+=e.deltaX/layout.scale;camera.y+=e.deltaY/layout.scale;clamp()},{passive:false});
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{pending=null;returnPending=false;return go(b.dataset.go,b.textContent);});document.querySelector('#visitHarbour').onclick=()=>requestHarbour();document.querySelector('#sailM').onclick=()=>requestHarbour('marstrand');document.querySelector('#sailS').onclick=()=>requestHarbour('colony');document.querySelector('#return').onclick=()=>requestHarbour('main');document.querySelector('#follow').onclick=()=>{follow=true};
-function animate(now){window.UPPDRAG_LIVING_DIALOGUES?.tick(now);window.UPPDRAG_MEETINGS?.tick(now);if(interior){tickHarbourVoyage(now);last=now;requestAnimationFrame(animate);return}const dt=Math.min(.05,(now-last)/1000);last=now;if(sailing&&now-sailing.at>1300){const trip=sailing;switchRegion(trip.to,trip.to==='main'?'quay':null)}if(path.length&&!sailing){const n=path[0],dx=n.x-player.x,dy=n.y-player.y,d=Math.hypot(dx,dy),step=180*dt;if(d<=step){player.x=n.x;player.y=n.y;path.shift()}else{player.x+=dx/d*step;player.y+=dy/d*step}if(!path.length&&pending&&region===MAIN&&Math.hypot(player.x-MAIN.map.get('quay').x,player.y-MAIN.map.get('quay').y)<60){const to=pending;pending=null;sailing={to,at:now}}if(!path.length&&returnPending&&region!==MAIN){const port=region.map.get(region.harbor);if(Math.hypot(player.x-port.x,player.y-port.y)<60){returnPending=false;sailing={to:'main',at:now,returning:true};setMessage('Ombord','Fartyget lämnar hamnen och seglar tillbaka mot kajen.')}}}finishDoorArrival();finishPersonArrival();if(follow&&!drag&&!interior){camera.x+=(player.x-camera.x)*.12;camera.y+=(player.y-camera.y)*.12;clamp()}draw();requestAnimationFrame(animate)}
-// Outdoor meetings use the existing road graph, with no teleport or new paths.
+function animate(now){window.UPPDRAG_WORLD_LIFE?.tick(now,{region,player});window.UPPDRAG_LIVING_DIALOGUES?.tick(now);window.UPPDRAG_MEETINGS?.tick(now);if(interior){tickHarbourVoyage(now);last=now;requestAnimationFrame(animate);return}const dt=Math.min(.05,(now-last)/1000);last=now;if(sailing&&now-sailing.at>1300){const trip=sailing;switchRegion(trip.to,trip.to==='main'?'quay':null)}if(path.length&&!sailing){const n=path[0],dx=n.x-player.x,dy=n.y-player.y,d=Math.hypot(dx,dy),step=180*dt;if(d<=step){player.x=n.x;player.y=n.y;path.shift()}else{player.x+=dx/d*step;player.y+=dy/d*step}if(!path.length&&pending&&region===MAIN&&Math.hypot(player.x-MAIN.map.get('quay').x,player.y-MAIN.map.get('quay').y)<60){const to=pending;pending=null;sailing={to,at:now}}if(!path.length&&returnPending&&region!==MAIN){const port=region.map.get(region.harbor);if(Math.hypot(player.x-port.x,player.y-port.y)<60){returnPending=false;sailing={to:'main',at:now,returning:true};setMessage('Ombord','Fartyget lämnar hamnen och seglar tillbaka mot kajen.')}}}finishDoorArrival();finishPersonArrival();if(follow&&!drag&&!interior){camera.x+=(player.x-camera.x)*.12;camera.y+=(player.y-camera.y)*.12;clamp()}draw();requestAnimationFrame(animate)}
+// A selected passerby waits at the clicked road position while the player
+// approaches. Both remain on that road, about one figure's width apart.
 function requestPerson(person){
-  if(interior||sailing||window.UPPDRAG_LIVING_DIALOGUES?.busy)return false;
+  if(interior||sailing||voyage||!person||person.region!==region.id||window.UPPDRAG_LIVING_DIALOGUES?.busy)return false;
+  cancelPersonArrival();
+  const stopped=window.UPPDRAG_WORLD_LIFE?.freeze(person.id);
+  if(!stopped?.routeEdge)return false;
   pending=null;returnPending=false;pendingRoom=null;
-  if(!go(person.node,'Till '+person.name))return false;
-  pendingPerson={...person,regionId:region.id};finishPersonArrival();return true;
+  const edge=stopped.routeEdge,a=region.map.get(edge.a),b=region.map.get(edge.b),length=Math.hypot(b.x-a.x,b.y-a.y);
+  const from=roadProjection(player,edge),side=from.t<=stopped.routeT?-1:1;
+  const t=Math.max(.025,Math.min(.975,stopped.routeT+side*54/length));
+  const goal={x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};
+  const next=routeAlongRoads(goal,edge);
+  if(!next){window.UPPDRAG_WORLD_LIFE.release(person.id);return false;}
+  path=next;follow=true;pendingPerson={...stopped,regionId:region.id};
+  setMessage('Till '+person.name,person.name+' stannar till längs vägen.');
+  finishPersonArrival();return true;
 }
 function finishPersonArrival(){
   if(!pendingPerson||path.length||interior||sailing)return;
-  const person=pendingPerson,node=region.map.get(person.node);
-  if(person.regionId!==region.id||!node){pendingPerson=null;return;}
-  if(Math.hypot(player.x-node.x,player.y-node.y)>2)return;
-  pendingPerson=null;window.UPPDRAG_LIVING_DIALOGUES?.openWorld(person);
+  const person=pendingPerson;
+  if(person.regionId!==region.id){cancelPersonArrival();return;}
+  if(Math.hypot(player.x-person.x,player.y-person.y)>80){cancelPersonArrival();return;}
+  pendingPerson=null;
+  if(!window.UPPDRAG_LIVING_DIALOGUES?.openWorld(person))window.UPPDRAG_WORLD_LIFE?.release(person.id);
 }
 canvas.addEventListener('pointercancel',()=>{drag=null;});
 canvas.addEventListener('pointerleave',()=>{hoverPersonId=null;canvas.style.cursor='default';});
 window.addEventListener('resize',resize);resize();draw();syncHarbourUI();document.documentElement.dataset.ready='true';requestAnimationFrame(animate);
 window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElement.dataset.paper=ok?'original':'fallback';if(!ok)console.warn('Originalmaterialet saknas. Grundgrafiken visas.');});
 </script>
-<script src="archive-living.js?v=3.13.0"></script>
-<script src="place-living.js?v=3.13.0"></script>
-<script src="meeting-living.js?v=3.13.0"></script>
-<script src="world-life.js?v=3.13.0"></script>
-<script src="living-dialogues.js?v=3.13.0-final"></script>
+<script src="archive-living.js?v=3.14.0"></script>
+<script src="place-living.js?v=3.14.0"></script>
+<script src="meeting-living.js?v=3.14.0"></script>
+<script src="world-life.js?v=3.14.0"></script>
+<script src="living-dialogues.js?v=3.14.0"></script>
+<script src="paper-dialogues.js?v=3.14.0"></script>
 </body>
 </html>
 

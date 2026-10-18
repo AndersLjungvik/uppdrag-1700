@@ -1,10 +1,10 @@
-// Frivilliga samtal: bevarade reflektionsfrågor och bearbetade spelrepliker.
+// Korta personliga funderingar ute i världen; källmaterialet nedan är endast metadata.
 (function () {
   'use strict';
   window.UPPDRAG_LIVING_CONTENT = {
-  "version": 1,
+  "version": 2,
   "authoredDialogue": true,
-  "sourceNote": "Reflektionsfrågorna och deras hänvisningar är oförändrade från spelets curriculum/classroom.mjs. De är återfunna bearbetningar av SOS-materialet, inte ordagranna citat ur boken. Motfrågor, följdfrågor, svar och presentationer är bearbetade spelrepliker med stöd av reflektionsfokus och faktakorten i samma frågebank. Småpratet är fiktivt; korta delar av Ottos och Linneas repliker återanvänder spelets tidigare gatusamtal. Samtalen har inga poäng eller automatiskt rättade svar.",
+  "sourceNote": "De korta tankarna är nyskrivna, personliga spelrepliker med anknytning till den tidigare frågebankens tolv teman. De är inte bokcitat eller frågor till spelaren. Källkatalogen, provenance och originalets oförändrade reflections bevaras enbart som underlagsmetadata och ska inte visas i mötesflödet.",
   "provenance": {
     "repository": "AndersLjungvik/uppdrag-1700",
     "commit": "f277b2a3fb9cc138f2b4d5ac30ca5765767a5eb7",
@@ -395,360 +395,69 @@
       "scored": false
     }
   ],
-  "topics": [
+  "ponderings": [
     {
-      "id": "sos-samtal-frihet",
-      "title": "Vems frihet?",
-      "thought": "Jag undrar vem frihetstiden var fri för.",
-      "question": "På vilka sätt var frihetstiden friare, och på vilka sätt var friheten mindre än i dag?",
-      "branches": [
-        {
-          "text": "Vem fick mer makt när kungen fick mindre?",
-          "reply": "Riksdagen fick större makt. Men det betydde inte att alla människor kunde påverka besluten.",
-          "followUps": [
-            {
-              "text": "Vilka hade mindre inflytande?",
-              "reply": "Bönderna hade ett eget stånd, men fick inte vara med och välja riksrådets medlemmar. Kvinnor fick fortfarande inte bestämma fritt över sig själva."
-            }
-          ]
-        },
-        {
-          "text": "Hur kan vi jämföra med friheten i dag?",
-          "reply": "Vi kan fråga vilka som får vara med och fatta beslut och vilka som får bestämma över sina egna liv. Namnet frihetstiden räcker inte som svar.",
-          "followUps": [
-            {
-              "text": "Måste svaret bli lika för alla grupper?",
-              "reply": "Nej. Samma förändring kan ge en grupp större frihet och lämna en annan med mycket lite inflytande."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-frihet",
+      "text": "Frihet, säger de fina herrarna. Men vem av dem har frågat vad jag tycker?",
+      "sourceReflectionId": "sos-samtal-frihet"
     },
     {
-      "id": "sos-samtal-ogift",
-      "title": "Regler och förväntningar",
-      "thought": "Jag undrar hur människor såg på att få barn utan att vara gift.",
-      "question": "Hur skiljer sig synen på att få barn utan att vara gift då och i dag?",
-      "branches": [
-        {
-          "text": "Vad menar vi med synen på det?",
-          "reply": "Både samhällets regler och människors förväntningar. En regel och ett sätt att behandla någon är inte samma sak.",
-          "followUps": [
-            {
-              "text": "Kunde alla göra som de ville?",
-              "reply": "Nej. Normer och risk för straff kunde begränsa kvinnornas möjligheter."
-            }
-          ]
-        },
-        {
-          "text": "Hur kan vi jämföra utan att tro att alla tyckte lika?",
-          "reply": "Vi kan undersöka reglerna för tiden och fråga hur de påverkade olika människor. Ett helt samhälle har inte en enda åsikt.",
-          "followUps": [
-            {
-              "text": "Vad kan vi fråga om i dag?",
-              "reply": "Vi kan skilja mellan regler, traditioner och hur människor bemöts. Då blir jämförelsen tydligare."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-ogift",
+      "text": "Hon har fått barn och är inte gift. Nu viskar folk bakom hennes rygg.",
+      "sourceReflectionId": "sos-samtal-ogift"
     },
     {
-      "id": "sos-samtal-utsatthet",
-      "title": "När regler gjorde livet svårt",
-      "thought": "Jag undrar vilka följder straff och skam kunde få.",
-      "question": "Vilka allvarliga följder kunde rädsla för straff och skam få för en ogift kvinna och hennes barn?",
-      "branches": [
-        {
-          "text": "Vad gjorde kvinnornas situation så utsatt?",
-          "reply": "De kunde möta skam och risk för straff. Rädslan för att en graviditet skulle upptäckas kunde bli mycket stor.",
-          "followUps": [
-            {
-              "text": "Var det bara en fråga om egna val?",
-              "reply": "Nej. Dåtidens regler begränsade vad en kvinna kunde göra. Därför behöver vi förstå villkoren runt henne."
-            }
-          ]
-        },
-        {
-          "text": "Vilka följder kunde det få för kvinnorna och barnen?",
-          "reply": "Barn kunde lämnas bort och kvinnor försökte avbryta graviditeter. Det förekom också att barn dödades. För att förstå behöver vi undersöka varför situationen blev så utsatt.",
-          "followUps": [
-            {
-              "text": "Vems berättelse saknas ofta?",
-              "reply": "Kvinnornas och barnens egna berättelser kan saknas. Om vi bara läser reglerna får vi inte veta allt om hur livet upplevdes."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-utsatthet",
+      "text": "Hon vågar inte be om hjälp, hon är rädd för straffet. Och det lilla barnet då?",
+      "sourceReflectionId": "sos-samtal-utsatthet"
     },
     {
-      "id": "sos-samtal-barn",
-      "title": "Barnens vardag",
-      "thought": "Jag undrar hur barnen hade det på barnhuset.",
-      "question": "Hur kunde vardagen se ut för ett barn på barnhus? Vad skiljer sig från din vardag?",
-      "branches": [
-        {
-          "text": "Vad gjorde barnen om dagarna?",
-          "reply": "Barnen fick ofta arbeta långa dagar. Barnhuset gav tak över huvudet, men det betydde inte alltid att barnen fick tillräckligt med mat eller omsorg.",
-          "followUps": [
-            {
-              "text": "Vilka fler delar av vardagen behöver vi fråga om?",
-              "reply": "Till exempel om vila, mat och om någon tog hand om barnen när de behövde hjälp."
-            }
-          ]
-        },
-        {
-          "text": "Får vi veta hur barnen själva upplevde det?",
-          "reply": "Beskrivningar av arbete och regler berättar inte allt. Vi behöver också leta efter barnens perspektiv.",
-          "followUps": [
-            {
-              "text": "Hur kan vi jämföra med barns liv i dag?",
-              "reply": "Välj något konkret, som arbete, vila eller möjlighet att få hjälp. Jämför likheter och skillnader utan att anta att alla barn lever likadant."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-barn",
+      "text": "De små arbetar redan när jag går förbi på morgonen. När får de tid att vara barn?",
+      "sourceReflectionId": "sos-samtal-barn"
     },
     {
-      "id": "sos-samtal-kvinnor",
-      "title": "Vilka får plats i historien?",
-      "thought": "Jag undrar vilka personer historieböckerna berättar om.",
-      "question": "Varför tror du att så många kända personer i historieböcker är män?",
-      "branches": [
-        {
-          "text": "Kan historieboken ha missat viktiga personer?",
-          "reply": "En historiebok gör ett urval. Att en person inte nämns säger inte att den personen var oviktig.",
-          "followUps": [
-            {
-              "text": "Hur kan vi hitta fler röster?",
-              "reply": "Vi kan jämföra vilka som nämns i olika texter och leta efter människors egna berättelser."
-            }
-          ]
-        },
-        {
-          "text": "Finns det kvinnor i berättelserna vi har läst?",
-          "reply": "Ja. Eva Ekeblad finns med för sin forskning om potatis. Vi kan titta närmare på vilka personer och insatser som lyfts fram.",
-          "followUps": [
-            {
-              "text": "Räcker ett exempel för att alla haft samma möjligheter?",
-              "reply": "Nej. Ett exempel säger något om en person. För att förstå möjligheterna behöver vi också undersöka tidens regler och villkor."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-kvinnor",
+      "text": "Hon skriver ju lika bra som han. Ändå vill alla tala med hennes man.",
+      "sourceReflectionId": "sos-samtal-kvinnor"
     },
     {
-      "id": "sos-samtal-linne",
-      "title": "Människor och grupper",
-      "thought": "Jag undrar vad som händer när människor delas in i grupper.",
-      "question": "Vilka följder kan det få att dela in människor i grupper?",
-      "branches": [
-        {
-          "text": "När blir en indelning orättvis?",
-          "reply": "När en gruppetikett får bestämma vad en människa anses klara eller vilket värde personen har. Då kan individer behandlas olika utan att man lär känna dem.",
-          "followUps": [
-            {
-              "text": "Vad riskerar man att missa?",
-              "reply": "Skillnaderna inom gruppen och det som människor har gemensamt över gruppgränserna."
-            }
-          ]
-        },
-        {
-          "text": "Är alla indelningar av människor likadana?",
-          "reply": "Nej. Att ordna uppgifter för att undersöka en fråga är något annat än att påstå att vissa människor är mer värda än andra.",
-          "followUps": [
-            {
-              "text": "Vad behöver vi fråga den som gör indelningen?",
-              "reply": "Varför grupperna skapats, vad indelningen bygger på och hur den kan påverka människor."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-linne",
+      "text": "De säger att folk härifrån är på ett visst sätt. Mig har de då aldrig talat med.",
+      "sourceReflectionId": "sos-samtal-linne"
     },
     {
-      "id": "sos-samtal-kungen",
-      "title": "Olika tankar om kungen",
-      "thought": "Jag undrar varför människor tyckte så olika om Gustav III.",
-      "question": "Varför kunde Gustav III vara omtyckt av vissa och avskydd av andra?",
-      "branches": [
-        {
-          "text": "Vilka förändringar kunde människor uppskatta?",
-          "reply": "Gustav III förbjöd tortyr och stödde kultur. Sådana förändringar kunde vara skäl att uppskatta honom.",
-          "followUps": [
-            {
-              "text": "Betydde det att alla gillade allt han gjorde?",
-              "reply": "Nej. En person kunde uppskatta en reform och samtidigt vara kritisk till hur kungen använde makten."
-            }
-          ]
-        },
-        {
-          "text": "Vilka kunde vara missnöjda?",
-          "reply": "De som förlorade inflytande när kungen tog mer makt kunde vara missnöjda.",
-          "followUps": [
-            {
-              "text": "Kan två personer ha olika skäl att tycka olika?",
-              "reply": "Ja. Kulturstöd kunde ge någon möjlighet att arbeta, medan en annan förlorade möjlighet att påverka beslut."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-kungen",
+      "text": "Här jublar de över kungens teater. På torget hör jag mest folk muttra över honom.",
+      "sourceReflectionId": "sos-samtal-kungen"
     },
     {
-      "id": "sos-samtal-bostad",
-      "title": "Staden eller landet?",
-      "thought": "Jag undrar hur livet skilde sig mellan staden och landet.",
-      "question": "Hade du velat bo i staden eller på landet då? Vad bygger du ditt val på?",
-      "branches": [
-        {
-          "text": "Vad behöver vi jämföra?",
-          "reply": "Arbete, bostad, mat och hjälp från andra. Det gör motiveringen mer konkret.",
-          "followUps": [
-            {
-              "text": "Vilka skillnader kan vi börja med?",
-              "reply": "Vi kan titta på jordbruket och förändringarna i byarna, och jämföra med fabriksarbetet i städerna. Barn kunde få långa arbetsdagar."
-            }
-          ]
-        },
-        {
-          "text": "Kunde livet vara olika på samma plats?",
-          "reply": "Ja. Den som ägde en fabrik och barnet som arbetade där hade olika villkor.",
-          "followUps": [
-            {
-              "text": "Kan vårt val ändras när vi får veta mer?",
-              "reply": "Ja. Om du får nya uppgifter om arbete, mat eller gemenskap kan du ompröva din motivering."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-bostad",
+      "text": "Undrar om de har det lättare inne i staden. Här räcker skörden knappt till.",
+      "sourceReflectionId": "sos-samtal-bostad"
     },
     {
-      "id": "sos-samtal-seger",
-      "title": "Om kriget hade slutat annorlunda",
-      "thought": "Jag undrar om en seger hade ändrat synen på kungen.",
-      "question": "Tror du att Gustav III hade blivit mer populär om han vunnit kriget? Varför?",
-      "branches": [
-        {
-          "text": "Varför trodde kungen att en seger skulle hjälpa?",
-          "reply": "Han hoppades att en seger och återtagna områden skulle göra honom mer populär.",
-          "followUps": [
-            {
-              "text": "Vet vi att alla skulle ha ändrat åsikt?",
-              "reply": "Nej. Det är en möjlig följd vi resonerar om. Vi kan inte veta säkert hur människor skulle ha tänkt i ett annat händelseförlopp."
-            }
-          ]
-        },
-        {
-          "text": "Kunde människor ändå vara missnöjda?",
-          "reply": "Ja, det är tänkbart. Kritik mot kungens makt behövde inte försvinna för att kriget gick bättre.",
-          "followUps": [
-            {
-              "text": "Hur skiljer vi det från vad som faktiskt hände?",
-              "reply": "Vi använder ord som kunde och kanske när vi prövar en möjlighet. Det faktiska händelseförloppet behöver stöd i källorna."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-seger",
+      "text": "Om kungen hade vunnit kriget kanske folk hade jublat. Men hade de slutat klaga för det?",
+      "sourceReflectionId": "sos-samtal-seger"
     },
     {
-      "id": "sos-samtal-maskerad",
-      "title": "Varför en maskerad?",
-      "thought": "Jag undrar vilken betydelse maskeraden hade.",
-      "question": "Varför tror du att attentatsmännen valde en maskerad?",
-      "branches": [
-        {
-          "text": "Vad var särskilt med en maskerad?",
-          "reply": "Masker och förklädnader kan göra det svårare att känna igen människor. Det ger en möjlig förklaring, men bevisar inte vad attentatsmännen tänkte.",
-          "followUps": [
-            {
-              "text": "Vad skulle kunna stärka en sådan förklaring?",
-              "reply": "Till exempel berättelser från personer som var där. Då behöver vi granska vem som berättar och när."
-            }
-          ]
-        },
-        {
-          "text": "Vet vi säkert varför de valde just den kvällen?",
-          "reply": "Inte genom att bara veta att det var en maskerad. Vi kan pröva en rimlig tanke och skilja den från det vi har belägg för.",
-          "followUps": [
-            {
-              "text": "Hur kan vi säga det utan att låta för säkra?",
-              "reply": "Vi kan säga att maskeraden kan ha haft betydelse och förklara varför. Sedan anger vi vad som fortfarande är osäkert."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-maskerad",
+      "text": "Tänk att de dödade kungen! Varför just på maskeraden?",
+      "sourceReflectionId": "sos-samtal-maskerad"
     },
     {
-      "id": "sos-samtal-makt",
-      "title": "Vem ska få bestämma?",
-      "thought": "Jag undrar vad det gör för skillnad vem som har makten.",
-      "question": "Vilka fördelar och nackdelar kan det ha att riksdagen har makten, jämfört med att kungen har makten?",
-      "branches": [
-        {
-          "text": "Betyder riksdag att alla får bestämma?",
-          "reply": "Inte automatiskt. Under frihetstiden var fyra stånd representerade, men inflytandet var ojämnt fördelat.",
-          "followUps": [
-            {
-              "text": "Vad behöver vi undersöka då?",
-              "reply": "Vilka som får delta, vilka beslut de får påverka och vilka människor som står utanför."
-            }
-          ]
-        },
-        {
-          "text": "Vad kan hända när en person får mycket makt?",
-          "reply": "Beslut kan fattas utan långa förhandlingar, men färre personer får möjlighet att säga emot. Det är möjliga följder att jämföra.",
-          "followUps": [
-            {
-              "text": "Hur kan vi knyta det till Gustav III?",
-              "reply": "Vi kan jämföra reformer som människor uppskattade med att kungen tog makt från andra. Samma styre kunde upplevas olika."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-makt",
+      "text": "Herrarna grälar om vem som ska bestämma. Ingen av dem stannar och lyssnar på oss här ute.",
+      "sourceReflectionId": "sos-samtal-makt"
     },
     {
-      "id": "sos-samtal-kallval",
-      "title": "Vad kan källorna berätta?",
-      "thought": "Jag undrar hur olika källor kan hjälpa oss.",
-      "question": "Hur skulle du använda ett gammalt föremål, en samtida dagbok, en målning, en modern film och en lärobok när du undersöker 1700-talet?",
-      "branches": [
-        {
-          "text": "Vad kan en dagbok berätta som ett föremål inte berättar?",
-          "reply": "En dagbok kan beskriva en människas erfarenheter. Ett föremål kan ge ledtrådar om hur något tillverkades eller användes. Vilken källa vi väljer beror på vår fråga.",
-          "followUps": [
-            {
-              "text": "Vems perspektiv får vi i dagboken?",
-              "reply": "Författarens. Dagboken visar inte automatiskt hur alla människor levde eller tänkte."
-            }
-          ]
-        },
-        {
-          "text": "Hur kan vi använda en film eller en lärobok?",
-          "reply": "De kan hjälpa oss att se hur 1700-talet skildras i efterhand. Vi behöver undersöka när de gjordes och vilket underlag de bygger på.",
-          "followUps": [
-            {
-              "text": "Hur kan vi använda en målning?",
-              "reply": "Vi kan undersöka kläder, föremål och miljö. Vi behöver också fråga vem som gjorde bilden, när den gjordes och vad den var tänkt att visa."
-            }
-          ]
-        }
-      ]
+      "id": "tanke-kallval",
+      "text": "Två brev om samma dag, och de berättar helt olika saker. Vad var det egentligen som hände?",
+      "sourceReflectionId": "sos-samtal-kallval"
     }
   ],
-  "roomTopics": {
-    "cafe": [
-      "sos-samtal-ogift",
-      "sos-samtal-utsatthet"
-    ],
-    "print": [
-      "sos-samtal-kvinnor"
-    ],
-    "archive": [
-      "sos-samtal-makt",
-      "sos-samtal-kallval"
-    ],
-    "quay": [
-      "sos-samtal-seger"
-    ]
-  },
+  "roomTopics": {},
   "people": [
     {
       "id": "klara",
@@ -760,32 +469,10 @@
       "dy": -55,
       "color": "#94744e",
       "woman": true,
-      "topics": [
-        "sos-samtal-frihet"
-      ],
-      "introduction": [
-        [
-          "Du",
-          "Hej! Jag är ny lärling här. Vem är du?"
-        ],
-        [
-          "Klara",
-          "Jag heter Klara. Välkommen att prata en stund."
-        ]
-      ],
-      "smalltalk": {
-        "thought": "Jag undrar vad Klara gör på torget.",
-        "lines": [
-          [
-            "Du",
-            "Har du bråttom, Klara?"
-          ],
-          [
-            "Klara",
-            "Inte just nu. Jag stannar gärna en stund och ser vilka som går förbi."
-          ]
-        ]
-      }
+      "ponderings": [
+        "tanke-frihet",
+        "tanke-makt"
+      ]
     },
     {
       "id": "otto",
@@ -797,38 +484,9 @@
       "dy": -52,
       "color": "#6e7560",
       "woman": false,
-      "topics": [],
-      "introduction": [
-        [
-          "Du",
-          "Hej! Jag är ny lärling här. Vem är du?"
-        ],
-        [
-          "Otto",
-          "Jag heter Otto och är också lärling. Välkommen hit!"
-        ]
-      ],
-      "smalltalk": {
-        "thought": "Jag undrar vad Otto läser.",
-        "lines": [
-          [
-            "Du",
-            "Ser du något intressant i texten, Otto?"
-          ],
-          [
-            "Otto",
-            "Jag läste något som fick mig att fundera hela vägen hit."
-          ],
-          [
-            "Du",
-            "Vill du läsa mer om det?"
-          ],
-          [
-            "Otto",
-            "Ja. Jag vill jämföra med vad andra skriver och fråga hur de vet."
-          ]
-        ]
-      }
+      "ponderings": [
+        "tanke-kvinnor"
+      ]
     },
     {
       "id": "linnea",
@@ -840,40 +498,9 @@
       "dy": 20,
       "color": "#6f8563",
       "woman": true,
-      "topics": [
-        "sos-samtal-linne"
-      ],
-      "introduction": [
-        [
-          "Du",
-          "Hej! Jag är ny lärling här. Vem är du?"
-        ],
-        [
-          "Linnea",
-          "Jag heter Linnea. Jag är på besök här."
-        ]
-      ],
-      "smalltalk": {
-        "thought": "Jag undrar vad Linnea tittar på.",
-        "lines": [
-          [
-            "Du",
-            "Vad tittar du på, Linnea?"
-          ],
-          [
-            "Linnea",
-            "Jag vill veta vad växterna heter. Men jag tappar alltid bort namnen."
-          ],
-          [
-            "Du",
-            "Har du något att skriva på?"
-          ],
-          [
-            "Linnea",
-            "Ja, min bok får nog bli full av blad och teckningar."
-          ]
-        ]
-      }
+      "ponderings": [
+        "tanke-linne"
+      ]
     },
     {
       "id": "lovisa",
@@ -885,32 +512,10 @@
       "dy": 18,
       "color": "#96705f",
       "woman": true,
-      "topics": [
-        "sos-samtal-kungen"
-      ],
-      "introduction": [
-        [
-          "Du",
-          "Hej! Jag är ny lärling här. Vem är du?"
-        ],
-        [
-          "Lovisa",
-          "Jag heter Lovisa. Jag är på besök vid slottet."
-        ]
-      ],
-      "smalltalk": {
-        "thought": "Jag undrar om Lovisa har tid att prata.",
-        "lines": [
-          [
-            "Du",
-            "Väntar du på någon, Lovisa?"
-          ],
-          [
-            "Lovisa",
-            "Nej, jag tar en paus från allt prat där inne. Här kan vi höra varandra."
-          ]
-        ]
-      }
+      "ponderings": [
+        "tanke-kungen",
+        "tanke-ogift"
+      ]
     },
     {
       "id": "noor",
@@ -922,32 +527,10 @@
       "dy": -62,
       "color": "#7c7488",
       "woman": true,
-      "topics": [
-        "sos-samtal-barn"
-      ],
-      "introduction": [
-        [
-          "Du",
-          "Hej! Jag är ny lärling här. Vem är du?"
-        ],
-        [
-          "Noor",
-          "Jag heter Noor. Jag skriver och läser brev."
-        ]
-      ],
-      "smalltalk": {
-        "thought": "Jag vill prata en stund med Noor.",
-        "lines": [
-          [
-            "Du",
-            "Vill du prata en stund, Noor?"
-          ],
-          [
-            "Noor",
-            "Gärna. Jag hade just tänkt sätta mig och läsa, men det kan vänta lite."
-          ]
-        ]
-      }
+      "ponderings": [
+        "tanke-barn",
+        "tanke-utsatthet"
+      ]
     },
     {
       "id": "karin",
@@ -959,32 +542,9 @@
       "dy": 110,
       "color": "#94744e",
       "woman": true,
-      "topics": [
-        "sos-samtal-bostad"
-      ],
-      "introduction": [
-        [
-          "Du",
-          "Hej! Jag är ny lärling här. Vem är du?"
-        ],
-        [
-          "Karin",
-          "Jag heter Karin och är bonde. Välkommen till byn!"
-        ]
-      ],
-      "smalltalk": {
-        "thought": "Jag undrar om Karin tycker om hundar.",
-        "lines": [
-          [
-            "Du",
-            "Tycker du om hundar, Karin?"
-          ],
-          [
-            "Karin",
-            "Ja, särskilt de som gör mig sällskap utan att springa iväg med min vante."
-          ]
-        ]
-      }
+      "ponderings": [
+        "tanke-bostad"
+      ]
     },
     {
       "id": "liv",
@@ -996,32 +556,9 @@
       "dy": 25,
       "color": "#76604f",
       "woman": true,
-      "topics": [
-        "sos-samtal-maskerad"
-      ],
-      "introduction": [
-        [
-          "Du",
-          "Hej! Jag är ny lärling här. Vem är du?"
-        ],
-        [
-          "Liv",
-          "Jag heter Liv och arbetar med musik. Välkommen!"
-        ]
-      ],
-      "smalltalk": {
-        "thought": "Jag undrar vad Liv nynnar på.",
-        "lines": [
-          [
-            "Du",
-            "Vad nynnar du på, Liv?"
-          ],
-          [
-            "Liv",
-            "Bara en melodi som fastnat. Om jag slutar kommer den ändå tillbaka."
-          ]
-        ]
-      }
+      "ponderings": [
+        "tanke-maskerad"
+      ]
     },
     {
       "id": "amira",
@@ -1033,30 +570,9 @@
       "dy": 30,
       "color": "#846956",
       "woman": true,
-      "topics": [],
-      "introduction": [
-        [
-          "Du",
-          "Hej! Jag är ny lärling här. Vem är du?"
-        ],
-        [
-          "Amira",
-          "Jag heter Amira och är bud. Hej på dig!"
-        ]
-      ],
-      "smalltalk": {
-        "thought": "Jag undrar om Amira har bråttom.",
-        "lines": [
-          [
-            "Du",
-            "Stannar du här länge, Amira?"
-          ],
-          [
-            "Amira",
-            "Bara en liten stund. Jag är bud och ska snart gå vidare."
-          ]
-        ]
-      }
+      "ponderings": [
+        "tanke-seger"
+      ]
     },
     {
       "id": "ester",
@@ -1068,38 +584,9 @@
       "dy": -45,
       "color": "#826d5e",
       "woman": true,
-      "topics": [],
-      "introduction": [
-        [
-          "Du",
-          "Hej! Jag är ny lärling här. Vem är du?"
-        ],
-        [
-          "Ester",
-          "Jag heter Ester. Jag arbetar med berättelser och handlingar."
-        ]
-      ],
-      "smalltalk": {
-        "thought": "Jag undrar vad Ester läser.",
-        "lines": [
-          [
-            "Du",
-            "Får jag fråga vad du läser, Ester?"
-          ],
-          [
-            "Ester",
-            "Jag jämför två berättelser. De fastnar för olika saker."
-          ],
-          [
-            "Du",
-            "Vilken börjar du med?"
-          ],
-          [
-            "Ester",
-            "Jag läser båda innan jag bestämmer vad jag vill fråga vidare om."
-          ]
-        ]
-      }
+      "ponderings": [
+        "tanke-kallval"
+      ]
     }
   ]
 };

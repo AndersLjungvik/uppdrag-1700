@@ -1,14 +1,16 @@
 # Uppdrag 1700 · Pappersstaden
 
-## Aktuell arbetsversion: Demo 3.13
+## Aktuell arbetsversion: Demo 3.14
 
-[Öppna Demo 3.13 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.13.0).
+[Öppna Demo 3.14 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.14.0).
 
-De tolv öppna reflektionsfrågorna från spelets tidigare SOS-bank finns nu i frivilliga samtal, placerade hos personer där ämnet passar. Spelaren väljer en tanke, ställer frågan och kan gå vidare med motfrågor och följdfrågor. Nio nya människor har också kort småprat. Två hundar rör sig längs vägarna; höns, får och kor ger liv åt landsbygden. Gemensamt pappersmaterial förenar personer, djur och inredning med samma mått, silhuetter och placeringar som tidigare.
+Människor promenerar längs vägarna. När spelaren går fram stannar personen och visar en kort, personlig fundering. Ett klick på **Gå vidare** avslutar mötet. Exempel: ”Tänk att de dödade kungen! Varför just på maskeraden?” Tankarna ska låta som människor som lever i berättelsen. De tolv temana från den tidigare SOS-banken finns som bakgrund; långa bokfrågor, ämnesmenyer och följdfrågeträd visas inte i dessa möten.
 
-3.12.1:s presentationer, bekantskaper och en hälsning per besök är kvar. Ruts dokumentövning, vägar, dörrar och båtfärder använder sin befintliga grund. Reflektionerna har inga poäng eller automatisk rättning.
+Tanke- och pratbubblorna får också pappersyta, lätt klippta kanter och mjukare typografi, så texten hör ihop med scenen. Kartans människor har tydliga ansikten och upprätta papperskroppar. De vänder vågrätt. Hundar går och viftar på svansen utan att bli upp och ned när de vänder. Höns går och pickar; får och kor rör sig inom sin hage. Animationerna använder samma befintliga bildloop och respekterar minskad rörelse.
 
-Se [aktuell utvecklingsstatus](docs/demo3/STATUS.md) för aktiva filer, källor och verifiering. [Demo 3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1) och [Demo 3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) är bevarade. Den allmänna adressen `/demo3/` öppnar fortfarande den äldre världsdemon.
+Maja, Brita, Rut och Jo behåller 3.12.1:s presentationer, sparade bekantskaper och högst en hälsning per besök. Ruts dokumentövning finns kvar. De extra reflektionsmenyerna från 3.13 har tagits bort från rummen. Pappersmaterial, kartans geometri, inredning, dörrar och båtfärder behåller sin befintliga grund.
+
+Se [aktuell utvecklingsstatus](docs/demo3/STATUS.md) för aktiva filer, senaste beslut och verifiering. [Demo 3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1) och [Demo 3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) är bevarade. Den allmänna adressen `/demo3/` öppnar fortfarande den äldre världsdemon.
 
 ## Den tidigare huvudversionen
 

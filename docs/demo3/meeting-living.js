@@ -1,5 +1,5 @@
-/* Demo 3.13: shared paper material, optional reflections and anchored meetings.
- * Character silhouettes reused from docs/world/render.mjs (puppet/overhead).
+/* Demo 3.14: upright map cut-outs with readable faces and remembered facing.
+ * Large room portraits retain their existing silhouette and paper material.
  * A separate transparent layer preserves every approved background pixel.
  * Uses the existing animation loop; no iframe, parallel loop or network service.
  */
@@ -79,7 +79,46 @@
 function poly(points,color,shadow=true){ctx.save();if(shadow){ctx.shadowColor='#30281c28';ctx.shadowOffsetX=1;ctx.shadowOffsetY=2;ctx.shadowBlur=1}ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();const fibres=window.UPPDRAG_PAPER_FIBRES,kind=fibres?.kindFor(color)||'piece';ctx.fillStyle=fibres?.material(ctx,color,kind)||color;ctx.fill();ctx.shadowColor='transparent';if(fibres?.loaded){const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);fibres.finish(ctx,{x:Math.min(...xs),y:Math.min(...ys),w:Math.max(...xs)-Math.min(...xs),h:Math.max(...ys)-Math.min(...ys)},{kind});}else{ctx.clip();ctx.globalAlpha=.35;ctx.fillStyle=texture;ctx.fillRect(-1500,-1500,3000,3000);}ctx.restore()}
 function cut(x,y,w,h,c){poly([[x+1,y+2],[x+w*.3,y],[x+w*.65,y+1],[x+w-1,y],[x+w,y+h*.43],[x+w-2,y+h],[x+w*.6,y+h-1],[x+w*.3,y+h],[x,y+h-2],[x+1,y+h*.55]],c)}
 function oval(x,y,rx,ry,c){ctx.save();ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);const fibres=window.UPPDRAG_PAPER_FIBRES,kind=fibres?.kindFor(c)||'piece';ctx.fillStyle=fibres?.material(ctx,c,kind)||c;ctx.fill();if(fibres?.loaded){fibres.finish(ctx,{x:x-rx,y:y-ry,w:rx*2,h:ry*2},{kind});}else{ctx.clip();ctx.globalAlpha=.3;ctx.fillStyle=texture;ctx.fillRect(x-rx,y-ry,rx*2,ry*2);}ctx.restore()}
-function overhead(x,y,color,angle=0,walk=false,t=0,woman=false){ctx.save();ctx.translate(x,y);ctx.rotate(angle);const gait=walk&&!reduced?Math.sin(t/95)*4:0;cut(-9,10+gait,7,15,'#403b34');cut(3,10-gait,7,15,'#403b34');poly([[-13,-8],[12,-8],[15,12],[8,18],[-11,15]],color);if(woman)poly([[-12,2],[14,2],[18,21],[-16,21]],color);cut(-17,-3,5,15+(walk?gait*.5:0),'#c19a70');cut(14,-3,5,15-(walk?gait*.5:0),'#c19a70');oval(0,-12,10,11,woman?'#d8c8a7':'#574334');if(woman)oval(0,-13,8,7,'#dcd1b6');ctx.restore()}
+function mapPuppet(x,y,who,facing=1,walk=false,t=0){
+  ctx.save();ctx.translate(x,y);ctx.scale(facing<0?-1:1,1);
+  const color=who.color||CAST.player.color,woman=!!who.woman;
+  const gait=walk&&!reduced?Math.sin(t/115):0,idle=!walk&&!reduced?Math.sin(t/1350)*.025:0;
+  // Only the separate limbs turn. The torso, head and feet stay upright.
+  for(const [lx,phase] of [[-5.5,1],[5.5,-1]]){
+    ctx.save();ctx.translate(lx,10);ctx.rotate(gait*.13*phase);
+    cut(-2.6,0,5.2,11.5,'#bca87b');
+    poly([[-3.3,9.5],[2.4,9.4],[5.5,12],[5.3,14],[-3.2,13.7]],'#413b31',false);ctx.restore();
+  }
+  ctx.save();ctx.translate(-11,-4);ctx.rotate(.06+gait*.18);
+  cut(-2.4,0,4.8,12.5,color);oval(0,13.5,2.7,3.1,'#c9a57c');ctx.restore();
+  poly([[-10,-7],[7,-7],[11,-3],[12,11],[5,14],[-10,11]],color);
+  if(woman)poly([[-10,5],[11,5],[16,17],[-15,17]],color);
+  poly([[-3,-7],[4,-7],[2.3,2],[-1,2.5]],'#e8ddc0',false);
+  if(who.apron)poly([[-5,1],[5,1],[8,16],[-7,16]],'#d9caa9',false);
+  ctx.save();ctx.translate(11,-3);ctx.rotate(-.07-gait*.18+idle);
+  cut(-2.4,0,4.8,12.5,color);oval(0,13.5,2.7,3.1,'#c9a57c');ctx.restore();
+  cut(-2.8,-11,6,6,'#c8a377');
+  // A generous, unobscured three-quarter face reads at the map's .62 scale.
+  // Its centre remains y-18 so the existing speech anchor has a stable target.
+  poly([[-9,-23],[-5,-28],[4,-28],[10,-24],[10,-16],[6,-8],[-6,-9],[-10,-17]],'#604a35',false);
+  poly([[-4,-25],[5,-26],[9,-22],[9,-18],[12.5,-16.1],[9,-14.5],[8,-10],[3,-7.8],[-4,-10],[-7,-17]],'#cda77b',false);
+  oval(-6.2,-17.2,2.1,3,'#c9a57c');
+  poly([[-9,-22],[-5,-27.5],[4,-28],[9,-24],[3,-23.5],[-2,-20.5],[-5.6,-15.2],[-8,-16]],'#604a35',false);
+  if(woman){
+    poly([[-10,-23],[-6,-28.5],[3,-29],[9,-25.8],[4,-24],[-2,-24.7],[-7,-20.5]],'#ded1b4',false);
+  }else{
+    poly([[-9.5,-25],[-6,-29],[5,-28.8],[8.5,-25.2]],color,false);
+    poly([[-12,-24.8],[-4,-25.5],[9,-25.2],[12,-23.8],[5,-22.9],[-9,-23.1]],color,false);
+  }
+  // Small facial marks use solid ink: texture must not erase a one-pixel eye.
+  ctx.fillStyle='#352b24';
+  for(const ex of [.6,5.8]){ctx.beginPath();ctx.ellipse(ex,-19.3,1.05,1.35,0,0,Math.PI*2);ctx.fill();}
+  ctx.strokeStyle='#785137';ctx.lineWidth=.8;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(6.5,-17.3);ctx.lineTo(7.5,-15.5);ctx.lineTo(5.9,-15.2);ctx.stroke();
+  ctx.strokeStyle='#67402f';ctx.lineWidth=1.1;
+  ctx.beginPath();ctx.moveTo(2.5,-12.2);ctx.quadraticCurveTo(4.4,-11.4,6.7,-12.5);ctx.stroke();
+  ctx.restore();
+}
 function limb(x,y,w,h,rotation,color){ctx.save();ctx.translate(x,y);ctx.rotate(rotation);cut(-w/2,0,w,h,color);ctx.restore()}
 function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,apron=false){ctx.save();ctx.translate(x,foot);if(!faceRight)ctx.scale(-1,1);const speaking=!reduced&&talking&&t>=speechStarted&&t<speechUntil&&!busy&&!document.hidden,elapsed=t-speechStarted;const sway=speaking?Math.sin(elapsed/260)*.006:0;ctx.rotate(sway);const stride=walk&&!reduced?Math.sin(t/100)*.15:0;
  limb(-19,-105,20,92,stride,'#bca87b');limb(20,-105,20,92,-stride,'#bca87b');cut(-36,-19+Math.sin(stride)*10,40,17,'#413b31');cut(6,-19-Math.sin(stride)*10,43,17,'#413b31');poly([[-47,-226],[34,-225],[48,-113],[28,-94],[-43,-102]],color);poly([[-18,-228],[17,-228],[5,-189],[-7,-187]],'#e8ddc0');limb(-45,-218,23,97,.07+stride*.25,color);oval(-49,-116,12,14,'#c9a57c');
@@ -92,7 +131,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
         ctx.save();ctx.fillStyle='#42351f26';ctx.beginPath();ctx.ellipse(0,2,57,8,0,0,Math.PI*2);ctx.fill();ctx.restore();
         puppet(0,0,who.color,right,t,speaking,false,!!who.woman,!!who.apron);ctx.restore();
       },
-      map(x,y,heading,moving,t,who=CAST.player){reduced=motion.matches;overhead(x,y,who.color,heading,moving,t,!!who.woman);}
+      map(x,y,facing,moving,t,who=CAST.player){reduced=motion.matches;mapPuppet(x,y,who,facing,moving,t);}
     };
     renderers.set(ctx,renderer);return renderer;
   }
@@ -220,12 +259,16 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   new ResizeObserver(()=>{lastPaint=-Infinity;if(interior&&!voyage)drawPeople(performance.now());}).observe(roomCanvas);
   motion.addEventListener('change',()=>{lastPaint=-Infinity;});
   window.addEventListener('uppdrag-paper-fibres-ready',()=>{lastPaint=-Infinity;if(interior&&!voyage)drawPeople(performance.now());});
-  let direction=0;
+  let direction=1,lastMapPlayer=null;
   function drawMapPlayer(g,pos,route,now){
-    if(route.length){const goal=route[0],dx=goal.x-pos.x,dy=goal.y-pos.y;if(Math.hypot(dx,dy)>1)direction=Math.atan2(dy,dx)+Math.PI/2;}
+    const travelledX=lastMapPlayer?pos.x-lastMapPlayer.x:0;
+    const goal=route[0],towardsX=goal?goal.x-pos.x:0;
+    if(Math.abs(towardsX)>.5)direction=towardsX<0?-1:1;
+    else if(Math.abs(travelledX)>.01&&Math.abs(travelledX)<80)direction=travelledX<0?-1:1;
+    lastMapPlayer={x:pos.x,y:pos.y};
     puppets(g).map(pos.x,pos.y,direction,route.length>0,now);
   }
-  window.UPPDRAG_MEETINGS={tick,drawMapPlayer,geometryForRoom:measure,drawMapPerson(g,pos,who,now){puppets(g).map(pos.x,pos.y,pos.heading||0,!!pos.moving,now,who);},get state(){return {room:current()?.key||null,npc:current()?.cast?.name||null,talking:!!dialogue,line:dialogue?.index??null};}};
+  window.UPPDRAG_MEETINGS={tick,drawMapPlayer,geometryForRoom:measure,drawMapPerson(g,pos,who,now){puppets(g).map(pos.x,pos.y,pos.facing<0?-1:1,!!pos.moving,now,who);},get state(){return {room:current()?.key||null,npc:current()?.cast?.name||null,talking:!!dialogue,line:dialogue?.index??null};}};
   document.documentElement.dataset.meetings='ready';tick(performance.now());
 })();
 
