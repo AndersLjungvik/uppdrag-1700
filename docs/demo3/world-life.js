@@ -1,4 +1,4 @@
-/* Demo 3.14: upright paper walkers and animal life on the existing world map.
+/* Demo 3.15: paper walkers, spoken meetings and animal life on the existing map.
  * Coordinates, roads, buildings and the game loop remain owned by the world.
  * tick updates poses once; drawing, buttons and hit testing read those same poses.
  * No DOM events, timers or additional animation loop are registered here.
@@ -82,12 +82,17 @@
     const dx=edge.b.x-edge.a.x,dy=edge.b.y-edge.a.y;
     const x=edge.a.x+dx*t,y=edge.a.y+dy*t;
     let facing=(Math.abs(dx)>1?Math.sign(dx):1)*step.direction;
-    if(state.frozen&&Number.isFinite(state.playerX)&&Math.abs(state.playerX-x)>3)facing=Math.sign(state.playerX-x);
+    let heading=Math.atan2(dy*step.direction,dx*step.direction);
+    if(state.frozen&&Number.isFinite(state.playerX)&&Number.isFinite(state.playerY)){
+      const towardX=state.playerX-x,towardY=state.playerY-y;
+      if(Math.hypot(towardX,towardY)>3)heading=Math.atan2(towardY,towardX);
+      if(Math.abs(towardX)>3)facing=Math.sign(towardX);
+    }
     state.pose={...state.person,
       x,y,
       moving:step.moving&&!state.frozen&&!motion.matches,
       facing,
-      heading:Math.atan2(dy*step.direction,dx*step.direction),
+      heading,
       animationTime:state.time,
       frozen:state.frozen,
       routeEdge:{a:edge.a.id,b:edge.b.id},routeT:t,
@@ -140,7 +145,9 @@
     const advance=motion.matches?0:delta;
     elapsed+=advance;
     for(const state of population(region)){
-      if(Number.isFinite(player?.x))state.playerX=player.x;
+      if(Number.isFinite(player?.x)&&Number.isFinite(player?.y)){
+        state.playerX=player.x;state.playerY=player.y;
+      }
       if(!state.frozen)state.time+=advance;
       updateWalker(state);
     }
@@ -200,20 +207,18 @@
   function fallbackPerson(ctx, person) {
     ctx.save();
     ctx.translate(person.x, person.y);
-    ctx.scale(person.facing||1,1);
-    const gait=person.moving&&!motion.matches?Math.sin(person.animationTime/150)*3:0;
-    cut(ctx, -8, 9+gait, 6, 14, '#4d473a');
-    cut(ctx, 3, 10-gait, 6, 13, '#4d473a');
-    cut(ctx, -17, -4-gait*.4, 5, 16, '#c6a778', 'skin');
-    cut(ctx, 13, -4+gait*.4, 5, 16, '#c6a778', 'skin');
-    piece(ctx, [[-13,-9],[11,-9],[14,11],[7,17],[-11,15]], person.color || '#787761', 'cloth');
-    if (person.woman) piece(ctx, [[-12,2],[13,2],[17,20],[-15,20]], person.color || '#787761', 'cloth');
-    piece(ctx, [[-8,-22],[4,-25],[10,-19],[11,-12],[6,-6],[-3,-7],[-9,-13]], '#c6a778', 'skin');
-    piece(ctx, [[-10,-19],[-6,-26],[5,-27],[11,-22],[8,-20],[-3,-21],[-8,-15]],
-      person.woman ? '#d6cbb0' : '#66513c', 'cloth');
-    fleck(ctx,-2,-17,'#463a2b',.85);fleck(ctx,5,-17,'#463a2b',.85);
-    piece(ctx, [[7,-16],[11,-13],[7,-12]],'#b39469','skin',0);
-    cut(ctx,1,-10,4,1,'#78573e','detail');
+    ctx.rotate(Number.isFinite(person.heading)?person.heading:0);
+    const color=person.color||'#787761';
+    const gait=person.moving&&!motion.matches?Math.sin(person.animationTime/190)*1.2:0;
+    cut(ctx,-21+gait,-8,10,5,'#4d473a');
+    cut(ctx,-21-gait,3,10,5,'#4d473a');
+    cut(ctx,-8-gait*.35,-16,12,5,color,'cloth');
+    cut(ctx,-8+gait*.35,11,12,5,color,'cloth');
+    piece(ctx,[[-15,-9],[-5,-12],[6,-10],[8,0],[5,11],[-6,12],[-15,9]],color,'cloth');
+    if(person.woman)piece(ctx,[[-5,-10],[-5,10],[-18,12],[-19,-11]],color,'cloth');
+    piece(ctx,[[8,-7],[15,-5],[19,0],[15,5],[7,7],[1,1]],'#c6a778','skin');
+    piece(ctx,[[-1,-8],[7,-9],[14,-6],[14,5],[7,9],[-2,7],[-3,0]],
+      person.woman?'#d6cbb0':'#66513c','cloth');
     ctx.restore();
   }
 
@@ -447,9 +452,11 @@
     fence(ctx,PADDOCK[3],PADDOCK[2]);
   }
 
-  function draw(ctx, {region, activePersonId = null, hoverId = null} = {}) {
+  function draw(ctx, {region, now = performance.now(), activePersonId = null, hoverId = null, speakingPersonId = null} = {}) {
     if (!region?.map) return;
     const still = motion.matches;
+    const dialogue=window.UPPDRAG_LIVING_DIALOGUES;
+    const bubblePersonId=speakingPersonId||(dialogue?.active?dialogue.personId:null);
     ctx.save();
     if (region.id === 'main') {
       drawPaddock(ctx,elapsed,still);
@@ -458,9 +465,9 @@
     }
     for (const person of people(region).sort((a,b) => a.y-b.y)) {
       if (window.UPPDRAG_MEETINGS?.drawMapPerson) {
-        window.UPPDRAG_MEETINGS.drawMapPerson(ctx,person,person,person.animationTime);
+        window.UPPDRAG_MEETINGS.drawMapPerson(ctx,person,person,now);
       } else fallbackPerson(ctx,person);
-      talkMark(ctx,person,person.id === activePersonId || person.id === hoverId);
+      if(person.id!==bubblePersonId)talkMark(ctx,person,person.id === activePersonId || person.id === hoverId);
     }
     ctx.restore();
   }

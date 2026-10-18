@@ -1,35 +1,36 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
-Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.14 – En levande pappersvärld**. Den fortsätter på 3.13:s pappersmaterial och den accepterade 3.12.1-logiken för rummen, med användarens korrigeringar av tankar, kartfigurer och rörelse.
+Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.15 – En levande pappersvärld**.
 
 ## Börja här
 
-[Starta Demo 3.14](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.14.1). Startfilen är `docs/demo3/living-world.html`.
+[Starta Demo 3.15](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.15.0). Startfilen är `docs/demo3/living-world.html`.
 
-Utgå från denna startfil vid nästa ändring. `/demo3/` och `game.html` visar fortfarande den äldre 3.2.1-demon. Huvudversionen 0.6.0 är ett bevarat förlopp med hela uppdragssystemet, inte något som har påståtts helt överfört till denna demo.
+Utgå från denna startfil vid nästa ändring. `/demo3/` och `game.html` visar fortfarande den äldre 3.2.1-demon. Huvudversionen 0.6.0 är ett bevarat förlopp med hela uppdragssystemet; hela det systemet har inte överförts till denna demo.
 
-## Senaste användarbeslut – ersätter 3.13:s långa reflektionsflöden
+## Senaste användarbeslut – perspektiv och enkla samtal
 
-Användaren avvisade 3.13:s långa reflektionsfrågor och menyträd. De kändes som kunskapsfrågor och tog för mycket plats. Avsikten är **korta spontana funderingar från en människa som lever i 1700-talets värld**. Användarens exempel är:
+Användaren avvisade 3.14:s stela, frontvända kartfigurer och deras överdrivna gång. **Tillbaka till ovanifrån.** Det tidigare problemet var att personerna stod stilla och var bortvända, inte att perspektivet ovanifrån behövde ersättas. Behåll papperskänslan, diskreta rörelser, promenader längs vägarna och riktning som följer färden. Vid samtal vänder personen och spelaren sig mot varandra. Återinför inte upprätta frontporträtt på kartan.
 
-> Tänk att de dödade kungen! Varför just på maskeraden?
-
-Ett frågetecken är tillåtet: det är personen själv som undrar. Repliken får inte ställa en uppgift till eleven eller förutsätta ett svar. Skriv konkret, muntligt och läsbart. Undvik moderna klassrumsformuleringar, ”jämför”, ”motivera”, långa förklaringar och ämnesval.
+Användaren förtydligade också: **Liv pratar med spelaren när spelaren väljer att interagera.** Det ska inte stå ”Liv funderar …”, varken som synlig rubrik eller berättande instruktion. Ingen Gå vidare-knapp, meny eller extra val behövs. En pratbubbla visar redan vem som talar. Bubblan ska kännas som utklippt papper och höra till scenen.
 
 ### Mötet
 
-1. Spelaren klickar på en människa längs vägen. Personen stannar där hon eller han är; spelaren går fram längs den befintliga vägen.
-2. En enda kort tankebubbla visas hos personen. **Gå vidare** avslutar. Personen fortsätter promenera.
+1. Spelaren klickar på en person längs vägen. Personen stannar där hon eller han är; spelaren går fram längs den befintliga vägen.
+2. Spelaren säger ”Hej!” i en liten pratbubbla. Efter 850 ms tar personen över med en kort, talad replik.
+3. Repliken ligger kvar tills spelaren går vidare på vägen, väljer ett nytt mål, klickar på bubblan eller personen igen, eller använder Enter, mellanslag eller Escape. Världen och dess vanliga kontroller är användbara under mötet. Personen fortsätter sedan promenera.
 
-Det är två klick inklusive öppningen. Ingen presentation, hälsningsmeny, motfråga eller följdfråga ligger före eller efter tanken. Texten ligger kvar tills spelaren själv avslutar; Escape fungerar också. Om personen har två tankar visas bara en åt gången, i skilda möten.
+Utomhusmötet har ingen synlig rubrik, knapp, fokusfälla, modal eller automatisk lästimer. Om en person har två repliker visas bara en åt gången, i skilda möten. Detta korta förlopp gäller förbipasserande. Rut, Maja, Brita och Jo behåller sina accepterade samtal med tankebubbla → spelarens replik → karaktärens svar.
 
-De extra reflektionsknapparna hos Rut, Maja, Brita och Jo är borttagna. Deras vanliga accepterade samtal har kvar tankebubbla → spelarens replik → karaktärens svar. Den ordningen gäller rummens samtal, inte dessa mycket korta utomhustankar.
+## Replikernas ton och underlag
 
-## Människor och tankar
+3.13:s långa reflektionsfrågor och menyträd är borttagna. Avsikten är korta, spontana repliker från en människa som lever i berättelsens 1700-tal. Användarens exempel är:
 
-Nio förbipasserande har tolv tankar knutna till tidigare källteman. Alla är kortare än 110 tecken. Källbankens långa frågor finns enbart som underlagsmetadata och visas aldrig i dessa möten.
+> Tänk att de dödade kungen! Varför just på maskeraden?
 
-| Person | Vägområde | Tankarnas tema |
+Ett frågetecken är tillåtet: det är personen som undrar högt. Repliken får inte ställa en kunskapsuppgift till eleven eller förutsätta ett svar. Skriv konkret, muntligt och läsbart. Undvik klassrumsformuleringar, ”jämför”, ”motivera”, långa förklaringar och ämnesval. Nio förbipasserande har tolv repliker, alla kortare än 110 tecken. Källbankens långa frågor finns enbart som underlagsmetadata.
+
+| Person | Vägområde | Replikernas tema |
 | --- | --- | --- |
 | Klara | Torget–arkivet | Frihet, makt och vem som får bli hörd |
 | Otto | Tryckeriet–torget | En kvinnas arbete och vem omgivningen lyssnar på |
@@ -41,27 +42,25 @@ Nio förbipasserande har tolv tankar knutna till tidigare källteman. Alla är k
 | Amira | Torget–vägen nedanför fästningen på Marstrand | Kriget, seger och missnöje |
 | Ester | Torgets östra väg i kolonin | Två brev som beskriver samma dag olika |
 
-Exempel: Karin tänker ”Undrar om de har det lättare inne i staden. Här räcker skörden knappt till.” Ester tänker ”Två brev om samma dag, och de berättar helt olika saker. Vad var det egentligen som hände?” Det är skrivna spelrepliker, inte ordagranna bokcitat eller autentiska historiska vittnesmål.
+Exempel: Karin säger ”Undrar om de har det lättare inne i staden. Här räcker skörden knappt till.” Ester säger ”Två brev om samma dag, och de berättar helt olika saker. Vad var det egentligen som hände?” Det är skrivna spelrepliker, inte ordagranna bokcitat eller autentiska historiska vittnesmål.
 
-## Upprätta kartfigurer och rörelse
+## Kartfigurer, rörelse och pappersmaterial
 
-Den tidigare kartfiguren ritades uppifrån, utan ansiktsdrag, och hela kroppen roterades med färdriktningen. Det orsakade både de ansiktslösa huvudena och kroppar som såg ut att ligga på sidan.
+Kartans människor och spelaren ritas ovanifrån med huvudbonad, axlar, kläder och diskreta steg. Framåtriktningen följer vägens riktning; vid ett möte vänder de sig mot varandra. Inga frontvända ansikten, stora armgester eller studs behövs. Rummens större porträtt är bevarade.
 
-3.14 har små upprätta pappersfigurer med synlig hud, ögon, näsa, mun, hår och hatt eller hätta. Vänster/höger använder vågrät spegling; fötterna förblir nedåt. Ben och armar rör sig under gång. Samma gäller spelarfiguren. Rummens större porträtt är bevarade.
+Förbipasserande följer säkra delar av befintliga vägkanter och gör korta pauser. Den valda personen stannar på sin faktiska position; klickytan och renderingen läser samma pose. Spelaren kommer fram ungefär en figurbredd från personen. Byte av mål släpper den tidigare personen. Navigation från en punkt mitt på vägen använder tillfälliga anslutningar till det befintliga vägnätet. Regionernas noder, vägar, broar och byggnader är oförändrade.
 
-Förbipasserande följer säkra delar av befintliga vägkanter och gör korta pauser. Den valda personen fryser på sin faktiska position; klickytan och renderingen läser samma pose. Spelaren kommer fram ungefär en figurbredd från personen. Byte av mål släpper den tidigare personen. Navigation från en punkt mitt på vägen använder tillfälliga anslutningar till det befintliga vägnätet; regionernas noder, vägar, broar och byggnader ändras inte.
+Två hundar följer befintliga vägar och speglas bara vågrätt när de vänder. Sex höns går och pickar; tre får och två kor går korta sträckor och rör huvud eller svans inom den befintliga hagen. Alla rörelser använder världens befintliga animationsloop och tar hänsyn till `prefers-reduced-motion`.
 
-Två hundar följer befintliga vägar. Hela hunden speglas bara vågrätt när den vänder. Tassarnas gång, svansen och nosrörelserna syns. Sex höns går och pickar; tre får och två kor går korta sträckor och rör huvud eller svans inom sin befintliga hage. Hagen, vägarna och landsbygdens byggnader har samma placering. Alla rörelser använder världens befintliga animationsloop och tar hänsyn till `prefers-reduced-motion`.
+Utomhusrepliken ligger i en enda sluten SVG-form med ojämnt klippt kontur och sammanhängande pratspets. Inga separata tankecirklar eller rektangulära bakgrundskort ligger bakom. Pappersfiber, tunn ljus fiberkant och en liten skugga ger material. Texten har enkel seriftypografi utan namnrubrik. Styrenheten placerar bubblan så att den håller sig inom scenen och undviker de två figurerna.
 
-Tanke- och pratbubblor, korta meddelanden och samtalens val får också en synlig pappersyta med lätt ojämn klippt kant och mjuk seriftext. Det är samma materialfamilj som världen. Bubblornas ankare och mått styrs fortfarande av sina respektive samtalsmoduler; scenen ligger kvar bakom dem.
+Rummens befintliga tanke- och pratbubblor har kvar sin pappersyta. Materialet hämtas från ett rent pappersfält i befintliga `docs/world/assets/town.webp`. Pappersvärldens proportioner och miljöbilder är bevarade.
 
-Pappersmaterialet hämtas fortfarande från ett rent pappersfält i befintliga `docs/world/assets/town.webp`. Dämpade färger, klippta delar och bruten innerfiber förenar människor, djur och rum.
-
-## Bekantskaper i de vanliga rummen
+## Bekantskaper i rummen
 
 Sparnyckeln `uppdrag1700-known-people-v1` och platsnycklarna `archive`, `cafe`, `print`, `quay` är oförändrade. En fullständig presentation registrerar bekantskapen. Återhälsningen förbrukas när personens svar visas, även om man sedan avbryter. Att stänga och öppna samtalet igen återställer inte hälsningen; ett nytt rumsbesök gör det. Ruts handlingar och dokumentövning finns kvar.
 
-Gamla `street:<person-id>`-värden i en sparning behöver inte raderas; de används inte för att lägga hälsningssteg framför de nya korta mötena.
+Gamla `street:<person-id>`-värden i en sparning behöver inte raderas; de används inte för att lägga presentationer eller menyer framför utomhusmötena.
 
 ## Aktiva filer
 
@@ -70,38 +69,34 @@ Alla nedanstående filer ligger i `docs/demo3/`.
 | Fil | Roll |
 | --- | --- |
 | `living-world.html` | Direkt HTML-start, vägnavigation och ankomst till gående människor. |
-| `living-conversation-data.js` | Tolv korta tankar, nio människor och bevarade källmetadata. |
-| `living-dialogues.js` | En tankebubbla och Gå vidare; ankare, fokus och tillgängliga personknappar. |
+| `living-conversation-data.js` | Tolv korta repliker, nio människor och bevarade källmetadata. |
+| `living-dialogues.js` | Automatisk hälsning, en talad replik, pappersbubblans ankare och tillgängliga personknappar. |
 | `world-life.js` | Gående människor, freeze/release, hundar, höns, får och kor. |
 | `archive-living.js` | Ruts accepterade 3.12.1-samtal utan extra reflektionsmeny. |
 | `place-living.js` | Maja, Brita och Jo med 3.12.1:s hälsningslogik. |
-| `meeting-living.js` | Upprätta kartfigurer med ansikten; bevarade rumsfigurer. |
+| `meeting-living.js` | Kartfigurer ovanifrån; bevarade rumsfigurer. |
 | `paper-fibres.js` | Gemensamt pappersmaterial och fiberkanter. |
-| `paper-dialogues.js` | Gemensamt pappersutseende för bubblor, meddelanden och samtalens val. |
+| `paper-dialogues.js` | Sammanhängande papperspratbubbla utomhus och bevarad pappersstil för rummen. |
 | `interior-fibre-art.js`, `more-room-fibre-art.js` | Befintlig rumsgeometri med gemensamt material. |
 | `harbour-fibre-art.js` | Befintlig hamngrafik med fiberkanter. |
 | `paper-look.js`, `harbour-merchant-visits.js` | Bevarad karta, rum, dörrar, hamnbesök och båtfärder. |
 
-Den accepterade [3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1), [3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) och 3.10 (`thoughts.html`) bevaras i sina egna filer. 3.14 uppdaterar de aktiva living-filerna; återinför inte 3.13:s långa reflektionssystem.
+Den accepterade [3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1), [3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) och 3.10 (`thoughts.html`) bevaras i sina egna filer. 3.15 uppdaterar de aktiva living-filerna. Återinför inte 3.13:s frågeträd eller 3.14:s rubriksatta utomhustankar och frontfigurer.
 
 ## Underlag
 
-Originalfrågorna återfanns i `curriculum/classroom.mjs` vid commit `f277b2a3fb9cc138f2b4d5ac30ca5765767a5eb7`. Den äldre samtalsformen finns i `docs/game.js`. Originalposter, hänvisningar och provenance bevaras i datafilen som underlag. De tolv nya tankarna är redaktionella bearbetningar av dessa teman enligt användarens senaste exempel. Inget nytt AI-frågebibliotek kopplas in.
+Originalfrågorna återfanns i `curriculum/classroom.mjs` vid commit `f277b2a3fb9cc138f2b4d5ac30ca5765767a5eb7`. Den äldre samtalsformen finns i `docs/game.js`. Originalposter, hänvisningar och provenance bevaras i datafilen som underlag. De tolv replikerna är redaktionella bearbetningar av dessa teman enligt användarens exempel. Inget nytt AI-frågebibliotek kopplas in.
 
-## Verifiering av 3.14
+## Verifiering av 3.15
 
-Det lokala integrationstestet `living-world-check.cjs` passerade utan registrerade körfel, även med den nya `paper-dialogues.js` laddad sist. Det kontrollerar samtliga fyra ursprungliga rumsfigurers presentationer, gamla sparflaggor, högst en hälsning per besök, vanliga ämnen och Ruts dokumentövning. Det kontrollerar också alla nio gående personer, alla tolv korta tankar, en enda Gå vidare-knapp, stabil text tills den stängs, gångankomst, frysta och frisläppta personer, byte av mål under gång, träffytor, Escape, tangentupprepning, fokus och återställd inert. Ursprunglig världsgeometri och källmetadata är oförändrade. Testet använder jsdom och riktig canvas med ersatta bakgrundsbilder.
+Den samlade 3.15-versionen passerade det lokala integrationstestet `living-world-check.cjs` med `errors: []` och oförändrade filhashar under testet. Det omfattar de fyra vanliga rummen, gamla sparflaggor, återhälsningar, arkivövningen, nio gående personer och alla tolv repliker. Hälsningen är kvar vid 849 ms och övergår automatiskt till personens replik vid 850 ms. Texten ligger kvar efter talintervallet. Inga utomhusrubriker, knappar, modal-attribut, inert-lås eller Tab-fällor finns. Avslut via bubblan, tangenter, en vanlig destinationsknapp och en annan person passerar, liksom gångankomst, freeze/release, träffytor och oförändrad geometri. Testet använder jsdom och riktig canvas med ersatta bakgrundsbilder.
 
-Separat faktisk canvasgranskning av kartfigurerna gjordes i 0,62×, 1,08× och 4×, både vänster och höger samt under gång. Alla 20 riktning-/gångkombinationer passerade. Spelarens riktning behålls vid stopp och vertikal förflyttning. Rummens stora porträtt är pixel-identiska före och efter i båda riktningar.
+Den faktiska kartrenderern granskades i åtta riktningar, vid två små gångfaser och i stillhet, samt med karta i 1,08× och 0,62×. Liv och spelaren vänder sig mot varandra. Kroppens centrum är stilla under stegen. Riktning, freeze/release och minskad rörelse passerade. Den lokala kartbilden använde bakgrundens fallback; den publicerade miljön med det laddade bildmaterialet kontrolleras separat i webbläsaren. Rummens porträtt och djurens ritfunktioner ändrades inte i denna version.
 
-Separat djur- och rörelsekontroll passerade för alla nio personrutterna, provtagna var fjärde världsenhet med 26 enheters hus- och vattenmarginal. Rörelse, pauser, båda riktningar, frysning, fortsatt gång och blick mot spelaren kontrollerades. Hundar, höns, får och kor renderades med riktig canvas åt båda håll; fötterna förblir nedåt. Får och kor stannar helt inom hagen. Minskad rörelse ger identiska bildrutor.
-
-3.14 publicerades i commit `2f49890ad079c7234ab39535c0ba57897f3229be`. GitHub Pages-körning [39120362430](https://github.com/AndersLjungvik/uppdrag-1700/actions/runs/39120362430) avslutades med `success` för samma commit. I Chrome kontrollerades riktiga världsbilder med ansikten, pappersmaterial och Livs korta maskeradstanke. Spelaren gick fram efter klick på Liv och fick exakt tanken samt en Gå vidare-knapp; stängningen återställde världen.
-
-Webbgranskningen hittade att den dekorativa pappersskuggan gick en till två pixlar utanför panelen och därför skapade onödiga rullningslister. Patch 3.14.1 håller både papper och skugga innanför panelens befintliga mått. Texten har fortfarande vanlig scrollning om en verkligt liten skärm behöver det. Slutlig visuell kontroll av patchen redovisas i leveransen. Användarens egen enhet ingår inte i provningen.
+Den faktiska SVG-pappersbubblan rastergranskades med liten hälsning, större replik och spets på flera sidor. Den använder en sammanhängande klippt papperskontur och gemensamt fibermaterial. Slutlig publicerad URL och webbläsarbild redovisas i leveransen; användarens egen enhet ingår inte i provningen.
 
 ## Fortsätt utan att tappa beslut
 
-Utgå från användarens senaste korrigeringar ovan. Håll utomhustankarna korta. Bevara papperskänslan, rumsbekantskaperna, högst en hälsning per besök och den manuella fortsättningen i vanliga samtal. Bevara kartans mått, godkända bildmiljöer, dörrar, navigation och båtfärder.
+Utgå från de senaste korrigeringarna högst upp. Behåll perspektivet ovanifrån och korta talade utomhusmöten. Bevara papperskänslan, rumsbekantskaperna, högst en hälsning per rumsbesök och den manuella fortsättningen i vanliga samtal. Bevara kartans mått, bildmiljöer, dörrar, navigation och båtfärder.
 
 Den tidigare rapporten om en tanke som fastnade kom efter ett verkligt klick. Det finns inte belägg för grundorsaken; beskriv inte problemet som att användaren tryckte Enter före ett val. Återuppta inte äldre kartproblem enbart för att historiska dokument nämner dem. Se också `SCENE-COMPOSITION.md` för bildprinciper.

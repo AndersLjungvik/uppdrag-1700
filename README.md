@@ -1,16 +1,16 @@
 # Uppdrag 1700 · Pappersstaden
 
-## Aktuell arbetsversion: Demo 3.14
+## Aktuell arbetsversion: Demo 3.15
 
-[Öppna Demo 3.14 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.14.1).
+[Öppna Demo 3.15 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.15.0).
 
-Människor promenerar längs vägarna. När spelaren går fram stannar personen och visar en kort, personlig fundering. Ett klick på **Gå vidare** avslutar mötet. Exempel: ”Tänk att de dödade kungen! Varför just på maskeraden?” Tankarna ska låta som människor som lever i berättelsen. De tolv temana från den tidigare SOS-banken finns som bakgrund; långa bokfrågor, ämnesmenyer och följdfrågeträd visas inte i dessa möten.
+Människorna och spelaren ses ovanifrån. De går längs vägarna med små, lugna steg och vänder sig i färdriktningen. Vid ett möte vänder de sig mot varandra. Kartfigurerna har pappersmaterial och lågmäld rörelse; rummens större porträtt är bevarade.
 
-Tanke- och pratbubblorna får också pappersyta, lätt klippta kanter och mjukare typografi, så texten hör ihop med scenen. Kartans människor har tydliga ansikten och upprätta papperskroppar. De vänder vågrätt. Hundar går och viftar på svansen utan att bli upp och ned när de vänder. Höns går och pickar; får och kor rör sig inom sin hage. Animationerna använder samma befintliga bildloop och respekterar minskad rörelse.
+Klicka på en person för att gå fram. Spelaren säger **Hej!**, och personen svarar med en kort replik i en sammanhängande, utklippt pratbubbla av papper. Liv säger: ”Tänk att de dödade kungen! Varför just på maskeraden?” Ingen namnrubrik, ”funderar”-etikett eller meny visas. Du kan gå vidare genom att trycka på vägen eller välja nästa plats; ett klick på bubblan stänger också. Repliken försvinner inte av sig själv medan du läser. De tolv temana från den tidigare SOS-banken finns som bakgrund till personernas repliker.
 
-Maja, Brita, Rut och Jo behåller 3.12.1:s presentationer, sparade bekantskaper och högst en hälsning per besök. Ruts dokumentövning finns kvar. De extra reflektionsmenyerna från 3.13 har tagits bort från rummen. Pappersmaterial, kartans geometri, inredning, dörrar och båtfärder behåller sin befintliga grund.
+Hundar går och viftar på svansen, höns går och pickar, och får och kor rör sig i hagen. Alla rörelser använder världens befintliga bildloop och respekterar minskad rörelse. Kartans mått, vägar, inredning, dörrar och båtfärder behåller sin befintliga grund.
 
-Se [aktuell utvecklingsstatus](docs/demo3/STATUS.md) för aktiva filer, senaste beslut och verifiering. [Demo 3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1) och [Demo 3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) är bevarade. Den allmänna adressen `/demo3/` öppnar fortfarande den äldre världsdemon.
+Maja, Brita, Rut och Jo behåller 3.12.1:s presentationer, sparade bekantskaper och högst en hälsning per besök. Ruts dokumentövning finns kvar. Se [aktuell utvecklingsstatus](docs/demo3/STATUS.md) för aktiva filer, senaste beslut och verifiering. [Demo 3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1) och [Demo 3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) är bevarade. Den allmänna adressen `/demo3/` öppnar fortfarande den äldre världsdemon.
 
 ## Den tidigare huvudversionen
 

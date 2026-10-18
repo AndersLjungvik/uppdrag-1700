@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Uppdrag 1700 · Demo 3.14.1 – En levande pappersvärld</title>
+<title>Uppdrag 1700 · Demo 3.15.0 – En levande pappersvärld</title>
 <style>
 :root{font-family:Georgia,"Times New Roman",serif;color:#3d352a;background:#d6cdbb}*{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:#d6cdbb}
@@ -35,16 +35,16 @@ body[data-room^="waterfront-"] #roomReturnText{display:none}
 </style>
 </head>
 <body>
-<header><h1>UPPDRAG 1700 · DEMO 3.14 · PAPPERSVÄRLD</h1><small>Möt människor. Följ en tanke. Utforska världen.</small></header>
-<main id="stage"><canvas id="world" tabindex="0" aria-label="Utforskbar pappersvärld. Dra för att panorera och tryck på en väg eller byggnad."></canvas><div id="message"><strong>Gamla staden</strong>Stanna hos människorna längs vägen och hör vad de funderar på. Maja, Brita, Rut och Jo finns också kvar på sina platser.</div><section id="interiorView" hidden role="region" aria-labelledby="interiorTitle"><div class="room-top"><h2 id="interiorTitle"></h2></div><canvas id="interiorCanvas" role="img" aria-label="Interiör"></canvas></section></main>
+<header><h1>UPPDRAG 1700 · DEMO 3.15 · PAPPERSVÄRLD</h1><small>Möt människor. Hör deras berättelser. Utforska världen.</small></header>
+<main id="stage"><canvas id="world" tabindex="0" aria-label="Utforskbar pappersvärld. Dra för att panorera och tryck på en väg eller byggnad."></canvas><div id="message"><strong>Gamla staden</strong>Tryck på vägen för att gå och på människorna för att prata.</div><section id="interiorView" hidden role="region" aria-labelledby="interiorTitle"><div class="room-top"><h2 id="interiorTitle"></h2></div><canvas id="interiorCanvas" role="img" aria-label="Interiör"></canvas></section></main>
 <footer id="worldFooter"><button id="visitHarbour" type="button">Kajen</button><button data-go="square">Gamla staden</button><button data-go="barn">Barnhuskvarteren</button><button data-go="science">Vetenskap</button><button data-go="countrySouth">Landsbygden</button><button data-go="manor">Herrgården</button><button id="sailM">Marstrand</button><button id="sailS">Saint Barthélemy</button><button id="return" hidden>Segla tillbaka till kajen</button><button id="follow">Följ spelaren</button><span id="status">Gamla staden</span></footer><footer id="roomFooter" hidden><button id="leaveRoom" type="button">← Gå ut</button><div id="harbourActions" hidden role="group" aria-label="Båtresor"></div><span id="roomReturnText"></span></footer>
-<script src="paper-fibres.js?v=3.14.1"></script>
+<script src="paper-fibres.js?v=3.15.0"></script>
 <script src="paper-look.js?v=3.3-paper"></script>
-<script src="interior-fibre-art.js?v=3.14.1"></script>
-<script src="more-room-fibre-art.js?v=3.14.1"></script>
-<script src="harbour-fibre-art.js?v=3.14.1"></script>
+<script src="interior-fibre-art.js?v=3.15.0"></script>
+<script src="more-room-fibre-art.js?v=3.15.0"></script>
+<script src="harbour-fibre-art.js?v=3.15.0"></script>
 <script src="harbour-merchant-visits.js?v=3.7.0"></script>
-<script src="living-conversation-data.js?v=3.14.1"></script>
+<script src="living-conversation-data.js?v=3.15.0"></script>
 <script>
 'use strict';
 const canvas=document.querySelector('#world'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage'),message=document.querySelector('#message'),status=document.querySelector('#status');
@@ -80,7 +80,7 @@ Object.values(REGIONS).forEach(validate);
 let player={...MAIN.map.get(MAIN.start)},camera={...MAIN.map.get(MAIN.start)},path=[],follow=true,drag=null,sailing=null,pending=null,returnPending=false,last=performance.now(),layout={w:1,h:1,d:1,scale:.8};
 function bfs(r,start,goal){if(start===goal)return[start];const prev=new Map([[start,null]]),q=[start];for(let i=0;i<q.length;i++){const id=q[i];for(const n of r.graph.get(id))if(!prev.has(n)){prev.set(n,id);q.push(n);if(n===goal){const out=[n];let k=id;while(k){out.push(k);k=prev.get(k)}return out.reverse()}}}return[]}
 function nearestNode(r,x,y){let best=r.nodes[0],d=Infinity;for(const n of r.nodes){const z=(n.x-x)**2+(n.y-y)**2;if(z<d){d=z;best=n}}return best}
-function cancelPersonArrival(){if(pendingPerson)window.UPPDRAG_WORLD_LIFE?.release(pendingPerson.id);pendingPerson=null;}
+function cancelPersonArrival(){if(pendingPerson)window.UPPDRAG_WORLD_LIFE?.release(pendingPerson.id);pendingPerson=null;delete document.body.dataset.livingApproach;}
 function roadProjection(point,edge){
   const a=region.map.get(edge.a),b=region.map.get(edge.b),dx=b.x-a.x,dy=b.y-a.y;
   const t=Math.max(0,Math.min(1,((point.x-a.x)*dx+(point.y-a.y)*dy)/(dx*dx+dy*dy)));
@@ -116,6 +116,7 @@ function routeAlongRoads(target,targetEdge=null){
 }
 function go(id,title=''){
   if(interior||sailing||window.UPPDRAG_LIVING_DIALOGUES?.busy)return false;
+  window.UPPDRAG_LIVING_DIALOGUES?.close(false);
   cancelPersonArrival();pendingRoom=null;const next=routeAlongRoads(region.map.get(id));
   if(!next){setMessage('Stopp','Ingen sammanhängande väg hittades.');return false;}
   path=next;follow=true;if(title)setMessage(title,'Du följer vägen hela vägen fram.');return true;
@@ -134,6 +135,8 @@ function animate(now){window.UPPDRAG_WORLD_LIFE?.tick(now,{region,player});windo
 // approaches. Both remain on that road, about one figure's width apart.
 function requestPerson(person){
   if(interior||sailing||voyage||!person||person.region!==region.id||window.UPPDRAG_LIVING_DIALOGUES?.busy)return false;
+  if(window.UPPDRAG_LIVING_DIALOGUES?.personId===person.id){window.UPPDRAG_LIVING_DIALOGUES.close();return true;}
+  window.UPPDRAG_LIVING_DIALOGUES?.close(false);
   cancelPersonArrival();
   const stopped=window.UPPDRAG_WORLD_LIFE?.freeze(person.id);
   if(!stopped?.routeEdge)return false;
@@ -145,7 +148,7 @@ function requestPerson(person){
   const next=routeAlongRoads(goal,edge);
   if(!next){window.UPPDRAG_WORLD_LIFE.release(person.id);return false;}
   path=next;follow=true;pendingPerson={...stopped,regionId:region.id};
-  setMessage('Till '+person.name,person.name+' stannar till längs vägen.');
+  document.body.dataset.livingApproach=person.id;
   finishPersonArrival();return true;
 }
 function finishPersonArrival(){
@@ -154,6 +157,7 @@ function finishPersonArrival(){
   if(person.regionId!==region.id){cancelPersonArrival();return;}
   if(Math.hypot(player.x-person.x,player.y-person.y)>80){cancelPersonArrival();return;}
   pendingPerson=null;
+  delete document.body.dataset.livingApproach;
   if(!window.UPPDRAG_LIVING_DIALOGUES?.openWorld(person))window.UPPDRAG_WORLD_LIFE?.release(person.id);
 }
 canvas.addEventListener('pointercancel',()=>{drag=null;});
@@ -161,12 +165,12 @@ canvas.addEventListener('pointerleave',()=>{hoverPersonId=null;canvas.style.curs
 window.addEventListener('resize',resize);resize();draw();syncHarbourUI();document.documentElement.dataset.ready='true';requestAnimationFrame(animate);
 window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElement.dataset.paper=ok?'original':'fallback';if(!ok)console.warn('Originalmaterialet saknas. Grundgrafiken visas.');});
 </script>
-<script src="archive-living.js?v=3.14.1"></script>
-<script src="place-living.js?v=3.14.1"></script>
-<script src="meeting-living.js?v=3.14.1"></script>
-<script src="world-life.js?v=3.14.1"></script>
-<script src="living-dialogues.js?v=3.14.1"></script>
-<script src="paper-dialogues.js?v=3.14.1"></script>
+<script src="archive-living.js?v=3.15.0"></script>
+<script src="place-living.js?v=3.15.0"></script>
+<script src="meeting-living.js?v=3.15.0"></script>
+<script src="world-life.js?v=3.15.0"></script>
+<script src="living-dialogues.js?v=3.15.0"></script>
+<script src="paper-dialogues.js?v=3.15.0"></script>
 </body>
 </html>
 

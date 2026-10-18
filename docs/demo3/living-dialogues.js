@@ -1,5 +1,5 @@
-/* Demo 3.14: one passing person's brief thought, then continue walking.
- * Original curriculum questions are source metadata, never a menu or a test.
+/* Demo 3.15: greet a passerby, hear one short spoken line, keep exploring.
+ * No outdoor thought heading, choices, modal state or reading timer.
  * Uses the world's existing animation loop and current walking-person poses.
  */
 'use strict';
@@ -9,37 +9,30 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
   const encounters=new Map(),personButtons=new Map();
   const style=document.createElement('style');
   style.textContent=`
-    #livingDialogue{position:absolute;inset:0;pointer-events:none;z-index:9;color:#352d24;font-family:system-ui,sans-serif}
+    #livingDialogue{position:absolute;inset:0;pointer-events:none;z-index:9;color:#382e23;font-family:Georgia,'Times New Roman',serif}
     #livingTail{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-    #livingBubble{position:absolute;pointer-events:auto;box-sizing:border-box;background:#fbf1dc;border:2px dashed #9c815c;border-radius:25px;padding:11px 14px;box-shadow:2px 4px 0 #41342220;max-width:calc(100% - 20px);overflow:auto;overscroll-behavior:contain;touch-action:pan-y}
-    #livingBubble h3{font:600 13px/1.3 system-ui;margin:0 0 7px;color:#61513b}
-    #livingBubble p{font:17px/1.4 system-ui;margin:0 0 10px}
-    #livingBubble .actions{display:flex;justify-content:flex-end}
-    #livingBubble button{min-height:42px;padding:7px 12px;border:1px solid #a18b66;border-radius:8px;background:#ead7b1;color:#352d24;font:14px/1.35 system-ui;cursor:pointer;touch-action:manipulation}
-    #livingBubble button:focus-visible{outline:3px solid #355e68;outline-offset:2px}
+    #livingBubble{position:absolute;pointer-events:auto;box-sizing:border-box;background:transparent;border:0;border-radius:0;padding:18px 22px 20px;box-shadow:none;max-width:calc(100% - 24px);overflow:visible;touch-action:manipulation;cursor:pointer}
+    #livingBubble p{font:18px/1.38 Georgia,'Times New Roman',serif;margin:0;overflow-wrap:break-word}
+    #livingBubble .speechSpeaker{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
     #worldPeople{position:absolute;inset:0;pointer-events:none;z-index:3}
-    #worldPeople button{position:absolute;pointer-events:auto;width:48px;height:60px;border:0;background:transparent;cursor:pointer;touch-action:manipulation;border-radius:18px;padding:0}
+    #worldPeople button{position:absolute;pointer-events:auto;width:48px;height:48px;border:0;background:transparent;cursor:pointer;touch-action:manipulation;border-radius:50%;padding:0}
     #worldPeople button:focus-visible{outline:3px solid #355e68;outline-offset:2px}
-    body[data-living-mode] #message{visibility:hidden}
-    @media(max-width:640px){#livingBubble{padding:10px 12px}#livingBubble p{font-size:16px}}
-    @media(max-height:400px){#livingBubble{padding:8px 11px}#livingBubble p{font-size:15px;line-height:1.35}#livingBubble h3{margin-bottom:5px}}
+    body[data-living-mode] #message,body[data-living-approach] #message{visibility:hidden}
+    @media(max-width:640px){#livingBubble{padding:16px 20px 18px}#livingBubble p{font-size:17px}}
+    @media(max-height:400px){#livingBubble{padding:13px 18px 15px}#livingBubble p{font-size:16px;line-height:1.35}}
   `;
   document.head.append(style);
   const root=document.createElement('div');root.id='livingDialogue';root.hidden=true;
-  root.innerHTML='<svg id="livingTail" aria-hidden="true"></svg><section id="livingBubble" class="thought" role="dialog" aria-modal="true" aria-labelledby="livingHeading" aria-describedby="livingLine"><h3 id="livingHeading"></h3><p id="livingLine"></p><div class="actions"><button type="button" data-action="close">Gå vidare</button></div></section>';
+  root.innerHTML='<svg id="livingTail" aria-hidden="true" focusable="false"></svg><div id="livingBubble" class="speech" role="status" aria-live="polite" aria-atomic="true"><span class="speechSpeaker"></span><p id="livingLine"></p></div>';
   const bubble=root.querySelector('#livingBubble'),tail=root.querySelector('#livingTail');
-  const heading=bubble.querySelector('h3'),line=bubble.querySelector('p'),leave=bubble.querySelector('button');
+  const speakerLabel=bubble.querySelector('.speechSpeaker'),line=bubble.querySelector('p');
   const peopleLayer=document.createElement('div');peopleLayer.id='worldPeople';peopleLayer.setAttribute('role','group');peopleLayer.setAttribute('aria-label','Människor längs vägen');stage.append(peopleLayer,root);
-  const footer=document.querySelector('#worldFooter');
-  let context=null,revision=0,lastSignature='',focusBack=null;
-  let oldFooterInert=false,oldCanvasInert=false,oldPeopleInert=false;
+  let context=null,revision=0,lastSignature='',focusBack=null,clock=performance.now();
   function close(restore=true){
     if(!context)return false;
     const previous=context;context=null;root.hidden=true;tail.replaceChildren();
     window.UPPDRAG_WORLD_LIFE?.release(previous.person.id);
-    footer.inert=oldFooterInert;canvas.inert=oldCanvasInert;peopleLayer.inert=oldPeopleInert;
     delete document.body.dataset.livingMode;revision++;lastSignature='';
-    setMessage(region.name,'Du fortsätter längs vägen.');
     if(restore){
       const target=personButtons.get(previous.person.id);
       if(target&&!target.hidden)target.focus({preventScroll:true});
@@ -47,6 +40,14 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
       else canvas.focus({preventScroll:true});
     }
     return true;
+  }
+  function showPhase(mode,at){
+    context.mode=mode;context.phaseAt=at;
+    context.speaker=mode==='greeting'?'Du':context.person.name;
+    line.textContent=mode==='greeting'?'Hej!':context.thought.text;
+    speakerLabel.textContent=context.speaker+': ';
+    context.speech={at,end:at+(mode==='greeting'?850:Math.min(3600,700+line.textContent.length*24))};
+    document.body.dataset.livingMode=mode;revision++;lastSignature='';position();
   }
   function openWorld(person){
     if(context||interior||sailing||voyage||!person||person.region!==region.id)return false;
@@ -58,51 +59,44 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
     encounters.set(current.id,index+1);
     const stopped=window.UPPDRAG_WORLD_LIFE.freeze(current.id)||current;
     context={regionId:region.id,person:stopped,thought};focusBack=document.activeElement;
-    oldFooterInert=footer.inert;oldCanvasInert=canvas.inert;oldPeopleInert=peopleLayer.inert;
-    footer.inert=true;canvas.inert=true;peopleLayer.inert=true;
     path=[];pendingPerson=null;drag=null;follow=true;
-    // Keep the meeting in view; the bubble belongs to the person, not the player.
+    delete document.body.dataset.livingApproach;
     camera.x=(player.x+stopped.x)/2;camera.y=(player.y+stopped.y)/2;clamp();
-    heading.textContent=stopped.name+' funderar …';line.textContent=thought.text;
-    root.hidden=false;document.body.dataset.livingMode='thought';revision++;lastSignature='';
-    position();leave.focus({preventScroll:true});return true;
+    root.hidden=false;showPhase('greeting',clock);return true;
   }
-  leave.addEventListener('click',()=>close());
+  bubble.addEventListener('click',event=>{event.stopPropagation();close();});
   window.addEventListener('keydown',event=>{
-    if(!context||!['Enter','Escape','Tab','ArrowDown','ArrowUp','ArrowLeft','ArrowRight',' '].includes(event.key))return;
-    event.preventDefault();event.stopImmediatePropagation();if(event.isComposing)return;
-    if(event.key==='Tab'||event.key.startsWith('Arrow')){leave.focus({preventScroll:true});return;}
-    if(event.repeat)return;
-    if(event.key==='Escape'||document.activeElement===leave)close();
+    if(!context||event.repeat||event.isComposing||!['Enter','Escape',' '].includes(event.key))return;
+    const target=event.target;
+    // Tab and normal world controls remain available throughout the encounter.
+    if(event.key!=='Escape'&&target!==document.body&&target!==canvas&&!bubble.contains(target)&&target!==personButtons.get(context.person.id))return;
+    event.preventDefault();event.stopImmediatePropagation();close();
   },true);
-  for(const name of ['pointerdown','pointerup','click'])canvas.addEventListener(name,event=>{if(context){event.preventDefault();event.stopImmediatePropagation();}},true);
   const bound=(n,a,b)=>Math.max(a,Math.min(Math.max(a,b),n));
   const overlap=(a,b)=>Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x))*Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y));
-  function screenHead(person){return {x:layout.w/2+(person.x-camera.x)*layout.scale,y:layout.h/2+(person.y-camera.y-18)*layout.scale};}
+  function screenPoint(person){return {x:layout.w/2+(person.x-camera.x)*layout.scale,y:layout.h/2+(person.y-camera.y)*layout.scale};}
   function position(){
     if(!context)return;
     const current=window.UPPDRAG_WORLD_LIFE?.people(region).find(p=>p.id===context.person.id)||context.person;
-    const anchor=screenHead(current),heads=[screenHead(player),anchor];
-    const width=Math.min(310,layout.w-24);
-    bubble.style.width=width+'px';bubble.style.maxHeight=Math.max(80,layout.h-24)+'px';
+    const from=context.mode==='greeting'?player:current,to=context.mode==='greeting'?current:player;
+    const anchor=screenPoint(from),heads=[screenPoint(player),screenPoint(current)];
+    const angle=Math.atan2(to.y-from.y,to.x-from.x);
+    const tip={x:anchor.x+Math.cos(angle)*12*layout.scale,y:anchor.y+Math.sin(angle)*12*layout.scale};
+    const width=context.mode==='greeting'?88:Math.min(310,layout.w-24);
+    bubble.style.width=width+'px';bubble.style.minHeight=context.mode==='greeting'?'58px':'';
     const height=bubble.getBoundingClientRect().height,minX=12,maxX=layout.w-width-12,minY=12,maxY=layout.h-height-12;
-    const bodies=heads.map(h=>({x:h.x-22*layout.scale-4,y:h.y-13*layout.scale-4,w:44*layout.scale+8,h:57*layout.scale+8}));
+    const bodies=heads.map(h=>({x:h.x-25*layout.scale-4,y:h.y-25*layout.scale-4,w:50*layout.scale+8,h:50*layout.scale+8}));
     const candidates=[
-      {x:anchor.x-width/2,y:Math.min(...heads.map(h=>h.y))-height-27},
-      {x:anchor.x+35*layout.scale,y:anchor.y-height/2},
-      {x:anchor.x-width-35*layout.scale,y:anchor.y-height/2},
+      {x:anchor.x-width/2,y:Math.min(...heads.map(h=>h.y))-height-32*layout.scale},
+      {x:anchor.x+36*layout.scale,y:anchor.y-height/2},
+      {x:anchor.x-width-36*layout.scale,y:anchor.y-height/2},
+      {x:anchor.x-width/2,y:Math.max(...heads.map(h=>h.y))+32*layout.scale},
       {x:minX,y:minY},{x:maxX,y:minY},{x:minX,y:maxY},{x:maxX,y:maxY}
     ].map(c=>({x:bound(c.x,minX,maxX),y:bound(c.y,minY,maxY),w:width,h:height}));
     for(const c of candidates)c.score=bodies.reduce((sum,b)=>sum+overlap(c,b)*30,0)+Math.abs(c.x+width/2-anchor.x)*.1+Math.abs(c.y+height-anchor.y)*.15;
     candidates.sort((a,b)=>a.score-b.score);const best=candidates[0];
     Object.assign(bubble.style,{left:best.x+'px',top:best.y+'px'});
-    const tipX=anchor.x+9*layout.scale,tipY=anchor.y-5*layout.scale;
-    let baseX=bound(tipX,best.x+22,best.x+width-22),baseY=best.y+height-1;
-    if(tipY>best.y+15&&tipY<best.y+height-15&&(tipX<best.x||tipX>best.x+width)){
-      baseX=tipX<best.x?best.x+1:best.x+width-1;baseY=bound(tipY,best.y+20,best.y+height-20);
-    }else if(tipY<best.y)baseY=best.y+1;
-    const svg='http://www.w3.org/2000/svg';tail.replaceChildren();
-    for(const u of [.2,.53,.82]){const circle=document.createElementNS(svg,'circle');circle.setAttribute('cx',baseX+(tipX-baseX)*u);circle.setAttribute('cy',baseY+(tipY-baseY)*u);circle.setAttribute('r',7-5*u);circle.setAttribute('fill','#fbf1dc');circle.setAttribute('stroke','#9c815c');tail.append(circle);}
+    window.UPPDRAG_PAPER_DIALOGUES?.drawSpeech(tail,{box:best,tip});
   }
   function outdoorButtons(){
     const hidden=!!interior||!!voyage||!!sailing;peopleLayer.hidden=hidden;if(hidden)return;
@@ -112,24 +106,26 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
       let button=personButtons.get(person.id);
       if(!button){
         button=document.createElement('button');button.type='button';button.dataset.person=person.id;
-        button.setAttribute('aria-label','Stanna hos '+person.name);button.title=person.name;
+        button.setAttribute('aria-label','Prata med '+person.name);button.title=person.name;
         peopleLayer.append(button);personButtons.set(person.id,button);
         button.addEventListener('click',()=>requestPerson(window.UPPDRAG_WORLD_LIFE.people(region).find(p=>p.id===person.id)));
         button.addEventListener('pointerenter',()=>{hoverPersonId=person.id;});
         button.addEventListener('pointerleave',()=>{hoverPersonId=null;});
       }
-      const x=layout.w/2+(person.x-camera.x)*layout.scale,y=layout.h/2+(person.y-camera.y)*layout.scale;
-      button.hidden=x<20||x>layout.w-20||y<30||y>layout.h-30;
+      const point=screenPoint(person);
+      button.hidden=point.x<20||point.x>layout.w-20||point.y<20||point.y>layout.h-20;
       if(document.activeElement===button)hoverPersonId=person.id;
-      button.style.left=(x-24)+'px';button.style.top=(y-34)+'px';
+      button.style.left=(point.x-24)+'px';button.style.top=(point.y-24)+'px';
     }
   }
-  function tick(){
+  function tick(now){
+    if(Number.isFinite(now))clock=now;
     outdoorButtons();if(!context)return;
-    if(interior||sailing||voyage||region.id!==context.regionId){close(false);return;}
+    if(interior||sailing||voyage||region.id!==context.regionId||Math.hypot(player.x-context.person.x,player.y-context.person.y)>100){close(false);return;}
+    if(context.mode==='greeting'&&clock-context.phaseAt>=850)showPhase('speech',clock);
     const signature=[layout.w,layout.h,layout.scale,revision,camera.x,camera.y].join(':');
     if(signature!==lastSignature){position();lastSignature=signature;}
   }
   new ResizeObserver(()=>{lastSignature='';if(context)position();}).observe(stage);
-  return {openWorld,close,tick,get busy(){return !!context;},get active(){return !!context;},get roomKey(){return null;},get personId(){return context?.person.id||null;},get revision(){return revision;},get speaker(){return '';},get speech(){return {at:0,end:0};},get state(){return {room:null,person:context?.person.id||null,mode:context?'thought':null,thought:context?.thought.id||null};}};
+  return {openWorld,close,tick,get busy(){return false;},get active(){return !!context;},get roomKey(){return null;},get personId(){return context?.person.id||null;},get revision(){return revision;},get speaker(){return context?.speaker||'';},get speech(){return context?.speech||{at:0,end:0};},get state(){return {room:null,person:context?.person.id||null,mode:context?.mode||null,thought:context?.thought.id||null};}};
 })();
