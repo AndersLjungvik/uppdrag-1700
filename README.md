@@ -1,8 +1,12 @@
 # Uppdrag 1700 · Pappersstaden
 
-## Aktuell arbetsversion: Demo 3.16
+## Aktuell arbetsversion: Demo 3.17
 
-[Öppna Demo 3.16 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.16.0).
+[Öppna Demo 3.17 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.17.0).
+
+**Piltangenterna styr gång; mellanslag pratar, väljer och fortsätter.** Ute kan spelaren gå fritt på land, med stopp vid hus, vatten och världens kant. Nära en person, ingång eller kaj används mellanslag för att interagera. I samtal väljer pilarna bland befintliga tankar och mellanslag bekräftar; under den korta utomhusrepliken stänger mellanslag bubblan. Mus och pekskärm fungerar fortfarande.
+
+Efter ett samtal med Jo kan spelaren välja Kajen, även om pappersbubblan först stängts med mellanslag. Då går Jo med längs spelarens verkliga gångspår och stannar på kajen under besöket. Samma regel gäller när Maja, Brita och Rut följer till sina platser. Ett annat mål avslutar följet och personen går tillbaka längs sin färdväg. En redan påbörjad gemensam promenad kan styras vidare med piltangenterna.
 
 Alla tretton namngivna samtalspersoner finns nu ute i världen. Maja promenerar vid kaffehuset, Brita vid tryckeriet, Rut vid arkivet och Jo på stadens väg ner mot kajen, tillsammans med de nio tidigare förbipasserande. De fyra huvudpersonerna är samma personer ute och inne; en kort presentation ute sparar bekantskapen för nästa möte.
 

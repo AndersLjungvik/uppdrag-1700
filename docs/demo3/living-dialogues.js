@@ -1,4 +1,4 @@
-/* Demo 3.16: meet the same people outdoors and at their places.
+/* Demo 3.17: short meetings, shared recognition and walking to a host's place.
  * No outdoor thought heading, choices, modal state or reading timer.
  * Uses the world's existing animation loop and current walking-person poses.
  */
@@ -33,6 +33,7 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
   const speakerLabel=bubble.querySelector('.speechSpeaker'),line=bubble.querySelector('p');
   const peopleLayer=document.createElement('div');peopleLayer.id='worldPeople';peopleLayer.setAttribute('role','group');peopleLayer.setAttribute('aria-label','Människor längs vägen');stage.append(peopleLayer,root);
   let context=null,revision=0,lastSignature='',focusBack=null,clock=performance.now();
+  let recentHost=null,companion=null,requestingHome=0;
   function close(restore=true){
     if(!context)return false;
     const previous=context;context=null;root.hidden=true;tail.replaceChildren();
@@ -51,6 +52,7 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
     context.speaker=mode==='greeting'?'Du':context.person.name;
     line.textContent=mode==='greeting'?'Hej!':context.introducing?context.person.introduction:context.thought.text;
     if(mode==='speech'&&context.introducing)remember(context.person.home);
+    if(mode==='speech'&&context.person.home)recentHost={id:context.person.id,home:context.person.home,regionId:context.regionId};
     speakerLabel.textContent=context.speaker+': ';
     context.speech={at,end:at+(mode==='greeting'?850:Math.min(3600,700+line.textContent.length*24))};
     document.body.dataset.livingMode=mode;revision++;lastSignature='';position();
@@ -127,34 +129,111 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
   }
   function tick(now){
     if(Number.isFinite(now))clock=now;
+    if(companion){
+      const state=window.UPPDRAG_WORLD_LIFE?.escortState(companion.id);
+      if(state?.mode==='arrived')companion.arrived=true;
+      if(region.id!==companion.regionId||companion.arrived&&!interior)cancelCompanion();
+      else if(!state||state.mode==='returning')companion=null;
+    }
+    if(recentHost&&!companion){
+      const host=window.UPPDRAG_WORLD_LIFE?.people(region).find(p=>p.id===recentHost.id);
+      if(region.id!==recentHost.regionId||!host||Math.hypot(player.x-host.x,player.y-host.y)>140)recentHost=null;
+    }
     outdoorButtons();if(!context)return;
     if(interior||sailing||voyage||region.id!==context.regionId||Math.hypot(player.x-context.person.x,player.y-context.person.y)>100){close(false);return;}
     if(context.mode==='greeting'&&clock-context.phaseAt>=850)showPhase('speech',clock);
     const signature=[layout.w,layout.h,layout.scale,revision,camera.x,camera.y].join(':');
     if(signature!==lastSignature){position();lastSignature=signature;}
   }
-  // A direct visit after an outdoor greeting is the same meeting. Carry that
-  // fact on this specific journey, so cancellation cannot affect a later visit.
-  const greetedOutside=home=>!!home&&context?.person.home===home&&context.mode==='speech';
+  // A host accompanies the player when their home is chosen after a meeting.
+  // Space may close the paper first; the nearby, just-spoken host still counts.
+  function visitHome(visit){return visit?.outdoor?(visit.regionId==='main'?'quay':null):visit?.kind||null;}
+  function cancelCompanion(){
+    if(companion)window.UPPDRAG_WORLD_LIFE?.cancelEscort(companion.id);
+    companion=null;
+  }
+  function recentFor(home){
+    if(!home)return null;
+    if(companion?.home===home&&companion.regionId===region.id&&!companion.arrived)return companion;
+    if(context?.person.home===home&&context.mode==='speech')return {id:context.person.id,home,regionId:region.id};
+    if(recentHost?.home!==home||recentHost.regionId!==region.id)return null;
+    const person=window.UPPDRAG_WORLD_LIFE?.people(region).find(p=>p.id===recentHost.id);
+    return person&&Math.hypot(player.x-person.x,player.y-person.y)<=140?recentHost:null;
+  }
+  function accompany(host){
+    if(!host)return;
+    if(companion?.id===host.id)return;
+    cancelCompanion();
+    if(window.UPPDRAG_WORLD_LIFE?.beginEscort(host.id,{region,player,distance:54}))companion={...host,arrived:false};
+  }
   function markArrival(home,greeted,ok){
     if(!ok||!greeted)return;
     const visit=interior||pendingRoom;
-    const place=visit?.outdoor?(visit.regionId==='main'?'quay':null):visit?.kind;
-    if(place===home)visit.greetedHost=home;
+    if(visitHome(visit)===home){
+      visit.greetedHost=home;
+      if(companion?.home===home)visit.escortedHost=companion.id;
+    }
   }
-  const visitInterior=requestInterior,visitHarbour=requestHarbour;
+  const visitInterior=requestInterior,visitHarbour=requestHarbour,walkTo=go,visitPerson=requestPerson,arrive=finishDoorArrival,changeRegion=switchRegion;
+  function withHost(home,visit){
+    const host=recentFor(home);
+    if(!host){recentHost=null;cancelCompanion();}
+    else accompany(host);
+    requestingHome++;
+    let ok=false;
+    try{ok=visit();}finally{requestingHome--;}
+    if(!ok){cancelCompanion();return false;}
+    markArrival(home,!!host,ok);return ok;
+  }
   requestInterior=function(building){
-    const home=roomKind(building),greeted=greetedOutside(home);
-    const ok=visitInterior(building);markArrival(home,greeted,ok);return ok;
+    if(interior||sailing||voyage||!building||!roomKind(building))return false;
+    return withHost(roomKind(building),()=>visitInterior(building));
   };
   requestHarbour=function(destination=null){
-    const home=region.id==='main'?'quay':null,greeted=greetedOutside(home);
-    const ok=visitHarbour(destination);markArrival(home,greeted,ok);return ok;
+    if(interior||sailing||voyage)return false;
+    return withHost(region.id==='main'?'quay':null,()=>visitHarbour(destination));
   };
+  go=function(id,title=''){
+    if(interior||sailing)return false;
+    if(!requestingHome){recentHost=null;cancelCompanion();}
+    const ok=walkTo(id,title);
+    if(ok)window.UPPDRAG_WORLD_KEYBOARD?.clear();
+    return ok;
+  };
+  requestPerson=function(person){
+    if(person&&person.region===region.id&&!interior&&!sailing&&!voyage){
+      if(recentHost?.id!==person.id)recentHost=null;
+      if(companion?.id!==person.id)cancelCompanion();
+    }
+    return visitPerson(person);
+  };
+  finishDoorArrival=function(){
+    if(pendingRoom&&companion?.home===visitHome(pendingRoom)&&!path.length){
+      const escort=window.UPPDRAG_WORLD_LIFE?.escortState(companion.id),entry=region.map.get(pendingRoom.entry);
+      if(escort&&entry&&Math.hypot(escort.x-entry.x,escort.y-entry.y)>72)return;
+    }
+    const before=interior;
+    arrive();
+    // Before the next meeting-controller tick, Space should speak, not exit.
+    if(interior&&interior!==before){
+      if(companion?.home===visitHome(interior))companion.arrived=true;
+      if(recentHost?.home===visitHome(interior))recentHost=null;
+      roomCanvas.focus({preventScroll:true});
+    }
+  };
+  switchRegion=function(...args){
+    recentHost=null;cancelCompanion();window.UPPDRAG_WORLD_KEYBOARD?.clear();
+    return changeRegion(...args);
+  };
+  function onManualMove(){
+    // Taking over the walking direction keeps an existing companion alongside.
+    // An unrelated destination or another person ends that company explicitly.
+    if(companion?.arrived)cancelCompanion();
+  }
   function consumeGreeting(home){
     if(interior?.greetedHost!==home)return false;
     delete interior.greetedHost;return true;
   }
   new ResizeObserver(()=>{lastSignature='';if(context)position();}).observe(stage);
-  return {openWorld,close,tick,consumeGreeting,get busy(){return false;},get active(){return !!context;},get roomKey(){return null;},get personId(){return context?.person.id||null;},get revision(){return revision;},get speaker(){return context?.speaker||'';},get speech(){return context?.speech||{at:0,end:0};},get state(){return {room:null,person:context?.person.id||null,mode:context?.mode||null,thought:context?.thought.id||null,introducing:!!context?.introducing};}};
+  return {openWorld,close,tick,consumeGreeting,onManualMove,get companion(){return companion?{...companion}:null;},get busy(){return false;},get active(){return !!context;},get roomKey(){return null;},get personId(){return context?.person.id||null;},get revision(){return revision;},get speaker(){return context?.speaker||'';},get speech(){return context?.speech||{at:0,end:0};},get state(){return {room:null,person:context?.person.id||null,mode:context?.mode||null,thought:context?.thought.id||null,introducing:!!context?.introducing};}};
 })();

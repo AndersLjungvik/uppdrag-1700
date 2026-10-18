@@ -8,6 +8,7 @@
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const routeCache = new WeakMap();
   const populations = new WeakMap();
+  const activeRooms = new WeakMap();
   const walkers = new Map();
   let elapsed = 0;
   let lastNow = null;
@@ -78,7 +79,188 @@
     return {fraction:back?1-fraction:fraction,direction:back?-1:1,moving:leg<duration};
   }
 
+  // Escorting is purposeful movement, separate from each person's quiet patrol.
+  // A cumulative trail preserves every turn the player actually took. The same
+  // trail, read backwards, brings a cancelled companion to the unchanged patrol.
+  function escortSegment(region,a,b) {
+    const keyboard=window.UPPDRAG_WORLD_KEYBOARD;
+    if(keyboard?.clearSegment)return keyboard.clearSegment(region,a,b,24);
+    const steps=Math.max(1,Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/3));
+    for(let i=0;i<=steps;i++){
+      const t=i/steps;
+      if(!clearPoint(region,a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,24))return false;
+    }
+    return true;
+  }
+
+  function roadPosition(region,x,y) {
+    const node=id=>typeof navigationPoint==='function'?navigationPoint(region,id):region.map.get(id);
+    let nearest=null,best=Infinity;
+    for(const edge of region.edges){
+      const a=node(edge.a),b=node(edge.b);if(!a||!b)continue;
+      const dx=b.x-a.x,dy=b.y-a.y,length=dx*dx+dy*dy;
+      const t=Math.max(0,Math.min(1,((x-a.x)*dx+(y-a.y)*dy)/(length||1)));
+      const d=Math.hypot(x-a.x-dx*t,y-a.y-dy*t);
+      if(d<best){best=d;nearest={routeEdge:{a:edge.a,b:edge.b},routeT:t,
+        meetingNode:t<=.5?edge.a:edge.b,roadDistance:d};}
+    }
+    return nearest;
+  }
+
+  function trailPoint(escort,distance) {
+    const points=escort.trail;
+    if(points.length===1||distance<=0)return {x:points[0].x,y:points[0].y};
+    let lo=1,hi=points.length-1;
+    while(lo<hi){const mid=(lo+hi)>>1;if(points[mid].s<distance)lo=mid+1;else hi=mid;}
+    const a=points[lo-1],b=points[lo],t=Math.max(0,Math.min(1,(distance-a.s)/(b.s-a.s||1)));
+    return {x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};
+  }
+
+  function appendTrail(escort,point) {
+    const points=escort.trail;
+    // The player can start behind Jo and then pass him on the way to the quay.
+    // Retrace an unwalked approach instead of making Jo walk back to that old
+    // player position. Never remove anything the companion has already walked.
+    while(points.length>1&&points[points.length-1].s>escort.cursor+.01){
+      const last=points[points.length-1],before=points[points.length-2];
+      const ax=last.x-before.x,ay=last.y-before.y,length=Math.hypot(ax,ay);
+      const dx=point.x-last.x,dy=point.y-last.y;
+      if(!length||ax*dx+ay*dy>=0||Math.abs(ax*dy-ay*dx)>1e-7*Math.max(1,length*Math.hypot(dx,dy)))break;
+      const nextS=before.s+((point.x-before.x)*ax+(point.y-before.y)*ay)/length;
+      if(nextS>=Math.max(before.s,escort.cursor)-.001){
+        if(nextS<=before.s+.001)points.pop();
+        else points[points.length-1]={x:point.x,y:point.y,s:Math.max(escort.cursor,nextS)};
+        return;
+      }
+      if(before.s>=escort.cursor-.001){points.pop();continue;}
+      const here=trailPoint(escort,escort.cursor);
+      points[points.length-1]={...here,s:escort.cursor};break;
+    }
+    const last=points[points.length-1];
+    const dx=point.x-last.x,dy=point.y-last.y,d=Math.hypot(dx,dy);
+    if(d<.01)return;
+    const next={x:point.x,y:point.y,s:last.s+d},before=points[points.length-2];
+    // Merge only straight continuation, never a corner or a reversal.
+    if(before&&last.s>escort.cursor+.01){
+      const ax=last.x-before.x,ay=last.y-before.y;
+      if(ax*dx+ay*dy>0&&Math.abs(ax*dy-ay*dx)<1e-7*Math.max(1,Math.hypot(ax,ay)*d)){
+        points[points.length-1]=next;return;
+      }
+    }
+    points.push(next);
+  }
+
+  function trimTrail(escort) {
+    const here=trailPoint(escort,escort.cursor);
+    while(escort.trail.length>1&&escort.trail[escort.trail.length-1].s>escort.cursor+.001)escort.trail.pop();
+    if(Math.abs(escort.trail[escort.trail.length-1].s-escort.cursor)>.001){
+      escort.trail.push({...here,s:escort.cursor});
+    }
+  }
+
+  function updateEscortPose(state,moving=false) {
+    const escort=state.escort,point=trailPoint(escort,escort.cursor);
+    let heading=escort.heading;
+    if((state.frozen||!moving&&escort.mode==='following')&&Number.isFinite(state.playerX)&&Number.isFinite(state.playerY)){
+      const dx=state.playerX-point.x,dy=state.playerY-point.y;
+      if(Math.hypot(dx,dy)>3)heading=Math.atan2(dy,dx);
+    }
+    state.pose={...state.person,...point,
+      heading,facing:Math.cos(heading)<-.01?-1:1,
+      moving:moving&&!state.frozen&&!motion.matches,
+      animationTime:escort.animationTime,frozen:state.frozen,
+      ...roadPosition(state.region,point.x,point.y),escortMode:escort.mode
+    };
+  }
+
+  function beginEscort(id,{region,player,distance=54}={}) {
+    if(!region?.map||!Number.isFinite(player?.x)||!Number.isFinite(player?.y))return null;
+    population(region);
+    const state=walkers.get(id);
+    if(!state||state.region!==region||state.person.role!=='host')return null;
+    if(state.escort?.mode==='following')return copyPose(state);
+    const here=state.pose;
+    if(Math.hypot(player.x-here.x,player.y-here.y)>160||!escortSegment(region,here,player))return null;
+    let escort=state.escort;
+    if(escort){
+      // Rejoining during return keeps the original origin and traversed prefix.
+      trimTrail(escort);escort.mode='following';escort.blocked=false;escort.reason='';
+    }else{
+      escort={mode:'following',trail:[{x:here.x,y:here.y,s:0}],cursor:0,
+        animationTime:here.animationTime,heading:here.heading,blocked:false,reason:''};
+      state.escort=escort;
+    }
+    escort.distance=Number.isFinite(distance)?Math.max(32,Math.min(88,distance)):54;
+    appendTrail(escort,player);
+    state.playerX=player.x;state.playerY=player.y;state.frozen=false;
+    updateEscortPose(state);return copyPose(state);
+  }
+
+  function cancelEscort(id) {
+    const state=walkers.get(id),escort=state?.escort;
+    if(!escort)return false;
+    escort.mode='returning';escort.blocked=false;escort.reason='';
+    if(escort.cursor<=.001){state.escort=null;updateWalker(state);}
+    else updateEscortPose(state);
+    return true;
+  }
+
+  function escortState(id) {
+    const state=walkers.get(id),escort=state?.escort;
+    if(!escort)return null;
+    return {personId:id,regionId:state.region.id,home:state.person.home,
+      mode:escort.mode,x:state.pose.x,y:state.pose.y,distance:escort.distance,
+      trailDistance:escort.trail[escort.trail.length-1].s-escort.cursor,
+      returnRemaining:escort.cursor,blocked:escort.blocked,reason:escort.reason,
+      frozen:state.frozen};
+  }
+
+  function moveEscort(state,target,budget) {
+    const escort=state.escort,direction=Math.sign(target-escort.cursor);
+    let moved=false;
+    while(budget>.0001&&Math.abs(target-escort.cursor)>.0001){
+      // Visit every stored corner even when several fall within one frame.
+      const point=trailPoint(escort,escort.cursor),points=escort.trail;
+      let corner=target;
+      if(direction>0){
+        const next=points.find(p=>p.s>escort.cursor+.0001);if(next)corner=Math.min(target,next.s);
+      }else{
+        for(let i=points.length-1;i>=0;i--)if(points[i].s<escort.cursor-.0001){corner=Math.max(target,points[i].s);break;}
+      }
+      const step=Math.min(budget,Math.abs(corner-escort.cursor)),nextDistance=escort.cursor+direction*step;
+      const nextPoint=trailPoint(escort,nextDistance);
+      if(!escortSegment(state.region,point,nextPoint)){
+        escort.blocked=true;escort.reason='unsafe-trail';break;
+      }
+      escort.cursor=nextDistance;budget-=step;moved=true;
+      escort.heading=Math.atan2(nextPoint.y-point.y,nextPoint.x-point.x);
+    }
+    return moved;
+  }
+
+  function tickEscort(state,delta,player,activeRoom) {
+    const escort=state.escort;
+    if(escort.mode==='following'&&activeRoom===state.person.home)escort.mode='arrived';
+    if(escort.mode==='arrived'){updateEscortPose(state);return;}
+    if(escort.mode==='following'&&!activeRoom&&Number.isFinite(player?.x)&&Number.isFinite(player?.y)){
+      const last=escort.trail[escort.trail.length-1],gap=Math.hypot(player.x-last.x,player.y-last.y);
+      if(gap>120){escort.blocked=true;escort.reason='discontinuous-player';}
+      else if(!escortSegment(state.region,last,player)){escort.blocked=true;escort.reason='unsafe-player-trail';}
+      else{appendTrail(escort,player);escort.blocked=false;escort.reason='';}
+    }
+    const target=escort.mode==='returning'?0:Math.max(escort.cursor,escort.trail[escort.trail.length-1].s-escort.distance);
+    // Essential travel remains available with reduced motion; the drawing below
+    // suppresses the gait while ambient wandering and animals remain motionless.
+    const speed=escort.mode==='returning'?Math.max(48,state.edge.speed*3):180;
+    const moving=!state.frozen&&!(escort.mode==='following'&&activeRoom)
+      &&moveEscort(state,target,speed*delta/1000);
+    if(moving&&!motion.matches)escort.animationTime+=delta;
+    if(escort.mode==='returning'&&escort.cursor<=.001){state.escort=null;updateWalker(state);return;}
+    updateEscortPose(state,moving);
+  }
+
   function updateWalker(state) {
+    if(state.escort){updateEscortPose(state);return;}
     const edge=state.edge;
     const duration=edge.length*(edge.to-edge.from)/edge.speed*1000;
     const step=outAndBack(state.time,duration,edge.pause);
@@ -115,7 +297,7 @@
       if(!state){
         const edge=walkingEdge(region,WALKS[person.id]);
         if(!edge)continue;
-        state={person,edge,time:edge.phase,frozen:false,pose:null};
+        state={person,region,edge,time:edge.phase,frozen:false,pose:null,escort:null};
         updateWalker(state);states.set(person.id,state);walkers.set(person.id,state);
       }
       present.push(state);
@@ -128,7 +310,8 @@
   }
 
   function people(region) {
-    return population(region).map(copyPose);
+    return population(region).filter(state=>state.escort?.mode!=='arrived'
+      &&(!activeRooms.get(region)||state.person.home!==activeRooms.get(region))).map(copyPose);
   }
 
   function hit(region, point) {
@@ -142,18 +325,22 @@
     return nearest;
   }
 
-  function tick(now,{region,player}={}) {
+  function tick(now,{region,player,activeRoom=null}={}) {
     if(!Number.isFinite(now))return;
     const delta=lastNow===null?0:Math.max(0,Math.min(now-lastNow,80));
     lastNow=now;
     const advance=motion.matches?0:delta;
     elapsed+=advance;
+    if(region?.map)activeRooms.set(region,activeRoom);
+    for(const state of walkers.values()){
+      if(state.escort?.mode==='following'&&state.region!==region)cancelEscort(state.person.id);
+    }
     for(const state of population(region)){
       if(Number.isFinite(player?.x)&&Number.isFinite(player?.y)){
         state.playerX=player.x;state.playerY=player.y;
       }
-      if(!state.frozen)state.time+=advance;
-      updateWalker(state);
+      if(state.escort)tickEscort(state,delta,player,activeRoom);
+      else{if(!state.frozen)state.time+=advance;updateWalker(state);}
     }
   }
 
@@ -476,5 +663,6 @@
     ctx.restore();
   }
 
-  window.UPPDRAG_WORLD_LIFE = {tick,draw,people,hit,freeze,release};
+  window.UPPDRAG_WORLD_LIFE = {tick,draw,people,hit,freeze,release,
+    beginEscort,cancelEscort,endEscort:cancelEscort,escortState};
 })();

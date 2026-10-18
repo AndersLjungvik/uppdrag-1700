@@ -1,14 +1,22 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
-Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.16 – En levande pappersvärld**.
+Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.17 – En levande pappersvärld**.
 
 ## Börja här
 
-[Starta Demo 3.16](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.16.0). Startfilen är `docs/demo3/living-world.html`.
+[Starta Demo 3.17](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.17.0). Startfilen är `docs/demo3/living-world.html`.
 
 Utgå från denna startfil vid nästa ändring. `/demo3/` och `game.html` visar fortfarande den äldre 3.2.1-demon. Huvudversionen 0.6.0 är ett bevarat förlopp med hela uppdragssystemet; hela det systemet har inte överförts till denna demo.
 
-## Senaste användarbeslut – samma personer ute och inne
+## Senaste användarbeslut – tangentstyrning och gemensam promenad
+
+3.17 lägger till **piltangenter för gång och mellanslag för interaktion**. Utomhusförflyttningen sker med samma hastighet som klickgång, normaliserad diagonal och stopp vid hus, vatten och världens gränser. Pilarna fungerar som val i befintliga rumssamtal, och mellanslag väljer eller fortsätter. Utomhusbubblan stängs med mellanslag innan man går. Ingen ny meny eller ny visuell form införs. Hållna tangenter nollställs vid dialog, tappat fokus och dolt fönster.
+
+När spelaren väljer **Kajen efter ett samtal med Jo följer Jo med**. Att först stänga repliken med mellanslag förlorar inte det nyss gjorda mötet, så länge personen är nära. Maja, Brita och Rut använder samma regel för sina hemplatser. Personen följer spelarens verkliga gångspår, stannar när spelaren stannar och väntar kvar på platsen under besöket. Rummet öppnas när båda kommit fram. Ett annat uttryckligt mål eller en annan person avbryter följet; värden går tillbaka längs sitt eget färdspår utan teleportering. Om spelaren tar över en påbörjad gemensam promenad med pilarna fortsätter följet.
+
+Kartans ritade geometri är bevarad. Två navigeringspunkter på kajvägen går nu runt arkivets nedre hörn: `quayJ2=(1100,1062)` och `quayJ3=(1390,1062)`. De ursprungliga kartnoderna är oförändrade; `navigationPoint` används av gångrutten och följarens vägmetadata. Detta ger de båda figurerna fysisk plats och undviker den äldre ruttens överlapp med huset.
+
+## Samma personer ute och inne – tillagt i 3.16
 
 **Användaren har uttryckligen accepterat känslan i 3.15:** ”nu har vi verkligen hittat rätt i feelingen”. Behåll perspektivet ovanifrån, de diskreta rörelserna, pappersbubblorna och de korta mötena. Gör ingen ny stilomläggning.
 
@@ -22,7 +30,7 @@ En direkt färd från detta samtal till personens egen plats bär med sig hälsn
 
 Användarens avsikt: personerna promenerar och har korta vardagliga samtal tills det är dags för deras del av berättelsen; då bjuder de in spelaren till respektive plats. Den grundidén ska styra nästa överföring av kapitelarbetet.
 
-**Kapitelstyrda arbetsinbjudningar är ännu inte aktiva i 3.16.** Världsdemon saknar huvudversionens uppdragsmotor, frågearbete, beställningar och leveranser. En inbjudan som redan lovar ett sådant arbete skulle i dag leda till ett rum där det inte går att genomföra. Skapa inte en låtsad progression baserad på hur många personer man har hälsat på eller hur många repliker man har läst.
+**Kapitelstyrda arbetsinbjudningar är ännu inte aktiva i 3.17.** Världsdemon saknar huvudversionens uppdragsmotor, frågearbete, beställningar och leveranser. En inbjudan som redan lovar ett sådant arbete skulle i dag leda till ett rum där det inte går att genomföra. Skapa inte en låtsad progression baserad på hur många personer man har hälsat på eller hur många repliker man har läst.
 
 Den befintliga tiokapitelberättelsen finns i `docs/world/content.mjs` och motorn i `docs/world/engine.mjs`. Maja, Brita, Jo och Rut återkommer i flera kapitel och olika arbetsfaser. En senare inbjudan behöver därför följa aktuell fas och mottagare, inte en godtycklig ensam kapitelägare. `engine.current()`, `progress()`, `active()`, `level()`, `target()` och `objective()` ger underlaget. Enbart match mot `target()` räcker inte: motorn pekar även på kaffehuset efter att ett kapitels alla nivåer är klara.
 
@@ -92,10 +100,11 @@ Alla nedanstående filer ligger i `docs/demo3/`.
 
 | Fil | Roll |
 | --- | --- |
-| `living-world.html` | Direkt HTML-start, vägnavigation och ankomst till gående människor. |
+| `living-world.html` | Direkt HTML-start, vägnavigation, tangentstyrningens bildrutekoppling och säker ankomst. |
 | `living-conversation-data.js` | Tolv källanknutna repliker, fyra vardagsrepliker, tretton människor och bevarade källmetadata. |
-| `living-dialogues.js` | Kort samtal, gemensam bekantskap, hälsning vid direkt rumsankomst och oförändrad pappersbubbla. |
-| `world-life.js` | Gående människor, freeze/release, hundar, höns, får och kor. |
+| `living-dialogues.js` | Korta samtal, gemensam bekantskap, följe till värdens plats och högst en hälsning per sammanhängande möte. |
+| `world-life.js` | Promenader, följe längs verkligt gångspår, mjuk återgång, freeze/release och djur. |
+| `world-keyboard.js` | Piltangenter, mellanslag, kollisioner och befintliga tangentval i rummen. |
 | `archive-living.js` | Ruts accepterade 3.12.1-samtal utan extra reflektionsmeny. |
 | `place-living.js` | Maja, Brita och Jo med 3.12.1:s hälsningslogik. |
 | `meeting-living.js` | Kartfigurer ovanifrån; bevarade rumsfigurer. |
@@ -111,7 +120,17 @@ Den accepterade [3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/con
 
 Originalfrågorna återfanns i `curriculum/classroom.mjs` vid commit `f277b2a3fb9cc138f2b4d5ac30ca5765767a5eb7`. Den äldre samtalsformen finns i `docs/game.js`. Originalposter, hänvisningar och provenance bevaras i datafilen som underlag. De tolv replikerna är redaktionella bearbetningar av dessa teman enligt användarens exempel. Inget nytt AI-frågebibliotek kopplas in.
 
-## Verifiering av 3.16
+## Verifiering av 3.17
+
+Den samlade 3.17-versionen passerade `living-world-check.cjs` med `errors: []` och `changedFilesSinceSnapshot: []`. Hela 3.16-kontrollen med 13 personer, 16 vardagsrepliker, fyra presentationer, gamla sparningar, återbesök och Ruts dokumentövning passerar fortfarande.
+
+Hållna pilar ger tidsstyrd hastighet och normaliserad diagonal. Hus, vatten, världens gränser och den befintliga bron har kontrollerats. Dialog, textfält och tappat fokus nollställer gång; mellanslag interagerar en gång och bevarar native-knapparnas egen klickhändelse. Den befintliga figurrenderern får riktning och gång från den faktiska tangentförflyttningen.
+
+Jo-provet börjar med stängd utomhusreplik och Kajen-knappen, följer hela spelarens verkliga spår och bekräftar att ingången väntar medan Jo är fryst längre bort. När han släpps följer han samtliga hörn utan hopp. Inne finns ingen utomhusdubblett eller upprepad presentation/hälsning. Efter utgång går han tillbaka till exakt tidigare promenadposition och fas och kan mötas längs den faktiska återvägen. Manuell gång bevarar ett påbörjat följe; ett annat uttryckligt mål ger mjuk retur. Två navigeringspunkter har säker marginal runt arkivet medan ursprungliga kartdata är oförändrade.
+
+Ett separat, riktat följeprov kontrollerade att Jo väntar när spelaren först passerar honom, återstart under retur, stillhet under rumsbesök och nödvändig förflyttning utan gånggest vid minskad rörelse. Den publicerade versionens mellanslag och gemensamma färd provas också i webbläsaren; exakt URL och bild redovisas i leveransen. Hållna piltangenter provas med verkliga bildrutor i integrationstestet, eftersom webbläsarverktyget endast erbjuder enskilda tangenttryck.
+
+## Tidigare verifiering av 3.16
 
 Den samlade 3.16-versionen passerade det lokala integrationstestet `living-world-check.cjs` med `errors: []` och oförändrade filhashar under körningen. Alla 13 gående personer, 16 korta vardagsrepliker och fyra första presentationer ingår. Ursprungliga vägar, träffytor, gångankomst, freeze/release och geometri passerar, liksom de fyra vanliga rumsdialogerna, gamla sparflaggor, återhälsningar och Ruts dokumentövning.
 
