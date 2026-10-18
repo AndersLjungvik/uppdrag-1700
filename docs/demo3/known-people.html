@@ -1,0 +1,6 @@
+<!doctype html><html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Uppdrag 1700 · Demo 3.11</title></head><body><p>Laddar spelvärlden…</p><script>
+fetch('thoughts.html?v=3.10.0').then(r=>{if(!r.ok)throw Error('Sidan kunde inte hämtas');return r.text()}).then(s=>{
+s=s.replaceAll('3.10 · TANKAR','3.11 · BEKANTA ANSIKTEN').replace('archive-thoughts.js?v=3.9.0','archive-thoughts-known.js?v=3.11.0').replace('place-thoughts.js?v=3.10.0','place-thoughts-known.js?v=3.11.0');
+document.open();document.write(s);document.close();
+}).catch(e=>{document.body.textContent='Kunde inte öppna spelet: '+e.message;});
+</script></body></html>
