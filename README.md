@@ -1,10 +1,14 @@
 # Uppdrag 1700 · Pappersstaden
 
-## Aktuell arbetsversion: Demo 3.12.1
+## Aktuell arbetsversion: Demo 3.13
 
-[Öppna Demo 3.12.1 – Samtal och återseenden](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1). Tankeklick följs av spelarens replik och personens svar. Vid första mötet presenterar spelaren och personen sig för varandra. Rut, Maja, Brita och Jo hälsar sedan naturligt vid återbesök. Hälsningen erbjuds en gång per besök och förblir borta om samtalet stängs och öppnas igen. Fortsätt med knappen eller Enter. Korrigeringen är modulprovad för alla fyra personer, inklusive befintliga bekantskaper från 3.11.
+[Öppna Demo 3.13 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.13.0).
 
-Se [aktuell utvecklingsstatus](docs/demo3/STATUS.md) för aktiva filer, verifiering och nästa steg. [Demo 3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) bevaras. Den allmänna adressen `/demo3/` öppnar fortfarande den äldre världsdemon.
+De tolv öppna reflektionsfrågorna från spelets tidigare SOS-bank finns nu i frivilliga samtal, placerade hos personer där ämnet passar. Spelaren väljer en tanke, ställer frågan och kan gå vidare med motfrågor och följdfrågor. Nio nya människor har också kort småprat. Två hundar rör sig längs vägarna; höns, får och kor ger liv åt landsbygden. Gemensamt pappersmaterial förenar personer, djur och inredning med samma mått, silhuetter och placeringar som tidigare.
+
+3.12.1:s presentationer, bekantskaper och en hälsning per besök är kvar. Ruts dokumentövning, vägar, dörrar och båtfärder använder sin befintliga grund. Reflektionerna har inga poäng eller automatisk rättning.
+
+Se [aktuell utvecklingsstatus](docs/demo3/STATUS.md) för aktiva filer, källor och verifiering. [Demo 3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1) och [Demo 3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) är bevarade. Den allmänna adressen `/demo3/` öppnar fortfarande den äldre världsdemon.
 
 ## Den tidigare huvudversionen
 

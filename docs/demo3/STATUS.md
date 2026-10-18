@@ -1,86 +1,90 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
-Uppdaterad 18 oktober 2026. Aktuell arbetsversion är Demo 3.12.1. Användaren har bekräftat att samtalsflödet i 3.12 fungerar; denna korrigering tar bort den upprepade hälsningen under samma besök.
+Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.13 – En levande pappersvärld**, byggd vidare från användarens accepterade 3.12.1.
 
-## Arbetsversion och rätt adress
+## Börja här
 
-**Demo 3.12.1 – Samtal och återseenden**
+[Starta Demo 3.13](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.13.0). Startfilen är `docs/demo3/living-world.html`.
 
-[Starta Demo 3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1). Startfilen är `docs/demo3/conversations.html`.
+Utgå från denna startfil vid nästa ändring. Den generella `/demo3/`-adressen och `game.html` visar fortfarande den äldre 3.2.1-demon. Den tidigare huvudversionen 0.6.0 är ett annat, bevarat förlopp med hela uppdragssystemet; den har inte ersatts eller påståtts helt överförd till denna demo.
 
-Grundversionen 3.12 publicerades i commit [0766878e38d59ec8742f0709552a6224ea84c4bc](https://github.com/AndersLjungvik/uppdrag-1700/commit/0766878e38d59ec8742f0709552a6224ea84c4bc). GitHub Pages-körning [39111711482](https://github.com/AndersLjungvik/uppdrag-1700/actions/runs/39111711482) avslutades med `success` för samma commit. Samtalsförloppen med Rut och Jo samt överföringen av Ruts genomförda presentation från 3.11 provades i samma Chrome-session; se verifieringen av grundversionen nedan.
+Användaren ville återfå reflektionssamtalen, möta fler människor och djur och förena dagens fungerande design med den tydligare tidigare papperskänslan. Proportioner, mått, silhuetter, placeringar, vägar och båtfärder ska bevaras. Dator är huvudformatet. Den äldre uppskattade papperskänslan är flat, dämpad och tydligt klippt, med små figurförflyttningar och gester.
 
-[Demo 3.11 – Bekanta ansikten](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) bevaras som separat version. 3.12 ändrar inte dess startfil eller samtalsmoduler. `thoughts.html` bevarar 3.10. Adressen `/demo3/` och `game.html` leder fortfarande till den äldre världsdemon 3.2.1. Versionsnummer i README:s avsnitt om den tidigare huvudversionen anger inte aktuell arbetsversion.
+## Vad som finns i 3.13
 
-## Korrigering i 3.12.1: en hälsning per besök
+### Reflektion som frivilliga samtal
 
-Användaren påpekade att ”Där är … Jag hälsar.” kom tillbaka direkt efter hälsningen. Modulerna skilde tidigare bara på bekant och obekant person. De minns nu också om spelaren redan har hälsat under det aktuella besöket i rummet.
+Tolv frågor med bevarade ID:n, frågetexter och hänvisningar från `curriculum/classroom.mjs`. Varje fråga har två motfrågor och en ytterligare följdfråga per gren. En vald tanke följs först av spelarens synliga replik, sedan av personens svar. En bubbla är synlig i taget och texten ligger kvar tills spelaren fortsätter. Reflektionerna ger inga poäng, stämplar eller automatisk rättning.
 
-- En avslutad första presentation räknas som hälsning under besöket.
-- En återhälsning räknas som gjord när personens svar har visats. Tanken förblir borta både efter Till tankarna och efter Avsluta.
-- Att stänga och öppna samtalet, eller tala om ett annat ämne, återställer inte hälsningen.
-- När spelaren lämnar platsen och återvänder kan hen hälsa igen. Ett nytt sidbesök startar också ett nytt rumsbesök.
-- Om återhälsningen avbryts innan personens svar visas kan den tas upp igen. En första presentation sparar fortfarande bekantskapen först när hela presentationen avslutats.
+| Person och plats | Reflektionsämnen |
+| --- | --- |
+| Klara på torget | Frihetstidens frihet |
+| Maja i kaffehuset | Synen på ogifta mödrar; utsatthet och följder av straff och skam |
+| Noor vid barnhuset | Barnens vardag |
+| Brita i tryckeriet | Vilka personer historieböcker berättar om |
+| Linnea vid vetenskapens hus | Indelningar av människor |
+| Lovisa vid slottet | Olika syn på Gustav III |
+| Karin vid byn | Staden eller landet |
+| Jo vid kajen | Tänkbara följder av en seger i kriget |
+| Liv vid operan | Maskeradens betydelse |
+| Rut i arkivet | Maktfördelning; att använda olika källor |
 
-Det anpassade befintliga modultestet `dialogue-conversations-check.cjs` gav PASS utan körfel för Rut, Maja, Brita och Jo. Det kontrollerade reglerna ovan, återöppning under samma besök, nya rumsbesök och gamla 3.11-flaggor. Befintliga ämnesdialoger och Ruts dokumentövning ingick också. Detta är modulverifiering, inte ett påstående om provning i elevens egen webbläsare.
+Utomhus finns också Otto vid tryckeriet, Amira på Marstrand och Ester på Saint Barthélemy. Alla nio nya människor har kort småprat och en ömsesidig presentation. Världsklick och tillgängliga personknappar leder spelaren längs den befintliga vägen till mötet.
 
-## Samtalsflöde i 3.12.1
+### Liv i världen och gemensamt material
 
-Samtalen gäller Rut i arkivet, Maja i kaffehuset, Brita i tryckeriet och Jo vid huvudstadens kaj. Eleven klickar på personen och väljer en tanke. **Klick på tanken ersätter tankevalen med spelarens talbubbla; knappen Fortsätt eller Enter visar personens svar.** Replikerna ligger kvar tills eleven går vidare. Samtalet går inte vidare automatiskt.
+Två hundar springer och stannar längs redan befintliga vägsegment. Sex höns pickar nära byn och herrgården. Tre får och två kor finns i en hage söder om landsbygdens byggnader. Hagen ligger utanför vägar, hus och vatten. Knappen Landsbygden går till den befintliga bynoden.
 
-Vid det första mötet presenterar sig spelaren som ny lärling, och personen presenterar sig och välkomnar eleven. Efter hela presentationen återgår samtalet till de övriga tankevalen. Vid nästa besök på platsen erbjuds exempelvis ”Där är Maja. Jag hälsar.”, följt av ”Hej igen, Maja.” och Majas återhälsning. Hälsningen erbjuds sedan inte igen under samma besök. Övriga ämnen finns kvar: handlingarna, anslagstavlan, bokstavstyperna och båtresan. Ruts dokumentövning och återkoppling bevaras.
+Materialet för människor, djur och rum hämtas från ett rent pappersfält i befintliga `docs/world/assets/town.webp`. Färger och hud hålls dämpade. En bruten innerkant ger synliga fiberkanter innanför den befintliga formen; inga punkter flyttas. Hamnen behåller sina originalutsnitt och sin geometri. Rörelser respekterar `prefers-reduced-motion`.
 
-De nya modulerna använder samma localStorage-nyckel som 3.11: `uppdrag1700-known-people-v1`, med platsnycklarna `archive`, `cafe`, `print` och `quay`. Befintliga `true`-flaggor ger återhälsningar från början av ett nytt besök; eleven behöver inte göra om presentationen. En avbruten presentation registreras inte som genomförd. Minnet av hälsningen under besöket finns endast i den aktiva samtalsmodulen och skriver ingen ny sparnyckel. Kunskapsbankens svar och uppdragsprogression skrivs inte av samtalsmodulerna.
+### Bekantskaper och hälsningar
+
+Samma sparnyckel som 3.11 används: `uppdrag1700-known-people-v1`. De befintliga platsnycklarna är `archive`, `cafe`, `print`, `quay`. Nya människor använder `street:<person-id>`. Befintliga bekantskaper följer därför med.
+
+En fullständig första presentation registrerar bekantskapen. En återhälsning förbrukas när personens svar visas, även om samtalet därefter avslutas direkt med Escape. Att stänga och öppna samma samtal eller växla till reflektion återställer inte hälsningen. Ett nytt rumsbesök tillåter återhälsning. Utomhus räknas ett nytt besök när spelaren lämnar närområdet eller besöker ett rum. Ruts vanliga handlingar och övning finns kvar.
 
 ## Aktiva filer
 
-Alla filer i tabellen ligger i `docs/demo3/`.
+Alla nedanstående filer ligger i `docs/demo3/`.
 
-| Fil | Roll i 3.12.1 |
+| Fil | Roll |
 | --- | --- |
-| `conversations.html` | Komplett HTML-start med direkta skriptreferenser. Bevarar världen, konsten, rutterna och den befintliga animationsloopen. |
-| `archive-conversations.js` | Ruts tankar, ömsesidiga presentation, återhälsning, dokumentövning och bekantskapsminne. |
-| `place-conversations.js` | Maja, Brita och Jo: tankar, ömsesidiga presentationer, återhälsningar och bekantskapsminne. |
-| `meeting-all-thoughts.js` | Oförändrat lager för personer, klickytor och talanimationer. |
-| `harbour-merchant-visits.js` | Oförändrad logik för rum, dörrar, hamnbesök och båtfärder. |
+| `living-world.html` | Komplett direkt HTML-start; befintlig värld med människor och deras ankomst längs vägarna. |
+| `living-conversation-data.js` | Frågor, ursprungliga referenser, 12 samtalsträd och nio personer. |
+| `living-dialogues.js` | Tankar, repliker, motfrågor, följdfrågor, fokus och världens bekantskaper. |
+| `world-life.js` | Människor, hundar, höns, får och kor; renderar genom den befintliga animationsloopen. |
+| `archive-living.js` | Ruts fungerande 3.12.1-logik och en ingång till reflektion. |
+| `place-living.js` | Maja, Brita och Jo, med samma hälsningslogik och reflektionsingång. |
+| `meeting-living.js` | Samma figurer och projektioner, gemensamt material och talanimation. |
+| `paper-fibres.js` | Delat pappersmaterial och fiberkanter. |
+| `interior-fibre-art.js` | Material för kaffehuset, tryckeriet och arkivet. |
+| `more-room-fibre-art.js` | Samma material för ytterligare 14 rum. |
+| `harbour-fibre-art.js` | Fiberkanter i befintlig hamngrafik. |
+| `paper-look.js` | Oförändrad världskarta. |
+| `harbour-merchant-visits.js` | Oförändrade rum, dörrar, hamnbesök och båtfärder. |
 
-Startfilen laddar `archive-conversations.js?v=3.12.1` och `place-conversations.js?v=3.12.1`. Den hämtar inte en annan HTML-sida med `fetch` och ersätter inte dokumentet med `document.open()`/`document.write()`. Bildmaterial och övriga beroenden är desamma som i den bevarade världen.
+3.13 har egna filer. Den accepterade [3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1), [3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) och 3.10 (`thoughts.html`) bevaras.
 
-Återhälsningar återfanns vid genomgången i **`meeting-thoughts.js`, som inte laddades av 3.11**. De nya aktiva samtalsmodulerna innehåller nu återhälsningarna. `meeting-thoughts.js` ska inte kopplas in i 3.12; det är den äldre adaptern och ersätter tankevalen för flera av personerna med ett annat samtalsflöde.
+## Underlag och redaktionell avgränsning
 
-## Det rapporterade samtalsstoppet
+Frågorna återfanns i `curriculum/classroom.mjs` vid commit `f277b2a3fb9cc138f2b4d5ac30ca5765767a5eb7`. Den tidigare samtalsformen och några småpratsrepliker finns i `docs/game.js`. Källkatalog, originalposter och exakt provenance följer med i `living-conversation-data.js`.
 
-Användaren har bekräftat att stoppet uppstod efter ett **faktiskt klick** på tanken ”Undrar vem hon är?”. Tankevalen uppfattades ligga kvar, och det tidigare fungerande flödet med spelarens fråga och personens svar saknades. Den tidigare hypotesen om Enter innan ett val fått fokus förklarar därför inte rapporten och ska inte användas som förklaring.
+Frågorna är spelets tidigare bearbetningar av det uppladdade SOS-materialet, inte ett påstående om ordagranna bokcitat. De nya korta svaren och följdfrågorna är skrivna spelrepliker. Alla tolv kompletta samtalsträd återfanns inte som sådana i den äldre koden; de återfunna frågorna har här förenats med den tidigare frivilliga samtalsformen. Inget nytt AI-frågebibliotek har kopplats in.
 
-Det finns ännu **inte belägg för grundorsaken**. Jämförelsen med de bevarade 3.9- och 3.10-filerna visade att själva tankebubblorna och övergången till repliker fanns kvar i 3.11-koden. Kontrollen med simulerade DOM-händelser återskapade inte stoppet. Ett faktiskt klick på Ruts presentationstanke i publicerade 3.11 visade också spelarens fråga och sedan Ruts svar i den använda Chrome-sessionen. Den direkta HTML-starten i 3.12 förenklar laddningen, men visar inte i sig att den tidigare `fetch`/`document.write`-starten orsakade klickfelet. Rapporten gäller det visuella samtalsflödet; ”tyst” ska inte automatiskt tolkas som ett önskemål om uppläst ljud.
+## Verifiering
 
-## Verifiering och publicering av grundversionen 3.12
+Lokalt modultest `living-world-check.cjs`: **PASS utan registrerade körfel**. Det bevarar samtliga tidigare 3.12.1-assertioner och kontrollerar dessutom alla tolv frågors båda grenar och följdfrågor, alla nio människors presentationer/småprat/återhälsningar, rörelse till rätt mötesnod före samtalsstart, exakt bankinnehåll, fria personplaceringar och oförändrad världsgeometri. Enter-repeat, fokus, Escape, inert och återgång till vanliga tankar ingår. Testet använder jsdom och riktig canvas men ersätter bakgrundsbilder; det är inte visuell webbläsarverifiering.
 
-Den lokala kontrollen `dialogue-conversations-check.cjs` gav **PASS** för samtliga fyra personer, utan registrerade körfel. Den omfattade:
+Separat materialkontroll `paper-material-check.cjs`: **PASS** för 34 interiörvyer (17 rum i två format) och 24 hamnvyer (tre miljöer, fyra resefaser, två format), med verkliga originalbilder och canvas. Geometri-/möbelfunktioner är identiska med grundversionen. Dörr- och fartygsklickytor är identiska. Fiberbehandling ritar inte utanför den befintliga silhuetten. Faktiska figur-, arkiv- och hamnbilder har granskats.
 
-- Första mötet, avbruten presentation och genomförd ömsesidig presentation.
-- Tankeklick → spelarens replik → personens svar, med manuellt Fortsätt/Enter.
-- Skydd mot att nedhållen Enter hoppar över repliker.
-- Återgång till tankeval, upprepade återhälsningar och övriga samtalsämnen.
-- Ruts dokumentjämförelse, återkoppling och avslutning.
-- Escape, återbesök och återläsning av befintliga bekantskapsflaggor från 3.11.
+Djurkontrollen bekräftar rörelse mellan bildrutor, identiska bilder vid minskad rörelse och återställd canvastransform. Testfilerna är tillfälliga arbetsfiler, inte nya beroenden för spelet.
 
-Detta är ett lokalt modultest med jsdom, den befintliga rumslogiken och mötesrenderaren. Skärmmåtten är simulerade och bakgrundsbilderna ersatta. Resultatet bekräftar de testade händelseförloppen, men verifierar inte den publicerade sidans laddning, verkliga klickträffytor eller elevens webbläsare. Testfilen är en tillfällig arbetsfil och ingår inte i publiceringen.
+Publicering och granskning av den sammansatta sidan i Chrome dokumenteras efter slutförd kontroll. Elevens egen webbläsare har inte provats.
 
-Den publicerade sidan provades därefter i Chrome med vanliga klick och Enter. Ruts presentation avslutades först i 3.11. Efter navigation till 3.12 visades direkt tanken ”Där är Rut. Jag hälsar.”. Ett klick gav spelarens ”Hej igen, Rut.” och Enter gav Ruts ”Hej igen! Välkommen tillbaka. Vill du titta på handlingarna?”. Knappen Till tankarna återställde tankevalen.
+## Fortsätt utan att tappa beslut
 
-Jo var fortfarande obekant vid första mötet i 3.12. Klick på ”Undrar vad han gör vid kajen?” visade spelarens presentation och fråga. Fortsätt visade Jos presentation som hamnskrivare. Efter avslutad presentation och ett nytt samtal erbjöds hälsningstanken. Den ledde till ”Hej igen, Jo.” och ”Välkommen tillbaka till kajen! Vill du resa vidare?”. Både den första presentationen och återhälsningen kunde alltså följas i den publicerade sidan. Maja och Brita omfattas av modultestet, men har inte provats med riktiga klick i denna publicerade version. Elevens egen webbläsare har inte provats.
+Utgå från 3.13:s aktiva filer ovan och användarens senaste återkoppling. Behåll tankebubbla → spelarens replik → personens svar, manuell fortsättning, bekantskaper och högst en hälsning per besök. Lägg inte tillbaka en hälsning enbart för att samtalet öppnas igen. Nya reflektioner ska förbli frivilliga och källbundna.
 
-| Kontroll | Resultat 18 oktober 2026 |
-| --- | --- |
-| Lokala samtalsförlopp och gamla 3.11-flaggor | PASS; inga registrerade körfel. |
-| Publicering av de tre nya källfilerna | Klar: commit `0766878e38d59ec8742f0709552a6224ea84c4bc`, Pages-körning `39111711482`, `success`. |
-| Publicerad startsida | Öppnad; Demo 3.12 visas i titel och rubrik. |
-| Verkliga klick i publicerad Demo 3.12 | Rut: tanke → spelarens replik → svar med Enter → tillbaka till tankar. Jo: första presentationen och ett nytt samtal med återhälsning, via klick på Fortsätt. |
-| Faktisk överföring från 3.11 | Ruts avslutade presentation följde med till 3.12 i samma webbläsare; hälsningstanken visades direkt. |
+Användarens tidigare rapport om en tanke som fastnade kom efter ett verkligt klick. Det finns fortfarande inte belägg för grundorsaken. Beskriv inte problemet som att användaren tryckte Enter före ett val. Den direkta HTML-starten har provats som fungerande; det bevisar inte att en äldre laddningsmetod orsakade felet.
 
-## Fortsätt här i nästa chatt
-
-Utgå från **3.12.1 och de aktiva filerna ovan**. Tankebubblan, spelarens egen replik, personens svar och den ömsesidiga igenkänningen är den nuvarande utgångspunkten. En hälsning ska göras högst en gång per besök, även om samtalet stängs och öppnas igen. Kontrollerna ovan är slutförda med de angivna begränsningarna. Utgå från användarens aktuella återkoppling när nästa ändring bestäms.
-
-Bevara godkända bildmiljöer, sparnycklar, navigation, dörrar och båtfärder. Återuppta inte äldre kartproblem enbart för att äldre kommentarer eller dokument nämner dem. Dator är huvudformatet; se också `SCENE-COMPOSITION.md` för fastställda bildprinciper.
+Bevara godkända bildmiljöer, sparnycklar, navigation, dörrar och båtfärder. Återuppta inte äldre kartproblem enbart för att historiska dokument nämner dem. Se också `SCENE-COMPOSITION.md` för bildprinciper.
