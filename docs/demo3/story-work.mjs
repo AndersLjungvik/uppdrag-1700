@@ -19,7 +19,7 @@ style.textContent=`
  #storyBubble .thoughtChoice{display:block;width:100%;min-height:44px;margin:4px 0;padding:8px 9px;background:transparent;border:0;color:inherit;font:italic 17px/1.35 Georgia,'Times New Roman',serif;cursor:pointer}
  #storyBubble .thoughtChoice:hover{text-decoration:underline;text-underline-offset:4px}
  #storyBubble:focus-visible,#storyBubble .thoughtChoice:focus-visible{outline:1.5px dashed #625545;outline-offset:1px}
- #storyWorkPanel{box-sizing:border-box;pointer-events:auto;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(740px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:22px 26px;background:#fbf1dc var(--dialogue-paper) repeat;border:1px solid #bbaa875e;box-shadow:2px 3px 0 #5b49382b;text-align:left}
+ #storyWorkPanel{box-sizing:border-box;pointer-events:auto;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(740px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:22px 26px;background:linear-gradient(#fffefbe6,#fffefbe6),#fffefa var(--dialogue-light) repeat;border:1px solid #bbaa875e;box-shadow:2px 3px 0 #5b49382b;text-align:left}
  #storyWorkPanel :is(button,input,select){font:inherit;color:inherit}
  #storyWorkPanel h2{font:normal 25px/1.32 Georgia,'Times New Roman',serif;margin:8px 0 16px}
  #storyWorkPanel h3{font:normal 19px/1.35 Georgia,'Times New Roman',serif;margin:14px 0 8px}
@@ -64,6 +64,28 @@ style.textContent=`
  #storyWorkPanel .storyStamps{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
  #storyWorkPanel .storyStamp{font-size:13px;padding:4px 8px;border:1px dashed #aa9875;color:#73664f}
  #storyWorkPanel .storyStamp.complete{border:2px solid #607765;color:#3d5e4b;background:#e0e3cd;transform:rotate(-1deg)}
+ #storyWorkArtifact,#storyWorkPrompt,#storyWorkPanel .storyJobMeta{font-size:15px!important;color:#655b4f}
+ #storyWorkPanel[data-mode=quiz] #storyQuestion{margin-top:14px;padding-top:14px;border-top:1px solid #bbaa875e;font-size:22px;line-height:1.4}
+ #storyChapterJobs{display:grid;gap:10px;margin:16px 0}
+ #storyChapterJobs .storyJob{padding:13px 15px;background:#fffefa80;border:1px solid #bbaa875e}
+ #storyChapterJobs .storyJob[aria-current=true]{border-left:3px solid #55736b;padding-left:13px}
+ #storyChapterJobs .storyJob h3{margin:5px 0 7px}
+ #storyChapterJobs .storyJob small{font-size:14px;color:#655b4f}
+ #storyChapterJobs .storyJob p{margin:6px 0}
+ #storyWorkReport{margin:14px 0;padding:12px 15px;border-left:3px solid #708072;background:#edf0e466}
+ #storyWorkReport h3{margin:0 0 9px}
+ #storyWorkReport dl{margin:0}
+ #storyWorkReport .storyReportRow{display:flex;justify-content:space-between;gap:18px;padding:5px 0;font-size:16px;line-height:1.4}
+ #storyWorkReport dd{margin:0;font-variant-numeric:tabular-nums}
+ #storyFinishedAnswers{border-top:1px solid #bbaa875e;border-bottom:1px solid #bbaa875e;padding:8px 0;margin:16px 0}
+ #storyFinishedAnswers summary{cursor:pointer;min-height:44px;box-sizing:border-box;padding:10px 0;font-size:17px;line-height:1.4}
+ #storyFinishedAnswers ol{padding-left:23px;margin:5px 0 10px}
+ #storyFinishedAnswers>ol>li{padding:8px 0;border-top:1px solid #bbaa8738}
+ #storyFinishedAnswers .storyAnswerQuestion{font-weight:bold;margin:5px 0}
+ #storyFinishedAnswers .storyCanonicalAnswer{margin:5px 0}
+ #storyFinishedAnswers .storyCanonicalChain{font-size:16px;line-height:1.5;margin:5px 0 9px}
+ #storyFinishedAnswers small{font-size:14px;color:#655b4f}
+ #storyWorkNext{padding:11px 14px;border-left:3px solid #8d7956;background:#f2e9d35e}
  @media(max-width:640px),(max-height:430px){#storyWorkPanel{padding:14px 17px}#storyWorkPanel h2{font-size:22px;margin:7px 0 12px}#storyWorkPanel p{font-size:16px}#storyPuzzleDrawing{gap:9px}#storyPuzzleDrawing .paper-map{height:125px}#storyBubble{padding:23px 30px}#storyBubble p{font-size:16px;line-height:1.4}}
  @media(forced-colors:active){#storyWorkPanel{background:Canvas;border:1px solid CanvasText}#storyWorkPanel button,#storyAnswer{background:ButtonFace;border:1px solid ButtonText}}
 `;
@@ -82,6 +104,17 @@ const success=value=>value===true||value?.ok===true;
 const nameOf=id=>({cafe:'Maja',print:'Brita',archive:'Rut',quay:'Jo'}[id]||state()?.PLACES?.[id]?.npc||'Berättaren');
 const placeName=id=>id==='garden'?'Vetenskapens hus':state()?.PLACES?.[id]?.name||id||'staden';
 const levels=()=>state()?.LEVEL_NAMES||['Lärling','Gesäll','Mästare'];
+const jobOf=level=>level?.job||{};
+const artifactOf=level=>jobOf(level).artifact||jobOf(level).artefact||level?.artifact||'Arbetsbladet';
+const jobTitle=level=>jobOf(level).title||level?.title||artifactOf(level);
+const inSentence=text=>text?text[0].toLocaleLowerCase('sv')+text.slice(1):'';
+const questionCount=n=>`${n} ${n===1?'fråga':'frågor'}`;
+function reportFor(chapter,level){
+  const saved=state()?.workReport?.(chapter,level);
+  if(saved?.finishedAt!=null)return saved;
+  const latest=state()?.lastWorkReport;
+  return latest?.finishedAt!=null&&latest.chapter===chapter&&latest.level===level?latest:null;
+}
 const mark=()=>{revision++;signature='';};
 const el=(tag,text,props={})=>Object.assign(document.createElement(tag),props,text==null?{}:{textContent:text});
 const actionButton=(label,action,handler)=>{const b=el('button',label,{type:'button'});b.dataset.storyAction=action;b.addEventListener('click',handler);return b;};
@@ -112,7 +145,15 @@ function setMode(next){
   root.dataset.mode=next||'';bubble.dataset.mode=next||'';paper.dataset.mode=next||'';
   document.body.dataset.storyMode=next||'';speechEnd=0;tail.replaceChildren();mark();
 }
-function focusPaper(node=paper){node.focus({preventScroll:true});}
+function focusPaper(node=paper){
+  node.focus({preventScroll:true});
+  if(node===paper||paper.hidden||!paper.contains(node))return;
+  const box=paper.getBoundingClientRect?.(),target=node.getBoundingClientRect?.();
+  if(!box||!target||!box.height)return;
+  // Keep keyboard focus visible inside a long sheet without moving the world.
+  if(target.top<box.top+10)paper.scrollTop-=box.top+10-target.top;
+  else if(target.bottom>box.bottom-10)paper.scrollTop+=target.bottom-box.bottom+10;
+}
 function close(restore=true){
   if(!mode)return false;
   const hadQuiz=!!engine()?.currentQuiz()&&engine().world().screen==='work';
@@ -150,25 +191,36 @@ function taskLine(task){
   if(task.phase==='pickup'||task.phase==='handoff')return task.text;
   if(task.phase==='materials')return 'Manuset är kontrollerat. Lägg svärta, papper och typer direkt i pressen. Provtrycket ska sedan till Maja.';
   if(task.phase==='puzzle')return 'Nu behöver kartorna jämföras innan leveransen kan fortsätta.';
-  if(task.phase==='deliver')return `Du har med dig ${task.artifact.toLowerCase()}. Vi tittar på resultatet tillsammans.`;
+  if(task.phase==='deliver')return `Du har med dig ${inSentence(task.artifact)}. Vi tittar på resultatet tillsammans.`;
   const l=engine().level(),a=engine().active();
-  const start=a?.quiz?'Dina anteckningar ligger kvar. Vi fortsätter där vi slutade.':a?.repeat?'Vi kan gå igenom underlaget en gång till.':'Ta fram underlaget, så går vi igenom det tillsammans.';
+  const start=a?.quiz?'Det ligger kvar precis som du lämnade det.':a?.repeat?'Vi kan gå igenom underlaget en gång till.':'Ta fram underlaget, så går vi igenom det tillsammans.';
   return start+(l.recipient===place?'':` Sedan tar du det till ${placeName(l.recipient).toLowerCase()}.`);
 }
 function actionLabel(task){
   const a=engine().active();
   if(task.phase==='offer')return `Jag tar beställningen.`;
-  if(task.phase==='work')return a?.quiz?'Jag fortsätter med arbetet.':'Jag börjar med arbetet.';
+  if(task.phase==='work')return `Jag ${a?.quiz?'fortsätter':'börjar'} med ${inSentence(artifactOf(engine().level()))}.`;
   if(task.phase==='materials')return 'Jag lägger materialet i pressen.';
   if(task.phase==='puzzle')return 'Jag jämför kartorna.';
-  if(task.phase==='deliver')return `Jag lämnar ${task.artifact.toLowerCase()}.`;
+  if(task.phase==='deliver')return `Jag lämnar ${inSentence(task.artifact)}.`;
   const label=(task.label||'Ta med underlaget').replace(/[.!]$/,'');
   const verbs={Ta:'tar',Lägg:'lägger',Hämta:'hämtar',Återgå:'återgår'};
   const first=label.split(' ')[0];return 'Jag '+(verbs[first]||first.toLowerCase())+label.slice(first.length)+'.';
 }
+function resumeTask(task,choose=true){
+  taskKey=task.key;
+  const resume=()=>speak(actionLabel(task),()=>speak('Det ligger kvar precis som du lämnade det.',()=>runTask(task,'beginWork')),'Du');
+  if(choose)thoughts([{label:actionLabel(task),action:'beginWork',run:resume}]);else resume();
+}
 function showTask(task=state()?.taskAt(place),read=true){
   if(!task){showDirection();return;}
   taskKey=task.key;
+  if(task.phase==='work'&&engine().active()?.quiz){
+    // A resumed sheet keeps its existing question, draft and feedback. The
+    // thought becomes speech once, followed by one short acknowledgement.
+    resumeTask(task);
+    return;
+  }
   const choices=()=>{
     const now=state().taskAt(place);if(!now||now.key!==task.key){showTask(now);return;}
     const action={offer:'accept',work:'beginWork',materials:'materials',puzzle:'puzzle'}[task.phase]||task.phase;
@@ -187,6 +239,7 @@ function open(atPlace,{thoughtsFirst=false}={}){
   state().syncPlace();const task=state().taskAt(atPlace);
   if(!task&&!thoughtsFirst)return false;
   if(mode)close(false);mount(atPlace);
+  if(task?.phase==='work'&&engine().active()?.quiz){resumeTask(task,thoughtsFirst);return true;}
   if(thoughtsFirst){
     const choices=task?[{label:'Jag frågar om uppdraget.',action:'inspect',run:()=>speak('Vad behöver du hjälp med?',()=>showTask(task),'Du')}]:[{label:'Jag tittar i uppdragsboken.',action:'book',run:openBook}];
     thoughts(choices);
@@ -234,12 +287,15 @@ function shuffled(values){const out=[...values];for(let i=out.length-1;i>0;i--){
 function renderQuiz({focus=true}={}){
   const e=engine(),session=e?.currentQuiz(),q=e?.question();
   if(!session||!q){showTask();return;}
-  if(q.type==='chain'&&!session.optionsShown){const r=mutate('showOptions');if(!success(r)){notice(problemText(r));return;}}
-  const workTitle=session.kind==='story'?`${levels()[e.active().level-1]} · steg ${e.active().level} av 3`:session.kind==='promotion'?'Yrkesprov':session.kind==='legacy'?'Ditt pågående arbete':session.kind==='gate'?'Stadsportens kunskapsprov':'Repetition hos Rut';
+  const story=session.kind==='story',level=story?e.level():null;
+  const workTitle=story?`${levels()[level.level-1]} · avsnitt ${e.current().id}`:session.kind==='promotion'?'Yrkesprov':session.kind==='legacy'?'Ditt pågående arbete':session.kind==='gate'?'Stadsportens kunskapsprov':'Repetition hos Rut';
   const question=e.state.simpleText&&q.simpleQuestion?q.simpleQuestion:q.question;
-  paperShell(question,'quiz',{subtitle:workTitle});paper.dataset.question=q.id;paper.dataset.quizKind=session.kind;
-  paper.querySelector('h2').id='storyQuestion';
-  const progress=el('p',`Fråga ${session.index+1} av ${session.ids.length}`,{id:'storyProgress'});paper.querySelector('.storyTop').after(progress);
+  const heading=paperShell(story?jobTitle(level):question,'quiz',{subtitle:workTitle});paper.dataset.question=q.id;paper.dataset.quizKind=session.kind;
+  const progress=el('p',`Fråga ${session.index+1} av ${session.ids.length}`,{id:'storyProgress'});
+  if(story){
+    if(artifactOf(level)!==jobTitle(level))paper.append(el('p','Arbetsblad: '+artifactOf(level),{id:'storyWorkArtifact'}));
+    paper.append(el('p',jobOf(level).desk||'Återkalla det du minns från kapitlet. Försök själv först och ta hjälp när du behöver.',{id:'storyWorkPrompt'}),progress,el('h3',question,{id:'storyQuestion'}));
+  }else{heading.id='storyQuestion';paper.querySelector('.storyTop').after(progress);}
   if(session.kind==='review'||session.kind==='gate'){
     const rule=`Minst ${Math.ceil(session.ids.length*.7)} av ${session.ids.length} rätt på första försöket utan stöd ${session.kind==='gate'?'öppnar nästa avsnitt.':'ger ett äpple och 1 daler.'}`;
     progress.after(el('p',rule,{id:'storyQuizRule'}));
@@ -256,7 +312,14 @@ function renderQuiz({focus=true}={}){
       for(const choice of choices){const b=el('button',choice,{type:'button'});b.dataset.storyAnswer=choice;b.addEventListener('click',()=>submitAnswer(choice,true));area.append(b);}paper.append(area);
     }
   }
-  if(chain&&!feedback)renderChain(q,session);
+  if(chain&&!feedback){
+    if(session.optionsShown)renderChain(q,session);
+    else{
+      paper.append(el('p','Tänk igenom sambandet för dig själv innan du tar fram delarna.',{id:'storyRecallFirst'}));
+      const reveal=actionButton('Jag har tänkt – visa delarna','showOptions',()=>{const r=mutate('showOptions');if(success(r))renderQuiz();else notice(problemText(r));});
+      reveal.id='storyShowChainParts';paper.append(reveal);
+    }
+  }
   if(session.clue){const help=el('p',session.clue,{id:'storyHelpText'});paper.append(help);}
   if(feedback){
     if(chain){const preview=el('div',null,{id:'storyChainPreview'});preview.append(el('strong',feedback.correct?'Du byggde den här förklaringen!':'Din förklaring – försök igen'),el('p',q.steps.map((part,i)=>[part.connector,session.draft[i]].filter(Boolean).join(' ')).join('. ').replace(/\s+/g,' ').trim()+'.'));paper.append(preview);}
@@ -264,11 +327,11 @@ function renderQuiz({focus=true}={}){
     const controls=el('div',null,{className:'storyControls'});
     const button=feedback.correct?actionButton(session.index===session.ids.length-1?'Avsluta arbetet':'Nästa fråga','nextQuestion',nextQuestion):actionButton('Försök igen','retry',()=>{mutate('retry');renderQuiz();});
     button.id=feedback.correct?'storyNext':'storyRetry';controls.append(button);paper.append(controls);
-  }else if(session.kind==='story'){
+  }else if(story&&(!chain||session.optionsShown)){
     const controls=el('div',null,{className:'storyControls'}),hint=actionButton(session.clue?'Läs ledtråden igen':`Ge ett äpple för en ledtråd (${e.state.inventory.apple||0})`,'hint',()=>{const r=mutate('hint');if(success(r))renderQuiz();else notice(problemText(r));});hint.id='storyHint';controls.append(hint);paper.append(controls);
   }
   const source=el('details',null,{id:'storyQuestionSource'});source.append(el('summary','Bokhänvisning'),el('p',q.bookReference||e.current().pages,{id:'storySourceText'}));paper.append(source);
-  position();if(focus){const preferred=feedback?paper.querySelector('#storyNext,#storyRetry'):(!chain&&!session.optionsShown?paper.querySelector('#storyAnswer'):paper.querySelector('#storyChoiceArea button,#storyChainParts button'));focusPaper(preferred||paper);}
+  position();if(focus){const preferred=feedback?paper.querySelector('#storyNext,#storyRetry'):(!chain&&!session.optionsShown?paper.querySelector('#storyAnswer'):paper.querySelector('#storyShowChainParts,#storyChoiceArea button,#storyChainParts button'));focusPaper(preferred||paper);}
 }
 function renderChain(q,session){
   const form=el('form',null,{id:'storyChainForm'}),parts=el('div',null,{id:'storyChainParts'}),preview=el('p',null,{id:'storyChainPreview'});
@@ -287,10 +350,79 @@ function renderChain(q,session){
 }
 function submitAnswer(value,supported){const r=mutate('answer',value,{supported});if(success(r))renderQuiz();else notice(problemText(r));}
 function nextQuestion(){
+  const e=engine(),session=e.currentQuiz();
+  const completed=session?.kind==='story'?{chapter:e.current().id,level:e.active().level,ids:[...session.ids],total:session.ids.length,startedAt:session.startedAt}:null;
   const r=mutate('nextQuestion');if(!success(r))return;
   if(!r.finished){renderQuiz();return;}
   if(r.review){showQuizResult(r);return;}
+  if(completed){
+    const report=r.workReport||reportFor(completed.chapter,completed.level);
+    showWorkResult(report||{...completed,finishedAt:Date.now(),delivered:false});return;
+  }
   showTask();
+}
+function workContinuation(report,level){
+  const e=engine(),a=e.active();
+  if(report.delivered)return {text:`Levererat till ${nameOf(level.recipient)} på ${placeName(level.recipient)}. Nästa ärende finns i uppdragsboken.`,label:'Till uppdragsboken',run:openBook};
+  if(report.chapter!==e.current().id||a?.level!==report.level||!['materials','puzzle','handoff','deliver'].includes(a.phase)){
+    return {text:'Arbetsbladet finns kvar. I uppdragsboken ser du ditt aktuella ärende.',label:'Till uppdragsboken',run:openBook};
+  }
+  const target=e.target(),here=physicalPlace()===target;
+  const next={
+    materials:{text:'Nästa steg: lägg svärta, papper och typer i pressen i tryckeriet.',label:here?'Till pressen':`Gå till ${placeName(target)}`},
+    puzzle:{text:`Nästa steg: jämför kartorna vid arbetsbordet på ${placeName(target)}.`,label:here?'Till kartbordet':`Gå till ${placeName(target)}`},
+    handoff:{text:`Nästa steg: ta ${inSentence(artifactOf(level))} till ${nameOf(target)} på ${placeName(target)}.`,label:here?'Fortsätt överlämningen':`Gå till ${placeName(target)}`},
+    deliver:{text:`Nästa steg: lämna ${inSentence(artifactOf(level))} till ${nameOf(target)} på ${placeName(target)}.`,label:here?'Lämna arbetet':`Gå till ${placeName(target)}`}
+  }[a.phase];
+  return {...next,run:()=>{
+    const active=engine().active();
+    if(engine().current().id!==report.chapter||active?.level!==report.level||!['materials','puzzle','handoff','deliver'].includes(active.phase)){renderBook();return;}
+    const destination=engine().target();
+    if(physicalPlace()===destination){const task=state().taskAt(destination);if(task)showTask(task);else renderBook();}
+    else navigate(destination);
+  }};
+}
+function showWorkResult(report){
+  if(!report||report.finishedAt==null){renderBook();return;}
+  const e=engine(),chapter=e.content.chapters.find(c=>c.id===report.chapter),level=chapter?.levels.find(l=>l.level===report.level);
+  if(!level){renderBook();return;}
+  latestResult=report;
+  paperShell(artifactOf(level),'workResult',{subtitle:`${levels()[level.level-1]} · avsnitt ${chapter.id}`});
+  paper.dataset.reportChapter=String(chapter.id);paper.dataset.reportLevel=String(level.level);
+  paper.append(el('p',report.delivered?'Arbetsbladet är färdigt och levererat.':'Arbetsbladet är färdigt. Du kan läsa igenom det och fortsätta med leveransen.',{id:'storyWorkFinished'}));
+  const ids=[...new Set(report.ids||[])],total=Number.isInteger(report.total)?report.total:ids.length;
+  const summary=el('section',null,{id:'storyWorkReport'});summary.setAttribute('aria-label','Ditt arbetspass');
+  summary.append(el('h3','Tränat '+questionCount(total)));
+  const known=['independent','supported','unknown'].every(key=>Number.isInteger(report[key])&&report[key]>=0)&&report.independent+report.supported+report.unknown===total;
+  if(known){
+    const counts=el('dl');
+    const rows=[['På egen hand vid första försöket',report.independent],['Med stöd eller omförsök',report.supported]];
+    if(report.unknown)rows.push(['Uppgift om första försöket saknas',report.unknown]);
+    for(const [label,count]of rows){const row=el('div',null,{className:'storyReportRow'});row.append(el('dt',label),el('dd',String(count)));counts.append(row);}
+    summary.append(counts);
+  }else summary.append(el('p','För det här arbetsbladet saknas uppgifter om vilka svar som kom på första försöket.'));
+  paper.append(summary);
+  // Canonical answers only appear on a completed sheet. The summary never
+  // uses lifetime answer totals to infer independence for this work session.
+  const answers=el('details',null,{id:'storyFinishedAnswers'}),list=el('ol');
+  answers.append(el('summary','Läs arbetsbladets frågor och svar'));
+  for(const id of ids){
+    const q=e.content.cards.get(id);if(!q)continue;
+    const item=el('li'),question=e.state.simpleText&&q.simpleQuestion?q.simpleQuestion:q.question;
+    item.append(el('p',question,{className:'storyAnswerQuestion'}));
+    if(q.type==='chain'){
+      const chain=el('ol',null,{className:'storyCanonicalChain'});
+      for(const step of q.steps)chain.append(el('li',[step.connector,step.answer].filter(Boolean).join(' ')));
+      item.append(chain);
+    }else item.append(el('p',q.answer,{className:'storyCanonicalAnswer'}));
+    if(q.bookReference||chapter.pages)item.append(el('small',q.bookReference||'Boken s. '+chapter.pages));
+    list.append(item);
+  }
+  answers.append(list);paper.append(answers);
+  const next=workContinuation(report,level),controls=el('div',null,{className:'storyControls'}),continueButton=actionButton(next.label,'continueWork',next.run);
+  continueButton.id='storyContinueWork';controls.append(continueButton);
+  if(next.run!==openBook)controls.append(actionButton('Läs uppdragsboken','book',openBook));
+  paper.append(el('p',next.text,{id:'storyWorkNext'}),controls);position();focusPaper(paper);
 }
 function openMaterials(){
   paperShell('Gör ett provtryck','materials',{subtitle:engine().level().title});
@@ -354,6 +486,26 @@ function openBook(){
   if(!engine()||travelling())return false;
   if(mode)close(false);mount(physicalPlace());state().syncPlace();renderBook();return true;
 }
+function renderChapterJobs(chapter,active,done){
+  const jobs=el('section',null,{id:'storyChapterJobs'});jobs.setAttribute('aria-label','Arbeten i det här avsnittet');
+  jobs.append(el('h3','Arbeten i avsnittet'));
+  for(const level of chapter.levels){
+    const current=active?.level===level.level,row=el('article',null,{className:'storyJob'});row.dataset.level=String(level.level);row.setAttribute('aria-current',String(current));
+    const status=current?active.quiz?`Pågår · fråga ${active.quiz.index+1} av ${active.quiz.ids.length}`:{
+      pickup:'Underlaget hämtas',work:'Redo vid arbetsbordet',materials:'Arbetsbladet klart · provtrycket återstår',puzzle:'Arbetsbladet klart · kartorna återstår',handoff:'Arbetsbladet klart · överlämningen pågår',deliver:'Arbetsbladet klart · dags att lämna det'
+    }[active.phase]||'Pågår':done>=level.level?'Levererat':done+1===level.level?'Nästa arbete':'Kommer senare';
+    row.append(el('small',levels()[level.level-1]+(level.level>1?' · frivilligt':'')),el('h3',jobTitle(level)),el('p',questionCount(level.ids.length)+' · '+status,{className:'storyJobMeta'}));
+    const report=reportFor(chapter.id,level.level);
+    if(report){
+      const read=actionButton(current&&active.quiz?'Läs det senaste färdiga arbetsbladet':'Läs arbetsbladet','workReport',()=>{
+        const saved=reportFor(chapter.id,level.level);if(saved)showWorkResult(saved);else renderBook();
+      });
+      read.dataset.reportChapter=String(chapter.id);read.dataset.reportLevel=String(level.level);row.append(read);
+    }
+    jobs.append(row);
+  }
+  paper.append(jobs);
+}
 function renderBook({focus=true}={}){
   const e=engine();if(!e)return;
   paperShell('Uppdragsboken','book',{subtitle:'Uppdrag 1700'});
@@ -363,7 +515,7 @@ function renderBook({focus=true}={}){
   const item=e.item();if(item)order.append(el('p','I ryggsäcken: '+item,{id:'storyCarriedItem'}));
   order.append(el('p',`${e.state.coins} daler · ${e.state.inventory.apple||0} äpplen`,{id:'storyWallet'}));paper.append(order);
   const controls=el('div',null,{className:'storyControls'}),target=e.target();
-  if(a||done<3){const here=state().taskAt(physicalPlace());controls.append(actionButton(here?'Ta fram uppdraget här':`Gå till ${placeName(target)}`,'navigate',()=>{if(here){close(false);open(physicalPlace());}else navigate(target);}));}
+  if(a||done<3){const here=state().taskAt(physicalPlace());controls.append(actionButton(here?(here.phase==='work'&&a?.quiz?'Fortsätt med '+inSentence(artifactOf(e.level())):'Ta fram uppdraget här'):`Gå till ${placeName(target)}`,'navigate',()=>{if(here){close(false);open(physicalPlace());}else navigate(target);}));}
   if(world.review){
     controls.append(actionButton(world.review.kind==='gate'?(canExamineHere?'Fortsätt kunskapsprovet':'Gå till kaffehuset för kunskapsprovet'):'Fortsätt hos Rut',world.review.kind==='gate'?'beginGateExam':'beginReview',()=>{if(world.review.kind==='gate'){if(canExamineHere)startGate();else navigate('cafe');}else if(physicalPlace()==='archive'){const r=mutate('beginReview');if(success(r))renderQuiz();else notice(problemText(r));}else navigate('archive');}));
     controls.append(actionButton(world.review.kind==='gate'?'Avbryt kunskapsprovet':'Avbryt repetitionspasset','cancelReview',()=>{mutate('cancelReview');renderBook();}));
@@ -381,6 +533,7 @@ function renderBook({focus=true}={}){
     });repeat.dataset.repeatLevel=level.level;repeat.dataset.giver=level.giver;controls.append(repeat);
   }
   paper.append(controls);
+  renderChapterJobs(c,a,done);
   if(done>=1&&c.id<10&&world.unlocked<=c.id)paper.append(el('p','Lärlingsuppdraget är klart. Kunskapsprovet öppnar nästa avsnitt. Du kan också fortsätta samla gesäll- och mästarstämplar här.'));
   const chapters=el('div',null,{id:'storyChapterList'});
   for(const chapter of e.content.chapters){
@@ -408,7 +561,7 @@ function position(){
 function tick(now,nextGeometry){
   geometry=nextGeometry;
   if(!mode)return;
-  if(travelling()||!physicalPlace()&&mode!=='book'||actualRoom()!==physicalRoom){close(false);return;}
+  if(travelling()||!physicalPlace()&&!['book','workResult'].includes(mode)||actualRoom()!==physicalRoom){close(false);return;}
   const next=[geometry?.w,geometry?.h,geometry?.left,geometry?.top,revision].join(':');
   if(next!==signature){position();signature=next;}
 }

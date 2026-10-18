@@ -1,8 +1,14 @@
 # Uppdrag 1700 · Pappersstaden
 
-## Aktuell arbetsversion: Demo 3.19
+## Aktuell arbetsversion: Demo 3.20
 
-[Öppna Demo 3.19 – Kapitlens arbete i pappersvärlden](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.19.0).
+[Öppna Demo 3.20 – Kapitelarbeten och färdiga arbetsblad](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.20.0).
+
+**Nytt i 3.20: trettio namngivna kapitelarbeten.** Varje befintlig nivå har en beställning, ett arbetsblad och ett resultat som hör till just dess frågor. Uppdragsboken visar lärlings-, gesäll- och mästararbetet i det valda avsnittet. De 139 frågorna, deras svar, källhänvisningar och kapitelordning är bevarade; beskrivningarna av arbetena är spelberättelse.
+
+Arbetsarket används efter undervisningen om kapitlet. Kortsvar börjar utan svarsalternativ. Vid byggsvar får eleven först tänka på frågan och väljer själv när delarna ska visas, utan nedräkning. Ett pausat arbete återupptas efter en specifik fortsättningsreplik och en kort bekräftelse från personen.
+
+Efter frågorna visas det färdiga bladet med nästa ärende och möjlighet att läsa de genomgångna svaren. Bladet finns kvar i uppdragsboken efter leveransen. Sammanställningen skiljer rätt första försök utan stöd från svar efter hjälp eller omförsök. Byggsvar med synliga delar räknas som stöd. För tidigare besvarade frågor i en äldre, påbörjad sparning visas att underlaget saknas; gamla totalsiffror används inte som om de gällde det nya passet. Stämplar och daler följer fortfarande den fysiska leveransen.
 
 **Nytt i 3.19: inbjudningar som leder till bokens verkliga arbete.** Maja, Brita, Rut och Jo läser nu av aktuell beställning, hämtning, arbetsplats och leverans. När ett ärende väntar hos dem säger de det i sitt korta utomhussamtal. I rummet finns ärendet bland spelarens tankar; ett valt ärende blir tal innan arbetsarket öppnas.
 

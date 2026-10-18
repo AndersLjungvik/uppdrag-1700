@@ -82,8 +82,9 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
   function storyChoice(){
     const old=bubble.querySelector('[data-thought="story"]'),focused=old===document.activeElement;old?.remove();
     const place=window.UPPDRAG_STORY_WORLD?.currentPlace?.()||key;
-    if(window.UPPDRAG_STORY_STATE?.taskAt?.(place)){
-      const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought='story';b.textContent='Jag frågar om uppdraget.';bubble.append(b);if(focused)b.focus({preventScroll:true});
+    const task=window.UPPDRAG_STORY_STATE?.taskAt?.(place);
+    if(task){
+      const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought='story';b.textContent=task.thought||'Jag frågar om uppdraget.';bubble.append(b);if(focused)b.focus({preventScroll:true});
     }else if(focused)bubble.focus({preventScroll:true});
     update();
   }

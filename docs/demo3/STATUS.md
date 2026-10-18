@@ -1,10 +1,32 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
-Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.19 – Kapitlens arbete i pappersvärlden**.
+Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.20 – Kapitelarbeten och färdiga arbetsblad**.
 
 ## Börja här
 
-[Starta Demo 3.19](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.19.0). Startfilen är `docs/demo3/living-world.html`.
+[Starta Demo 3.20](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.20.0). Startfilen är `docs/demo3/living-world.html`.
+
+## Kapitelarbeten efter undervisningen – 3.20
+
+Användarens senaste avgränsning: spelet används för återkallning i slutet av arbetet med varje bokkapitel. Elever kan inte medverka i utvecklingstest. Uppgifterna ska därför återkalla undervisat innehåll; de korta vardagssamtalen ska inte bli förhör eller nya öppna bedömningsuppgifter.
+
+`chapter-jobs.mjs` namnger alla 30 befintliga nivåarbeten och gör beställningar, arbetsbeskrivningar, överlämningar och resultat sammanhängande med den aktiva frågebanken. Modulen ändrar enbart berättelsetexter och lägger till `level.job`. Frågor, facit, källor, ID, mottagare, rutter, stoppantal, material, kartmoment och progression bevaras. Alla stoppantal valideras före någon ändring. Personernas repliker talar om arbetet i världen; återkallningsinstruktionen hör hemma på arbetsarket.
+
+`story-work.mjs` visar uppdragets namn på arbetsarket och i uppdragsboken. Ett påbörjat arbete återupptas med en specifik spelar-replik och en kort bekräftelse innan den sparade frågan öppnas. Tankevalet finns redan i rummets tankebubbla. `place-living.js` och `archive-living.js` använder därför adapterns aktuella `task.thought` även vid återbesök.
+
+Byggsvar visar först frågan. Eleven väljer själv ”Jag har tänkt – visa delarna”; inget svarsalternativ visas automatiskt och ingen timer krävs. Delarna och redan gjorda val följer med vid paus och omladdning.
+
+Efter sista besvarade frågan visas det färdiga arbetsbladet. De genomgångna svaren går att läsa först då. Nästa fysiska ärende visas, men sammanställningen slutför inte leveransen och ger inte en stämpel i förväg. Uppdragsboken kan öppna färdiga blad igen, även efter leverans och kapitelbyte. Gesäll och mästare behåller sin frivilliga roll; befintligt kapitelprov öppnar nästa avsnitt.
+
+`work-evidence.mjs` räknar första försöket i just det aktuella passet. Den rättar inga frågor och ändrar inga belöningar. `chapter-state.mjs` sparar en validerad `livingWorkLedger` i samma separata living-story-sparning som tidigare. Poster lagrar fråge-ID och utfall, inga ytterligare fria elevtexter. Ett korrekt omförsök eller svar med valdelar, alternativ eller ledtråd räknas aldrig som självständigt. För gamla redan besvarade frågor utan passpost visas okänt underlag. Rapporter bevaras mellan nivåer, återbesök och omladdningar; avslutad leverans markeras separat.
+
+API: `story.workReport(chapter, level)` och `story.lastWorkReport` returnerar kopior. `act('nextQuestion')` returnerar `workReport` när frågedelen avslutas; `act('deliver')` markerar samma blad som levererat. Alla tidigare plats- och faskontroller gäller fortfarande. Originalmotorn och frågebanken ändras inte av 3.20.
+
+### Verifiering av 3.20
+
+Automatisk kontroll av samtliga 30 motornivåer: 205 svar och 288 omladdningar. Sammansatt DOM-kontroll: 66 svar, 26 faktiska resor, sju arbetsrapporter och första kapitlets tre fullständiga arbets-/leveranskedjor. Paus och omladdning är provade med oskickat kortsvar, felfeedback, visade alternativ, ännu dolda sambandsdelar och delvis sammansatt svar. Levererade blad går att läsa från uppdragsboken både inne och ute på vägen. Kapitelprov, repetition, öresor och fortsatta platskontroller passerar.
+
+Rapportkontrollen skiljer ett nytt blandat pass från äldre perfekta livstidstotaler: 12 frågor gav nio självständiga och tre med hjälp eller omförsök. Äldre påbörjade pass visar två respektive tre okända tidigare utfall i de prövade fallen. Rapporter överlever omladdning, leverans och nivåbyte, och API-kopior kan inte ändra den sparade rapporten. Gamla spel-, konto-, bank- och bekantskapssparningar lämnas byte-identiska. Inga körfel i slutkörningen; produktkällorna var stabila under testet. Detta är motor- och DOM-kontroller, inte en webbläsargranskning eller ett elevtest.
 
 Utgå från denna startfil vid nästa ändring. `/demo3/` och `game.html` visar fortfarande den äldre 3.2.1-demon. Huvudversionen 0.6.0 finns kvar. 3.19 återanvänder dess innehåll, frågebank och uppdragsmotor i den levande världens befintliga scener.
 

@@ -83,7 +83,8 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
     const focus=document.activeElement?.dataset?.thought;
     for(const b of panel.querySelectorAll('[data-thought="story"],[data-thought="story-review"]'))b.remove();
     const state=window.UPPDRAG_STORY_STATE,choices=[];
-    if(state?.taskAt?.('archive'))choices.push(['story','Jag frågar om uppdraget.']);
+    const task=state?.taskAt?.('archive');
+    if(task)choices.push(['story',task.thought||'Jag frågar om uppdraget.']);
     if(state?.engine&&(state.engine.world().known.length||state.engine.world().review))choices.push(['story-review','Jag vill öva på det jag har lärt mig.']);
     for(const [id,text]of choices){const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought=id;b.textContent=text;panel.append(b);if(focus===id)b.focus({preventScroll:true});}
     update();

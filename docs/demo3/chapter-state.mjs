@@ -3,6 +3,8 @@
 import {createEngine, validBank, SAVE_KEY as ORIGINAL_SAVE_KEY, BANK_KEY} from '../world/engine.mjs?v=0.6.17-enter';
 import {PLACES, LEVEL_NAMES} from '../world/content.mjs?v=0.6.17-enter';
 import {choicesFor} from '../world/learning.mjs?v=0.6.17-enter';
+import {applyChapterJobs} from './chapter-jobs.mjs?v=3.20.0';
+import {createWorkEvidence} from './work-evidence.mjs?v=3.20.0';
 
 export const SAVE_KEY = 'uppdrag1700.living-story.v1';
 const read = key => { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; } };
@@ -37,8 +39,10 @@ function persist(value) {
 const saved = read(SAVE_KEY);
 const initial = saved?.version === 2 ? saved : read(ORIGINAL_SAVE_KEY);
 const engine = createEngine({bank, practice: window.UPPDRAG_PRACTICE, initial, onSave: persist});
+applyChapterJobs(engine.content);
 // Make later reads, including invitations, entirely free of state mutations.
 for (const chapter of engine.content.chapters) engine.world().jobs[chapter.id] ||= {done: 0, active: null};
+const evidence = createWorkEvidence(engine);
 
 function currentPlace() { return window.UPPDRAG_STORY_WORLD?.currentPlace() || null; }
 function syncPlace() {
@@ -56,8 +60,8 @@ function taskAt(place) {
   const phase = active?.phase || 'offer';
   const stop = phase === 'pickup' ? level.pickups[active.pickup] : phase === 'handoff' ? level.handoffs[active.handoff] : null;
   const labels = {
-    offer: 'Jag undrar vad som behöver göras.',
-    work: active?.quiz ? 'Jag vill fortsätta med arbetet.' : 'Jag kan börja med arbetet.',
+    offer: 'Jag frågar om ' + level.title.toLowerCase() + '.',
+    work: (active?.quiz ? 'Jag fortsätter med ' : 'Jag börjar med ') + level.artifact.toLowerCase() + '.',
     materials: 'Nu kan jag göra provtrycket.',
     puzzle: 'Jag vill jämföra kartorna.',
     deliver: 'Jag har med mig ' + level.artifact.toLowerCase() + '.'
@@ -66,6 +70,8 @@ function taskAt(place) {
     key: [chapter.id, level.level, phase, active?.pickup || 0, active?.handoff || 0, active?.repeat ? 'repeat' : 'story'].join(':'),
     place, chapter: chapter.id, level: level.level, phase,
     title: level.title, artifact: level.artifact, request: level.request,
+    desk: level.job?.desk || '', resuming: !!active?.quiz,
+    thought: labels[phase] || (phase === 'pickup' ? 'Jag hämtar underlaget.' : 'Jag visar arbetet.'),
     text: stop?.text || (phase === 'deliver' ? level.result : level.request),
     label: stop?.label || labels[phase] || 'Jag tar med mig underlaget.',
     giver: level.giver, recipient: level.recipient
@@ -112,8 +118,16 @@ function act(method, ...args) {
       const level = engine.current().levels[args[1].repeatLevel - 1];
       if (!Number.isInteger(args[1].repeatLevel) || !level || level.giver !== place || engine.active()) return rejected('place');
     } else if (!phaseAt(place, placeMethods[method])) return rejected('place');
+    const completed = method === 'deliver' ? {chapter: engine.current().id, level: engine.active()?.level} : null;
     const result = engine[method](...args);
-    if (method === 'beginWork' && result?.ok) quizContext = {place, kind: 'story'};
+    if (method === 'beginWork' && result?.ok) {
+      quizContext = {place, kind: 'story'};
+      evidence.start(); engine.save();
+    }
+    if (method === 'deliver' && result?.ok) {
+      result.workReport = evidence.markDelivered(completed.chapter, completed.level);
+      engine.save();
+    }
     return result;
   }
   if (['placeMaterial', 'print', 'puzzle'].includes(method)) {
@@ -130,7 +144,16 @@ function act(method, ...args) {
       // now gets the same pause/reload protection as the three-link answers.
       quiz.draft = [args[1].slice(0, 300)]; engine.save(); return true;
     }
+    const quiz = engine.currentQuiz(), question = engine.question();
+    const ownAttempt = method === 'answer' && quiz?.kind === 'story'
+      ? {id: question.id, supported: args[1]?.supported === true || !!quiz.hint || !!quiz.failed || !!quiz.optionsShown || question.type === 'chain'} : null;
+    const completed = method === 'nextQuestion' && quiz?.kind === 'story' &&
+      quiz.feedback?.correct && quiz.index === quiz.ids.length - 1 ? evidence.capture() : null;
     const result = engine[method](...args);
+    if (ownAttempt && result?.ok && evidence.record(ownAttempt.id, result.correct, ownAttempt.supported)) engine.save();
+    if (completed && result?.ok && result.finished) {
+      result.workReport = evidence.finish(completed); engine.save();
+    }
     if (method === 'nextQuestion' && result?.finished) quizContext = null;
     return result;
   }
@@ -149,7 +172,13 @@ function act(method, ...args) {
   }
   if (method === 'pauseWork') { quizContext = null; engine.pauseWork(); return {ok: true}; }
   if (method === 'cancelReview') { quizContext = null; engine.cancelReview(); return {ok: true}; }
-  if (method === 'cancelRepeat') { quizContext = null; return engine.cancelRepeat(); }
+  if (method === 'cancelRepeat') {
+    quizContext = null;
+    const chapter = engine.current().id, level = engine.active()?.level;
+    const result = engine.cancelRepeat();
+    if (result) { evidence.cancel(chapter, level); engine.save(); }
+    return result;
+  }
   if (method === 'setChapter') {
     const result = engine.setChapter(...args);
     if (result) { quizContext = null; syncPlace(); }
@@ -160,6 +189,8 @@ function act(method, ...args) {
 
 export const story = {
   engine, bank, PLACES, LEVEL_NAMES, choicesFor, taskAt, syncPlace, act, invitationFor,
+  workReport: (chapter, level) => evidence.report(chapter, level),
+  get lastWorkReport() { return evidence.latest; },
   get revision() { return revision; }, get saveError() { return saveError; },
   get saveKey() { return SAVE_KEY; },
   snapshot: () => copy(engine.snapshot())
