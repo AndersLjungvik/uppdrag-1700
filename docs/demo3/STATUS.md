@@ -33,7 +33,7 @@ Utomhus finns också Otto vid tryckeriet, Amira på Marstrand och Ester på Sain
 
 ### Liv i världen och gemensamt material
 
-Två hundar springer och stannar längs redan befintliga vägsegment. Sex höns pickar nära byn och herrgården. Tre får och två kor finns i en hage söder om landsbygdens byggnader. Hagen ligger utanför vägar, hus och vatten. Knappen Landsbygden går till den befintliga bynoden.
+Två hundar springer och stannar längs redan befintliga vägsegment. Sex höns pickar nära byn och herrgården. Tre får och två kor finns i en hage söder om landsbygdens byggnader. Hagen ligger utanför vägar, hus och vatten. Knappen Landsbygden går till den befintliga landsvägsnoden öster om byn, där hagen syns. Karin möts på den befintliga vägen norr om byn.
 
 Materialet för människor, djur och rum hämtas från ett rent pappersfält i befintliga `docs/world/assets/town.webp`. Färger och hud hålls dämpade. En bruten innerkant ger synliga fiberkanter innanför den befintliga formen; inga punkter flyttas. Hamnen behåller sina originalutsnitt och sin geometri. Rörelser respekterar `prefers-reduced-motion`.
 
@@ -73,13 +73,19 @@ Frågorna är spelets tidigare bearbetningar av det uppladdade SOS-materialet, i
 
 ## Verifiering
 
-Lokalt modultest `living-world-check.cjs`: **PASS utan registrerade körfel**. Det bevarar samtliga tidigare 3.12.1-assertioner och kontrollerar dessutom alla tolv frågors båda grenar och följdfrågor, alla nio människors presentationer/småprat/återhälsningar, rörelse till rätt mötesnod före samtalsstart, exakt bankinnehåll, fria personplaceringar och oförändrad världsgeometri. Enter-repeat, fokus, Escape, inert och återgång till vanliga tankar ingår. Testet använder jsdom och riktig canvas men ersätter bakgrundsbilder; det är inte visuell webbläsarverifiering.
+Lokalt modultest `living-world-check.cjs`: **PASS utan registrerade körfel**. Det bevarar samtliga tidigare 3.12.1-assertioner och kontrollerar dessutom alla tolv frågors båda grenar och följdfrågor, alla nio människors presentationer/småprat/återhälsningar, rörelse till rätt mötesnod före samtalsstart, exakt bankinnehåll, fria personplaceringar och oförändrad världsgeometri. Samtliga nio mötesnoder kontrolleras också med 24 världskoordinaters fritt utrymme för spelaren runt byggnader och vatten. Enter-repeat, fokus, Escape, inert och återgång till vanliga tankar ingår. Testet använder jsdom och riktig canvas men ersätter bakgrundsbilder; det är inte visuell webbläsarverifiering.
 
 Separat materialkontroll `paper-material-check.cjs`: **PASS** för 34 interiörvyer (17 rum i två format) och 24 hamnvyer (tre miljöer, fyra resefaser, två format), med verkliga originalbilder och canvas. Geometri-/möbelfunktioner är identiska med grundversionen. Dörr- och fartygsklickytor är identiska. Fiberbehandling ritar inte utanför den befintliga silhuetten. Faktiska figur-, arkiv- och hamnbilder har granskats.
 
 Djurkontrollen bekräftar rörelse mellan bildrutor, identiska bilder vid minskad rörelse och återställd canvastransform. Testfilerna är tillfälliga arbetsfiler, inte nya beroenden för spelet.
 
-Publicering och granskning av den sammansatta sidan i Chrome dokumenteras efter slutförd kontroll. Elevens egen webbläsare har inte provats.
+Den sammansatta 3.13-sidan publicerades i commit `941e0bdcb6cb5053342590a182c6c19ee6699576`. GitHub Pages-körning [39117022006](https://github.com/AndersLjungvik/uppdrag-1700/actions/runs/39117022006) avslutades med `success` för samma commit.
+
+Sidan provades därefter i Chrome med vanliga klick och Enter. Klara: ömsesidig presentation, reflektionsfrågan om frihet, motfråga, svar, följdfråga och svar samt stängning/återöppning utan ny hälsning. Rut: den äldre bekantskapen följde med, återhälsningen visades en gång och förblev borta efter Escape och återöppning; reflektionsämnena och frågan om olika källor fungerade. De verkliga sammansatta rumsbilderna med papper och tankebubblor granskades. På landsbygden syntes hund, höns, tre får och två kor.
+
+Webbgranskningen fångade att den gamla byingångsnoden låg inne i byggnadsrutan och därför var olämplig för ett utomhussamtal. Karin har samma synliga position men möts nu på vägen norr om byn. Amiras mötesnod ligger nedanför fästningen med fri plats för båda figurerna. Knappen Landsbygden går till den fria landsvägen öster om byn med hagen inom bild. En dubblerad namnskylt vid tangentbordsfokus togs också bort. Efter justeringarna passerade hela modultestet igen, inklusive kontroll av utrymmet runt alla mötesnoder.
+
+Browsergranskningen omfattar dessa utvalda förlopp i Chrome. Alla övriga samtal omfattas av modultesterna. Elevens egen webbläsare har inte provats.
 
 ## Fortsätt utan att tappa beslut
 

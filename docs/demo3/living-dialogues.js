@@ -26,7 +26,6 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
     #worldPeople button{position:absolute;pointer-events:auto;width:52px;height:60px;border:0;background:transparent;cursor:pointer;touch-action:manipulation;border-radius:20px;padding:0}
     #worldPeople button span{display:none;position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);white-space:nowrap;padding:3px 7px;background:#f1e4c9;border:1px solid #9e8965;border-radius:4px;font:600 13px Georgia,serif;color:#352d24}
     #worldPeople button:focus-visible{outline:3px solid #355e68;outline-offset:2px}
-    #worldPeople button:focus-visible span{display:block}
     body[data-living-mode] #message{visibility:hidden}
     body[data-living-mode] #meetingPerson,body[data-living-mode] #rutPapers{visibility:hidden}
     @media(max-width:640px){#livingBubble{padding:10px 12px}#livingBubble p{font-size:16px}#livingBubble button{font-size:14px;min-height:40px}}
@@ -77,7 +76,8 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
     if(interior||sailing||voyage||!person||person.region!==region.id)return false;
     const node=region.map.get(person.node);
     if(!node||Math.hypot(player.x-node.x,player.y-node.y)>3)return false;
-    begin({roomKey:null,regionId:region.id,person,name:person.name,ids:person.topics||[]});menu();return true;
+    begin({roomKey:null,regionId:region.id,person,name:person.name,ids:person.topics||[]});
+    setMessage(person.name,'Du kan stanna och prata en stund eller fortsätta längs vägen.');menu();return true;
   }
   function menu(){
     if(!context)return;
@@ -215,6 +215,7 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
       if(!b){b=document.createElement('button');b.type='button';b.dataset.person=person.id;b.setAttribute('aria-label','Prata med '+person.name);b.title=person.name;const label=document.createElement('span');label.textContent=person.name;b.append(label);peopleLayer.append(b);personButtons.set(person.id,b);b.addEventListener('click',()=>requestPerson(window.UPPDRAG_WORLD_LIFE.people(region).find(p=>p.id===person.id)));b.addEventListener('pointerenter',()=>{hoverPersonId=person.id;});b.addEventListener('pointerleave',()=>{hoverPersonId=null;});}
       const x=layout.w/2+(person.x-camera.x)*layout.scale,y=layout.h/2+(person.y-camera.y)*layout.scale;
       b.hidden=x<20||x>layout.w-20||y<30||y>layout.h-30;
+      if(document.activeElement===b)hoverPersonId=person.id;
       b.style.left=(x-26)+'px';b.style.top=(y-34)+'px';
     }
   }
