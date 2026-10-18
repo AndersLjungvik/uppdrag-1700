@@ -1,4 +1,4 @@
-/* 3.12: mutual introductions and returning greetings for Maja, Brita and Jo.
+/* 3.12.1: one returning greeting per room visit for Maja, Brita and Jo.
  * Retains existing topics. No tasks, learning-progress or world writes.
  * The existing meeting renderer supplies geometry and the single animation loop.
  */
@@ -49,7 +49,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
   roomView.append(root);
   const bubble=root.querySelector('#placeBubble'),tail=root.querySelector('#placeTail');
   let active=false,room=null,geo=null,key=null,mode=null,topic=null,line=0,revision=0;
-  let speechAt=0,speechEnd=0,oldInert=false,lastSignature='';
+  let speechAt=0,speechEnd=0,oldInert=false,lastSignature='',greetedThisVisit=false;
   function update(){revision++;lastSignature='';}
   function setMode(next){
     if(!mode&&next){oldInert=roomFooter.inert;roomFooter.inert=true;}
@@ -70,7 +70,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     bubble.replaceChildren();
     const heading=document.createElement('h3');heading.id='placeHeading';heading.tabIndex=-1;heading.textContent='Du tänker …';bubble.append(heading);
     const known=isKnown(key);
-    for(const choice of TOPICS[key].choices.filter(c=>(c.id!=='who'||!known)&&(c.id!=='greet'||known))){const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought=choice.id;b.textContent=choice.thought;bubble.append(b);}
+    for(const choice of TOPICS[key].choices.filter(c=>(c.id!=='who'||!known)&&(c.id!=='greet'||known&&!greetedThisVisit))){const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought=choice.id;b.textContent=choice.thought;bubble.append(b);}
     const actions=document.createElement('div');actions.className='actions';
     const skip=document.createElement('button');skip.type='button';skip.className='quiet';skip.dataset.action='close';skip.textContent='Inte nu';actions.append(skip);bubble.append(actions);
     position();heading.focus({preventScroll:true});return true;
@@ -81,6 +81,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
   }
   function showLine(){
     const [who,text]=topic.lines[line],last=line===topic.lines.length-1;
+    if(topic.id==='greet'&&last)greetedThisVisit=true;
     bubble.className='speech';
     bubble.innerHTML='<h3 id="placeHeading"></h3><p id="placeLine" aria-live="polite" aria-atomic="true"></p><div class="actions"><button type="button" class="quiet" data-action="close">Avsluta</button><button type="button" data-action="next"></button></div>';
     bubble.querySelector('h3').textContent=who;bubble.querySelector('p').textContent=text;
@@ -88,7 +89,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     speechAt=performance.now();speechEnd=speechAt+Math.min(3600,700+text.length*24);
     update();position();next.focus({preventScroll:true});
   }
-  function advance(){if(mode!=='speech')return;if(++line<topic.lines.length)showLine();else if(topic.id==='who'){remember(key);open();}else if(topic.id==='greet')open();else close();}
+  function advance(){if(mode!=='speech')return;if(++line<topic.lines.length)showLine();else if(topic.id==='who'){remember(key);greetedThisVisit=true;open();}else if(topic.id==='greet')open();else close();}
   root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
     if(b.dataset.thought)speak(b.dataset.thought);else if(b.dataset.action==='close')close();else if(b.dataset.action==='next')advance();
   });
@@ -155,7 +156,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
   function tick(now,geometry){
     const k=geometry?.c?.key,enabled=!!interior&&!voyage&&Object.hasOwn(TOPICS,k);
     if(!enabled){if(active){close(false);active=false;room=null;geo=null;key=null;root.hidden=true;update();}return;}
-    if(!active||interior!==room){close(false);active=true;room=interior;key=k;update();}
+    if(!active||interior!==room){close(false);active=true;room=interior;key=k;greetedThisVisit=false;update();}
     geo=geometry;root.hidden=!active;
     const sig=[geo.w,geo.h,geo.top,geo.left,revision].join(':');if(sig!==lastSignature){position();lastSignature=sig;}
   }

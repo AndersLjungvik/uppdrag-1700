@@ -1,4 +1,4 @@
-/* 3.12. Mutual introductions and returning greetings; existing archive practice.
+/* 3.12.1. One returning greeting per room visit; existing archive practice.
  * Fictional practice notes, not historical sources. No quiz-bank/progress writes.
  * Backgrounds and the existing walking/door/voyage engine are not changed.
  */
@@ -49,7 +49,7 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
   roomView.append(root,paperButton);
   const panel=root.querySelector('#rutPanel'),tail=root.querySelector('#rutTail'),docs=root.querySelector('#rutDocuments');
   let active=false,room=null,geo=null,mode=null,topic=null,line=0,revision=0,speechAt=0,speechEnd=0;
-  let oldInert=false,lastGeometry='',solved=false;
+  let oldInert=false,lastGeometry='',solved=false,greetedThisVisit=false;
   const conversations={
     who:[['Du','Hej! Jag är ny lärling här. Är det du som är Rut?'],['Rut','Ja, jag är läromästaren Rut. Välkommen hit! Här undersöker vi vad handlingarna berättar.']],
     greet:[['Du','Hej igen, Rut.'],['Rut','Hej igen! Välkommen tillbaka. Vill du titta på handlingarna?']],
@@ -69,18 +69,19 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
   function close(restore=true){setMode(null);tail.replaceChildren();if(restore){const b=document.querySelector('#meetingPerson');b.hidden=false;b.focus({preventScroll:true});}return true;}
   function thoughts(){
     if(!active)return false;setMode('thoughts');panel.className='thought';
-    panel.innerHTML=`<h3 id="rutHeading">Du tänker …</h3>${isKnown("archive")?'<button class="thoughtChoice" data-thought="greet">Där är Rut. Jag hälsar.</button>':'<button class="thoughtChoice" data-thought="who">Undrar vem hon är?</button>'}<button class="thoughtChoice" data-thought="papers">Varför har hon två berättelser?</button><div class="rutActions"><button class="quiet" data-action="close">Inte nu</button></div>`;
+    panel.innerHTML=`<h3 id="rutHeading">Du tänker …</h3>${isKnown("archive")?(greetedThisVisit?'':'<button class="thoughtChoice" data-thought="greet">Där är Rut. Jag hälsar.</button>'):'<button class="thoughtChoice" data-thought="who">Undrar vem hon är?</button>'}<button class="thoughtChoice" data-thought="papers">Varför har hon två berättelser?</button><div class="rutActions"><button class="quiet" data-action="close">Inte nu</button></div>`;
     position();focusHeading(panel.querySelector('h3'));return true;
   }
   function speak(key){topic=key;line=0;setMode('speech');showLine();}
   function showLine(){
     const [name,text]=conversations[topic][line],last=line===conversations[topic].length-1;
+    if(topic==='greet'&&last)greetedThisVisit=true;
     panel.className='speech';panel.innerHTML='<h3 id="rutHeading"></h3><p id="rutText" aria-live="polite" aria-atomic="true"></p><div class="rutActions"><button class="quiet" data-action="close">Avsluta</button><button data-action="next"></button></div>';
     panel.querySelector('h3').textContent=name;panel.querySelector('p').textContent=text;
     panel.querySelector('[data-action="next"]').textContent=last?(topic==='papers'?'Till handlingarna →':(topic==='who'||topic==='greet')?'Till tankarna':'Klart'):'Fortsätt ↵';
     speechAt=performance.now();speechEnd=speechAt+Math.min(3600,700+text.length*24);update();position();panel.querySelector('[data-action="next"]').focus({preventScroll:true});
   }
-  function advance(){if(mode!=='speech')return;if(++line<conversations[topic].length)showLine();else if(topic==='who'){remember('archive');thoughts();}else if(topic==='greet')thoughts();else if(topic==='papers')openPapers();else close();}
+  function advance(){if(mode!=='speech')return;if(++line<conversations[topic].length)showLine();else if(topic==='who'){remember('archive');greetedThisVisit=true;thoughts();}else if(topic==='greet')thoughts();else if(topic==='papers')openPapers();else close();}
   function openPapers(){
     if(!active)return;setMode('papers');tail.replaceChildren();delete docs.dataset.solved;
     docs.innerHTML='<h3 id="rutDocHeading">Samma leverans?</h3><p class="practiceNote">Två påhittade övningstexter — inte historiska källor.</p><div class="sources"><article><h4>Berättelse A</h4><p><span class="sequence">Två tunnor kom till magasinet</span> på morgonen. <span class="sequence">Sedan skrevs leveransen in i listan.</span></p></article><article><h4>Berättelse B</h4><p>På morgonen <span class="sequence">skrevs två tunnor in i listan.</span> <span class="sequence">Sedan kom tunnorna till magasinet.</span></p></article></div><p class="question">Vad skiljer berättelserna åt?</p><div id="rutAnswers"></div><p id="rutFeedback" role="status" aria-live="polite"></p><div class="docActions"><button class="quiet" data-action="close">Lägg tillbaka</button><button data-action="conclusion" hidden>Fråga Rut →</button></div>';
@@ -183,7 +184,7 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
   function tick(now,geometry){
     const enabled=!!interior&&!interior.outdoor&&interior.kind==='archive'&&!voyage;
     if(!enabled){if(active){close(false);active=false;room=null;geo=null;root.hidden=true;paperButton.hidden=true;update();}return;}
-    if(!active||interior!==room){if(mode)close(false);active=true;room=interior;root.hidden=false;paperButton.hidden=false;update();}
+    if(!active||interior!==room){if(mode)close(false);active=true;room=interior;greetedThisVisit=false;root.hidden=false;paperButton.hidden=false;update();}
     geo=geometry;if(!geo)return;
     const signature=[geo.w,geo.h,geo.top,geo.left,revision].join(':');
     if(signature!==lastGeometry){position();lastGeometry=signature;}

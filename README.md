@@ -1,8 +1,8 @@
 # Uppdrag 1700 · Pappersstaden
 
-## Aktuell arbetsversion: Demo 3.12
+## Aktuell arbetsversion: Demo 3.12.1
 
-[Öppna Demo 3.12 – Samtal och återseenden](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html). Tankeklick följs av spelarens replik och personens svar. Spelaren, Rut, Maja, Brita och Jo presenterar sig vid första mötet och hälsar naturligt vid återbesök. Fortsätt med knappen eller Enter. Versionen är publicerad. Samtalsförloppen är modulprovade för alla fyra personer; riktiga klick har dessutom kontrollerats med Rut och Jo på den publicerade sidan, inklusive Ruts igenkänning från 3.11.
+[Öppna Demo 3.12.1 – Samtal och återseenden](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1). Tankeklick följs av spelarens replik och personens svar. Vid första mötet presenterar spelaren och personen sig för varandra. Rut, Maja, Brita och Jo hälsar sedan naturligt vid återbesök. Hälsningen erbjuds en gång per besök och förblir borta om samtalet stängs och öppnas igen. Fortsätt med knappen eller Enter. Korrigeringen är modulprovad för alla fyra personer, inklusive befintliga bekantskaper från 3.11.
 
 Se [aktuell utvecklingsstatus](docs/demo3/STATUS.md) för aktiva filer, verifiering och nästa steg. [Demo 3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) bevaras. Den allmänna adressen `/demo3/` öppnar fortfarande den äldre världsdemon.
 
