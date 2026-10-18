@@ -34,6 +34,16 @@
       ['Jo','Ja. Välj resmål vid fartyget när du är redo att segla.']
     ]}
   };
+  // A meeting is remembered only after its introduction is completed.
+  // Saved per browser; no pupil names or identifiers are collected.
+  const KNOWN_KEY='uppdrag1700-known-people-v1';
+  let known={};
+  try{known=JSON.parse(localStorage.getItem(KNOWN_KEY)||'{}')||{};}catch{known={};}
+  const RETURNING={
+    cafe:[['Maja','Välkommen tillbaka! Vad vill du veta?'],['Du','Jag undrar vad ni talar om på kaffehuset.'],['Maja','Vi pratar om det som händer i staden. Du får gärna läsa anslagen.']],
+    print:[['Brita','Där är du igen! Vill du titta på arbetet?'],['Du','Hur använder du bokstavstyperna?'],['Brita','Jag sätter ihop dem till ord och trycker texten på papper.']],
+    quay:[['Jo','Välkommen tillbaka till kajen!'],['Du','Vilka fartyg kan jag resa med?'],['Jo','Se efter vid landgången. Där väljer du vart du vill segla.']]
+  };
   const styles=document.createElement('style');
   styles.textContent=`
     #meetingLayer{position:absolute;pointer-events:none;z-index:3;width:0;height:0}
@@ -131,7 +141,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     const g=layer.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,w,h);
     g.save();g.translate(p.x,p.y);g.scale(p.scale,p.scale);
     if(c.key==='archive'&&pilot){speechAt=pilot.speech.at;speechEnd=pilot.speech.end>now?pilot.speech.end:0;}
-    const a=puppets(g),speaker=c.key==='archive'&&pilot?pilot.speaker:(dialogue?dialogue.cast.lines[dialogue.index][0]:'');
+    const a=puppets(g),speaker=c.key==='archive'&&pilot?pilot.speaker:(dialogue?dialogue.lines[dialogue.index][0]:'');
     // Render farther people first, keeping feet anchored in the same floor plane.
     const drawings=[{pos:poses[0],who:CAST.player,right:true}];
     if(c.cast&&poses[1])drawings.push({pos:poses[1],who:c.cast,right:false});
@@ -159,10 +169,10 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   }
   function showLine(){
     if(!dialogue)return;
-    const [speaker,text]=dialogue.cast.lines[dialogue.index];
+    const [speaker,text]=dialogue.lines[dialogue.index];
     panel.querySelector('#meetingSpeaker').textContent=speaker;
     panel.querySelector('#meetingLine').textContent=text;
-    next.textContent=dialogue.index===dialogue.cast.lines.length-1?'Klart ↵':'Fortsätt ↵';
+    next.textContent=dialogue.index===dialogue.lines.length-1?'Klart ↵':'Fortsätt ↵';
     speechAt=performance.now();speechEnd=speechAt+Math.min(3600,700+text.length*24);
     document.body.dataset.conversation=dialogue.cast.name;
     drawPeople(speechAt);next.focus({preventScroll:true});
@@ -170,12 +180,12 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   function startTalk(){
     const c=current();if(!c?.cast||dialogue||voyage)return false;
     if(c.key==='archive'&&pilot)return pilot.open();
-    dialogue={room:interior,cast:c.cast,index:0};footerInert=roomFooter.inert;roomFooter.inert=true;
+    dialogue={room:interior,cast:c.cast,key:c.key,index:0,lines:known[c.key]&&RETURNING[c.key]?RETURNING[c.key]:c.cast.lines};footerInert=roomFooter.inert;roomFooter.inert=true;
     panel.hidden=false;showLine();return true;
   }
   function advance(){
     if(!dialogue)return;
-    if(++dialogue.index>=dialogue.cast.lines.length)closeTalk();else showLine();
+    if(++dialogue.index>=dialogue.lines.length){known[dialogue.key]=true;try{localStorage.setItem(KNOWN_KEY,JSON.stringify(known));}catch{}closeTalk();}else showLine();
   }
   person.addEventListener('click',startTalk);next.addEventListener('click',advance);close.addEventListener('click',()=>closeTalk());
   // Capture before the original room exit shortcuts. One press = one line, not
