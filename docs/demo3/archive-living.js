@@ -185,7 +185,7 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
   function tick(now,geometry){
     const enabled=!!interior&&!interior.outdoor&&interior.kind==='archive'&&!voyage;
     if(!enabled){if(active){close(false);active=false;room=null;geo=null;root.hidden=true;paperButton.hidden=true;update();}return;}
-    if(!active||interior!==room){if(mode)close(false);active=true;room=interior;greetedThisVisit=false;root.hidden=false;paperButton.hidden=false;update();}
+    if(!active||interior!==room){if(mode)close(false);active=true;room=interior;greetedThisVisit=window.UPPDRAG_LIVING_DIALOGUES?.consumeGreeting('archive')||false;root.hidden=false;paperButton.hidden=false;update();}
     geo=geometry;if(!geo)return;
     const signature=[geo.w,geo.h,geo.top,geo.left,revision].join(':');
     if(signature!==lastGeometry){position();lastGeometry=signature;}

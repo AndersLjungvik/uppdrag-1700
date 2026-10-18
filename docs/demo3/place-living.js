@@ -157,7 +157,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
   function tick(now,geometry){
     const k=geometry?.c?.key,enabled=!!interior&&!voyage&&Object.hasOwn(TOPICS,k);
     if(!enabled){if(active){close(false);active=false;room=null;geo=null;key=null;root.hidden=true;update();}return;}
-    if(!active||interior!==room){close(false);active=true;room=interior;key=k;greetedThisVisit=false;update();}
+    if(!active||interior!==room){close(false);active=true;room=interior;key=k;greetedThisVisit=window.UPPDRAG_LIVING_DIALOGUES?.consumeGreeting(key)||false;update();}
     geo=geometry;root.hidden=!active;
     const sig=[geo.w,geo.h,geo.top,geo.left,revision].join(':');if(sig!==lastSignature){position();lastSignature=sig;}
   }

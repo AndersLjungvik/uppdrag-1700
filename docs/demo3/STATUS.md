@@ -1,14 +1,34 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
-Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.15 – En levande pappersvärld**.
+Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.16 – En levande pappersvärld**.
 
 ## Börja här
 
-[Starta Demo 3.15](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.15.0). Startfilen är `docs/demo3/living-world.html`.
+[Starta Demo 3.16](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.16.0). Startfilen är `docs/demo3/living-world.html`.
 
 Utgå från denna startfil vid nästa ändring. `/demo3/` och `game.html` visar fortfarande den äldre 3.2.1-demon. Huvudversionen 0.6.0 är ett bevarat förlopp med hela uppdragssystemet; hela det systemet har inte överförts till denna demo.
 
-## Senaste användarbeslut – perspektiv och enkla samtal
+## Senaste användarbeslut – samma personer ute och inne
+
+**Användaren har uttryckligen accepterat känslan i 3.15:** ”nu har vi verkligen hittat rätt i feelingen”. Behåll perspektivet ovanifrån, de diskreta rörelserna, pappersbubblorna och de korta mötena. Gör ingen ny stilomläggning.
+
+3.15 hade nio gående förbipasserande. Maja, Brita, Rut och Jo fanns då fortfarande bara i sina rums-/kajscener. **3.16 lägger till även de fyra huvudpersonerna som vandrare.** Alla tretton namngivna samtalspersoner i den nuvarande världsdemon går nu ute. Jo går på den fria stadsvägen mellan torget och kajvägens första korsning.
+
+De fyra huvudpersonerna har samma namn, färger och kläder ute som inne. Vid första mötet ute presenterar personen sig i en enda kort replik. När den repliken visas sparas bekantskapen på samma platsnyckel som rummet redan använder. Avbrott under spelarens ”Hej!” räknas inte som en presentation. Vid återkomst används en kort vardagsreplik. Ingen ytterligare meny har lagts till.
+
+En direkt färd från detta samtal till personens egen plats bär med sig hälsningen till just den rumsankomsten. Maja, Brita, Rut eller Jo föreslår då inte omedelbart att hälsa igen. Avbruten färd, ett annat mål eller ett senare separat besök tar inte med sig denna engångsmarkör. Personen kan fortfarande mötas och samtala på sin vanliga plats.
+
+## Nästa förloppsdel – inbjudningar när arbetet är aktuellt
+
+Användarens avsikt: personerna promenerar och har korta vardagliga samtal tills det är dags för deras del av berättelsen; då bjuder de in spelaren till respektive plats. Den grundidén ska styra nästa överföring av kapitelarbetet.
+
+**Kapitelstyrda arbetsinbjudningar är ännu inte aktiva i 3.16.** Världsdemon saknar huvudversionens uppdragsmotor, frågearbete, beställningar och leveranser. En inbjudan som redan lovar ett sådant arbete skulle i dag leda till ett rum där det inte går att genomföra. Skapa inte en låtsad progression baserad på hur många personer man har hälsat på eller hur många repliker man har läst.
+
+Den befintliga tiokapitelberättelsen finns i `docs/world/content.mjs` och motorn i `docs/world/engine.mjs`. Maja, Brita, Jo och Rut återkommer i flera kapitel och olika arbetsfaser. En senare inbjudan behöver därför följa aktuell fas och mottagare, inte en godtycklig ensam kapitelägare. `engine.current()`, `progress()`, `active()`, `level()`, `target()` och `objective()` ger underlaget. Enbart match mot `target()` räcker inte: motorn pekar även på kaffehuset efter att ett kapitels alla nivåer är klara.
+
+Det verkliga tiokapitelstillståndet ligger i `state.paperWorld.chapter`, `paperWorld.unlocked` och `paperWorld.jobs`. Sparnyckeln är `uppdrag1700.adventure.v2` med eventuellt kontosuffix. Det äldre toppfältet `state.chapter` avser två historiska delar och får inte tolkas som tiokapitelnumret. Den separata `known-people`-sparningen betyder bara bekantskap.
+
+## Fastställd form och enkla samtal – 3.15, accepterad
 
 Användaren avvisade 3.14:s stela, frontvända kartfigurer och deras överdrivna gång. **Tillbaka till ovanifrån.** Det tidigare problemet var att personerna stod stilla och var bortvända, inte att perspektivet ovanifrån behövde ersättas. Behåll papperskänslan, diskreta rörelser, promenader längs vägarna och riktning som följer färden. Vid samtal vänder personen och spelaren sig mot varandra. Återinför inte upprätta frontporträtt på kartan.
 
@@ -28,10 +48,14 @@ Utomhusmötet har ingen synlig rubrik, knapp, fokusfälla, modal eller automatis
 
 > Tänk att de dödade kungen! Varför just på maskeraden?
 
-Ett frågetecken är tillåtet: det är personen som undrar högt. Repliken får inte ställa en kunskapsuppgift till eleven eller förutsätta ett svar. Skriv konkret, muntligt och läsbart. Undvik klassrumsformuleringar, ”jämför”, ”motivera”, långa förklaringar och ämnesval. Nio förbipasserande har tolv repliker, alla kortare än 110 tecken. Källbankens långa frågor finns enbart som underlagsmetadata.
+Ett frågetecken är tillåtet: det är personen som undrar högt. Repliken får inte ställa en kunskapsuppgift till eleven eller förutsätta ett svar. Skriv konkret, muntligt och läsbart. Undvik klassrumsformuleringar, ”jämför”, ”motivera”, långa förklaringar och ämnesval. De nio tidigare förbipasserande har tolv källanknutna repliker. De fyra huvudpersonerna har dessutom var sin vardagsreplik och korta presentation. Alla dessa texter är kortare än 110 tecken. Källbankens långa frågor finns enbart som underlagsmetadata.
 
 | Person | Vägområde | Replikernas tema |
 | --- | --- | --- |
+| Maja | Vägen strax väster om kaffehuset | Ett nytt blad och människors olika läsningar |
+| Brita | Vägen fram mot tryckeriet | Trycksvärta och vem som läser bladen |
+| Rut | Vägen från arkivet mot operakorsningen | Ett brev och ett saknat svar |
+| Jo | Torget–kajvägens första korsning | Ett nyanlänt fartyg och dess nyheter |
 | Klara | Torget–arkivet | Frihet, makt och vem som får bli hörd |
 | Otto | Tryckeriet–torget | En kvinnas arbete och vem omgivningen lyssnar på |
 | Linnea | Slottet–vetenskapens hus | Föreställningar om människor man inte känner |
@@ -58,7 +82,7 @@ Rummens befintliga tanke- och pratbubblor har kvar sin pappersyta. Materialet h�
 
 ## Bekantskaper i rummen
 
-Sparnyckeln `uppdrag1700-known-people-v1` och platsnycklarna `archive`, `cafe`, `print`, `quay` är oförändrade. En fullständig presentation registrerar bekantskapen. Återhälsningen förbrukas när personens svar visas, även om man sedan avbryter. Att stänga och öppna samtalet igen återställer inte hälsningen; ett nytt rumsbesök gör det. Ruts handlingar och dokumentövning finns kvar.
+Sparnyckeln `uppdrag1700-known-people-v1` och platsnycklarna `archive`, `cafe`, `print`, `quay` är oförändrade. En fullständig presentation registrerar bekantskapen. I det korta utomhusmötet registreras den när personens enda presentationsreplik visas. Återhälsningen förbrukas när personens svar visas, även om man sedan avbryter. Att stänga och öppna samtalet igen återställer inte hälsningen; ett nytt separat rumsbesök gör det. Om man går direkt in från ett samtal med samma person följer `greetedHost` med just den färden och förbrukas av rummets `consumeGreeting`-anrop. Ruts handlingar och dokumentövning finns kvar.
 
 Gamla `street:<person-id>`-värden i en sparning behöver inte raderas; de används inte för att lägga presentationer eller menyer framför utomhusmötena.
 
@@ -69,8 +93,8 @@ Alla nedanstående filer ligger i `docs/demo3/`.
 | Fil | Roll |
 | --- | --- |
 | `living-world.html` | Direkt HTML-start, vägnavigation och ankomst till gående människor. |
-| `living-conversation-data.js` | Tolv korta repliker, nio människor och bevarade källmetadata. |
-| `living-dialogues.js` | Automatisk hälsning, en talad replik, pappersbubblans ankare och tillgängliga personknappar. |
+| `living-conversation-data.js` | Tolv källanknutna repliker, fyra vardagsrepliker, tretton människor och bevarade källmetadata. |
+| `living-dialogues.js` | Kort samtal, gemensam bekantskap, hälsning vid direkt rumsankomst och oförändrad pappersbubbla. |
 | `world-life.js` | Gående människor, freeze/release, hundar, höns, får och kor. |
 | `archive-living.js` | Ruts accepterade 3.12.1-samtal utan extra reflektionsmeny. |
 | `place-living.js` | Maja, Brita och Jo med 3.12.1:s hälsningslogik. |
@@ -81,13 +105,21 @@ Alla nedanstående filer ligger i `docs/demo3/`.
 | `harbour-fibre-art.js` | Befintlig hamngrafik med fiberkanter. |
 | `paper-look.js`, `harbour-merchant-visits.js` | Bevarad karta, rum, dörrar, hamnbesök och båtfärder. |
 
-Den accepterade [3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1), [3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) och 3.10 (`thoughts.html`) bevaras i sina egna filer. 3.15 uppdaterar de aktiva living-filerna. Återinför inte 3.13:s frågeträd eller 3.14:s rubriksatta utomhustankar och frontfigurer.
+Den accepterade [3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1), [3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) och 3.10 (`thoughts.html`) bevaras i sina egna filer. 3.16 uppdaterar de aktiva living-filerna. Återinför inte 3.13:s frågeträd eller 3.14:s rubriksatta utomhustankar och frontfigurer.
 
 ## Underlag
 
 Originalfrågorna återfanns i `curriculum/classroom.mjs` vid commit `f277b2a3fb9cc138f2b4d5ac30ca5765767a5eb7`. Den äldre samtalsformen finns i `docs/game.js`. Originalposter, hänvisningar och provenance bevaras i datafilen som underlag. De tolv replikerna är redaktionella bearbetningar av dessa teman enligt användarens exempel. Inget nytt AI-frågebibliotek kopplas in.
 
-## Verifiering av 3.15
+## Verifiering av 3.16
+
+Den samlade 3.16-versionen passerade det lokala integrationstestet `living-world-check.cjs` med `errors: []` och oförändrade filhashar under körningen. Alla 13 gående personer, 16 korta vardagsrepliker och fyra första presentationer ingår. Ursprungliga vägar, träffytor, gångankomst, freeze/release och geometri passerar, liksom de fyra vanliga rumsdialogerna, gamla sparflaggor, återhälsningar och Ruts dokumentövning.
+
+De fyra värdarnas bekantskap sparas först när deras namngivande svar visas vid 850 ms; avbrott vid 849 ms lämnar personen okänd. Både första och återkommande utesamtal kan följas av ett direkt besök hos samma person utan ny presentation eller hälsning. Ett senare självständigt besök återställer återhälsningen. Besök hos en annan person, avbruten gång och omedelbar ankomst när spelaren redan står vid dörren passerar. Jo öppnar den befintliga kajscenen utan att påbörja en båtresa. Inga kapitel- eller uppdragstillstånd skapas av dessa möten.
+
+Det accepterade 3.15-flödet passerar också: automatiskt Hej → personens tal, kvarliggande läsreplik, inga utomhusrubriker eller extraknappar, ingen modal eller inert värld, och avslut via bubblan, tangenter eller vanlig förflyttning. Testet använder jsdom och riktig native canvas med ersatta bakgrundsbilder. Harnessen tömmer uppskjuten canvasmålning efter virtuella bildrutor för att begränsa testmiljöns minne; ingen rendering eller controller undertrycks. Den publicerade versionen kontrolleras dessutom i webbläsaren och dess exakta URL och bild redovisas i leveransen.
+
+## Tidigare verifiering av 3.15
 
 Den samlade 3.15-versionen passerade det lokala integrationstestet `living-world-check.cjs` med `errors: []` och oförändrade filhashar under testet. Det omfattar de fyra vanliga rummen, gamla sparflaggor, återhälsningar, arkivövningen, nio gående personer och alla tolv repliker. Hälsningen är kvar vid 849 ms och övergår automatiskt till personens replik vid 850 ms. Texten ligger kvar efter talintervallet. Inga utomhusrubriker, knappar, modal-attribut, inert-lås eller Tab-fällor finns. Avslut via bubblan, tangenter, en vanlig destinationsknapp och en annan person passerar, liksom gångankomst, freeze/release, träffytor och oförändrad geometri. Testet använder jsdom och riktig canvas med ersatta bakgrundsbilder.
 
@@ -97,6 +129,6 @@ Den faktiska SVG-pappersbubblan rastergranskades med liten hälsning, större re
 
 ## Fortsätt utan att tappa beslut
 
-Utgå från de senaste korrigeringarna högst upp. Behåll perspektivet ovanifrån och korta talade utomhusmöten. Bevara papperskänslan, rumsbekantskaperna, högst en hälsning per rumsbesök och den manuella fortsättningen i vanliga samtal. Bevara kartans mått, bildmiljöer, dörrar, navigation och båtfärder.
+Utgå från de senaste besluten högst upp. Den visuella känslan är nu accepterad. Behåll perspektivet ovanifrån och korta talade utomhusmöten. Bevara papperskänslan, rumsbekantskaperna, högst en hälsning per rumsbesök och den manuella fortsättningen i vanliga samtal. Bevara kartans mått, bildmiljöer, dörrar, navigation och båtfärder.
 
 Den tidigare rapporten om en tanke som fastnade kom efter ett verkligt klick. Det finns inte belägg för grundorsaken; beskriv inte problemet som att användaren tryckte Enter före ett val. Återuppta inte äldre kartproblem enbart för att historiska dokument nämner dem. Se också `SCENE-COMPOSITION.md` för bildprinciper.

@@ -1,10 +1,10 @@
-// Korta personliga funderingar ute i världen; källmaterialet nedan är endast metadata.
+// Korta talade möten ute i världen; bokkällorna nedan är endast metadata.
 (function () {
   'use strict';
   window.UPPDRAG_LIVING_CONTENT = {
-  "version": 2,
+  "version": 3,
   "authoredDialogue": true,
-  "sourceNote": "De korta tankarna är nyskrivna, personliga spelrepliker med anknytning till den tidigare frågebankens tolv teman. De är inte bokcitat eller frågor till spelaren. Källkatalogen, provenance och originalets oförändrade reflections bevaras enbart som underlagsmetadata och ska inte visas i mötesflödet.",
+  "sourceNote": "De tolv källanknutna replikerna är nyskrivna, personliga spelrepliker med anknytning till den tidigare frågebankens teman. Fyra korta vardagsrepliker och presentationer ger Maja, Brita, Rut och Jo samma identitet ute och inne. Replikerna är inte bokcitat eller frågor till spelaren. Källkatalogen, provenance och originalets oförändrade reflections är endast underlagsmetadata och visas inte i mötesflödet.",
   "provenance": {
     "repository": "AndersLjungvik/uppdrag-1700",
     "commit": "f277b2a3fb9cc138f2b4d5ac30ca5765767a5eb7",
@@ -455,6 +455,26 @@
       "id": "tanke-kallval",
       "text": "Två brev om samma dag, och de berättar helt olika saker. Vad var det egentligen som hände?",
       "sourceReflectionId": "sos-samtal-kallval"
+    },
+    {
+      "id": "host-maja",
+      "text": "Ett nytt blad ligger i kaffehuset. Alla tycks läsa det på sitt eget vis.",
+      "authoredAmbient": true
+    },
+    {
+      "id": "host-brita",
+      "text": "Trycksvärtan sitter kvar på fingrarna. Jag undrar vem som läser bladen vi tryckte i går.",
+      "authoredAmbient": true
+    },
+    {
+      "id": "host-rut",
+      "text": "Jag hittade ett brev i arkivet. Undrar om svaret finns kvar någonstans.",
+      "authoredAmbient": true
+    },
+    {
+      "id": "host-jo",
+      "text": "Det kom ett fartyg i morse. Jag undrar vilka nyheter det har med sig.",
+      "authoredAmbient": true
     }
   ],
   "roomTopics": {},
@@ -586,6 +606,67 @@
       "woman": true,
       "ponderings": [
         "tanke-kallval"
+      ]
+    },
+    {
+      "id": "maja",
+      "name": "Maja",
+      "label": "Maja på kaffehuset",
+      "home": "cafe",
+      "node": "cafe",
+      "color": "#69785e",
+      "woman": true,
+      "introduction": "Maja heter jag. I kaffehuset ligger ett nytt blad. Alla tycks läsa det på sitt eget vis.",
+      "role": "host",
+      "region": "main",
+      "ponderings": [
+        "host-maja"
+      ]
+    },
+    {
+      "id": "brita",
+      "name": "Brita",
+      "label": "Tryckaren Brita",
+      "home": "print",
+      "node": "print",
+      "color": "#6e6b5b",
+      "woman": true,
+      "apron": true,
+      "introduction": "Brita heter jag. Trycksvärtan sitter kvar på fingrarna, fast jag har lämnat tryckeriet.",
+      "role": "host",
+      "region": "main",
+      "ponderings": [
+        "host-brita"
+      ]
+    },
+    {
+      "id": "rut",
+      "name": "Rut",
+      "label": "Läromästaren Rut",
+      "home": "archive",
+      "node": "archive",
+      "color": "#67695a",
+      "woman": true,
+      "introduction": "Rut heter jag. Jag hittade ett brev i arkivet. Undrar om svaret finns kvar någonstans.",
+      "role": "host",
+      "region": "main",
+      "ponderings": [
+        "host-rut"
+      ]
+    },
+    {
+      "id": "jo",
+      "name": "Jo",
+      "label": "Hamnskrivaren Jo",
+      "home": "quay",
+      "node": "quayJ1",
+      "color": "#a17f49",
+      "woman": false,
+      "introduction": "Jo heter jag. Det kom ett fartyg i morse. Jag undrar vilka nyheter det har med sig.",
+      "role": "host",
+      "region": "main",
+      "ponderings": [
+        "host-jo"
       ]
     }
   ]

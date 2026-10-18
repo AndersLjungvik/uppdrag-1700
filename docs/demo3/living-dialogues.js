@@ -1,4 +1,4 @@
-/* Demo 3.15: greet a passerby, hear one short spoken line, keep exploring.
+/* Demo 3.16: meet the same people outdoors and at their places.
  * No outdoor thought heading, choices, modal state or reading timer.
  * Uses the world's existing animation loop and current walking-person poses.
  */
@@ -7,6 +7,11 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
   const content=window.UPPDRAG_LIVING_CONTENT;
   const ponderings=new Map((content?.ponderings||[]).map(thought=>[thought.id,thought]));
   const encounters=new Map(),personButtons=new Map();
+  const knownKey='uppdrag1700-known-people-v1';
+  function isKnown(home){try{return JSON.parse(localStorage.getItem(knownKey)||'{}')?.[home]===true;}catch{return false;}}
+  function remember(home){
+    try{const old=JSON.parse(localStorage.getItem(knownKey)||'{}'),known=old&&typeof old==='object'&&!Array.isArray(old)?old:{};known[home]=true;localStorage.setItem(knownKey,JSON.stringify(known));}catch{}
+  }
   const style=document.createElement('style');
   style.textContent=`
     #livingDialogue{position:absolute;inset:0;pointer-events:none;z-index:9;color:#382e23;font-family:Georgia,'Times New Roman',serif}
@@ -44,7 +49,8 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
   function showPhase(mode,at){
     context.mode=mode;context.phaseAt=at;
     context.speaker=mode==='greeting'?'Du':context.person.name;
-    line.textContent=mode==='greeting'?'Hej!':context.thought.text;
+    line.textContent=mode==='greeting'?'Hej!':context.introducing?context.person.introduction:context.thought.text;
+    if(mode==='speech'&&context.introducing)remember(context.person.home);
     speakerLabel.textContent=context.speaker+': ';
     context.speech={at,end:at+(mode==='greeting'?850:Math.min(3600,700+line.textContent.length*24))};
     document.body.dataset.livingMode=mode;revision++;lastSignature='';position();
@@ -56,9 +62,10 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
     const thoughts=(current.ponderings||[]).map(id=>ponderings.get(id)).filter(Boolean);
     if(!thoughts.length)return false;
     const index=encounters.get(current.id)||0,thought=thoughts[index%thoughts.length];
-    encounters.set(current.id,index+1);
+    const introducing=!!current.home&&!!current.introduction&&!isKnown(current.home);
+    if(!introducing)encounters.set(current.id,index+1);
     const stopped=window.UPPDRAG_WORLD_LIFE.freeze(current.id)||current;
-    context={regionId:region.id,person:stopped,thought};focusBack=document.activeElement;
+    context={regionId:region.id,person:stopped,thought,introducing};focusBack=document.activeElement;
     path=[];pendingPerson=null;drag=null;follow=true;
     delete document.body.dataset.livingApproach;
     camera.x=(player.x+stopped.x)/2;camera.y=(player.y+stopped.y)/2;clamp();
@@ -126,6 +133,28 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
     const signature=[layout.w,layout.h,layout.scale,revision,camera.x,camera.y].join(':');
     if(signature!==lastSignature){position();lastSignature=signature;}
   }
+  // A direct visit after an outdoor greeting is the same meeting. Carry that
+  // fact on this specific journey, so cancellation cannot affect a later visit.
+  const greetedOutside=home=>!!home&&context?.person.home===home&&context.mode==='speech';
+  function markArrival(home,greeted,ok){
+    if(!ok||!greeted)return;
+    const visit=interior||pendingRoom;
+    const place=visit?.outdoor?(visit.regionId==='main'?'quay':null):visit?.kind;
+    if(place===home)visit.greetedHost=home;
+  }
+  const visitInterior=requestInterior,visitHarbour=requestHarbour;
+  requestInterior=function(building){
+    const home=roomKind(building),greeted=greetedOutside(home);
+    const ok=visitInterior(building);markArrival(home,greeted,ok);return ok;
+  };
+  requestHarbour=function(destination=null){
+    const home=region.id==='main'?'quay':null,greeted=greetedOutside(home);
+    const ok=visitHarbour(destination);markArrival(home,greeted,ok);return ok;
+  };
+  function consumeGreeting(home){
+    if(interior?.greetedHost!==home)return false;
+    delete interior.greetedHost;return true;
+  }
   new ResizeObserver(()=>{lastSignature='';if(context)position();}).observe(stage);
-  return {openWorld,close,tick,get busy(){return false;},get active(){return !!context;},get roomKey(){return null;},get personId(){return context?.person.id||null;},get revision(){return revision;},get speaker(){return context?.speaker||'';},get speech(){return context?.speech||{at:0,end:0};},get state(){return {room:null,person:context?.person.id||null,mode:context?.mode||null,thought:context?.thought.id||null};}};
+  return {openWorld,close,tick,consumeGreeting,get busy(){return false;},get active(){return !!context;},get roomKey(){return null;},get personId(){return context?.person.id||null;},get revision(){return revision;},get speaker(){return context?.speaker||'';},get speech(){return context?.speech||{at:0,end:0};},get state(){return {room:null,person:context?.person.id||null,mode:context?.mode||null,thought:context?.thought.id||null,introducing:!!context?.introducing};}};
 })();

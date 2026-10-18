@@ -1,4 +1,4 @@
-/* Demo 3.15: paper walkers, spoken meetings and animal life on the existing map.
+/* Demo 3.16: paper walkers, spoken meetings and animal life on the existing map.
  * Coordinates, roads, buildings and the game loop remain owned by the world.
  * tick updates poses once; drawing, buttons and hit testing read those same poses.
  * No DOM events, timers or additional animation loop are registered here.
@@ -15,6 +15,10 @@
   // Each walk stays on a documented, existing road edge. Both graph endpoints
   // are safe meeting approaches; villageSouth/workSouth/fort/town are avoided.
   const WALKS = {
+    maja:   {a:'west',    b:'cafe',     from:.64,to:.92,speed:16,phase:1300,pause:2600},
+    brita:  {a:'cafe',    b:'print',    from:.64,to:.94,speed:18,phase:2400,pause:2200},
+    rut:    {a:'archive', b:'operaJ',   from:.08,to:.44,speed:15,phase:1100,pause:2600},
+    jo:     {a:'square',  b:'quayJ1',   from:.40,to:.83,speed:17,phase:1800,pause:2400},
     klara:  {a:'square',  b:'archive',  from:.12,to:.80,speed:22,phase:1300,pause:1700},
     otto:   {a:'print',   b:'square',   from:.15,to:.82,speed:25,phase:13000,pause:1300},
     linnea: {a:'castle',  b:'science',  from:.10,to:.82,speed:21,phase:5500,pause:1900},
