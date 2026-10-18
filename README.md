@@ -2,7 +2,7 @@
 
 ## Aktuell arbetsversion: Demo 3.14
 
-[Öppna Demo 3.14 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.14.0).
+[Öppna Demo 3.14 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.14.1).
 
 Människor promenerar längs vägarna. När spelaren går fram stannar personen och visar en kort, personlig fundering. Ett klick på **Gå vidare** avslutar mötet. Exempel: ”Tänk att de dödade kungen! Varför just på maskeraden?” Tankarna ska låta som människor som lever i berättelsen. De tolv temana från den tidigare SOS-banken finns som bakgrund; långa bokfrågor, ämnesmenyer och följdfrågeträd visas inte i dessa möten.
 

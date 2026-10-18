@@ -22,8 +22,8 @@
       content:'';position:absolute;inset:0;pointer-events:none;clip-path:var(--dialogue-cut);
       border:0;border-radius:0;
     }
-    ${panels}::before{z-index:-1;background:#fbf1dc var(--dialogue-paper) repeat;}
-    ${panels}::after{z-index:-2;inset:0 -1px -2px 0;background:#86715466;}
+    ${panels}::before{z-index:-1;inset:0 1px 2px 0;background:#fbf1dc var(--dialogue-paper) repeat;}
+    ${panels}::after{z-index:-2;inset:0;background:#86715466;}
     :is(#livingBubble,#placeBubble,#rutPanel,#meetingBubble).thought{
       --dialogue-cut:polygon(0 23px,3px 12px,10px 5px,23px 1px,33% 0,49% 2px,69% 0,calc(100% - 26px) 1px,calc(100% - 12px) 4px,calc(100% - 4px) 12px,100% 24px,calc(100% - 1px) 48%,100% calc(100% - 24px),calc(100% - 4px) calc(100% - 12px),calc(100% - 12px) calc(100% - 5px),calc(100% - 26px) calc(100% - 1px),70% 100%,48% calc(100% - 2px),28% 100%,23px calc(100% - 1px),10px calc(100% - 5px),3px calc(100% - 12px),0 calc(100% - 24px),1px 49%);
     }
@@ -40,8 +40,8 @@
       content:'';position:absolute;inset:0;pointer-events:none;clip-path:var(--dialogue-tag);
       border:0;border-radius:0;
     }
-    ${panels} button::before{z-index:-1;background:#ead7b1 var(--dialogue-label) repeat;background-position:37px 19px;}
-    ${panels} button::after{z-index:-2;inset:0 0 -1px 0;background:#9b82586b;}
+    ${panels} button::before{z-index:-1;inset:0 0 1px 0;background:#ead7b1 var(--dialogue-label) repeat;background-position:37px 19px;}
+    ${panels} button::after{z-index:-2;inset:0;background:#9b82586b;}
     ${panels} .thoughtChoice::before,#rutAnswers button::before{background:#fff8e9 var(--dialogue-light) repeat;}
     ${panels} .thoughtChoice{font-style:italic;}
     ${panels} .thoughtChoice:nth-of-type(even)::before{background-position:143px 61px;}

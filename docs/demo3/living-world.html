@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Uppdrag 1700 · Demo 3.14.0 – En levande pappersvärld</title>
+<title>Uppdrag 1700 · Demo 3.14.1 – En levande pappersvärld</title>
 <style>
 :root{font-family:Georgia,"Times New Roman",serif;color:#3d352a;background:#d6cdbb}*{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:#d6cdbb}
@@ -38,13 +38,13 @@ body[data-room^="waterfront-"] #roomReturnText{display:none}
 <header><h1>UPPDRAG 1700 · DEMO 3.14 · PAPPERSVÄRLD</h1><small>Möt människor. Följ en tanke. Utforska världen.</small></header>
 <main id="stage"><canvas id="world" tabindex="0" aria-label="Utforskbar pappersvärld. Dra för att panorera och tryck på en väg eller byggnad."></canvas><div id="message"><strong>Gamla staden</strong>Stanna hos människorna längs vägen och hör vad de funderar på. Maja, Brita, Rut och Jo finns också kvar på sina platser.</div><section id="interiorView" hidden role="region" aria-labelledby="interiorTitle"><div class="room-top"><h2 id="interiorTitle"></h2></div><canvas id="interiorCanvas" role="img" aria-label="Interiör"></canvas></section></main>
 <footer id="worldFooter"><button id="visitHarbour" type="button">Kajen</button><button data-go="square">Gamla staden</button><button data-go="barn">Barnhuskvarteren</button><button data-go="science">Vetenskap</button><button data-go="countrySouth">Landsbygden</button><button data-go="manor">Herrgården</button><button id="sailM">Marstrand</button><button id="sailS">Saint Barthélemy</button><button id="return" hidden>Segla tillbaka till kajen</button><button id="follow">Följ spelaren</button><span id="status">Gamla staden</span></footer><footer id="roomFooter" hidden><button id="leaveRoom" type="button">← Gå ut</button><div id="harbourActions" hidden role="group" aria-label="Båtresor"></div><span id="roomReturnText"></span></footer>
-<script src="paper-fibres.js?v=3.14.0"></script>
+<script src="paper-fibres.js?v=3.14.1"></script>
 <script src="paper-look.js?v=3.3-paper"></script>
-<script src="interior-fibre-art.js?v=3.14.0"></script>
-<script src="more-room-fibre-art.js?v=3.14.0"></script>
-<script src="harbour-fibre-art.js?v=3.14.0"></script>
+<script src="interior-fibre-art.js?v=3.14.1"></script>
+<script src="more-room-fibre-art.js?v=3.14.1"></script>
+<script src="harbour-fibre-art.js?v=3.14.1"></script>
 <script src="harbour-merchant-visits.js?v=3.7.0"></script>
-<script src="living-conversation-data.js?v=3.14.0"></script>
+<script src="living-conversation-data.js?v=3.14.1"></script>
 <script>
 'use strict';
 const canvas=document.querySelector('#world'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage'),message=document.querySelector('#message'),status=document.querySelector('#status');
@@ -161,12 +161,12 @@ canvas.addEventListener('pointerleave',()=>{hoverPersonId=null;canvas.style.curs
 window.addEventListener('resize',resize);resize();draw();syncHarbourUI();document.documentElement.dataset.ready='true';requestAnimationFrame(animate);
 window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElement.dataset.paper=ok?'original':'fallback';if(!ok)console.warn('Originalmaterialet saknas. Grundgrafiken visas.');});
 </script>
-<script src="archive-living.js?v=3.14.0"></script>
-<script src="place-living.js?v=3.14.0"></script>
-<script src="meeting-living.js?v=3.14.0"></script>
-<script src="world-life.js?v=3.14.0"></script>
-<script src="living-dialogues.js?v=3.14.0"></script>
-<script src="paper-dialogues.js?v=3.14.0"></script>
+<script src="archive-living.js?v=3.14.1"></script>
+<script src="place-living.js?v=3.14.1"></script>
+<script src="meeting-living.js?v=3.14.1"></script>
+<script src="world-life.js?v=3.14.1"></script>
+<script src="living-dialogues.js?v=3.14.1"></script>
+<script src="paper-dialogues.js?v=3.14.1"></script>
 </body>
 </html>
 

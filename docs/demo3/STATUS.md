@@ -4,7 +4,7 @@ Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.14 – En levande
 
 ## Börja här
 
-[Starta Demo 3.14](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.14.0). Startfilen är `docs/demo3/living-world.html`.
+[Starta Demo 3.14](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.14.1). Startfilen är `docs/demo3/living-world.html`.
 
 Utgå från denna startfil vid nästa ändring. `/demo3/` och `game.html` visar fortfarande den äldre 3.2.1-demon. Huvudversionen 0.6.0 är ett bevarat förlopp med hela uppdragssystemet, inte något som har påståtts helt överfört till denna demo.
 
@@ -96,7 +96,9 @@ Separat faktisk canvasgranskning av kartfigurerna gjordes i 0,62×, 1,08× och 4
 
 Separat djur- och rörelsekontroll passerade för alla nio personrutterna, provtagna var fjärde världsenhet med 26 enheters hus- och vattenmarginal. Rörelse, pauser, båda riktningar, frysning, fortsatt gång och blick mot spelaren kontrollerades. Hundar, höns, får och kor renderades med riktig canvas åt båda håll; fötterna förblir nedåt. Får och kor stannar helt inom hagen. Minskad rörelse ger identiska bildrutor.
 
-Webbläsargranskningen görs på den publicerade sidan efter dessa lokala kontroller. Resultatet redovisas i leveransen. Användarens egen enhet ingår inte i den lokala provningen.
+3.14 publicerades i commit `2f49890ad079c7234ab39535c0ba57897f3229be`. GitHub Pages-körning [39120362430](https://github.com/AndersLjungvik/uppdrag-1700/actions/runs/39120362430) avslutades med `success` för samma commit. I Chrome kontrollerades riktiga världsbilder med ansikten, pappersmaterial och Livs korta maskeradstanke. Spelaren gick fram efter klick på Liv och fick exakt tanken samt en Gå vidare-knapp; stängningen återställde världen.
+
+Webbgranskningen hittade att den dekorativa pappersskuggan gick en till två pixlar utanför panelen och därför skapade onödiga rullningslister. Patch 3.14.1 håller både papper och skugga innanför panelens befintliga mått. Texten har fortfarande vanlig scrollning om en verkligt liten skärm behöver det. Slutlig visuell kontroll av patchen redovisas i leveransen. Användarens egen enhet ingår inte i provningen.
 
 ## Fortsätt utan att tappa beslut
 
