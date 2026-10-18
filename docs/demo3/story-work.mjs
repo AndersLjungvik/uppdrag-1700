@@ -94,6 +94,7 @@ document.head.append(style);
 let mode=null,place=null,physicalRoom=null,roomKey=null,geometry=null,revision=0,signature='';
 let speechAt=0,speechEnd=0,afterSpeech=null,taskKey=null,selectedMaterial=null,acting=0;
 let oldFocus=null,footerStates=[],bookResult='',latestResult=null;
+let startChoiceHandled=false,startActionRunning=false;
 const state=()=>window.UPPDRAG_STORY_STATE;
 const engine=()=>state()?.engine;
 const physicalPlace=()=>window.UPPDRAG_STORY_WORLD?.currentPlace?.()||null;
@@ -156,6 +157,7 @@ function focusPaper(node=paper){
 }
 function close(restore=true){
   if(!mode)return false;
+  if(mode==='start'&&!removeStartQuery()){notice('Det gick inte att stänga startvalet. Försök igen.');return false;}
   const hadQuiz=!!engine()?.currentQuiz()&&engine().world().screen==='work';
   setMode(null);afterSpeech=null;selectedMaterial=null;latestResult=null;
   if(hadQuiz)mutate('pauseWork');
@@ -486,6 +488,60 @@ function openBook(){
   if(!engine()||travelling())return false;
   if(mode)close(false);mount(physicalPlace());state().syncPlace();renderBook();return true;
 }
+function removeStartQuery(){
+  try{
+    const url=new URL(window.location.href);
+    if(url.searchParams.has('start')){
+      url.searchParams.delete('start');
+      window.history.replaceState(window.history.state,'',url.href);
+    }
+    return true;
+  }catch{return false;}
+}
+function replaceGame(method){
+  if(startActionRunning)return;
+  if(!removeStartQuery()){notice('Det gick inte att förbereda omgången. Försök igen.');return;}
+  startActionRunning=true;
+  const buttons=[...paper.querySelectorAll('button')].map(node=>({node,disabled:node.disabled}));
+  for(const {node}of buttons)node.disabled=true;
+  let result;
+  try{result=mutate(method);}catch{result={ok:false};}
+  if(success(result)){
+    // Do not close/pause the old engine after the new save has been committed.
+    // Reload also resets the living world's positions and held-key state.
+    try{window.location.reload();}catch{notice('Omgången är sparad. Ladda om sidan för att öppna den.');}
+    return;
+  }
+  startActionRunning=false;
+  for(const {node,disabled}of buttons)node.disabled=disabled;
+  notice(['previous','no-previous'].includes(result?.reason)?'Det finns ingen sparad föregående omgång att återställa.':result?.reason==='reload'?'Ladda om sidan för att öppna den sparade omgången.':method==='restorePreviousGame'?'Det gick inte att återställa den föregående omgången. Försök igen.':'Det gick inte att starta en ny omgång. Försök igen eller fortsätt den sparade omgången.');
+}
+function renderStart({focus=true}={}){
+  const e=engine();if(!e)return;
+  paperShell('Välj spelomgång','start',{subtitle:'Uppdrag 1700'});
+  paper.append(el('p','Det finns en sparad omgång i den här webbläsaren. Välj om du vill fortsätta den eller börja från början.'));
+  const chapter=e.current(),completed=e.content.chapters.reduce((sum,c)=>sum+(e.world().jobs[c.id]?.done||0),0);
+  const saved=el('section',null,{id:'storyStartSummary'});
+  saved.append(el('p',`Avsnitt ${chapter.id}: ${chapter.title}`,{id:'storySavedChapter'}),el('p',`${completed} ${completed===1?'avslutat arbete':'avslutade arbeten'}.`,{id:'storySavedWorkCount'}));
+  paper.append(saved,el('p','Den nuvarande omgången sparas som föregående omgång om du börjar från början.'));
+  const controls=el('div',null,{className:'storyControls'}),resume=actionButton('Fortsätt sparad omgång','continueSavedGame',()=>close()),fresh=actionButton('Börja från början','newGame',()=>replaceGame('newGame'));
+  resume.id='storyContinueSavedGame';fresh.id='storyNewGame';controls.append(resume,fresh);paper.append(controls);
+  if(state().hasPreviousGame===true){
+    const previous=actionButton('Återställ föregående omgång','restorePreviousGame',()=>replaceGame('restorePreviousGame'));
+    previous.id='storyRestorePreviousGame';previous.className='storyQuiet';paper.append(previous);
+  }
+  position();if(focus)focusPaper(paper);
+}
+function openStart(){
+  if(!engine()||travelling()||startActionRunning)return false;
+  if(mode&&!close(false))return false;
+  mount(physicalPlace());renderStart();return true;
+}
+function storyReady(){
+  mark();if(startChoiceHandled||!engine())return;
+  startChoiceHandled=true;
+  try{if(new URL(window.location.href).searchParams.get('start')==='choose')openStart();}catch{}
+}
 function renderChapterJobs(chapter,active,done){
   const jobs=el('section',null,{id:'storyChapterJobs'});jobs.setAttribute('aria-label','Arbeten i det här avsnittet');
   jobs.append(el('h3','Arbeten i avsnittet'));
@@ -542,7 +598,9 @@ function renderBook({focus=true}={}){
     const stamps=el('div',null,{className:'storyStamps'}),completed=world.jobs[chapter.id]?.done||0;
     for(let i=1;i<=3;i++){const stamp=el('span',levels()[i-1]+(completed>=i?' ✓':''),{className:'storyStamp'+(completed>=i?' complete':'')});stamp.setAttribute('aria-label',levels()[i-1]+(completed>=i?' klar':' ännu inte klar'));stamps.append(stamp);}row.append(stamps);chapters.append(row);
   }
-  paper.append(chapters);position();if(focus)focusPaper(paper);
+  paper.append(chapters);
+  const start=actionButton('Ny spelomgång','start',openStart);start.id='storyNewGameChoice';start.className='storyQuiet';paper.append(start);
+  position();if(focus)focusPaper(paper);
 }
 function position(){
   if(!mode)return;
@@ -561,7 +619,7 @@ function position(){
 function tick(now,nextGeometry){
   geometry=nextGeometry;
   if(!mode)return;
-  if(travelling()||!physicalPlace()&&!['book','workResult'].includes(mode)||actualRoom()!==physicalRoom){close(false);return;}
+  if(travelling()||!physicalPlace()&&!['book','workResult','start'].includes(mode)||actualRoom()!==physicalRoom){close(false);return;}
   const next=[geometry?.w,geometry?.h,geometry?.left,geometry?.top,revision].join(':');
   if(next!==signature){position();signature=next;}
 }
@@ -601,10 +659,11 @@ for(const canvas of [document.getElementById('world'),document.getElementById('i
 window.addEventListener('uppdrag-story-change',()=>{
   mark();saveNotice();if(acting||!mode)return;
   if(mode==='book')renderBook({focus:false});
+  else if(mode==='start'&&!startActionRunning)renderStart({focus:false});
   else if(mode==='quiz'&&engine()?.question()?.id!==paper.dataset.question)renderQuiz();
 });
-window.addEventListener('uppdrag-story-ready',mark);
-window.UPPDRAG_STORY_WORK={tick,open,openBook,openReview,close,advance,
+window.addEventListener('uppdrag-story-ready',storyReady);
+window.UPPDRAG_STORY_WORK={tick,open,openBook,openStart,openReview,close,advance,
   get active(){return !!mode;},get busy(){return !!mode;},get roomKey(){return roomKey;},
   get speaker(){return mode==='speech'?bubble.dataset.speaker:'';},get speech(){return {at:speechAt,end:speechEnd};},get revision(){return revision;},
   get state(){return {mode,place,roomKey,taskKey,question:mode==='quiz'?engine()?.question()?.id:null,quizKind:mode==='quiz'?engine()?.currentQuiz()?.kind:null};}
@@ -614,4 +673,4 @@ for(const [footerId,buttonId]of [['worldFooter','storyBookButton'],['roomFooter'
   const button=actionButton('Uppdragsboken','book',openBook);button.id=buttonId;button.setAttribute('aria-label','Öppna uppdragsboken');button.disabled=!engine();footer.append(button);
   window.addEventListener('uppdrag-story-ready',()=>{button.disabled=false;});
 }
-state()?.ready?.then(mark);
+state()?.ready?.then(storyReady);

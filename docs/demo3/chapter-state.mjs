@@ -7,6 +7,8 @@ import {applyChapterJobs} from './chapter-jobs.mjs?v=3.20.0';
 import {createWorkEvidence} from './work-evidence.mjs?v=3.20.0';
 
 export const SAVE_KEY = 'uppdrag1700.living-story.v1';
+export const PREVIOUS_GAME_KEY = 'uppdrag1700.living-story.previous.v1';
+const KNOWN_PEOPLE_KEY = 'uppdrag1700-known-people-v1';
 const read = key => { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; } };
 const copy = value => JSON.parse(JSON.stringify(value));
 const base = window.CLASSROOM_CURRICULUM;
@@ -29,12 +31,18 @@ if (bank !== base && bank.sourcePolicy === base.sourcePolicy) {
   }
 }
 
-let revision = 0, saveError = false, quizContext = null, physicalPlace = null;
-function persist(value) {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(value)); saveError = false; }
-  catch { saveError = true; }
+let revision = 0, saveError = false, quizContext = null, physicalPlace = null, awaitingReload = false;
+function changed() {
   revision++;
   window.dispatchEvent(new CustomEvent('uppdrag-story-change', {detail: {revision, saveError}}));
+}
+function persist(value) {
+  // A successful game switch is committed before the page reloads. Late UI
+  // callbacks from the old room must not overwrite that committed save.
+  if (awaitingReload) return;
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(value)); saveError = false; }
+  catch { saveError = true; }
+  changed();
 }
 const saved = read(SAVE_KEY);
 const initial = saved?.version === 2 ? saved : read(ORIGINAL_SAVE_KEY);
@@ -42,10 +50,90 @@ const engine = createEngine({bank, practice: window.UPPDRAG_PRACTICE, initial, o
 applyChapterJobs(engine.content);
 // Make later reads, including invitations, entirely free of state mutations.
 for (const chapter of engine.content.chapters) engine.world().jobs[chapter.id] ||= {done: 0, active: null};
-const evidence = createWorkEvidence(engine);
+preserveWorkSessionTime(engine, initial);
+let evidence = createWorkEvidence(engine);
+
+function preserveWorkSessionTime(target, source) {
+  if (source?.bankId !== bank.bankId) return;
+  // The original engine bounds numeric fields as counters, including this
+  // timestamp. Preserve the saved pass ID only for the same validated quiz,
+  // so reloading/restoring does not discard its recorded first attempts.
+  for (const chapter of target.content.chapters) {
+    const active = target.world().jobs[chapter.id]?.active;
+    const savedActive = source.paperWorld?.jobs?.[chapter.id]?.active;
+    const quiz = active?.quiz, savedQuiz = savedActive?.quiz;
+    if (active?.phase !== 'work' || savedActive?.phase !== 'work' ||
+        active.level !== savedActive.level || !quiz || !savedQuiz ||
+        quiz.index !== savedQuiz.index || !Array.isArray(savedQuiz.ids) ||
+        quiz.ids.length !== savedQuiz.ids.length ||
+        !quiz.ids.every((id, index) => id === savedQuiz.ids[index]) ||
+        !Number.isSafeInteger(savedQuiz.startedAt) || savedQuiz.startedAt < 0) continue;
+    quiz.startedAt = savedQuiz.startedAt;
+  }
+}
+function previousGame() {
+  const previous = read(PREVIOUS_GAME_KEY);
+  return previous?.version === 1 && previous.game?.version === 2 &&
+    previous.game.bankId === bank.bankId &&
+    (previous.knownPeople === null || typeof previous.knownPeople === 'string') ? previous : null;
+}
+function preparedGame(initial) {
+  const candidate = createEngine({bank, practice: window.UPPDRAG_PRACTICE, initial});
+  applyChapterJobs(candidate.content);
+  for (const chapter of candidate.content.chapters) candidate.world().jobs[chapter.id] ||= {done: 0, active: null};
+  preserveWorkSessionTime(candidate, initial);
+  createWorkEvidence(candidate);
+  return candidate.snapshot();
+}
+function switchGame(restorePrevious = false) {
+  const previous = restorePrevious ? previousGame() : null;
+  if (restorePrevious && !previous) return {ok: false, reason: 'previous'};
+  // Prepare and validate the destination without changing the active engine.
+  // A valid empty save also prevents the legacy fallback from importing the
+  // old answers again on the next load.
+  const next = preparedGame(previous?.game || null);
+  const writes = [];
+  function write(key, value) {
+    const before = localStorage.getItem(key);
+    if (before === value) return;
+    if (value === null) localStorage.removeItem(key);
+    else localStorage.setItem(key, value);
+    writes.push({key, before});
+  }
+  try {
+    const backup = {version: 1, savedAt: Date.now(), game: engine.snapshot(),
+      knownPeople: localStorage.getItem(KNOWN_PEOPLE_KEY)};
+    write(PREVIOUS_GAME_KEY, JSON.stringify(backup));
+    write(SAVE_KEY, JSON.stringify(next));
+    write(KNOWN_PEOPLE_KEY, previous?.knownPeople ?? null);
+  } catch {
+    // Each localStorage write is atomic. Undo only writes that succeeded, so
+    // a denied/quota-limited save leaves the playable current game in place.
+    let rollbackFailed = false;
+    for (const {key, before} of writes.reverse()) {
+      // If restoring another key is denied too, keep the just-written backup
+      // of the active game available for a later recovery.
+      if (key === PREVIOUS_GAME_KEY && rollbackFailed) continue;
+      try {
+        if (before === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, before);
+      } catch { rollbackFailed = true; }
+    }
+    saveError = true; changed();
+    return {ok: false, reason: 'save'};
+  }
+  awaitingReload = true;
+  engine.replace(next);
+  preserveWorkSessionTime(engine, next);
+  evidence = createWorkEvidence(engine);
+  quizContext = null; physicalPlace = null; saveError = false;
+  changed();
+  return {ok: true, reload: true};
+}
 
 function currentPlace() { return window.UPPDRAG_STORY_WORLD?.currentPlace() || null; }
 function syncPlace() {
+  if (awaitingReload) return {ok: false, reason: 'reload'};
   const place = currentPlace();
   if (place !== physicalPlace) { quizContext = null; physicalPlace = place; }
   if (!place || !engine.availablePlaces().includes(place)) return {ok: false, reason: 'place'};
@@ -109,6 +197,9 @@ function quizAllowed() {
   return quiz.kind === 'story' ? phaseAt(place, 'work') && engine.level().work === place : true;
 }
 function act(method, ...args) {
+  if (awaitingReload) return rejected('reload');
+  if (method === 'newGame') return switchGame();
+  if (method === 'restorePreviousGame') return switchGame(true);
   syncPlace();
   const place = currentPlace();
   const placeMethods = {accept: 'offer', pickup: 'pickup', beginWork: 'work', handoff: 'handoff', deliver: 'deliver'};
@@ -193,12 +284,14 @@ export const story = {
   get lastWorkReport() { return evidence.latest; },
   get revision() { return revision; }, get saveError() { return saveError; },
   get saveKey() { return SAVE_KEY; },
+  get hasPreviousGame() { return !!previousGame(); },
   snapshot: () => copy(engine.snapshot())
 };
 story.ready = Promise.resolve(story);
 window.UPPDRAG_STORY_STATE = story;
-// Copy an eligible local save once. The earlier game's main/account saves,
-// recognition flags and question-bank key are never updated by this adapter.
+// Copy an eligible local save once. The earlier game's main/account saves and
+// question-bank key are never updated. Recognition changes only on an explicit
+// new-game or restore action, together with a backup of the current game.
 syncPlace();
 engine.save();
 document.documentElement.dataset.story = 'ready';

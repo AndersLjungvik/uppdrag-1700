@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Uppdrag 1700 · Demo 3.20.0 – En levande pappersvärld</title>
+<title>Uppdrag 1700 · Demo 3.20.1 – En levande pappersvärld</title>
 <style>
 :root{font-family:Georgia,"Times New Roman",serif;color:#3d352a;background:#d6cdbb}*{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:#d6cdbb}
@@ -35,7 +35,7 @@ body[data-room^="waterfront-"] #roomReturnText{display:none}
 </style>
 </head>
 <body>
-<header><h1>UPPDRAG 1700 · DEMO 3.20 · PAPPERSVÄRLD</h1><small>Piltangenter: gå. Mellanslag: prata och välj.</small></header>
+<header><h1>UPPDRAG 1700 · DEMO 3.20.1 · PAPPERSVÄRLD</h1><small>Piltangenter: gå. Mellanslag: prata och välj.</small></header>
 <main id="stage"><canvas id="world" tabindex="0" aria-label="Utforskbar pappersvärld. Gå med piltangenterna och prata med mellanslag. Du kan också klicka på vägar, människor och byggnader."></canvas><div id="message"><strong>Gamla staden</strong>Gå med piltangenterna och prata med mellanslag när du är nära. Du kan också klicka.</div><section id="interiorView" hidden role="region" aria-labelledby="interiorTitle"><div class="room-top"><h2 id="interiorTitle"></h2></div><canvas id="interiorCanvas" tabindex="0" role="img" aria-label="Interiör"></canvas></section></main>
 <footer id="worldFooter"><button id="visitHarbour" type="button">Kajen</button><button data-go="square">Gamla staden</button><button data-go="barn">Barnhuskvarteren</button><button data-go="science">Vetenskap</button><button data-go="countrySouth">Landsbygden</button><button data-go="manor">Herrgården</button><button id="sailM">Marstrand</button><button id="sailS">Saint Barthélemy</button><button id="return" hidden>Segla tillbaka till kajen</button><button id="follow">Följ spelaren</button><span id="status">Gamla staden</span></footer><footer id="roomFooter" hidden><button id="leaveRoom" type="button">← Gå ut</button><div id="harbourActions" hidden role="group" aria-label="Båtresor"></div><span id="roomReturnText"></span></footer>
 <script src="paper-fibres.js?v=3.19.0"></script>
@@ -191,8 +191,8 @@ window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElem
 <script src="world-keyboard.js?v=3.19.0"></script>
 <script src="../classroom-curriculum.js?v=3.19.0"></script>
 <script src="../practice.js?v=3.19.0"></script>
-<script type="module" src="chapter-state.mjs?v=3.20.0"></script>
-<script type="module" src="story-work.mjs?v=3.20.0"></script>
+<script type="module" src="chapter-state.mjs?v=3.20.1"></script>
+<script type="module" src="story-work.mjs?v=3.20.1"></script>
 </body>
 </html>
 
