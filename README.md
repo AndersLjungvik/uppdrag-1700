@@ -1,5 +1,11 @@
 # Uppdrag 1700 · Pappersstaden
 
+## Aktuell arbetsversion: Demo 3.11
+
+[Öppna Demo 3.11 – Bekanta ansikten](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html). Se [aktuell utvecklingsstatus](docs/demo3/STATUS.md) för de aktiva filerna, vad som är kontrollerat och vad som återstår. Den allmänna adressen `/demo3/` öppnar fortfarande den äldre världsdemon.
+
+## Den tidigare huvudversionen
+
 [Spela den uppdaterade versionen](https://andersljungvik.github.io/uppdrag-1700/?v=0.6.0)
 
 Ett pappersäventyr för historia i åk 6. Eleven går i staden, tar emot beställningar och hjälper invånarna genom bokens tio avsnitt. Varje avsnitt har tre uppdragsnivåer: **lärling, gesäll och mästare**. Stämplar visar avklarade uppdrag; de är inte betyg eller validerade mått på varaktigt kunnande.
@@ -38,3 +44,4 @@ Ingen frontend-installation behövs för webbsidan. Testerna använder `@napi-rs
 Testerna kontrollerar hela uppdragskedjan, alla 139 frågor, sparningar, ledtrådskostnad, repetitionsbelöningar, källhänvisningar och de faktiska UI-handlarna. Rendering av scener kan granskas via canvas. Det ersätter inte manuell provning i elevens egen webbläsare, på mobil eller av högtalaruppspelningen.
 
 `dist/classic.html` bevarar den äldre versionen separat. Gamla `/demo/`-länkar går vidare till den nya huvudversionen. Den äldre bankens filer behövs enbart för arkiverade sparningar och regressionstester.
+
