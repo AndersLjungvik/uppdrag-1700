@@ -58,7 +58,7 @@
     return style.display!=='none'&&style.visibility!=='hidden';
   }
   function activeDialogue(){
-    return !!(window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_ARCHIVE_PILOT?.busy||window.UPPDRAG_PLACE_THOUGHTS?.busy||window.UPPDRAG_MEETINGS?.state?.talking);
+    return !!(window.UPPDRAG_STORY_WORK?.busy||window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_ARCHIVE_PILOT?.busy||window.UPPDRAG_PLACE_THOUGHTS?.busy||window.UPPDRAG_MEETINGS?.state?.talking);
   }
   function blocked(){
     return !!(document.hidden||interior||sailing||voyage||activeDialogue()||editable(document.activeElement));
@@ -139,17 +139,17 @@
       const d=distance(person);
       if(d<=80&&clearSegment(region,player,person,0))candidates.push({distance:d,priority:0,run:()=>requestPerson(person)});
     }
-    const port=region.map.get(region.harbor);
+    const port=navigationPoint(region,region.harbor);
     if(port&&distance(port)<=80)candidates.push({distance:distance(port),priority:1,run:()=>requestHarbour()});
     for(const building of region.buildings||[]){
-      const entry=region.map.get(building.entry);
+      const entry=navigationPoint(region,window.UPPDRAG_STORY_WORLD?.entryFor(region,building)||building.entry);
       if(entry&&roomKind(building)&&distance(entry)<=80)candidates.push({distance:distance(entry),priority:2,run:()=>requestInterior(building)});
     }
     candidates.sort((a,b)=>a.distance-b.distance||a.priority-b.priority);
     return candidates[0]||null;
   }
   function interact(){
-    if(document.hidden||sailing||voyage||editable(document.activeElement))return false;
+    if(document.hidden||sailing||voyage||window.UPPDRAG_STORY_WORK?.busy||editable(document.activeElement))return false;
     held.clear();manualNotified=false;stopMotion();
     if(window.UPPDRAG_LIVING_DIALOGUES?.active){window.UPPDRAG_LIVING_DIALOGUES.close();return true;}
     if(interior)return interactRoom();
@@ -158,6 +158,7 @@
 
   window.addEventListener('keydown',event=>{
     if(event.defaultPrevented)return;
+    if(window.UPPDRAG_STORY_WORK?.busy){clear();return;}
     if(event.isComposing||modified(event)||editable(event.target)){held.clear();manualNotified=false;stopMotion();return;}
     if(arrows.has(event.key)){
       if(interior){

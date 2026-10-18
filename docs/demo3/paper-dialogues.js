@@ -5,7 +5,7 @@
 'use strict';
 (() => {
   if(window.UPPDRAG_PAPER_DIALOGUES)return;
-  const panels=':is(#placeBubble,#rutPanel,#meetingBubble,#meetingDialogue,#rutDocuments,#message)';
+  const panels=':is(#placeBubble,#rutPanel,#meetingBubble,#meetingDialogue,#storyBubble,#rutDocuments,#message)';
   const style=document.createElement('style');style.id='uppdrag-paper-dialogues-style';
   style.textContent=`
     :root{
@@ -24,12 +24,12 @@
     }
     ${panels}::before{z-index:-1;inset:0 1px 2px 0;background:#fbf1dc var(--dialogue-paper) repeat;}
     ${panels}::after{z-index:-2;inset:0;background:#86715466;}
-    :is(#placeBubble,#rutPanel,#meetingBubble).thought{
+    :is(#placeBubble,#rutPanel,#meetingBubble,#storyBubble).thought{
       --dialogue-cut:polygon(0 23px,3px 12px,10px 5px,23px 1px,33% 0,49% 2px,69% 0,calc(100% - 26px) 1px,calc(100% - 12px) 4px,calc(100% - 4px) 12px,100% 24px,calc(100% - 1px) 48%,100% calc(100% - 24px),calc(100% - 4px) calc(100% - 12px),calc(100% - 12px) calc(100% - 5px),calc(100% - 26px) calc(100% - 1px),70% 100%,48% calc(100% - 2px),28% 100%,23px calc(100% - 1px),10px calc(100% - 5px),3px calc(100% - 12px),0 calc(100% - 24px),1px 49%);
     }
     ${panels} :is(h3,h4,p,button,.practiceNote,.question){font-family:Georgia,'Times New Roman',serif!important;}
     ${panels} :is(h3,h4){color:#64513c;letter-spacing:.01em;}
-    :is(#placeBubble,#rutPanel,#meetingBubble).thought h3{font-style:italic;font-weight:400;}
+    :is(#placeBubble,#rutPanel,#meetingBubble,#storyBubble).thought h3{font-style:italic;font-weight:400;}
     ${panels} p{color:#382e23;}
     ${panels} button{
       position:relative;isolation:isolate;background:transparent!important;
@@ -57,43 +57,44 @@
     #livingBubble::before,#livingBubble::after{content:none!important;display:none!important;}
     #livingBubble p{font-family:Georgia,'Times New Roman',serif!important;color:#382e23;}
     #livingTail .worldSpeechPaper{fill:url('#uppdrag-dialogue-fibres') #fbf1dc;}
-    :is(#placeTail,#rutTail,#meetingTail) :is(path,circle){
+    :is(#placeTail,#rutTail,#meetingTail,#storyTail) :is(path,circle){
       fill:url('#uppdrag-dialogue-fibres') #fbf1dc!important;
       stroke:#a18b656b!important;stroke-width:1px!important;stroke-linejoin:round;
     }
-    :is(#placeBubble,#rutPanel,#meetingDialogue)[data-paper-room]{
+    :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room]{
       border:0!important;max-width:none!important;min-height:68px;
       padding:28px 40px!important;transform:none!important;bottom:auto!important;right:auto!important;
       overflow-x:hidden;scrollbar-width:thin;text-align:center;touch-action:manipulation;
     }
-    :is(#placeBubble,#rutPanel,#meetingDialogue)[data-paper-room]::before,
-    :is(#placeBubble,#rutPanel,#meetingDialogue)[data-paper-room]::after{content:none!important;display:none!important;}
-    :is(#placeBubble,#rutPanel,#meetingDialogue)[data-paper-room] p{
+    :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room]::before,
+    :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room]::after{content:none!important;display:none!important;}
+    :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room] p{
       font:18px/1.43 Georgia,'Times New Roman',serif!important;margin:0!important;color:#302c29;
     }
-    :is(#placeBubble,#rutPanel)[data-paper-room].thought{padding:24px 42px!important;}
-    :is(#placeBubble,#rutPanel)[data-paper-room] .thoughtChoice{
+    :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room].thought{padding:24px 42px!important;}
+    :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice{
       display:block;width:100%;min-height:42px;padding:8px 9px;margin:4px 0;
       font:italic 17px/1.35 Georgia,'Times New Roman',serif!important;text-align:center;
       color:#39332c;border:0!important;border-radius:24px!important;
     }
-    :is(#placeBubble,#rutPanel)[data-paper-room] .thoughtChoice::before,
-    :is(#placeBubble,#rutPanel)[data-paper-room] .thoughtChoice::after{content:none!important;display:none!important;}
-    :is(#placeBubble,#rutPanel)[data-paper-room] .thoughtChoice:hover{text-decoration:underline;text-underline-offset:4px;}
-    :is(#placeBubble,#rutPanel)[data-paper-room] .thoughtChoice:focus-visible{outline:1.5px dashed #625545;outline-offset:0;}
-    :is(#placeBubble,#rutPanel,#meetingDialogue)[data-paper-room]:focus{outline:none;}
-    :is(#placeBubble,#rutPanel,#meetingDialogue)[data-paper-room].speech{cursor:pointer;}
+    :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice::before,
+    :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice::after{content:none!important;display:none!important;}
+    :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice:hover{text-decoration:underline;text-underline-offset:4px;}
+    :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice:focus-visible{outline:1.5px dashed #625545;outline-offset:0;}
+    :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room]:focus{outline:none;}
+    :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room].speech{cursor:pointer;}
     #placeThoughts:has(#placeBubble.speech:focus-visible) #placeTail .worldSpeechPaper,
     #rutPilot:has(#rutPanel.speech:focus-visible) #rutTail .worldSpeechPaper,
-    #interiorView:has(#meetingDialogue.speech:focus-visible) #meetingTail .worldSpeechPaper{
+    #interiorView:has(#meetingDialogue.speech:focus-visible) #meetingTail .worldSpeechPaper,
+    #interiorView:has(#storyBubble.speech:focus-visible) #storyTail .worldSpeechPaper{
       stroke:#4c443a!important;stroke-width:1.6px!important;stroke-opacity:.9;
     }
-    :is(#placeTail,#rutTail,#meetingTail) .paperEdgeFibre{fill:none!important;stroke:#fff!important;stroke-width:2.1px!important;}
+    :is(#placeTail,#rutTail,#meetingTail,#storyTail) .paperEdgeFibre{fill:none!important;stroke:#fff!important;stroke-width:2.1px!important;}
     @media(max-width:640px),(max-height:430px){
-      :is(#placeBubble,#rutPanel,#meetingDialogue)[data-paper-room]{padding:23px 30px!important;}
-      :is(#placeBubble,#rutPanel,#meetingDialogue)[data-paper-room] p{font-size:16px!important;line-height:1.4!important;}
-      :is(#placeBubble,#rutPanel)[data-paper-room].thought{padding:18px 29px!important;}
-      :is(#placeBubble,#rutPanel)[data-paper-room] .thoughtChoice{font-size:16px!important;min-height:42px;padding:7px 6px;}
+      :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room]{padding:23px 30px!important;}
+      :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room] p{font-size:16px!important;line-height:1.4!important;}
+      :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room].thought{padding:18px 29px!important;}
+      :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice{font-size:16px!important;min-height:42px;padding:7px 6px;}
     }
     @media(forced-colors:active){
       ${panels}{background:Canvas!important;border-color:CanvasText!important;}
@@ -102,8 +103,8 @@
       ${panels} :is(h3,h4,p,button){color:CanvasText;}
       #livingTail .worldSpeechPaper{fill:Canvas;stroke:CanvasText;}
       #livingBubble p{color:CanvasText;}
-      :is(#placeTail,#rutTail,#meetingTail) :is(path,circle){fill:Canvas!important;stroke:CanvasText!important;}
-      :is(#placeTail,#rutTail,#meetingTail) .paperEdgeFibre{display:none;}
+      :is(#placeTail,#rutTail,#meetingTail,#storyTail) :is(path,circle){fill:Canvas!important;stroke:CanvasText!important;}
+      :is(#placeTail,#rutTail,#meetingTail,#storyTail) .paperEdgeFibre{display:none;}
     }
   `;
   document.head.append(style);

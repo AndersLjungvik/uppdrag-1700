@@ -52,7 +52,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
   roomView.append(root);
   const bubble=root.querySelector('#placeBubble'),tail=root.querySelector('#placeTail');
   let active=false,room=null,geo=null,key=null,mode=null,topic=null,line=0,revision=0;
-  let speechAt=0,speechEnd=0,oldInert=false,lastSignature='',greetedThisVisit=false;
+  let speechAt=0,speechEnd=0,oldInert=false,lastSignature='',greetedThisVisit=false,storyRevision=-1;
   function update(){revision++;lastSignature='';}
   function setMode(next){
     if(!mode&&next){oldInert=roomFooter.inert;roomFooter.inert=true;}
@@ -76,7 +76,16 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     bubble.setAttribute('aria-keyshortcuts','ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space Escape');
     const known=isKnown(key);
     for(const choice of TOPICS[key].choices.filter(c=>(c.id!=='who'||!known)&&(c.id!=='greet'||known&&!greetedThisVisit))){const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought=choice.id;b.textContent=choice.thought;bubble.append(b);}
+    storyChoice();
     position();bubble.focus({preventScroll:true});return true;
+  }
+  function storyChoice(){
+    const old=bubble.querySelector('[data-thought="story"]'),focused=old===document.activeElement;old?.remove();
+    const place=window.UPPDRAG_STORY_WORLD?.currentPlace?.()||key;
+    if(window.UPPDRAG_STORY_STATE?.taskAt?.(place)){
+      const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought='story';b.textContent='Jag frågar om uppdraget.';bubble.append(b);if(focused)b.focus({preventScroll:true});
+    }else if(focused)bubble.focus({preventScroll:true});
+    update();
   }
   function speak(id){
     const chosen=TOPICS[key]?.choices.find(c=>c.id===id);if(!chosen)return;
@@ -96,7 +105,9 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
   function advance(){if(mode!=='speech')return false;if(++line<topic.lines.length)showLine();else if(topic.id==='who'){remember(key);greetedThisVisit=true;open();}else if(topic.id==='greet')open();else close();return true;}
   root.addEventListener('click',e=>{
     if(mode==='speech'&&bubble.contains(e.target)){e.preventDefault();e.stopPropagation();advance();return;}
-    const b=e.target.closest('button');if(b?.dataset.thought)speak(b.dataset.thought);
+    const b=e.target.closest('button');
+    if(b?.dataset.thought==='story'){const place=window.UPPDRAG_STORY_WORLD?.currentPlace?.()||key;close(false);window.UPPDRAG_STORY_WORK?.open(place);return;}
+    if(b?.dataset.thought)speak(b.dataset.thought);
   });
   // No preselected thought. Enter confirms only an intentionally focused choice.
   window.addEventListener('keydown',e=>{
@@ -166,6 +177,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     if(!enabled){if(active){close(false);active=false;room=null;geo=null;key=null;root.hidden=true;update();}return;}
     if(!active||interior!==room){close(false);active=true;room=interior;key=k;greetedThisVisit=window.UPPDRAG_LIVING_DIALOGUES?.consumeGreeting(key)||false;update();}
     geo=geometry;root.hidden=!active;
+    const sr=window.UPPDRAG_STORY_STATE?.revision;if(sr!==storyRevision){storyRevision=sr;if(mode==='thoughts')storyChoice();}
     const sig=[geo.w,geo.h,geo.top,geo.left,revision].join(':');if(sig!==lastSignature){position();lastSignature=sig;}
   }
   return {tick,open,close,advance,get active(){return active;},get busy(){return active&&!!mode;},get revision(){return revision;},

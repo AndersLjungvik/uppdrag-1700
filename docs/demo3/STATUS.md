@@ -1,14 +1,14 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
-Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.18 – En levande pappersvärld**.
+Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.19 – Kapitlens arbete i pappersvärlden**.
 
 ## Börja här
 
-[Starta Demo 3.18](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.18.0). Startfilen är `docs/demo3/living-world.html`.
+[Starta Demo 3.19](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.19.0). Startfilen är `docs/demo3/living-world.html`.
 
-Utgå från denna startfil vid nästa ändring. `/demo3/` och `game.html` visar fortfarande den äldre 3.2.1-demon. Huvudversionen 0.6.0 är ett bevarat förlopp med hela uppdragssystemet; hela det systemet har inte överförts till denna demo.
+Utgå från denna startfil vid nästa ändring. `/demo3/` och `game.html` visar fortfarande den äldre 3.2.1-demon. Huvudversionen 0.6.0 finns kvar. 3.19 återanvänder dess innehåll, frågebank och uppdragsmotor i den levande världens befintliga scener.
 
-## Senaste användarbeslut – egen rytm och rena seriebubblor (3.18)
+## Formbeslut som fortfarande gäller – egen rytm och rena seriebubblor (3.18)
 
 Användaren vill bryta den gemensamma ”myrstigen”. Varje person har därför en egen gångprofil: tempo och tempovariation, korta uppehåll under promenaden, olika vila och vändtid samt diskreta blickar. Sidolinjen varierar mjukt inom en förkontrollerad, säker korridor på den befintliga vägbanan. Rörelseprofilen är deterministisk så att freeze, möten och återgång från följe behåller exakt position och promenadfas. Figuren ritas fortfarande ovanifrån med små steg.
 
@@ -34,15 +34,31 @@ De fyra huvudpersonerna har samma namn, färger och kläder ute som inne. Vid f�
 
 En direkt färd från detta samtal till personens egen plats bär med sig hälsningen till just den rumsankomsten. Maja, Brita, Rut eller Jo föreslår då inte omedelbart att hälsa igen. Avbruten färd, ett annat mål eller ett senare separat besök tar inte med sig denna engångsmarkör. Personen kan fortfarande mötas och samtala på sin vanliga plats.
 
-## Nästa förloppsdel – inbjudningar när arbetet är aktuellt
+## Kapitelarbetet är inkopplat – 3.19
 
-Användarens avsikt: personerna promenerar och har korta vardagliga samtal tills det är dags för deras del av berättelsen; då bjuder de in spelaren till respektive plats. Den grundidén ska styra nästa överföring av kapitelarbetet.
+Personerna promenerar och småpratar mellan sina uppgifter. När ett faktiskt ärende väntar hos Maja, Brita, Rut eller Jo blir deras korta svar en inbjudan till platsen. Att läsa eller stänga inbjudan ändrar inte bekantskap utöver den vanliga namngivna presentationen, och ändrar aldrig kapitlets arbete. Följet till personens plats använder samma gångspår som i 3.18.
 
-**Kapitelstyrda arbetsinbjudningar är ännu inte aktiva i 3.18.** Världsdemon saknar huvudversionens uppdragsmotor, frågearbete, beställningar och leveranser. En inbjudan som redan lovar ett sådant arbete skulle i dag leda till ett rum där det inte går att genomföra. Skapa inte en låtsad progression baserad på hur många personer man har hälsat på eller hur många repliker man har läst.
+`chapter-state.mjs` återanvänder `docs/world/engine.mjs`, `content.mjs`, `learning.mjs`, `classroom-curriculum.js` och `practice.js`. Dessa originalfiler ändras inte. Aktuellt kapitel, nivå, fas och mottagare hämtas från motorn. När samtliga tre nivåer är klara ges ingen extra beställning trots att originalmotorns `target()` då pekar på kaffehuset.
 
-Den befintliga tiokapitelberättelsen finns i `docs/world/content.mjs` och motorn i `docs/world/engine.mjs`. Maja, Brita, Jo och Rut återkommer i flera kapitel och olika arbetsfaser. En senare inbjudan behöver därför följa aktuell fas och mottagare, inte en godtycklig ensam kapitelägare. `engine.current()`, `progress()`, `active()`, `level()`, `target()` och `objective()` ger underlaget. Enbart match mot `target()` räcker inte: motorn pekar även på kaffehuset efter att ett kapitels alla nivåer är klara.
+`story-work.mjs` visar ärendet bland rummets tankar och tal. Quiz, kartjämförelser och tryckmaterial har ett separat arbetsark. Rättningen, de kontrollerade svarsalternativen, ledtrådskostnaden, repetitionsreglerna och källhänvisningarna kommer från originalspelet. Det befintliga kapitelprovet öppnar nästa kapitel efter minst ett avslutat lärlingsarbete; gesäll och mästare är fortfarande möjliga men krävs inte för att gå vidare. Byte till ett låst kapitel tillåts inte.
 
-Det verkliga tiokapitelstillståndet ligger i `state.paperWorld.chapter`, `paperWorld.unlocked` och `paperWorld.jobs`. Sparnyckeln är `uppdrag1700.adventure.v2` med eventuellt kontosuffix. Det äldre toppfältet `state.chapter` avser två historiska delar och får inte tolkas som tiokapitelnumret. Den separata `known-people`-sparningen betyder bara bekantskap.
+Alla handlingar går via `UPPDRAG_STORY_STATE.act`. Den kontrollerar faktisk rumsankomst och aktuell fas före beställning, hämtning, arbetsstart, material, kartjämförelse, överlämning eller leverans. Att bara välja en destination räcker inte. Repetitions- och kapitelprov kräver en uttrycklig start eller återupptagning. Escape pausar, bevarar frågans tillstånd och stänger arbetsarket; avbrytande av ett prov görs separat i uppdragsboken.
+
+Kapitlens tillstånd ligger kvar i `state.paperWorld.chapter`, `paperWorld.unlocked` och `paperWorld.jobs`. Den nya sparnyckeln är `uppdrag1700.living-story.v1`. Vid första start får `uppdrag1700.adventure.v2` läsas och kopieras, men varken den nyckeln, kontosuffigerade sparningar eller `uppdrag1700.questions.v1` skrivs över. Det äldre toppfältet `state.chapter` avser två tidsdelar. `paperWorld.known` avser faktakort; `uppdrag1700-known-people-v1` avser bekantskap. Blanda aldrig ihop dessa.
+
+De gamla kartkoordinaterna i `paperWorld.player` används inte till den större levande världen. Spelet återupptar det sparade ärendet; uppdragsboken visar vart spelaren ska gå för att fortsätta. Fritextutkast lagras i samma validerade `quiz.draft` som sambandsval, högst 300 tecken. Feedback, ledtråd och stödmarkeringar behålls efter omladdning.
+
+### Platser och fysisk navigation
+
+| Kapitelplats | Befintlig scen |
+| --- | --- |
+| Kaffehuset, Tryckeriet, Arkivet | Samma etablerade rum med Maja, Brita och Rut. |
+| Kajen | Stadens utomhuskaj, med Jo. |
+| Barnhuset, Byn, Operan | Befintligt rum med den kanoniska uppdragsvärden. |
+| Trädgården / forskarbladen | Sam i Vetenskapens hus. Rumstiteln säger ”Forskarbladen i Vetenskapens hus”; ingen ny trädgårdsbild påstås finnas. |
+| Marstrand, Saint Barthélemy | Respektive hamnscen, efter faktisk båtresa. |
+
+`story-world.js` mappar platser och säkra gångrutter. Den ritade kartan är oförändrad. Utöver de tidigare kajhörnen finns säkra hamnankomster på öarna, fri entré till byn och en kort gångböj runt kaffehuset. Vägsträckor som skulle gå genom ett hus används inte för navigation. De tretton patrullerna och deras gångprofiler ändras inte. `harbour-chapters.js` är en separat kopia av besökskontrollern med dessa hookar; den äldre `harbour-merchant-visits.js` lämnas intakt för tidigare versioner.
 
 ## Fastställd form och enkla samtal – 3.15, accepterad
 
@@ -120,13 +136,31 @@ Alla nedanstående filer ligger i `docs/demo3/`.
 | `paper-dialogues.js` | Vit pappersyta, runda seriebubblor och gemensam rumsplacering. |
 | `interior-fibre-art.js`, `more-room-fibre-art.js` | Befintlig rumsgeometri med gemensamt material. |
 | `harbour-fibre-art.js` | Befintlig hamngrafik med fiberkanter. |
-| `paper-look.js`, `harbour-merchant-visits.js` | Bevarad karta, rum, dörrar, hamnbesök och båtfärder. |
+| `paper-look.js` | Bevarad kartbild. |
+| `harbour-chapters.js` | Befintliga besök och båtfärder med fysisk platskontroll och säkra entréer. |
+| `story-world.js` | Kapitelplatser, resor och säkra gångrutter. |
+| `chapter-state.mjs` | Originalmotorn, separat sparning, fasstyrda inbjudningar och platsvaliderade handlingar. |
+| `story-work.mjs` | Uppdragsboken, arbetsark och kapitlens tanke-/talflöde. |
 
-Den accepterade [3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1), [3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) och 3.10 (`thoughts.html`) bevaras i sina egna filer. 3.18 uppdaterar de aktiva living-filerna. Återinför inte 3.13:s frågeträd eller 3.14:s rubriksatta utomhustankar och frontfigurer.
+Den accepterade [3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1), [3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) och 3.10 (`thoughts.html`) bevaras i sina egna filer. 3.19 uppdaterar de aktiva living-filerna och lägger till kapitelkopplingen. Återinför inte 3.13:s frågeträd eller 3.14:s rubriksatta utomhustankar och frontfigurer.
 
 ## Underlag
 
 Originalfrågorna återfanns i `curriculum/classroom.mjs` vid commit `f277b2a3fb9cc138f2b4d5ac30ca5765767a5eb7`. Den äldre samtalsformen finns i `docs/game.js`. Originalposter, hänvisningar och provenance bevaras i datafilen som underlag. De tolv replikerna är redaktionella bearbetningar av dessa teman enligt användarens exempel. Inget nytt AI-frågebibliotek kopplas in.
+
+## Verifiering av 3.19.0
+
+Den ursprungliga motorn går igenom alla 30 arbetsnivåer i de tio kapitlen, med 288 återladdningar över arbetsfaserna. Samtliga 139 kanoniska kort finns i den aktiva banken. De riktiga kapitelproven prövas även vid gränsen: tre självständiga rätt av fem räcker inte, fyra räcker. Nästa kapitel kan öppnas efter lärlingsnivån; gesäll och mästare behålls som möjliga arbeten. Repetitionsarbete ger exakt 2 daler och behåller tidigare stämplar.
+
+`story-check.cjs` kör riktiga ES-moduler tillsammans med de aktiva DOM-kontrollerna, originalmotorn och spelvärldens bildloop. Det fulla första kapitlet omfattar mötet med Maja, gemensam gång utan dubbelhälsning, samtliga tre arbeten, tryckmaterial, godkännande, överlämningar och betalning. Valen försvinner när spelarrepliken börjar. Avbrutet accepttal tar inte emot beställningen. Fel plats och för tidig leverans avvisas utan ändrad progression eller betalning.
+
+Den utökade UI-kontrollen omfattar 66 faktiskt inskickade svar och 23 fysiska resor. Fritextutkast, redan visade svarsalternativ och halvfärdig sambandskedja återkommer efter tre fulla omladdningar. Fel svar, nytt försök, ledtråd, källhänvisning och återkoppling använder de verkliga kontrollerna. Den testar dessutom återanvänd beställning, avbruten repetition, uppdragsbokens kapitelprov och uttryckligt kapitelbyte, Rut-repetition, hämtningar, båda kartmomenten samt arbete på och resor mellan Marstrand och Saint Barthélemy. En bok som öppnas under gång håller spelaren stilla och fortsätter samma färd först när boken stängs.
+
+Den gamla lokala sparningen, kontosparningar och den sparade frågebanken jämförs byte för byte efter UI-handlingarna. Kapiteladaptern skriver enbart sin egen sparning; de vanliga bekantskapsflaggorna är separata. De körda produktfilernas SHA256 kontrolleras före och efter provet.
+
+Den separata 3.18-regressionen passerar också med de aktiva rums-, hamn- och styrningsfilerna: fyra vanliga rumsflöden, presentationsminnen, Ruts dokumentövning, tretton gångprofiler, piltangenter och Jos följe med återgång. Den nya kapitelkopplingen täcks av story-provet ovan. Ett separat fysiskt ruttprov täcker 162 resor mellan rummens entréer och alla tio kapitelplatser, med fri kontur och oförändrad ritad kartgeometri.
+
+Kontrollerna använder jsdom och native canvas, med ersatta bakgrundsbilder. De verifierar kontroller och rörelse, inte en mobil webbläsares faktiska CSS-layout. Pappersbubblorna och arbetsarket granskas därför dessutom i den publicerade webbläsarversionen.
 
 ## Verifiering av 3.18.0
 
@@ -166,6 +200,6 @@ Den faktiska SVG-pappersbubblan rastergranskades med liten hälsning, större re
 
 ## Fortsätt utan att tappa beslut
 
-Utgå från de senaste besluten högst upp. Följ särskilt 3.18:s senaste önskemål om gångrytm och vita seriebubblor. Behåll perspektivet ovanifrån och korta talade utomhusmöten. Bevara papperskänslan, rumsbekantskaperna, högst en hälsning per rumsbesök och den manuella fortsättningen i vanliga samtal. Bevara kartans mått, bildmiljöer, dörrar, navigation och båtfärder.
+Utgå från de senaste besluten högst upp. Följ särskilt 3.18:s formbeslut om gångrytm och vita seriebubblor. Behåll perspektivet ovanifrån och korta talade utomhusmöten. Bevara papperskänslan, rumsbekantskaperna, högst en hälsning per rumsbesök och den manuella fortsättningen i vanliga samtal. Bevara kartans mått, bildmiljöer, dörrar, navigation och båtfärder.
 
 Den tidigare rapporten om en tanke som fastnade kom efter ett verkligt klick. Det finns inte belägg för grundorsaken; beskriv inte problemet som att användaren tryckte Enter före ett val. Återuppta inte äldre kartproblem enbart för att historiska dokument nämner dem. Se också `SCENE-COMPOSITION.md` för bildprinciper.

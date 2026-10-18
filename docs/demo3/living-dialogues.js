@@ -50,7 +50,9 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
   function showPhase(mode,at){
     context.mode=mode;context.phaseAt=at;
     context.speaker=mode==='greeting'?'Du':context.person.name;
-    line.textContent=mode==='greeting'?'Hej!':context.introducing?context.person.introduction:context.thought.text;
+    line.textContent=mode==='greeting'?'Hej!':context.invitation
+      ?(context.introducing?'Jag heter '+context.person.name+'. ':'')+context.invitation.text
+      :context.introducing?context.person.introduction:context.thought.text;
     if(mode==='speech'&&context.introducing)remember(context.person.home);
     if(mode==='speech'&&context.person.home)recentHost={id:context.person.id,home:context.person.home,regionId:context.regionId};
     speakerLabel.textContent=context.speaker+': ';
@@ -61,13 +63,16 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
     if(context||interior||sailing||voyage||!person||person.region!==region.id)return false;
     const current=window.UPPDRAG_WORLD_LIFE?.people(region).find(p=>p.id===person.id);
     if(!current||Math.hypot(player.x-current.x,player.y-current.y)>80)return false;
+    const proposed=current.role==='host'?window.UPPDRAG_STORY_STATE?.invitationFor(current):null;
+    const invitation=proposed&&typeof proposed.key==='string'&&typeof proposed.place==='string'&&typeof proposed.text==='string'
+      ?{key:proposed.key,place:proposed.place,text:proposed.text}:null;
     const thoughts=(current.ponderings||[]).map(id=>ponderings.get(id)).filter(Boolean);
-    if(!thoughts.length)return false;
-    const index=encounters.get(current.id)||0,thought=thoughts[index%thoughts.length];
+    if(!thoughts.length&&!invitation)return false;
+    const index=encounters.get(current.id)||0,thought=thoughts[index%thoughts.length]||{id:invitation.key,text:invitation.text};
     const introducing=!!current.home&&!!current.introduction&&!isKnown(current.home);
-    if(!introducing)encounters.set(current.id,index+1);
+    if(!introducing&&!invitation)encounters.set(current.id,index+1);
     const stopped=window.UPPDRAG_WORLD_LIFE.freeze(current.id)||current;
-    context={regionId:region.id,person:stopped,thought,introducing};focusBack=document.activeElement;
+    context={regionId:region.id,person:stopped,thought,introducing,invitation};focusBack=document.activeElement;
     path=[];pendingPerson=null;drag=null;follow=true;
     delete document.body.dataset.livingApproach;
     camera.x=(player.x+stopped.x)/2;camera.y=(player.y+stopped.y)/2;clamp();
@@ -209,7 +214,7 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
   };
   finishDoorArrival=function(){
     if(pendingRoom&&companion?.home===visitHome(pendingRoom)&&!path.length){
-      const escort=window.UPPDRAG_WORLD_LIFE?.escortState(companion.id),entry=region.map.get(pendingRoom.entry);
+      const escort=window.UPPDRAG_WORLD_LIFE?.escortState(companion.id),entry=navigationPoint(region,pendingRoom.entry);
       if(escort&&entry&&Math.hypot(escort.x-entry.x,escort.y-entry.y)>72)return;
     }
     const before=interior;
@@ -235,5 +240,5 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
     delete interior.greetedHost;return true;
   }
   new ResizeObserver(()=>{lastSignature='';if(context)position();}).observe(stage);
-  return {openWorld,close,tick,consumeGreeting,onManualMove,get companion(){return companion?{...companion}:null;},get busy(){return false;},get active(){return !!context;},get roomKey(){return null;},get personId(){return context?.person.id||null;},get revision(){return revision;},get speaker(){return context?.speaker||'';},get speech(){return context?.speech||{at:0,end:0};},get state(){return {room:null,person:context?.person.id||null,mode:context?.mode||null,thought:context?.thought.id||null,introducing:!!context?.introducing};}};
+  return {openWorld,close,tick,consumeGreeting,onManualMove,get companion(){return companion?{...companion}:null;},get busy(){return false;},get active(){return !!context;},get roomKey(){return null;},get personId(){return context?.person.id||null;},get revision(){return revision;},get speaker(){return context?.speaker||'';},get speech(){return context?.speech||{at:0,end:0};},get state(){return {room:null,person:context?.person.id||null,mode:context?.mode||null,thought:context?.thought.id||null,introducing:!!context?.introducing,invitation:context?.invitation?{...context.invitation}:null};}};
 })();

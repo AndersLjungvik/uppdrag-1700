@@ -7,8 +7,8 @@
 (() => {
   const pilot=window.UPPDRAG_ARCHIVE_PILOT;
   const places=window.UPPDRAG_PLACE_THOUGHTS;
-  const controller=key=>{const living=window.UPPDRAG_LIVING_DIALOGUES;return living?.busy&&living.roomKey===key?living:key==='archive'?pilot:places;};
-  let pilotRevision=-1,placeRevision=-1,livingRevision=-1;
+  const controller=key=>{const story=window.UPPDRAG_STORY_WORK,living=window.UPPDRAG_LIVING_DIALOGUES;return story?.busy&&story.roomKey===key?story:living?.busy&&living.roomKey===key?living:key==='archive'?pilot:places;};
+  let pilotRevision=-1,placeRevision=-1,livingRevision=-1,storyRevision=-1,storyStateRevision=-1;
   const CAST={
     player:{name:'Du',color:'#466b70'},
     cafe:{name:'Maja',color:'#69785e',woman:true,lines:[
@@ -135,7 +135,9 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   function current(){
     if(!interior)return null;
     const quay=interior.outdoor&&interior.regionId==='main';
-    return {key:quay?'quay':interior.kind,cast:quay?CAST.quay:(!interior.outdoor?CAST[interior.kind]:null)};
+    const storyPlace=window.UPPDRAG_STORY_WORLD?.currentPlace?.(),key=quay?'quay':window.UPPDRAG_STORY_WORLD?.roomKey?.(storyPlace)||interior.kind,definition=window.UPPDRAG_STORY_STATE?.PLACES?.[storyPlace];
+    const established=quay?CAST.quay:(!interior.outdoor?CAST[interior.kind]:null);
+    return {key,storyPlace,cast:established||(definition&&storyPlace!=='town'?{...definition,name:definition.npc}:null)};
   }
   function measure(){
     const r=roomCanvas.getBoundingClientRect(),parent=roomView.getBoundingClientRect();
@@ -149,7 +151,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
       const tall=r.width/r.height<1.02,D=tall?{w:720,h:1040}:{w:1280,h:720};
       const scale=Math.min(r.width/D.w,r.height/D.h);
       p={scale,x:(r.width-D.w*scale)/2,y:(r.height-D.h*scale)/2};
-      poses=(c.key==='archive'&&pilot?pilot.poses(tall):PLACEMENT[c.key]?.[tall?'tall':'wide'])||(tall?[[122,996,.82]]:[[283,680,.82]]);
+      poses=(c.key==='archive'&&pilot?pilot.poses(tall):PLACEMENT[c.key]?.[tall?'tall':'wide'])||(tall?[[122,996,.82],...(c.cast?[[378,710,.90]]:[])]:[[283,680,.82],...(c.cast?[[1060,633,.94]]:[])]);
     }
     return {w:r.width,h:r.height,left:r.left-parent.left,top:r.top-parent.top,p,poses,c};
   }
@@ -208,6 +210,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   }
   function startTalk(){
     const c=current();if(!c?.cast||dialogue||voyage)return false;
+    if(!CAST[c.key]&&c.storyPlace)return window.UPPDRAG_STORY_WORK?.open(c.storyPlace,{thoughtsFirst:true})||false;
     const talk=controller(c.key);if(talk?.active)return talk.open();
     dialogue={room:interior,cast:c.cast,index:0};footerInert=roomFooter.inert;roomFooter.inert=true;
     panel.hidden=false;showLine();return true;
@@ -243,6 +246,8 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     if(pilot){pilot.tick(now,interior&&!voyage?measure():null);if(pilotRevision!==pilot.revision){pilotRevision=pilot.revision;lastPaint=-Infinity;}}
     if(places){places.tick(now,interior&&!voyage?measure():null);if(placeRevision!==places.revision){placeRevision=places.revision;lastPaint=-Infinity;}}
     const living=window.UPPDRAG_LIVING_DIALOGUES;if(livingRevision!==living?.revision){livingRevision=living?.revision;lastPaint=-Infinity;}
+    const story=window.UPPDRAG_STORY_WORK;if(story){story.tick(now,interior&&!voyage?measure():null);if(storyRevision!==story.revision){storyRevision=story.revision;lastPaint=-Infinity;}}
+    const sr=window.UPPDRAG_STORY_STATE?.revision;if(storyStateRevision!==sr){storyStateRevision=sr;lastPaint=-Infinity;}
     const travelling=!!voyage;
     if(interior!==activeRoom||travelling!==wasTravelling){
       closeTalk(false);activeRoom=interior;wasTravelling=travelling;lastPaint=-Infinity;
@@ -251,7 +256,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
       if(!person.hidden)person.focus({preventScroll:true});
     }
     if(!interior||travelling)return;
-    const animating=(dialogue||pilot?.speaker||places?.speaker||living?.speaker)&&!motion.matches&&!document.hidden&&now<speechEnd;
+    const animating=(dialogue||pilot?.speaker||places?.speaker||living?.speaker||story?.speaker)&&!motion.matches&&!document.hidden&&now<speechEnd;
     if(lastPaint===-Infinity||animating&&now-lastPaint>45||!animating&&speechEnd&&now>=speechEnd){
       if(!animating)speechEnd=0;drawPeople(now);
     }

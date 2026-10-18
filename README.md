@@ -1,8 +1,10 @@
 # Uppdrag 1700 · Pappersstaden
 
-## Aktuell arbetsversion: Demo 3.18
+## Aktuell arbetsversion: Demo 3.19
 
-[Öppna Demo 3.18 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.18.0).
+[Öppna Demo 3.19 – Kapitlens arbete i pappersvärlden](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.19.0).
+
+**Nytt i 3.19: inbjudningar som leder till bokens verkliga arbete.** Maja, Brita, Rut och Jo läser nu av aktuell beställning, hämtning, arbetsplats och leverans. När ett ärende väntar hos dem säger de det i sitt korta utomhussamtal. I rummet finns ärendet bland spelarens tankar; ett valt ärende blir tal innan arbetsarket öppnas.
 
 **Nytt i 3.18: egna promenadrytmer och pappersvita seriebubblor.** Personerna går olika fort, tar olika långa pauser och vänder eller tittar sig omkring i egen takt. Små, mjuka sidoförskjutningar håller dem från en gemensam mittlinje inom den befintliga vägbanan.
 
@@ -22,9 +24,15 @@ Hundar går och viftar på svansen, höns går och pickar, och får och kor rör
 
 Maja, Brita, Rut och Jo behåller sina vanliga samtalsämnen, sparade bekantskaper och högst en hälsning per besök. Ruts dokumentövning finns kvar. Se [aktuell utvecklingsstatus](docs/demo3/STATUS.md) för aktiva filer, senaste beslut och verifiering. [Demo 3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1) och [Demo 3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) är bevarade. Den allmänna adressen `/demo3/` öppnar fortfarande den äldre världsdemon.
 
-### Nästa del: inbjudningar till kapitlens arbete
+### Kapitlens arbete i den levande världen
 
-Användarens riktning är att människor promenerar och småpratar tills ett relevant arbete blir aktuellt. Då bjuder personen in spelaren till sin plats. Kapitelstyrda arbetsinbjudningar är ännu inte aktiva i världsdemon: dess rum har samtalen, men inte hela huvudversionens uppdrag, arbetsbord och leveranser. Kopplingen ska följa verkligt aktuellt kapitel och uppdragsfas när det arbetsflödet flyttas över. Bekantskap ska aldrig räknas som avklarat kapitel. Perspektivet ovanifrån och de korta mötena i 3.15 är accepterade. Rumsbubblornas form och placering följer användarens senare beslut i 3.18.
+Bokens befintliga tio kapitel och tre arbetsnivåer per kapitel används utan en ny frågebank. Beställning, underlag, arbetsfrågor, kartjämförelse, provtryck, godkännande och slutleverans sker på sina riktiga platser. Det går också att resa till Marstrand och Saint Barthélemy för de uppdrag som kräver det. Forskarbladen läses med Sam i den befintliga scenen Vetenskapens hus; någon ny trädgårdsmiljö har inte ritats.
+
+**Uppdragsboken** visar det aktuella ärendet och vägen till nästa plats. Efter lärlingsarbetet kan spelaren göra det befintliga kapitelprovet för att öppna nästa kapitel. Gesäll- och mästararbetena går att göra före eller efter detta. Upplåsta kapitel och tidigare slutförda arbeten går att återvända till. En hälsning, en läst inbjudan eller en vald gångväg ändrar aldrig arbetsprogressionen.
+
+På arbetsarket finns samma rättning, bokhänvisningar, ledtrådar och kontrollerade svarsalternativ som i huvudversionen. Rut erbjuder repetition av fakta som spelaren faktiskt har mött. Escape pausar arbetet; svar, visade alternativ, ledtråd och återkoppling finns kvar när arbetet återupptas. Även ett oskickat kortsvar sparas medan man skriver. Arbetskontrollerna ligger på arket, medan pratbubblorna fortfarande innehåller enbart tal och tankar.
+
+Pappersvärldens kapitelarbete sparas automatiskt för sig i samma webbläsare. Vid första starten kopieras en befintlig lokal sparning från den tidigare huvudversionen, om en sådan finns. Den äldre versionens sparning och kontosparningar ändras inte. Bekantskapen mellan spelaren och de fyra huvudpersonerna använder fortfarande sina befintliga gemensamma minnen.
 
 ## Den tidigare huvudversionen
 
