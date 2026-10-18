@@ -1,4 +1,4 @@
-/* Demo 3.15: restrained top-down paper people follow the map's walking direction.
+/* Demo 3.18: clean spoken paper; the accepted top-down people keep their art.
  * Large room portraits retain their existing silhouette and paper material.
  * A separate transparent layer preserves every approved background pixel.
  * Uses the existing animation loop; no iframe, parallel loop or network service.
@@ -45,6 +45,7 @@
     #meetingPerson:focus-visible{outline:3px solid #355e68;outline-offset:3px}
     #meetingPerson:focus:not(:focus-visible){outline:none}
     #meetingDialogue{position:absolute;z-index:8;left:50%;bottom:12px;transform:translateX(-50%);width:min(660px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;background:#f7ecd5;border:2px solid #a58d63;box-shadow:3px 5px 0 #41342230;border-radius:7px;padding:16px 20px;color:#352d24}
+    #meetingTail{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:7}
     #meetingSpeaker{font:700 19px/1.25 Georgia,serif;margin:0 0 8px}
     #meetingLine{font:18px/1.48 system-ui,sans-serif;margin:0 0 14px;white-space:normal}
     #meetingDialogue .meetingActions{display:flex;justify-content:space-between;gap:12px;align-items:center}
@@ -58,13 +59,12 @@
   document.head.append(styles);
   const layer=document.createElement('canvas');layer.id='meetingLayer';layer.setAttribute('aria-hidden','true');
   const person=document.createElement('button');person.id='meetingPerson';person.type='button';person.hidden=true;
-  const nameLabel=document.createElement('span');person.append(nameLabel);
   const panel=document.createElement('section');panel.id='meetingDialogue';panel.hidden=true;
-  panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
-  panel.setAttribute('aria-labelledby','meetingSpeaker');panel.setAttribute('aria-describedby','meetingLine');
-  panel.innerHTML='<h3 id="meetingSpeaker"></h3><p id="meetingLine" aria-live="polite" aria-atomic="true"></p><div class="meetingActions"><button id="meetingClose" type="button">Avsluta samtalet</button><button id="meetingNext" type="button">Fortsätt ↵</button></div>';
-  roomView.append(layer,person,panel);
-  const next=panel.querySelector('#meetingNext'),close=panel.querySelector('#meetingClose');
+  panel.setAttribute('role','button');panel.tabIndex=0;panel.className='speech';panel.dataset.mode='speech';
+  panel.setAttribute('aria-keyshortcuts','Enter Space Escape');
+  panel.innerHTML='<p id="meetingLine" aria-live="polite" aria-atomic="true"></p>';
+  const dialogueTail=document.createElementNS('http://www.w3.org/2000/svg','svg');dialogueTail.id='meetingTail';dialogueTail.setAttribute('aria-hidden','true');
+  roomView.append(layer,person,dialogueTail,panel);
   let activeRoom=null,dialogue=null,geometry=null,lastPaint=-Infinity,wasTravelling=false;
   let speechAt=0,speechEnd=0,footerInert=false;
   const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -177,14 +177,21 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
       const width=Math.max(44,122*unit),height=Math.max(44,333*unit+26);
       Object.assign(person.style,{left:(left+p.x+x*p.scale-width/2)+'px',top:(top+p.y+y*p.scale-331*unit)+'px',width:width+'px',height:height+'px'});
       if(c.key==='archive'&&pilot){const b=pilot.personRect();if(b)Object.assign(person.style,{left:b.x+'px',top:b.y+'px',width:Math.max(44,b.w)+'px',height:Math.max(44,b.h)+'px'});}
-      person.setAttribute('aria-label','Prata med '+c.cast.name);person.title='Prata med '+c.cast.name;
-      nameLabel.textContent=c.cast.name;
+      person.setAttribute('aria-label','Prata med '+c.cast.name);
     }
+    positionDialogue();
     lastPaint=now;
+  }
+  function positionDialogue(){
+    if(!dialogue||!geometry)return;
+    const geo=geometry,p=geo.p;
+    const heads=geo.poses.slice(0,2).map(a=>({x:geo.left+p.x+a[0]*p.scale,y:geo.top+p.y+(a[1]-305*a[2])*p.scale,s:a[2]*p.scale}));
+    const speakerIndex=dialogue.cast.lines[dialogue.index][0]==='Du'?0:1;
+    window.UPPDRAG_PAPER_DIALOGUES?.placeRoomBubble?.({bubble:panel,tail:dialogueTail,mode:'speech',geometry:geo,heads,speakerIndex});
   }
   function closeTalk(restore=true){
     if(!dialogue)return false;
-    dialogue=null;speechEnd=0;panel.hidden=true;roomFooter.inert=footerInert;
+    dialogue=null;speechEnd=0;panel.hidden=true;dialogueTail.replaceChildren();roomFooter.inert=footerInert;
     delete document.body.dataset.conversation;
     drawPeople(performance.now());
     if(restore&&!person.hidden)person.focus({preventScroll:true});
@@ -193,12 +200,11 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   function showLine(){
     if(!dialogue)return;
     const [speaker,text]=dialogue.cast.lines[dialogue.index];
-    panel.querySelector('#meetingSpeaker').textContent=speaker;
     panel.querySelector('#meetingLine').textContent=text;
-    next.textContent=dialogue.index===dialogue.cast.lines.length-1?'Klart ↵':'Fortsätt ↵';
+    panel.setAttribute('aria-label',speaker+': '+text);
     speechAt=performance.now();speechEnd=speechAt+Math.min(3600,700+text.length*24);
     document.body.dataset.conversation=dialogue.cast.name;
-    drawPeople(speechAt);next.focus({preventScroll:true});
+    drawPeople(speechAt);panel.focus({preventScroll:true});
   }
   function startTalk(){
     const c=current();if(!c?.cast||dialogue||voyage)return false;
@@ -207,28 +213,31 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     panel.hidden=false;showLine();return true;
   }
   function advance(){
-    if(!dialogue)return;
+    if(!dialogue)return false;
     if(++dialogue.index>=dialogue.cast.lines.length)closeTalk();else showLine();
+    return true;
   }
-  person.addEventListener('click',startTalk);next.addEventListener('click',advance);close.addEventListener('click',()=>closeTalk());
+  person.addEventListener('click',startTalk);
+  panel.addEventListener('click',e=>{if(dialogue){e.preventDefault();e.stopPropagation();advance();}});
   // Capture before the original room exit shortcuts. One press = one line, not
   // an accidental second click or an exit. IME composition and key repeat ignored.
   window.addEventListener('keydown',e=>{
     if(!dialogue)return;
-    if(['Enter','Escape','Tab',' '].includes(e.key)){
+    if(['Enter','Escape','Tab','ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)){
+      if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey&&e.key!=='Tab'||e.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
       if(e.isComposing){e.stopImmediatePropagation();return;}
-      if(e.key==='Tab'){
+      if(e.key==='Tab'||e.key.startsWith('Arrow')){
         e.preventDefault();e.stopImmediatePropagation();
-        (document.activeElement===next?close:next).focus();return;
+        panel.focus({preventScroll:true});return;
       }
-      if(e.key==='Enter'||e.key==='Escape'){
+      if(e.key==='Enter'||e.key==='Escape'||e.key===' '){
         e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;
-        if(e.key==='Escape'||document.activeElement===close)closeTalk();else advance();
+        if(e.key==='Escape')closeTalk();else advance();
       }
     }
   },true);
   for(const name of ['pointerdown','pointerup','click'])roomCanvas.addEventListener(name,e=>{
-    if(dialogue){e.preventDefault();e.stopImmediatePropagation();}
+    if(dialogue){e.preventDefault();e.stopImmediatePropagation();if(name==='click')closeTalk();}
   },true);
   function tick(now){
     if(pilot){pilot.tick(now,interior&&!voyage?measure():null);if(pilotRevision!==pilot.revision){pilotRevision=pilot.revision;lastPaint=-Infinity;}}
@@ -266,7 +275,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     lastMapPlayer={x:pos.x,y:pos.y};
     puppets(g).map(pos.x,pos.y,mapHeading,!!goal,now,CAST.player);
   }
-  window.UPPDRAG_MEETINGS={tick,drawMapPlayer,geometryForRoom:measure,drawMapPerson(g,pos,who,now){puppets(g).map(pos.x,pos.y,Number.isFinite(pos.heading)?pos.heading:0,!!pos.moving,pos.animationTime??now,who);},get state(){return {room:current()?.key||null,npc:current()?.cast?.name||null,talking:!!dialogue,line:dialogue?.index??null};}};
+  window.UPPDRAG_MEETINGS={tick,drawMapPlayer,advance,close:closeTalk,geometryForRoom:measure,drawMapPerson(g,pos,who,now){puppets(g).map(pos.x,pos.y,Number.isFinite(pos.heading)?pos.heading:0,!!pos.moving,pos.animationTime??now,who);},get state(){return {room:current()?.key||null,npc:current()?.cast?.name||null,talking:!!dialogue,line:dialogue?.index??null};}};
   document.documentElement.dataset.meetings='ready';tick(performance.now());
 })();
 

@@ -117,6 +117,10 @@
   function interactRoom(){
     const box=dialogBox();
     if(box){
+      const archive=window.UPPDRAG_ARCHIVE_PILOT,place=window.UPPDRAG_PLACE_THOUGHTS,meeting=window.UPPDRAG_MEETINGS;
+      if(archive?.state.mode==='speech')return archive.advance();
+      if(place?.state.mode==='speech')return place.advance();
+      if(meeting?.state.talking)return meeting.advance();
       const next=box.querySelector('[data-action="next"],#meetingNext,[data-action="conclusion"]');
       if(visible(next)){next.click();return true;}
       // A thought or answer is never silently preselected. Space from a heading

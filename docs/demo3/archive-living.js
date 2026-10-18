@@ -1,4 +1,6 @@
-/* 3.14: room conversations keep their accepted 3.12.1 flow. Ambient thoughts belong to people outdoors. */
+/* 3.18: thoughts are choices; spoken paper is a single, clickable spoken line.
+ * The separate document exercise keeps its existing content and controls.
+ */
 /* 3.12.1. One returning greeting per room visit; existing archive practice.
  * Fictional practice notes, not historical sources. No quiz-bank/progress writes.
  * Backgrounds and the existing walking/door/voyage engine are not changed.
@@ -45,7 +47,7 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
   `;
   document.head.append(css);
   const root=document.createElement('div');root.id='rutPilot';root.hidden=true;
-  root.innerHTML='<svg id="rutTail" aria-hidden="true"></svg><section id="rutPanel" hidden role="dialog" aria-modal="true" aria-labelledby="rutHeading"></section><section id="rutDocuments" hidden role="dialog" aria-modal="true" aria-labelledby="rutDocHeading"></section>';
+  root.innerHTML='<svg id="rutTail" aria-hidden="true"></svg><section id="rutPanel" hidden tabindex="0" role="group" aria-label="Dina tankar"></section><section id="rutDocuments" hidden role="dialog" aria-modal="true" aria-labelledby="rutDocHeading"></section>';
   const paperButton=document.createElement('button');paperButton.id='rutPapers';paperButton.type='button';paperButton.hidden=true;paperButton.setAttribute('aria-label','Undersök handlingarna på läsbordet');paperButton.innerHTML='<span>Handlingarna</span>';
   roomView.append(root,paperButton);
   const panel=root.querySelector('#rutPanel'),tail=root.querySelector('#rutTail'),docs=root.querySelector('#rutDocuments');
@@ -62,6 +64,7 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
     if(!mode&&next){oldInert=roomFooter.inert;roomFooter.inert=true;}
     if(mode&&!next)roomFooter.inert=oldInert;
     mode=next;panel.hidden=!['thoughts','speech'].includes(mode);docs.hidden=mode!=='papers';
+    panel.dataset.mode=mode||'';root.dataset.mode=mode||'';
     paperButton.hidden=!active||!!mode;root.hidden=!active;
     if(mode)document.body.dataset.archiveMode=mode;else delete document.body.dataset.archiveMode;
     speechEnd=0;update();
@@ -70,19 +73,21 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
   function close(restore=true){setMode(null);tail.replaceChildren();if(restore){const b=document.querySelector('#meetingPerson');b.hidden=false;b.focus({preventScroll:true});}return true;}
   function thoughts(){
     if(!active)return false;setMode('thoughts');panel.className='thought';
-    panel.innerHTML=`<h3 id="rutHeading">Du tänker …</h3>${isKnown("archive")?(greetedThisVisit?'':'<button class="thoughtChoice" data-thought="greet">Där är Rut. Jag hälsar.</button>'):'<button class="thoughtChoice" data-thought="who">Undrar vem hon är?</button>'}<button class="thoughtChoice" data-thought="papers">Varför har hon två berättelser?</button><div class="rutActions"><button class="quiet" data-action="close">Inte nu</button></div>`;
-    position();focusHeading(panel.querySelector('h3'));return true;
+    panel.innerHTML=`${isKnown("archive")?(greetedThisVisit?'':'<button class="thoughtChoice" data-thought="greet">Där är Rut. Jag hälsar.</button>'):'<button class="thoughtChoice" data-thought="who">Undrar vem hon är?</button>'}<button class="thoughtChoice" data-thought="papers">Varför har hon två berättelser?</button>`;
+    panel.setAttribute('role','group');panel.setAttribute('aria-label','Dina tankar');
+    panel.setAttribute('aria-keyshortcuts','ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space Escape');
+    position();panel.focus({preventScroll:true});return true;
   }
   function speak(key){topic=key;line=0;setMode('speech');showLine();}
   function showLine(){
     const [name,text]=conversations[topic][line],last=line===conversations[topic].length-1;
     if(topic==='greet'&&last)greetedThisVisit=true;
-    panel.className='speech';panel.innerHTML='<h3 id="rutHeading"></h3><p id="rutText" aria-live="polite" aria-atomic="true"></p><div class="rutActions"><button class="quiet" data-action="close">Avsluta</button><button data-action="next"></button></div>';
-    panel.querySelector('h3').textContent=name;panel.querySelector('p').textContent=text;
-    panel.querySelector('[data-action="next"]').textContent=last?(topic==='papers'?'Till handlingarna →':(topic==='who'||topic==='greet')?'Till tankarna':'Klart'):'Fortsätt ↵';
-    speechAt=performance.now();speechEnd=speechAt+Math.min(3600,700+text.length*24);update();position();panel.querySelector('[data-action="next"]').focus({preventScroll:true});
+    panel.className='speech';panel.innerHTML='<p id="rutText" aria-live="polite" aria-atomic="true"></p>';
+    panel.querySelector('p').textContent=text;panel.setAttribute('role','button');panel.setAttribute('aria-label',name+': '+text);
+    panel.setAttribute('aria-keyshortcuts','Enter Space Escape');
+    speechAt=performance.now();speechEnd=speechAt+Math.min(3600,700+text.length*24);update();position();panel.focus({preventScroll:true});
   }
-  function advance(){if(mode!=='speech')return;if(++line<conversations[topic].length)showLine();else if(topic==='who'){remember('archive');greetedThisVisit=true;thoughts();}else if(topic==='greet')thoughts();else if(topic==='papers')openPapers();else close();}
+  function advance(){if(mode!=='speech')return false;if(++line<conversations[topic].length)showLine();else if(topic==='who'){remember('archive');greetedThisVisit=true;thoughts();}else if(topic==='greet')thoughts();else if(topic==='papers')openPapers();else close();return true;}
   function openPapers(){
     if(!active)return;setMode('papers');tail.replaceChildren();delete docs.dataset.solved;
     docs.innerHTML='<h3 id="rutDocHeading">Samma leverans?</h3><p class="practiceNote">Två påhittade övningstexter — inte historiska källor.</p><div class="sources"><article><h4>Berättelse A</h4><p><span class="sequence">Två tunnor kom till magasinet</span> på morgonen. <span class="sequence">Sedan skrevs leveransen in i listan.</span></p></article><article><h4>Berättelse B</h4><p>På morgonen <span class="sequence">skrevs två tunnor in i listan.</span> <span class="sequence">Sedan kom tunnorna till magasinet.</span></p></article></div><p class="question">Vad skiljer berättelserna åt?</p><div id="rutAnswers"></div><p id="rutFeedback" role="status" aria-live="polite"></p><div class="docActions"><button class="quiet" data-action="close">Lägg tillbaka</button><button data-action="conclusion" hidden>Fråga Rut →</button></div>';
@@ -102,9 +107,11 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
     docs.querySelector('#rutFeedback').textContent='I A kommer tunnorna först. I B skrivs listan först. Vi behöver kontrollera vad som hände först.';
     const b=docs.querySelector('[data-action="conclusion"]');b.hidden=false;focusHeading(docs.querySelector('.question'));
   }
-  root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  root.addEventListener('click',e=>{
+    if(mode==='speech'&&panel.contains(e.target)){e.preventDefault();e.stopPropagation();advance();return;}
+    const b=e.target.closest('button');if(!b)return;
     if(b.dataset.thought)speak(b.dataset.thought);else if(b.dataset.answer)answer(b.dataset.answer);
-    else if(b.dataset.action==='close')close();else if(b.dataset.action==='next')advance();
+    else if(b.dataset.action==='close')close();
     else if(b.dataset.action==='conclusion'){setMode('speech');speak('conclusion');}
   });paperButton.addEventListener('click',openPapers);
   // No default thought/answer. Enter on a heading does nothing; Tab/arrows or
@@ -112,21 +119,23 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
   window.addEventListener('keydown',e=>{
     if(!active||!mode)return;
     if(!['Enter','Escape','Tab','ArrowDown','ArrowUp','ArrowLeft','ArrowRight',' '].includes(e.key))return;
+    if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey&&e.key!=='Tab'||e.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
     if(e.isComposing){e.stopImmediatePropagation();return;}
     const box=mode==='papers'?docs:panel;
     const buttons=[...box.querySelectorAll('button')].filter(b=>!b.hidden&&!b.closest('[hidden]')&&!b.disabled);
     if(e.key==='Tab'||e.key.startsWith('Arrow')){
       e.preventDefault();e.stopImmediatePropagation();const old=buttons.indexOf(document.activeElement);
+      if(mode==='speech'){panel.focus({preventScroll:true});return;}
       const backwards=e.key==='ArrowUp'||e.key==='ArrowLeft'||e.key==='Tab'&&e.shiftKey;
       const i=old<0?(backwards?buttons.length-1:0):(old+(backwards?-1:1)+buttons.length)%buttons.length;
       buttons[i]?.focus({preventScroll:true});return;
     }
-    if(e.key==='Escape'||e.key==='Enter'){
+    if(e.key==='Escape'||e.key==='Enter'||e.key===' '){
       e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;
-      if(e.key==='Escape')close();else if(buttons.includes(document.activeElement))document.activeElement.click();
+      if(e.key==='Escape')close();else if(mode==='speech')advance();else if(buttons.includes(document.activeElement))document.activeElement.click();
     }
   },true);
-  for(const event of ['pointerdown','pointerup','click'])roomCanvas.addEventListener(event,e=>{if(active&&mode){e.preventDefault();e.stopImmediatePropagation();}},true);
+  for(const event of ['pointerdown','pointerup','click'])roomCanvas.addEventListener(event,e=>{if(active&&mode){e.preventDefault();e.stopImmediatePropagation();if(event==='click'&&mode!=='papers')close();}},true);
   function poses(tall){return tall?[[122,996,.82],[460,894,.90]]:[[420,690,.83],[708,594,.94]];}
   function tableGeometry(){const tall=geo.w/geo.h<1.02;return tall?{x:236,y:789,w:427,h:190,bx:286,by:757,bw:227}:{x:539,y:490,w:332,h:161,bx:575,by:456,bw:184};}
   function worldRect(b){const {left,top,p}=geo;return{x:left+p.x+b.x*p.scale,y:top+p.y+b.y*p.scale,w:b.w*p.scale,h:b.h*p.scale};}
@@ -142,6 +151,7 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
     const [pp,np]=geo.poses,p=geo.p;
     const heads=[pp,np].map(a=>({x:geo.left+p.x+a[0]*p.scale,y:geo.top+p.y+(a[1]-305*a[2])*p.scale,s:a[2]*p.scale}));
     const who=mode==='speech'?conversations[topic][line][0]:'Du',anchor=heads[who==='Rut'?1:0];
+    if(window.UPPDRAG_PAPER_DIALOGUES?.placeRoomBubble?.({bubble:panel,tail,mode,geometry:geo,heads,speakerIndex:who==='Rut'?1:0}))return;
     let width=Math.min(348,geo.w-24),side=null;
     let x,y,baseX,baseY,tipX,tipY;
     const leftEdge=Math.min(...heads.map(a=>a.x-65*a.s));
@@ -190,7 +200,7 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
     const signature=[geo.w,geo.h,geo.top,geo.left,revision].join(':');
     if(signature!==lastGeometry){position();lastGeometry=signature;}
   }
-  return {tick,poses,restoreDesk,personRect,open:thoughts,close,
+  return {tick,poses,restoreDesk,personRect,open:thoughts,close,advance,
     get busy(){return active&&!!mode;},get active(){return active;},get revision(){return revision;},
     get speech(){return {at:speechAt,end:speechEnd};},get speaker(){return mode==='speech'?conversations[topic][line][0]:'';},
     get state(){return {active,mode,topic,line,solved};}};

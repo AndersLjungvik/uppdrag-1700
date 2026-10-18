@@ -1,14 +1,22 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
-Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.17 – En levande pappersvärld**.
+Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.18 – En levande pappersvärld**.
 
 ## Börja här
 
-[Starta Demo 3.17](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.17.1). Startfilen är `docs/demo3/living-world.html`.
+[Starta Demo 3.18](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.18.0). Startfilen är `docs/demo3/living-world.html`.
 
 Utgå från denna startfil vid nästa ändring. `/demo3/` och `game.html` visar fortfarande den äldre 3.2.1-demon. Huvudversionen 0.6.0 är ett bevarat förlopp med hela uppdragssystemet; hela det systemet har inte överförts till denna demo.
 
-## Senaste användarbeslut – tangentstyrning och gemensam promenad
+## Senaste användarbeslut – egen rytm och rena seriebubblor (3.18)
+
+Användaren vill bryta den gemensamma ”myrstigen”. Varje person har därför en egen gångprofil: tempo och tempovariation, korta uppehåll under promenaden, olika vila och vändtid samt diskreta blickar. Sidolinjen varierar mjukt inom en förkontrollerad, säker korridor på den befintliga vägbanan. Rörelseprofilen är deterministisk så att freeze, möten och återgång från följe behåller exakt position och promenadfas. Figuren ritas fortfarande ovanifrån med små steg.
+
+**Detta senaste beslut ändrar uttryckligen rumsbubblornas tidigare form.** Tankevalen ska ligga vid bildens nederkant i en pappersvit tankebubbla. Ett valt alternativ övergår i tal: valen försvinner och endast repliken visas i en rundare seriebubbla med en kort flik mot talaren. Inga synliga namn, rubriker, ”Du tänker”, ”Inte nu”, ”Avsluta”, ”Fortsätt” eller ”Klart” hör hemma i dessa bubblor. Spelaren klickar på repliken eller använder mellanslag/Enter för nästa replik; Escape eller ett tryck på miljön utanför bubblan stänger. Det gör att samtalet även går att lämna med pekskärm utan en extra knapp. Pilarna väljer bland tankarna. De faktiska dokumenten och Ruts svarsalternativ är fortfarande en separat arbetsyta med sina vanliga kontroller.
+
+Pappret är nu vitt och läsbart, med försiktig fiberstruktur och tunn klippt kant. Det ska skilja sig tydligt från markens och rummens varmare papperstoner. Pappersfärgen används även för de korta utomhusreplikerna. Deras enkla mötesförlopp är bevarat. `paper-dialogues.js` äger gemensam rumsplacering och SVG-form; samtalsmodulerna äger repliker, val och inmatning. Namnen finns i tillgängliga etiketter, men visas inte som extra text i bubblorna.
+
+## Tangentstyrning och gemensam promenad – tillagt i 3.17
 
 3.17 lägger till **piltangenter för gång och mellanslag för interaktion**. Utomhusförflyttningen sker med samma hastighet som klickgång, normaliserad diagonal och stopp vid hus, vatten och världens gränser. Pilarna fungerar som val i befintliga rumssamtal, och mellanslag väljer eller fortsätter. Utomhusbubblan stängs med mellanslag innan man går. Ingen ny meny eller ny visuell form införs. Hållna tangenter nollställs vid dialog, tappat fokus och dolt fönster.
 
@@ -18,7 +26,7 @@ Kartans ritade geometri är bevarad. Två navigeringspunkter på kajvägen går 
 
 ## Samma personer ute och inne – tillagt i 3.16
 
-**Användaren har uttryckligen accepterat känslan i 3.15:** ”nu har vi verkligen hittat rätt i feelingen”. Behåll perspektivet ovanifrån, de diskreta rörelserna, pappersbubblorna och de korta mötena. Gör ingen ny stilomläggning.
+**Användaren har uttryckligen accepterat känslan i 3.15:** ”nu har vi verkligen hittat rätt i feelingen”. Behåll perspektivet ovanifrån och de korta mötena. De senare besluten i 3.18 styr personernas gångrytm och rumsbubblornas nya vita, rundare form.
 
 3.15 hade nio gående förbipasserande. Maja, Brita, Rut och Jo fanns då fortfarande bara i sina rums-/kajscener. **3.16 lägger till även de fyra huvudpersonerna som vandrare.** Alla tretton namngivna samtalspersoner i den nuvarande världsdemon går nu ute. Jo går på den fria stadsvägen mellan torget och kajvägens första korsning.
 
@@ -30,7 +38,7 @@ En direkt färd från detta samtal till personens egen plats bär med sig hälsn
 
 Användarens avsikt: personerna promenerar och har korta vardagliga samtal tills det är dags för deras del av berättelsen; då bjuder de in spelaren till respektive plats. Den grundidén ska styra nästa överföring av kapitelarbetet.
 
-**Kapitelstyrda arbetsinbjudningar är ännu inte aktiva i 3.17.** Världsdemon saknar huvudversionens uppdragsmotor, frågearbete, beställningar och leveranser. En inbjudan som redan lovar ett sådant arbete skulle i dag leda till ett rum där det inte går att genomföra. Skapa inte en låtsad progression baserad på hur många personer man har hälsat på eller hur många repliker man har läst.
+**Kapitelstyrda arbetsinbjudningar är ännu inte aktiva i 3.18.** Världsdemon saknar huvudversionens uppdragsmotor, frågearbete, beställningar och leveranser. En inbjudan som redan lovar ett sådant arbete skulle i dag leda till ett rum där det inte går att genomföra. Skapa inte en låtsad progression baserad på hur många personer man har hälsat på eller hur många repliker man har läst.
 
 Den befintliga tiokapitelberättelsen finns i `docs/world/content.mjs` och motorn i `docs/world/engine.mjs`. Maja, Brita, Jo och Rut återkommer i flera kapitel och olika arbetsfaser. En senare inbjudan behöver därför följa aktuell fas och mottagare, inte en godtycklig ensam kapitelägare. `engine.current()`, `progress()`, `active()`, `level()`, `target()` och `objective()` ger underlaget. Enbart match mot `target()` räcker inte: motorn pekar även på kaffehuset efter att ett kapitels alla nivåer är klara.
 
@@ -86,7 +94,7 @@ Två hundar följer befintliga vägar och speglas bara vågrätt när de vänder
 
 Utomhusrepliken ligger i en enda sluten SVG-form med ojämnt klippt kontur och sammanhängande pratspets. Inga separata tankecirklar eller rektangulära bakgrundskort ligger bakom. Pappersfiber, tunn ljus fiberkant och en liten skugga ger material. Texten har enkel seriftypografi utan namnrubrik. Styrenheten placerar bubblan så att den håller sig inom scenen och undviker de två figurerna.
 
-Rummens befintliga tanke- och pratbubblor har kvar sin pappersyta. Materialet hämtas från ett rent pappersfält i befintliga `docs/world/assets/town.webp`. Pappersvärldens proportioner och miljöbilder är bevarade.
+Rummens tanke- och pratbubblor följer 3.18:s vita, rundare serietidningsform. Materialet hämtas från ett rent pappersfält i befintliga `docs/world/assets/town.webp`. Pappersvärldens proportioner och miljöbilder är bevarade.
 
 ## Bekantskaper i rummen
 
@@ -105,20 +113,28 @@ Alla nedanstående filer ligger i `docs/demo3/`.
 | `living-dialogues.js` | Korta samtal, gemensam bekantskap, följe till värdens plats och högst en hälsning per sammanhängande möte. |
 | `world-life.js` | Promenader, följe längs verkligt gångspår, mjuk återgång, freeze/release och djur. |
 | `world-keyboard.js` | Piltangenter, mellanslag, kollisioner och befintliga tangentval i rummen. |
-| `archive-living.js` | Ruts accepterade 3.12.1-samtal utan extra reflektionsmeny. |
-| `place-living.js` | Maja, Brita och Jo med 3.12.1:s hälsningslogik. |
+| `archive-living.js` | Ruts samtal i rena tanke-/talbubblor och bevarad dokumentövning. |
+| `place-living.js` | Maja, Brita och Jo med rena tanke-/talbubblor och en hälsning per besök. |
 | `meeting-living.js` | Kartfigurer ovanifrån; bevarade rumsfigurer. |
 | `paper-fibres.js` | Gemensamt pappersmaterial och fiberkanter. |
-| `paper-dialogues.js` | Sammanhängande papperspratbubbla utomhus och bevarad pappersstil för rummen. |
+| `paper-dialogues.js` | Vit pappersyta, runda seriebubblor och gemensam rumsplacering. |
 | `interior-fibre-art.js`, `more-room-fibre-art.js` | Befintlig rumsgeometri med gemensamt material. |
 | `harbour-fibre-art.js` | Befintlig hamngrafik med fiberkanter. |
 | `paper-look.js`, `harbour-merchant-visits.js` | Bevarad karta, rum, dörrar, hamnbesök och båtfärder. |
 
-Den accepterade [3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1), [3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) och 3.10 (`thoughts.html`) bevaras i sina egna filer. 3.16 uppdaterar de aktiva living-filerna. Återinför inte 3.13:s frågeträd eller 3.14:s rubriksatta utomhustankar och frontfigurer.
+Den accepterade [3.12.1](https://andersljungvik.github.io/uppdrag-1700/demo3/conversations.html?v=3.12.1), [3.11](https://andersljungvik.github.io/uppdrag-1700/demo3/known-people.html) och 3.10 (`thoughts.html`) bevaras i sina egna filer. 3.18 uppdaterar de aktiva living-filerna. Återinför inte 3.13:s frågeträd eller 3.14:s rubriksatta utomhustankar och frontfigurer.
 
 ## Underlag
 
 Originalfrågorna återfanns i `curriculum/classroom.mjs` vid commit `f277b2a3fb9cc138f2b4d5ac30ca5765767a5eb7`. Den äldre samtalsformen finns i `docs/game.js`. Originalposter, hänvisningar och provenance bevaras i datafilen som underlag. De tolv replikerna är redaktionella bearbetningar av dessa teman enligt användarens exempel. Inget nytt AI-frågebibliotek kopplas in.
+
+## Verifiering av 3.18.0
+
+Den samlade integrationskontrollen använder de aktiva källfilerna och kontrollerar deras SHA256 före och efter körningen. Alla fyra rumsflöden provas med rena tankeval, enbart talad text, fokus, klick, pilar och mellanslag. Presentation, högst en återhälsning, gamla sparflaggor och hela Ruts dokumentövning ingår. Samtal kan stängas med Escape eller tryck på miljön; dokumentövningen behåller sina vanliga kontroller.
+
+Alla tretton gångprofiler har provats med fri figurkontur, varierande fart, sidoläge, pauser och blickar. Freeze/release bevarar position och animationsfas. Ett separat rörelseprov täcker 120 virtuella sekunder per region. Samma kartgeometri och djurrendering används.
+
+Tangentstyrningens diagonalfart, hinder, vatten, bro, fokusbyte och engångsinteraktion ingår. Jo följer spelarens verkliga väg, väntar vid ankomst, blir kvar på kajen och återvänder utan hopp. När spelaren först passerar Jo kan en ännu ogången anslutning från hans sidoläge ersättas medan han står stilla. Efter den första faktiska förflyttningen är färdspåret låst och kontrolleras exakt genom svängar och retur. Den publicerade rumsformen granskas även som verklig webbläsarbild, eftersom integrationsmiljön inte återger mobil CSS-layout som en riktig webbläsare.
 
 ## Verifiering av 3.17.1
 
@@ -150,6 +166,6 @@ Den faktiska SVG-pappersbubblan rastergranskades med liten hälsning, större re
 
 ## Fortsätt utan att tappa beslut
 
-Utgå från de senaste besluten högst upp. Den visuella känslan är nu accepterad. Behåll perspektivet ovanifrån och korta talade utomhusmöten. Bevara papperskänslan, rumsbekantskaperna, högst en hälsning per rumsbesök och den manuella fortsättningen i vanliga samtal. Bevara kartans mått, bildmiljöer, dörrar, navigation och båtfärder.
+Utgå från de senaste besluten högst upp. Följ särskilt 3.18:s senaste önskemål om gångrytm och vita seriebubblor. Behåll perspektivet ovanifrån och korta talade utomhusmöten. Bevara papperskänslan, rumsbekantskaperna, högst en hälsning per rumsbesök och den manuella fortsättningen i vanliga samtal. Bevara kartans mått, bildmiljöer, dörrar, navigation och båtfärder.
 
 Den tidigare rapporten om en tanke som fastnade kom efter ett verkligt klick. Det finns inte belägg för grundorsaken; beskriv inte problemet som att användaren tryckte Enter före ett val. Återuppta inte äldre kartproblem enbart för att historiska dokument nämner dem. Se också `SCENE-COMPOSITION.md` för bildprinciper.

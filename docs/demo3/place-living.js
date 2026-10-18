@@ -1,4 +1,6 @@
-/* 3.14: room conversations keep their accepted 3.12.1 flow. Ambient thoughts belong to people outdoors. */
+/* 3.18: thoughts contain choices; spoken paper contains only the spoken line.
+ * Click the spoken paper, Space or Enter to continue; Escape closes the meeting.
+ */
 /* 3.12.1: one returning greeting per room visit for Maja, Brita and Jo.
  * Retains existing topics. No tasks, learning-progress or world writes.
  * The existing meeting renderer supplies geometry and the single animation loop.
@@ -46,7 +48,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
   `;
   document.head.append(css);
   const root=document.createElement('div');root.id='placeThoughts';root.hidden=true;
-  root.innerHTML='<svg id="placeTail" aria-hidden="true"></svg><section id="placeBubble" hidden role="dialog" aria-modal="true" aria-labelledby="placeHeading"></section>';
+  root.innerHTML='<svg id="placeTail" aria-hidden="true"></svg><section id="placeBubble" hidden tabindex="0" role="group" aria-label="Dina tankar"></section>';
   roomView.append(root);
   const bubble=root.querySelector('#placeBubble'),tail=root.querySelector('#placeTail');
   let active=false,room=null,geo=null,key=null,mode=null,topic=null,line=0,revision=0;
@@ -56,6 +58,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     if(!mode&&next){oldInert=roomFooter.inert;roomFooter.inert=true;}
     if(mode&&!next)roomFooter.inert=oldInert;
     mode=next;bubble.hidden=!mode;root.hidden=!active;
+    bubble.dataset.mode=mode||'';root.dataset.mode=mode||'';
     if(mode)document.body.dataset.thoughtMode=mode;else delete document.body.dataset.thoughtMode;
     speechEnd=0;update();
   }
@@ -69,12 +72,11 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     if(!active||!geo)return false;
     setMode('thoughts');topic=null;line=0;bubble.className='thought';
     bubble.replaceChildren();
-    const heading=document.createElement('h3');heading.id='placeHeading';heading.tabIndex=-1;heading.textContent='Du tänker …';bubble.append(heading);
+    bubble.setAttribute('role','group');bubble.setAttribute('aria-label','Dina tankar');
+    bubble.setAttribute('aria-keyshortcuts','ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space Escape');
     const known=isKnown(key);
     for(const choice of TOPICS[key].choices.filter(c=>(c.id!=='who'||!known)&&(c.id!=='greet'||known&&!greetedThisVisit))){const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought=choice.id;b.textContent=choice.thought;bubble.append(b);}
-    const actions=document.createElement('div');actions.className='actions';
-    const skip=document.createElement('button');skip.type='button';skip.className='quiet';skip.dataset.action='close';skip.textContent='Inte nu';actions.append(skip);bubble.append(actions);
-    position();heading.focus({preventScroll:true});return true;
+    position();bubble.focus({preventScroll:true});return true;
   }
   function speak(id){
     const chosen=TOPICS[key]?.choices.find(c=>c.id===id);if(!chosen)return;
@@ -84,32 +86,36 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     const [who,text]=topic.lines[line],last=line===topic.lines.length-1;
     if(topic.id==='greet'&&last)greetedThisVisit=true;
     bubble.className='speech';
-    bubble.innerHTML='<h3 id="placeHeading"></h3><p id="placeLine" aria-live="polite" aria-atomic="true"></p><div class="actions"><button type="button" class="quiet" data-action="close">Avsluta</button><button type="button" data-action="next"></button></div>';
-    bubble.querySelector('h3').textContent=who;bubble.querySelector('p').textContent=text;
-    const next=bubble.querySelector('[data-action="next"]');next.textContent=last?((topic.id==='who'||topic.id==='greet')?'Till tankarna':'Klart ↵'):'Fortsätt ↵';
+    bubble.innerHTML='<p id="placeLine" aria-live="polite" aria-atomic="true"></p>';
+    bubble.querySelector('p').textContent=text;
+    bubble.setAttribute('role','button');bubble.setAttribute('aria-label',who+': '+text);
+    bubble.setAttribute('aria-keyshortcuts','Enter Space Escape');
     speechAt=performance.now();speechEnd=speechAt+Math.min(3600,700+text.length*24);
-    update();position();next.focus({preventScroll:true});
+    update();position();bubble.focus({preventScroll:true});
   }
-  function advance(){if(mode!=='speech')return;if(++line<topic.lines.length)showLine();else if(topic.id==='who'){remember(key);greetedThisVisit=true;open();}else if(topic.id==='greet')open();else close();}
-  root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-    if(b.dataset.thought)speak(b.dataset.thought);else if(b.dataset.action==='close')close();else if(b.dataset.action==='next')advance();
+  function advance(){if(mode!=='speech')return false;if(++line<topic.lines.length)showLine();else if(topic.id==='who'){remember(key);greetedThisVisit=true;open();}else if(topic.id==='greet')open();else close();return true;}
+  root.addEventListener('click',e=>{
+    if(mode==='speech'&&bubble.contains(e.target)){e.preventDefault();e.stopPropagation();advance();return;}
+    const b=e.target.closest('button');if(b?.dataset.thought)speak(b.dataset.thought);
   });
   // No preselected thought. Enter confirms only an intentionally focused choice.
   window.addEventListener('keydown',e=>{
     if(!active||!mode)return;
     if(!['Enter','Escape','Tab','ArrowDown','ArrowUp','ArrowLeft','ArrowRight',' '].includes(e.key))return;
+    if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey&&e.key!=='Tab'||e.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
     if(e.isComposing){e.stopImmediatePropagation();return;}
     const buttons=[...bubble.querySelectorAll('button')].filter(b=>!b.hidden&&!b.disabled);
     if(e.key==='Tab'||e.key.startsWith('Arrow')){
       e.preventDefault();e.stopImmediatePropagation();
+      if(mode==='speech'){bubble.focus({preventScroll:true});return;}
       const old=buttons.indexOf(document.activeElement),back=e.key==='ArrowUp'||e.key==='ArrowLeft'||e.key==='Tab'&&e.shiftKey;
       const i=old<0?(back?buttons.length-1:0):(old+(back?-1:1)+buttons.length)%buttons.length;
       buttons[i]?.focus({preventScroll:true});return;
     }
     e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;
-    if(e.key==='Escape')close();else if(buttons.includes(document.activeElement))document.activeElement.click();
+    if(e.key==='Escape')close();else if(mode==='speech')advance();else if(buttons.includes(document.activeElement))document.activeElement.click();
   },true);
-  for(const event of ['pointerdown','pointerup','click'])roomCanvas.addEventListener(event,e=>{if(active&&mode){e.preventDefault();e.stopImmediatePropagation();}},true);
+  for(const event of ['pointerdown','pointerup','click'])roomCanvas.addEventListener(event,e=>{if(active&&mode){e.preventDefault();e.stopImmediatePropagation();if(event==='click')close();}},true);
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
   const overlap=(a,b)=>Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x))*Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y));
   function position(){
@@ -118,6 +124,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     const heads=geo.poses.slice(0,2).map(a=>({x:geo.left+p.x+a[0]*p.scale,y:geo.top+p.y+(a[1]-305*a[2])*p.scale,s:a[2]*p.scale}));
     if(heads.length<2)return;
     const index=mode==='speech'&&topic.lines[line][0]!=='Du'?1:0,anchor=heads[index];
+    if(window.UPPDRAG_PAPER_DIALOGUES?.placeRoomBubble?.({bubble,tail,mode,geometry:geo,heads,speakerIndex:index}))return;
     const bodies=heads.map(a=>({x:a.x-65*a.s-8,y:a.y-24*a.s-8,w:130*a.s+16,h:338*a.s+16}));
     const gapLeft=bodies[0].x+bodies[0].w+12,gapRight=bodies[1].x-12;
     let width=Math.min(348,geo.w-24);
@@ -161,7 +168,7 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     geo=geometry;root.hidden=!active;
     const sig=[geo.w,geo.h,geo.top,geo.left,revision].join(':');if(sig!==lastSignature){position();lastSignature=sig;}
   }
-  return {tick,open,close,get active(){return active;},get busy(){return active&&!!mode;},get revision(){return revision;},
+  return {tick,open,close,advance,get active(){return active;},get busy(){return active&&!!mode;},get revision(){return revision;},
     get speaker(){return mode==='speech'?topic.lines[line][0]:'';},get speech(){return {at:speechAt,end:speechEnd};},
     get state(){return {active,key,mode,topic:topic?.id||null,line};}};
 })();

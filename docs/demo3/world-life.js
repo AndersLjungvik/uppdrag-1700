@@ -31,6 +31,24 @@
     ester:  {a:'square',  b:'b',        from:.16,to:.83,speed:20,phase:6500,pause:2000}
   };
 
+  // Personal rhythms stay deterministic: no frame-by-frame randomness or sway
+  // of the body. Small side paths, quiet looks and differing breaks do the work.
+  const WALK_PROFILES = {
+    maja:   {pace:.86,variation:.18,lane:-10,sway:2.3,curve:.3,every:1,stopAt:.62,stop:1800,rest:2900,look:.30,turn:850,side:1,cadence:.90},
+    brita:  {pace:1.16,variation:.26,lane:10,sway:2.5,curve:2.1,every:3,stopAt:.48,stop:800,rest:1250,look:.15,turn:420,side:-1,cadence:1.16},
+    rut:    {pace:.82,variation:.14,lane:8,sway:3,curve:1.2,every:1,stopAt:.44,stop:2700,rest:3350,look:.32,turn:1000,side:-1,cadence:.82},
+    jo:     {pace:.92,variation:.18,lane:2.6,sway:.8,curve:.9,every:2,stopAt:.70,stop:1900,rest:2400,look:.26,turn:720,side:1,cadence:.91},
+    klara:  {pace:.96,variation:.22,lane:-10,sway:3.5,curve:1.4,every:2,stopAt:.36,stop:1500,rest:2150,look:.28,turn:630,side:1,cadence:.98},
+    otto:   {pace:1.18,variation:.31,lane:4,sway:3.2,curve:2.8,every:3,stopAt:.58,stop:850,rest:1050,look:.16,turn:400,side:-1,cadence:1.20},
+    linnea: {pace:.86,variation:.20,lane:3,sway:.8,curve:.4,every:1,stopAt:.66,stop:2400,rest:2700,look:.38,turn:950,side:1,cadence:.90},
+    lovisa: {pace:1.04,variation:.15,lane:-3,sway:1,curve:2.4,every:3,stopAt:.43,stop:1100,rest:1550,look:.20,turn:580,side:-1,cadence:1.05},
+    noor:   {pace:1.02,variation:.30,lane:-9,sway:4,curve:.2,every:2,stopAt:.52,stop:1600,rest:2100,look:.26,turn:650,side:1,cadence:1.08},
+    karin:  {pace:.88,variation:.23,lane:9,sway:3.6,curve:1.9,every:1,stopAt:.60,stop:2200,rest:3100,look:.31,turn:880,side:-1,cadence:.84},
+    liv:    {pace:.96,variation:.18,lane:-1,sway:.75,curve:1.1,every:2,stopAt:.40,stop:1700,rest:2500,look:.26,turn:800,side:1,cadence:.94},
+    amira:  {pace:1.10,variation:.27,lane:1.2,sway:.6,curve:2.6,every:3,stopAt:.68,stop:1050,rest:1700,look:.22,turn:500,side:-1,cadence:1.10},
+    ester:  {pace:.84,variation:.20,lane:-7,sway:2.4,curve:.8,every:1,stopAt:.54,stop:2350,rest:3200,look:.34,turn:900,side:1,cadence:.86}
+  };
+
   function insidePolygon(x,y,points) {
     let inside=false;
     for(let i=0,j=points.length-1;i<points.length;j=i++){
@@ -77,6 +95,54 @@
     const leg=back?cycle-duration-pause:cycle;
     const fraction=Math.min(leg/duration,1);
     return {fraction:back?1-fraction:fraction,direction:back?-1:1,moving:leg<duration};
+  }
+
+  function safeLaneScale(region,edge,profile) {
+    const road=region.edges.find(e=>e.a===edge.a.id&&e.b===edge.b.id||e.a===edge.b.id&&e.b===edge.a.id);
+    const extent=Math.abs(profile.lane)+profile.sway;
+    let scale=Math.min(1,Math.max(0,(road.w||66)/2-27)/(extent||1));
+    const nx=-(edge.b.y-edge.a.y)/edge.length,ny=(edge.b.x-edge.a.x)/edge.length;
+    const steps=Math.ceil(edge.length*(edge.to-edge.from)/4);
+    // A single scale is chosen for the entire corridor. No per-frame clipping
+    // can change a person's side abruptly near a wall or during a frozen talk.
+    for(let attempt=0;attempt<7&&scale;attempt++){
+      let safe=true;
+      const low=Math.min(0,(profile.lane-profile.sway)*scale),high=Math.max(0,(profile.lane+profile.sway)*scale);
+      const across=Math.max(1,Math.ceil((high-low)/2));
+      for(let i=0;i<=steps&&safe;i++)for(let j=0;j<=across;j++){
+        const t=edge.from+(edge.to-edge.from)*i/steps,offset=low+(high-low)*j/across;
+        if(!clearPoint(region,edge.a.x+(edge.b.x-edge.a.x)*t+nx*offset,edge.a.y+(edge.b.y-edge.a.y)*t+ny*offset,26)){safe=false;break;}
+      }
+      if(safe)return scale;
+      scale*=.5;
+    }
+    return 0;
+  }
+
+  function personalStep(state) {
+    const edge=state.edge,p=state.profile;
+    const duration=edge.length*(edge.to-edge.from)/(edge.speed*p.pace)*1000;
+    const legs=p.every*2,cycle=legs*(duration+p.rest)+2*p.stop;
+    let time=((state.time%cycle)+cycle)%cycle,index=0;
+    for(;index<legs-1;index++){
+      const length=duration+p.rest+(index%p.every===0?p.stop:0);
+      if(time<length)break;time-=length;
+    }
+    const hold=index%p.every===0?p.stop:0,first=duration*p.stopAt;
+    let raw,look=0,turn=0,phase='walking';
+    if(hold&&time>=first&&time<first+hold){
+      raw=p.stopAt;phase='looking';
+      const f=(time-first)/hold;look=Math.sin(Math.PI*f)**2*Math.sin(2*Math.PI*f)*p.look;
+    }else if(time>=duration+hold){
+      raw=1;
+      const waited=time-duration-hold,f=waited/p.rest;
+      phase=waited>=p.rest-p.turn?'turning':'waiting';
+      look=Math.sin(Math.PI*f)**2*Math.sin(2*Math.PI*f)*p.look*.65;
+      const t=Math.max(0,Math.min(1,(waited-(p.rest-p.turn))/p.turn));
+      turn=t*t*(3-2*t);
+    }else raw=(time-(hold&&time>=first+hold?hold:0))/duration;
+    const warped=raw-p.variation*Math.sin(2*Math.PI*raw)/(2*Math.PI),direction=index%2?-1:1;
+    return {fraction:direction>0?warped:1-warped,direction,moving:phase==='walking',phase,look,turn};
   }
 
   // Escorting is purposeful movement, separate from each person's quiet patrol.
@@ -246,7 +312,15 @@
       const last=escort.trail[escort.trail.length-1],gap=Math.hypot(player.x-last.x,player.y-last.y);
       if(gap>120){escort.blocked=true;escort.reason='discontinuous-player';}
       else if(!escortSegment(state.region,last,player)){escort.blocked=true;escort.reason='unsafe-player-trail';}
-      else{appendTrail(escort,player);escort.blocked=false;escort.reason='';}
+      else{
+        const origin=escort.trail[0];
+        // A small personal lane need not make the first meeting link exactly
+        // collinear with the road. Wait while the nearby player passes, keeping
+        // only this still-unwalked connection; real travelled history stays put.
+        if(escort.cursor<.001&&Math.hypot(player.x-origin.x,player.y-origin.y)<=escort.distance
+          &&escortSegment(state.region,origin,player))escort.trail.length=1;
+        appendTrail(escort,player);escort.blocked=false;escort.reason='';
+      }
     }
     const target=escort.mode==='returning'?0:Math.max(escort.cursor,escort.trail[escort.trail.length-1].s-escort.distance);
     // Essential travel remains available with reduced motion; the drawing below
@@ -261,14 +335,20 @@
 
   function updateWalker(state) {
     if(state.escort){updateEscortPose(state);return;}
-    const edge=state.edge;
-    const duration=edge.length*(edge.to-edge.from)/edge.speed*1000;
-    const step=outAndBack(state.time,duration,edge.pause);
+    const edge=state.edge,p=state.profile,step=personalStep(state);
     const t=edge.from+(edge.to-edge.from)*step.fraction;
     const dx=edge.b.x-edge.a.x,dy=edge.b.y-edge.a.y;
-    const x=edge.a.x+dx*t,y=edge.a.y+dy*t;
+    const nx=-dy/edge.length,ny=dx/edge.length,f=step.fraction,curve=2*Math.PI*f+p.curve+step.direction*.4;
+    const offset=state.laneScale*(p.lane+p.sway*Math.sin(Math.PI*f)*Math.sin(curve));
+    const derivative=state.laneScale*p.sway*(Math.PI*Math.cos(Math.PI*f)*Math.sin(curve)+2*Math.PI*Math.sin(Math.PI*f)*Math.cos(curve));
+    const x=edge.a.x+dx*t+nx*offset,y=edge.a.y+dy*t+ny*offset;
     let facing=(Math.abs(dx)>1?Math.sign(dx):1)*step.direction;
-    let heading=Math.atan2(dy*step.direction,dx*step.direction);
+    const baseHeading=Math.atan2((dy*(edge.to-edge.from)+ny*derivative)*step.direction,(dx*(edge.to-edge.from)+nx*derivative)*step.direction);
+    const nextCurve=2*Math.PI*f+p.curve-step.direction*.4;
+    const nextDerivative=state.laneScale*p.sway*(Math.PI*Math.cos(Math.PI*f)*Math.sin(nextCurve)+2*Math.PI*Math.sin(Math.PI*f)*Math.cos(nextCurve));
+    const nextHeading=Math.atan2(-(dy*(edge.to-edge.from)+ny*nextDerivative)*step.direction,-(dx*(edge.to-edge.from)+nx*nextDerivative)*step.direction);
+    const rotation=p.side>0?((nextHeading-baseHeading)%(2*Math.PI)+2*Math.PI)%(2*Math.PI):-((baseHeading-nextHeading)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+    let heading=baseHeading+step.look*(1-step.turn)+rotation*step.turn;
     if(state.frozen&&Number.isFinite(state.playerX)&&Number.isFinite(state.playerY)){
       const towardX=state.playerX-x,towardY=state.playerY-y;
       if(Math.hypot(towardX,towardY)>3)heading=Math.atan2(towardY,towardX);
@@ -279,10 +359,11 @@
       moving:step.moving&&!state.frozen&&!motion.matches,
       facing,
       heading,
-      animationTime:state.time,
+      animationTime:state.time*p.cadence,
       frozen:state.frozen,
       routeEdge:{a:edge.a.id,b:edge.b.id},routeT:t,
-      meetingNode:t<=.5?edge.a.id:edge.b.id
+      meetingNode:t<=.5?edge.a.id:edge.b.id,
+      walkPhase:step.phase,lateralOffset:offset,roadDistance:Math.abs(offset)
     };
   }
 
@@ -297,7 +378,8 @@
       if(!state){
         const edge=walkingEdge(region,WALKS[person.id]);
         if(!edge)continue;
-        state={person,region,edge,time:edge.phase,frozen:false,pose:null,escort:null};
+        const profile=WALK_PROFILES[person.id];
+        state={person,region,edge,profile,laneScale:safeLaneScale(region,edge,profile),time:edge.phase,frozen:false,pose:null,escort:null};
         updateWalker(state);states.set(person.id,state);walkers.set(person.id,state);
       }
       present.push(state);

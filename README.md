@@ -1,8 +1,12 @@
 # Uppdrag 1700 · Pappersstaden
 
-## Aktuell arbetsversion: Demo 3.17
+## Aktuell arbetsversion: Demo 3.18
 
-[Öppna Demo 3.17 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.17.1).
+[Öppna Demo 3.18 – En levande pappersvärld](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.18.0).
+
+**Nytt i 3.18: egna promenadrytmer och pappersvita seriebubblor.** Personerna går olika fort, tar olika långa pauser och vänder eller tittar sig omkring i egen takt. Små, mjuka sidoförskjutningar håller dem från en gemensam mittlinje inom den befintliga vägbanan.
+
+I rummen ligger valen i en vit tankebubbla vid bildens nederkant. När spelaren väljer en tanke försvinner valen och den talade repliken visas i en rund pappersbubbla med en kort flik mot talaren. Inga namn, rubriker eller fortsätt-/avslutsknappar står i bubblorna. Klick på repliken, mellanslag eller Enter fortsätter; Escape eller ett tryck på miljön utanför bubblan stänger. Texten står mörk mot ljust papper, tydligt skilt från den varma spelmiljön.
 
 **Piltangenterna styr gång; mellanslag pratar, väljer och fortsätter.** Ute kan spelaren gå fritt på land, med stopp vid hus, vatten och världens kant. Nära en person, ingång eller kaj används mellanslag för att interagera. I samtal väljer pilarna bland befintliga tankar och mellanslag bekräftar; under den korta utomhusrepliken stänger mellanslag bubblan. Mus och pekskärm fungerar fortfarande.
 
@@ -20,7 +24,7 @@ Maja, Brita, Rut och Jo behåller sina vanliga samtalsämnen, sparade bekantskap
 
 ### Nästa del: inbjudningar till kapitlens arbete
 
-Användarens riktning är att människor promenerar och småpratar tills ett relevant arbete blir aktuellt. Då bjuder personen in spelaren till sin plats. Kapitelstyrda arbetsinbjudningar är ännu inte aktiva i världsdemon: dess rum har samtalen, men inte hela huvudversionens uppdrag, arbetsbord och leveranser. Kopplingen ska följa verkligt aktuellt kapitel och uppdragsfas när det arbetsflödet flyttas över. Bekantskap ska aldrig räknas som avklarat kapitel. Utseendet och de korta mötena i 3.15 är accepterade och bevaras.
+Användarens riktning är att människor promenerar och småpratar tills ett relevant arbete blir aktuellt. Då bjuder personen in spelaren till sin plats. Kapitelstyrda arbetsinbjudningar är ännu inte aktiva i världsdemon: dess rum har samtalen, men inte hela huvudversionens uppdrag, arbetsbord och leveranser. Kopplingen ska följa verkligt aktuellt kapitel och uppdragsfas när det arbetsflödet flyttas över. Bekantskap ska aldrig räknas som avklarat kapitel. Perspektivet ovanifrån och de korta mötena i 3.15 är accepterade. Rumsbubblornas form och placering följer användarens senare beslut i 3.18.
 
 ## Den tidigare huvudversionen
 
