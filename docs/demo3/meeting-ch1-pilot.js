@@ -206,7 +206,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     for(const item of drawings){const [x,y,s]=item.pos;a.side(x,y,s,item.who,item.right,now,speaker===item.who.name,!!item.isNpc&&!!geometry.npc?.moving,!!item.isNpc&&!!geometry.npc?.working,item.isNpc?(geometry.npc?.turn||0):0);if(c.key==='archive'&&pilot&&item.who!==CAST.player)pilot.restoreDesk(g,geometry,roomCanvas);}
     g.restore();
     const chapterOneOnly=!!window.UPPDRAG_CH1_PILOT;
-    person.hidden=!c.cast||!!dialogue||!!controller(c.key)?.busy||(chapterOneOnly&&!['cafe','palace','quay','riksdag'].includes(c.key));
+    person.hidden=!c.cast||!!dialogue||!!controller(c.key)?.busy||(chapterOneOnly&&!['cafe','palace','quay','riksdag','archive'].includes(c.key));
     if(c.cast){
       const [x,y,s]=poses[1],unit=p.scale*s;
       const width=Math.max(44,122*unit),height=Math.max(44,333*unit+26);
@@ -241,8 +241,8 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
       w:wide,h:actualHeight};
     Object.assign(panel.style,{left:box.x+'px',top:box.y+'px'});
     const tip={x:Math.max(box.x+wide*.20,Math.min(box.x+wide*.80,head.x)),
-      y:Math.max(box.y+actualHeight+12,Math.min(geo.top+geo.h-12,head.y+20))};
-    window.UPPDRAG_PAPER_DIALOGUES?.drawSpeech?.(dialogueTail,{box,tip,round:.85});
+      y:box.y+actualHeight+14};
+    window.UPPDRAG_PAPER_DIALOGUES?.drawSpeech?.(dialogueTail,{box,tip,round:.56});
     dialogue.bubblePlaced=true;
   }
   function closeTalk(restore=true){
@@ -263,7 +263,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     panel.querySelector('.ch1MeetingChoices')?.remove();
     if(dialogue.special&&dialogue.index===dialogue.cast.lines.length-1){
       const container=document.createElement('div');container.className='ch1MeetingChoices';
-      for(const [action,label] of [['accept',dialogue.special==='thanks'?'Fortsätt äventyret':dialogue.special==='giver'?'Jag hjälper till':'Jag hjälper dig att minnas'],['decline','Inte nu']]){
+      for(const [action,label] of [['accept',dialogue.special==='thanks'?'Fortsätt äventyret':dialogue.special==='archive'?'Repetera hos Rut':dialogue.special==='giver'?'Jag hjälper till':'Jag hjälper dig att minnas'],['decline','Inte nu']]){
         const b=document.createElement('button');b.type='button';b.dataset.ch1Choice=action;b.textContent=label;container.append(b);
       }
       panel.append(container);panel.setAttribute('role','group');
@@ -277,6 +277,13 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     const c=current();if(!c?.cast||dialogue||voyage)return false;
     window.UPPDRAG_CH1_NPC_MOTION?.approach?.(performance.now());
     const pilot=window.UPPDRAG_CH1_PILOT;
+    if(pilot?.wantsArchiveMeeting?.(c.key)){
+      dialogue={room:interior,cast:{...CAST.archive,lines:[
+        ['Du','Hej, Rut!'],
+        ['Rut',pilot.archiveHello()]
+      ]},index:0,special:'archive'};
+      footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
+    }
     if(pilot?.wantsMajaMeeting?.(c.key)){
       dialogue={room:interior,cast:{...CAST.cafe,lines:[
         ['Du','Hej!'],['Maja',pilot.majaProblem()]
@@ -334,6 +341,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
       if(answer==='accept'){
         if(type==='thanks')window.UPPDRAG_CH1_PILOT?.finishMemory();
         else if(type==='giver')window.UPPDRAG_CH1_PILOT?.acceptMajaMission();
+        else if(type==='archive')window.UPPDRAG_CH1_PILOT?.enterArchive();
         else window.UPPDRAG_CH1_PILOT?.enterMemory();
       }
       return;
