@@ -141,7 +141,12 @@ function nearest(region,player,range=120){
 }
 const ponderings=new Map((window.UPPDRAG_LIVING_CONTENT?.ponderings||[]).map(entry=>[entry.id,entry.text]));
 function humanThought(a){
- const options=(a.ponderings||[]).map(id=>ponderings.get(id)).filter(Boolean);
+ const options=(a.ponderings||[]).map(id=>{
+   // Two old-demo thoughts belong to Gustav III's later era, not the 1740s.
+   if(id==='tanke-kungen')return 'På torget bråkar folk om vem som ska bli nästa kung.';
+   if(id==='tanke-maskerad')return 'Det sägs att kriget med Ryssland slutade illa. Vad händer nu?';
+   return ponderings.get(id);
+ }).filter(Boolean);
  const index=encounterCounts.get(a.sourceId)||0;
  return options.length?options[index%options.length]:a.introduction||'Det är oroligt i staden i dag.';
 }
@@ -434,13 +439,15 @@ function campCanvas(ctx,camp,now){
   {dx:23,dy:101,size:.94}
  ];
  for(let i=0;i<soldiers.length;i++){
-   const person=soldiers[i],walking=!reduced?.matches&&(i===1||i===5);
-   const travel=walking?Math.sin(now/(1900+i*270)+i*2)*23:0;
+   const person=soldiers[i],patrol=!reduced?.matches&&(i===1||i===5);
+   const swing=now/(1900+i*270)+i*2;
+   const travel=patrol?Math.sin(swing)*23:0;
+   const moving=patrol&&Math.abs(Math.cos(swing))>.13;
    const actor={
      id:camp.id+'-'+i,role:'russian',x:x+person.dx+travel,
-     y:y+person.dy+(walking?Math.cos(now/2300+i)*2:0),
-     color:i%2?'#4c6248':'#53684d',heading:walking?0:.18,
-     moving:walking
+     y:y+person.dy+(patrol?Math.cos(now/2300+i)*2:0),
+     color:i%2?'#4c6248':'#53684d',heading:patrol?(Math.cos(swing)>=0?0:Math.PI):.18,
+     moving
    };
    drawFigure(ctx,actor,now,person.size);
    // Red collar marks the uniform even at small map scale.
@@ -512,9 +519,7 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
  }
  if(active){root.hidden=false;putSpeech(active,speaker.textContent);}
  else updateNearby(region,player,now);
- if(region.id==='main'&&phase()===2&&!active&&!reduced?.matches&&now%16000<2600){
-  const leader=find(region,'farmers');if(leader)paperTag(ctx,'NOG MED KRIG!',leader.x,leader.y-64);
- }
+ // Protests are expressed by group behaviour and spontaneous paper speech.
 }
 window.UPPDRAG_CH3_CITY_LIFE={people,find,hit,nearest,open,close,suspend,next,draw,phase,stationedCamps,hold,releaseHold,
  obstacles,get active(){return !!active},get teaser(){return teaser?.id||null},get actor(){return active?.id||null},
