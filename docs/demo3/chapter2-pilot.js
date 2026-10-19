@@ -174,6 +174,12 @@ style.textContent+=`
   font:17px/1.55 Georgia,serif!important;color:#362f28!important;
   text-align:left}
 `;
+style.textContent+=`
+#ch1Modal .ch1NextChapter{display:block;max-width:350px;margin:17px auto 11px;
+ padding:13px 16px;background:#466b5a;color:white;text-decoration:none;text-align:center;
+ border:1px solid #365848;border-radius:7px;font:600 17px/1.35 Georgia,serif}
+#ch1Hud a{display:block;margin-top:5px;color:#355c4b}
+`;
 let open=false,was='',dismiss=-1;
 const referenceMemory=()=>s.step>=1&&!s.complete;
 const referenceMaja=()=>s.step===0&&!s.complete;
@@ -436,6 +442,8 @@ function archiveNext(){
 const rank=()=>['Lärling','Gesäll','Mästare'][current().r];
 function numbers(){return {ind:s.record.filter(x=>x.ok&&!x.support).length,aided:s.record.filter(x=>x.ok&&x.support).length,need:s.record.filter(x=>!x.ok).length}}
 function drawHud(){
+ if(s.complete){hud.innerHTML='<strong>Kapitel 2 klart!</strong>'
+  +'<a href="chapter3-pilot.html?v=1">Fortsätt till kapitel 3 →</a>';return;}
  const label=present()?'Prata med '+current().who:'Visa vägen';
  hud.innerHTML='<strong>Fria och ofria · '+(s.step?rank():'Start')+'</strong>'
   +'<span>Nästa: <b>'+paths[current().p]+'</b></span>'
@@ -512,8 +520,9 @@ function drawModal(){
     +'<p>Du har hjälpt Maja, Olof och Siri att minnas.</p>'
     +'<p class="ch1DiplomaSmall">'+right+' rätta återkallningar på '+tries+' försök. '
       +'Detta är träning, inte ett betyg.</p>'
-    +'<button class="primary" data-action="restart">Börja om äventyret</button>'
-    +'<button data-action="close">Tillbaka till staden</button></article>';
+    +'<a class="ch1NextChapter" href="chapter3-pilot.html?v=1">Fortsätt till kapitel 3 →</a>'
+    +'<button data-action="close">Tillbaka till staden</button>'
+    +'<button data-action="restart">Börja om kapitel 2</button></article>';
    return;
  }
  let h='<div style="font:600 12px system-ui;color:#685b45;letter-spacing:.1em">'+(s.step?rank():'Kapitel 2')+' · '+paths[current().p]+'</div>';
