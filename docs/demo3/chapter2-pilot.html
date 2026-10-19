@@ -14,7 +14,7 @@ h1{margin:0;font-size:clamp(17px,3.8vw,25px);font-weight:500;letter-spacing:.02e
 #message strong{display:block;font:600 16px/1.3 Georgia,serif;margin-bottom:2px}
 footer{flex:0 0 auto;display:flex;align-items:center;gap:7px;padding:7px 9px max(8px,env(safe-area-inset-bottom));background:#eee2c9;border-top:2px solid #aa9674;overflow-x:auto}
 footer button{flex:0 0 auto;min-height:40px;border:1px solid #9e865e;border-radius:7px;background:#d6be91;color:#352d22;padding:7px 11px;font:13px/1.25 system-ui,sans-serif}footer button:disabled{opacity:.45}
-#status{margin-left:auto;white-space:nowrap;font:12px system-ui,sans-serif;color:#615747}
+#status{margin-left:auto;white-space:nowrap;font:12px system-ui,sans-serif;color:#615747} header .chapterBack{font:12px/1.3 system-ui,sans-serif;color:#655440;text-decoration:underline;text-underline-offset:2px}
 @media(max-width:640px){header{padding:6px 9px}h1{font-size:17px}header small{display:none}#message{font-size:12px;padding:8px 10px;bottom:7px}footer{gap:5px;padding:6px}footer button{font-size:12px;min-height:38px;padding:6px 9px}#status{display:none}}
 /* Full-room views use the same stage, never an iframe or a loading cover. */
 #interiorView{position:absolute;inset:0;display:flex;flex-direction:column;background:#d9cbb1}
@@ -35,7 +35,7 @@ body[data-room^="waterfront-"] #roomReturnText{display:none}
 </style>
 </head>
 <body>
-<header><h1>UPPDRAG 1700 · KAPITEL 1 · FRIHETSTIDEN · PILOT</h1><small>Pilar: gå och välj. Mellanslag / Enter: prata och fortsätt. Klicka på personen för att prata.</small></header>
+<header><h1>UPPDRAG 1700 · KAPITEL 2 · FRIA OCH OFRIA</h1><small>Pilar: gå och välj. Mellanslag / Enter: prata och fortsätt. Klicka på personen för att prata.</small><a class="chapterBack" href="chapter1-pilot.html?v=18">Kapitel 1</a></header>
 <main id="stage"><canvas id="world" tabindex="0" aria-label="Utforskbar pappersvärld. Gå med piltangenterna och prata med mellanslag. Du kan också klicka på vägar, människor och byggnader."></canvas><div id="message"><strong>Gamla staden</strong>Gå med piltangenterna och prata med mellanslag när du är nära. Du kan också klicka.</div><section id="interiorView" hidden role="region" aria-labelledby="interiorTitle"><div class="room-top"><h2 id="interiorTitle"></h2></div><canvas id="interiorCanvas" tabindex="0" role="img" aria-label="Interiör"></canvas></section></main>
 <footer id="worldFooter"><button id="visitHarbour" type="button">Kajen</button><button data-go="square">Gamla staden</button><button data-go="barn">Barnhuskvarteren</button><button data-go="science">Vetenskap</button><button data-go="countrySouth">Landsbygden</button><button data-go="manor">Herrgården</button><button id="sailM" hidden>Marstrand</button><button id="sailS" hidden>Saint Barthélemy</button><button id="return" hidden>Segla tillbaka till kajen</button><button id="follow">Följ spelaren</button><span id="status">Gamla staden</span></footer><footer id="roomFooter" hidden><button id="leaveRoom" type="button">← Gå ut</button><div id="harbourActions" hidden role="group" aria-label="Båtresor"></div><span id="roomReturnText"></span></footer>
 <script src="paper-fibres.js?v=3.19.0"></script>
