@@ -66,7 +66,7 @@ function go(){
 }
 function advance(){
  if(s.step===9){s.complete=true;s.mode='finished';persist();drawModal();return}
- s.step++;s.index=0;s.mode='intro';s.hint=false;s.draft='';persist();dismiss=-1;closePanel();drawHud();go()
+ s.step++;s.index=0;s.mode='intro';s.hint=false;s.draft='';persist();closePanel();drawHud();go();dismiss=-1
 }
 function next(){
  s.index++;s.mode=s.index>=current().f.length?'end':'question';s.hint=false;s.draft='';persist();drawModal()
@@ -78,7 +78,7 @@ function drawModal(){
  else if(s.mode==='intro')h+='<h2>'+esc(s.step?rank()+' · '+paths[current().p]:'Ett nytt uppdrag')+'</h2><p><b>'+current().who+':</b> '+esc(current().hello)+'</p><button class="primary" data-action="start">'+(s.step?'Börja återkalla':'Ta uppdraget')+'</button>';
  else if(s.mode==='end')h+='<h2>Arbetet är klart</h2><p><b>'+current().who+':</b> '+esc(current().bye)+'</p><button class="primary" data-action="advance">'+(s.step===9?'Avsluta kapitel 1':'Fortsätt till nästa plats')+'</button>';
  else {
- const f=item(),short=!!f.answers;
+ const f=item(),short=!!f.answers&&!(current().r===2&&current().f[s.index]==='nobles');
  h+='<h2>'+current().who+'</h2><p class="question">'+esc(f.q[current().r])+'</p>';
  if(s.hint)h+='<p class="hint">Ledtråd: '+esc(f.hint)+'</p>';
  if(s.mode==='question'){
