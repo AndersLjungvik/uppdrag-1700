@@ -11,27 +11,27 @@
   let pilotRevision=-1,placeRevision=-1,livingRevision=-1,storyRevision=-1,storyStateRevision=-1;
   const CAST={
     player:{name:'Du',color:'#466b70'},
-    cafe:{name:'Maja',color:'#69785e',woman:true,lines:[
+    cafe:{name:'Maja',color:'#69785e',woman:true,role:'maja',lines:[
       ['Du','Hej! Är det här kaffehuset?'],
       ['Maja','Välkommen! Jag heter Maja. Här träffas vi för att läsa och prata om det som händer i staden.'],
       ['Du','Vad sitter på anslagstavlan?'],
       ['Maja','Där samlar vi sådant som är värt att läsa och prata om.']
     ]},
-    print:{name:'Brita',color:'#6e6b5b',woman:true,apron:true,lines:[
+    print:{name:'Brita',color:'#6e6b5b',woman:true,apron:true,role:'brita',lines:[
       ['Du','Hej! Är det du som sköter tryckpressen?'],
       ['Brita','Ja, jag heter Brita. Här sätter jag ihop bokstäver och trycker texter på papper.'],
       ['Du','Är det bokstäverna som ligger på bordet?'],
       ['Brita','Precis. Bokstäverna kallas typer. Med dem bygger vi texten som ska tryckas.']
     ]},
-    palace:{name:'Amira',color:'#846956',woman:true,lines:[['Du','Hej!'],['Amira','Välkommen till slottet.']]},
-    riksdag:{name:'Elin',color:'#6b7461',woman:true,lines:[['Du','Hej!'],['Elin','Välkommen till riksdagssalen.']]},
-    archive:{name:'Rut',color:'#67695a',woman:true,lines:[
+    palace:{name:'Amira',color:'#846956',woman:true,role:'amira',lines:[['Du','Hej!'],['Amira','Välkommen till slottet.']]},
+    riksdag:{name:'Elin',color:'#6b7461',woman:true,role:'elin',lines:[['Du','Hej!'],['Elin','Välkommen till riksdagssalen.']]},
+    archive:{name:'Rut',color:'#67695a',woman:true,role:'rut',lines:[
       ['Du','Hej! Jag letar efter Rut.'],
       ['Rut','Då har du kommit rätt. Jag är läromästaren Rut. Här undersöker vi vad handlingarna faktiskt berättar.'],
       ['Du','Kan jag få hjälp att förstå dem?'],
       ['Rut','Ja. Vi läser noga och skiljer på vad vi vet och vad vi behöver undersöka.']
     ]},
-    quay:{name:'Jo',color:'#a17f49',lines:[
+    quay:{name:'Jo',color:'#a17f49',role:'jo',lines:[
       ['Du','Hej! Är det här man går ombord?'],
       ['Jo','Ja. Jag är Jo, hamnskrivaren. Jag håller ordning på fartygens last och handlingar.'],
       ['Du','Kan jag resa härifrån?'],
@@ -137,17 +137,65 @@ function mapPuppet(x,y,who,heading=0,walk=false,t=0){
   ctx.restore();
 }
 function limb(x,y,w,h,rotation,color){ctx.save();ctx.translate(x,y);ctx.rotate(rotation);cut(-w/2,0,w,h,color);ctx.restore()}
-function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,apron=false){ctx.save();ctx.translate(x,foot);if(!faceRight)ctx.scale(-1,1);const speaking=!reduced&&talking&&t>=speechStarted&&t<speechUntil&&!busy&&!document.hidden,elapsed=t-speechStarted;const sway=speaking?Math.sin(elapsed/260)*.006:0;ctx.rotate(sway);const stride=walk&&!reduced?Math.sin(t/100)*.15:0;
+function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,apron=false,role=''){ctx.save();ctx.translate(x,foot);if(!faceRight)ctx.scale(-1,1);const speaking=!reduced&&talking&&t>=speechStarted&&t<speechUntil&&!busy&&!document.hidden,elapsed=t-speechStarted;const sway=speaking?Math.sin(elapsed/260)*.006:0;ctx.rotate(sway);const stride=walk&&!reduced?Math.sin(t/100)*.15:0;
  limb(-19,-105,20,92,stride,'#bca87b');limb(20,-105,20,92,-stride,'#bca87b');cut(-36,-19+Math.sin(stride)*10,40,17,'#413b31');cut(6,-19-Math.sin(stride)*10,43,17,'#413b31');poly([[-47,-226],[34,-225],[48,-113],[28,-94],[-43,-102]],color);poly([[-18,-228],[17,-228],[5,-189],[-7,-187]],'#e8ddc0');limb(-45,-218,23,97,.07+stride*.25,color);oval(-49,-116,12,14,'#c9a57c');
  const gesture=speaking?-.18+Math.sin(elapsed/300)*.045:.05;ctx.save();ctx.translate(36,-212);ctx.rotate(gesture);cut(-11,0,22,78,color);oval(0,84,12,14,'#c9a57c');ctx.restore();
- cut(-8,-251,22,27,'#c8a377');poly([[-29,-291],[12,-300],[36,-285],[38,-267],[47,-260],[36,-255],[29,-230],[-14,-235],[-28,-253]],'#cda77b');poly([[-32,-288],[-17,-307],[15,-309],[35,-292],[12,-287],[-13,-271],[-27,-253]],woman?'#d7c9ac':'#604a35');oval(28,-272,2,2,'#342c24');const opening=speaking?Math.max(0,Math.sin(elapsed/70))*(1+Math.sin(elapsed/340)**2*1.8):0;oval(35,-249,3.5,.65+opening,'#594132');if(!woman){oval(-1,-301,47,9,color);poly([[-30,-303],[-15,-328],[15,-327],[28,-301]],color)}if(woman)poly([[-36,-116],[44,-113],[58,-18],[-57,-18]],color);if(apron){poly([[-23,-210],[24,-209],[31,-34],[-30,-34]],'#d9caa9');for(const [a,b]of [[8,-110],[-12,-75],[17,-155]])oval(a,b,3,4,'#615445')}ctx.restore()}
+ cut(-8,-251,22,27,'#c8a377');poly([[-29,-291],[12,-300],[36,-285],[38,-267],[47,-260],[36,-255],[29,-230],[-14,-235],[-28,-253]],'#cda77b');poly([[-32,-288],[-17,-307],[15,-309],[35,-292],[12,-287],[-13,-271],[-27,-253]],woman?'#d7c9ac':'#604a35');oval(28,-272,2,2,'#342c24');const opening=speaking?Math.max(0,Math.sin(elapsed/70))*(1+Math.sin(elapsed/340)**2*1.8):0;oval(35,-249,3.5,.65+opening,'#594132');if(!woman){oval(-1,-301,47,9,color);poly([[-30,-303],[-15,-328],[15,-327],[28,-301]],color)}if(woman)poly([[-36,-116],[44,-113],[58,-18],[-57,-18]],color);if(apron){poly([[-23,-210],[24,-209],[31,-34],[-30,-34]],'#d9caa9');for(const [a,b]of [[8,-110],[-12,-75],[17,-155]])oval(a,b,3,4,'#615445')}// These cut-paper details give each protagonist a different silhouette, not just another coat pigment.
+  if(role==='maja'){
+    // Soft white café cap, apron and rolled sleeves: welcoming host.
+    poly([[-37,-205],[16,-203],[34,-93],[20,-65],[-37,-76]],'#60775c',false);
+    poly([[-25,-157],[20,-155],[28,-22],[-32,-24]],'#eaddc0',false);
+    cut(-29,-142,41,7,'#b89c79');
+    poly([[-34,-290],[-15,-314],[13,-320],[34,-304],[25,-288],[-7,-296]],'#eee3cb',false);
+    poly([[-30,-280],[-41,-246],[-20,-232],[-12,-255]],'#6a503e',false);
+    cut(18,-225,18,14,'#eee3cb');
+  }else if(role==='amira'){
+    // Burgundy courtly coat, narrower collar, distinct dark hair bun and a rolled letter.
+    poly([[-36,-231],[34,-231],[46,-137],[21,-109],[-44,-112]],'#874f52',false);
+    poly([[-29,-113],[25,-114],[49,-21],[-50,-21]],'#a46861',false);
+    poly([[-13,-228],[11,-228],[3,-201],[-5,-201]],'#e9d6b5',false);
+    oval(-20,-294,20,21,'#4b3c33');
+    oval(-30,-276,15,12,'#4b3c33');
+    oval(1,-196,5,6,'#d6bc8e');
+    // The document remains in her hand, so the task is tied to her profession.
+    ctx.save();ctx.translate(-54,-138);ctx.rotate(.28);
+    cut(0,0,65,18,'#f1e5ce');oval(1,9,6,9,'#dbc3a0');ctx.restore();
+  }else if(role==='elin'){
+    // Slim slate-blue riksdag clerk's jacket, lace cravat, short cap and ledger.
+    poly([[-41,-228],[28,-229],[37,-108],[20,-104],[-37,-109]],'#586c78',false);
+    poly([[-37,-109],[23,-109],[29,-28],[-43,-29]],'#62757a',false);
+    poly([[-7,-225],[6,-225],[10,-183],[-12,-189]],'#f0e2c8',false);
+    for(const yy of [-175,-151,-128])oval(4,yy,2.7,3,'#d4b17e');
+    cut(-33,-307,63,14,'#555c58');
+    poly([[-14,-326],[19,-326],[26,-307],[-22,-308]],'#6a7674',false);
+    ctx.save();ctx.translate(-66,-149);ctx.rotate(-.13);
+    cut(0,0,76,87,'#ebddc3');for(let j=0;j<4;j++)cut(9,14+j*16,53,2,'#857253');ctx.restore();
+  }else if(role==='jo'){
+    // Short rough dockworker's jacket, neckerchief, distinct wide wool cap.
+    poly([[-44,-223],[27,-226],[45,-111],[-37,-107]],'#957340',false);
+    poly([[-31,-110],[29,-111],[29,-59],[-34,-57]],'#675743',false);
+    poly([[-20,-221],[15,-219],[13,-192],[-3,-180]],'#c4ae8c',false);
+    poly([[-17,-307],[17,-309],[34,-300],[30,-286],[-34,-289]],'#5d5544',false);
+    cut(-45,-299,88,12,'#574f40');
+    ctx.save();ctx.translate(-60,-153);ctx.rotate(-.12);
+    cut(0,0,80,47,'#e6d6b4');for(let j=0;j<3;j++)cut(10,12+j*10,58,2,'#786448');ctx.restore();
+  }else if(role==='rut'){
+    // Elder archivist: shawl, little reading glasses and dark braided bun.
+    poly([[-43,-226],[35,-227],[49,-166],[19,-180],[-17,-181],[-52,-168]],'#776b58',false);
+    poly([[-22,-113],[19,-113],[41,-19],[-41,-19]],'#777660',false);
+    oval(-24,-286,21,23,'#817660');oval(-34,-272,13,17,'#817660');
+    ctx.save();ctx.strokeStyle='#594d3e';ctx.lineWidth=2.8;
+    for(const eye of [[18,-271],[36,-272]]){ctx.beginPath();ctx.ellipse(eye[0],eye[1],8,6,0,0,Math.PI*2);ctx.stroke();}
+    ctx.beginPath();ctx.moveTo(26,-271);ctx.lineTo(28,-271);ctx.stroke();ctx.restore();
+  }
+  ctx.restore()}
     const renderer={
       side(x,y,s,who,right,t,speaking,walking=false,working=false,turn=0){
         reduced=motion.matches;speechStarted=speechAt;speechUntil=speechEnd;
         ctx.save();ctx.translate(x,y);ctx.scale(s,s);
         if(!reduced)ctx.rotate(turn); // one small look toward the visitor, no step
         ctx.save();ctx.fillStyle='#42351f26';ctx.beginPath();ctx.ellipse(0,2,57,8,0,0,Math.PI*2);ctx.fill();ctx.restore();
-        puppet(0,0,who.color,right,t,speaking,walking,!!who.woman,!!who.apron);ctx.restore();
+        puppet(0,0,who.color,right,t,speaking,walking,!!who.woman,!!who.apron,who.role||'');ctx.restore();
       },
       map(x,y,heading,moving,t,who=CAST.player){reduced=motion.matches;mapPuppet(x,y,who,heading,moving,t);}
     };
@@ -155,11 +203,11 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   }
   // Coordinates use each frozen room's existing projection. Furniture is not moved.
   const PLACEMENT={
-    cafe:{wide:[[295,674,.84],[1060,633,.94]],tall:[[114,971,.80],[378,710,.90]]},
+    cafe:{wide:[[285,694,.84],[440,684,.92]],tall:[[114,982,.80],[211,875,.87]]},
     print:{wide:[[283,685,.82],[1190,668,.94]],tall:[[122,995,.82],[251,710,.91]]},
-    archive:{wide:[[420,690,.83],[1042,682,.94]],tall:[[122,996,.82],[239,710,.90]]},
-    palace:{wide:[[285,686,.81],[1047,688,.88]],tall:[[113,972,.80],[379,714,.88]]},
-    riksdag:{wide:[[298,682,.82],[1040,669,.89]],tall:[[120,978,.80],[387,710,.87]]}
+    archive:{wide:[[785,694,.82],[1035,679,.92]],tall:[[465,997,.78],[602,873,.86]]},
+    palace:{wide:[[765,696,.81],[890,678,.86]],tall:[[550,982,.76],[681,911,.74]]},
+    riksdag:{wide:[[751,692,.81],[844,676,.86]],tall:[[548,987,.76],[680,906,.74]]}
   };
   function current(){
     if(!interior)return null;
