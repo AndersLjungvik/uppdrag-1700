@@ -444,7 +444,7 @@ const rank=()=>['Lärling','Gesäll','Mästare'][current().r];
 function numbers(){return {ind:s.record.filter(x=>x.ok&&!x.support).length,aided:s.record.filter(x=>x.ok&&x.support).length,need:s.record.filter(x=>!x.ok).length}}
 function drawHud(){
  if(s.complete){hud.innerHTML='<strong>Frihetstiden · kapitel 1 klart</strong>'
-  +'<a href="chapter2-pilot.html?v=1">Fortsätt till kapitel 2 →</a>';return;}
+  +'<a href="chapter2-pilot.html?v=2">Fortsätt till kapitel 2 →</a>';return;}
  const label=present()?'Prata med '+current().who:'Visa vägen';
  hud.innerHTML='<strong>Frihetstiden · '+(s.step?rank():'Start')+'</strong>'
   +'<span>Nästa: <b>'+paths[current().p]+'</b></span>'
@@ -521,7 +521,7 @@ function drawModal(){
     +'<p>Du har hjälpt Maja, Amira, Jo och Elin att minnas.</p>'
     +'<p class="ch1DiplomaSmall">'+right+' rätta återkallningar på '+tries+' försök. '
       +'Detta är träning, inte ett betyg.</p>'
-    +'<a class="ch1NextChapter" href="chapter2-pilot.html?v=1">Fortsätt till kapitel 2 →</a>'
+    +'<a class="ch1NextChapter" href="chapter2-pilot.html?v=2">Fortsätt till kapitel 2 →</a>'
     +'<button data-action="close">Tillbaka till staden</button>'
     +'<button data-action="restart">Börja om kapitel 1</button></article>';
    return;
