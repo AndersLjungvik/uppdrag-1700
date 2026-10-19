@@ -199,6 +199,13 @@
       cut(g,sx-8,sy-4,sw+16,24,'wood');cut(g,sx-12,base-7,sw+24,21,'wood');
       const fx=tall?444:526,ff=tall?968:677;musicStand(g,fx,ff);bench(g,fx+97,ff-12,105);
     }else if(id==='palace'){
+      // Royal chamber: tall red drapes, portrait, writing table and an empty high chair.
+      const px=bx+46,py=floor-405;
+      poly(g,[[px-28,py-11],[px+282,py-10],[px+269,py+19],[px-14,py+19]],'wood');
+      poly(g,[[px-24,py+12],[px+17,py+11],[px+12,py+253],[px-27,py+242]],'red');
+      poly(g,[[px+247,py+12],[px+290,py+11],[px+293,py+244],[px+249,py+252]],'red');
+      cut(g,px+72,py-24,103,19,'paper');
+      oval(g,px+122,py-14,17,12,'red');
       portrait(g,bx+46,floor-405,251,236);
       highChair(g,bx+180,feet+41,.95);
       rug(g,tall?228:360,tall?818:534,tall?422:358,tall?160:150);
@@ -210,8 +217,17 @@
         quill(g,x+w-51,y-54);
       });
     }else if(id==='riksdag'){
+      // Parliament: four distinct suspended estate banners, benches, tall
+      // windows and the raised protocol lectern (no throne or royal portrait).
+      const banners=tall?[235,351,467,583]:[324,508,692,876];
+      banners.forEach((x,i)=>{
+        const y=tall?92:71,w=tall?77:116,h=tall?150:176;
+        poly(g,[[x,y],[x+w,y],[x+w,y+h-29],[x+w*.5,y+h],[x,y+h-29]],i%2?'slate':'green');
+        cut(g,x+13,y+17,w-26,10,'paper',false);
+        oval(g,x+w*.5,y+81,tall?17:24,tall?21:28,'paper');
+        oval(g,x+w*.5,y+81,tall?10:14,tall?13:18,'red');
+      });
       // No reused throne room: benches, raised speakers' desk and the assembly record.
-      // All surfaces use the game's established cut-paper material functions.
       const ox=tall?119:690;
       for(let i=0;i<3;i++){
         cut(g,ox+i*124,floor-367,105,218,'wood');
