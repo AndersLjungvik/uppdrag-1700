@@ -121,6 +121,16 @@ style.textContent+=`
 #ch1Modal.ch1MemoryFull .ch1Count{margin-bottom:8px}
 #ch1Modal.ch1MemoryFull .ch1RetryNote{font:15px/1.4 Georgia,serif;text-align:center;color:#594a38}
 `;
+style.textContent+=`
+#ch1Modal .ch1Diploma{text-align:center;background:#fffaf0;border:7px double #b6a17e;
+ max-width:625px;margin:0 auto;padding:clamp(18px,5vw,42px);box-shadow:5px 6px 0 #4b3b302b}
+#ch1Modal .ch1DiplomaOver{font:italic 17px Georgia,serif;color:#6a5846}
+#ch1Modal .ch1Diploma h2{margin:14px 0;font:600 clamp(27px,5vw,40px)/1.23 Georgia,serif}
+#ch1Modal .ch1DiplomaTitle{letter-spacing:.13em;font:600 13px Georgia,serif}
+#ch1Modal .ch1DiplomaSeal{width:clamp(120px,26vw,170px);margin:14px auto;display:block;
+ filter:drop-shadow(3px 4px 1px #64533b4d)}
+#ch1Modal .ch1DiplomaSmall{font:13px/1.45 system-ui,sans-serif;color:#776b5b}
+`;
 let open=false,was='',dismiss=-1;
 const referenceMemory=()=>s.step>=1&&!s.complete;
 const referenceMaja=()=>s.step===0&&!s.complete;
@@ -385,6 +395,26 @@ function mark(ok,{supported=false,response=null}={}){
  if(memoryVisible)drawMemory();else drawModal();
 }
 function drawModal(){
+ if(s.complete){
+   const right=s.record.filter(r=>r.ok).length,tries=s.record.length;
+   modal.innerHTML='<article class="ch1Diploma">'
+    +'<div class="ch1DiplomaOver">Stadens minnesarkiv</div>'
+    +'<h2>Du har återställt minnena!</h2>'
+    +'<p class="ch1DiplomaTitle">FRIHETSTIDEN · KAPITEL 1</p>'
+    +'<svg class="ch1DiplomaSeal" viewBox="0 0 180 180" aria-label="Stämplat sigill: Minnesmästare">'
+    +'<circle cx="90" cy="90" r="73" fill="#ae533e" stroke="#723b30" stroke-width="4"/>'
+    +'<circle cx="90" cy="90" r="60" fill="none" stroke="#eed0a5" stroke-width="2.5"/>'
+    +'<path d="M57 105 L73 87 L88 99 L116 68" stroke="#f5e1c1" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'<text x="90" y="39" text-anchor="middle" fill="#f7dfbf" font-size="11" font-family="Georgia">MINNES</text>'
+    +'<text x="90" y="151" text-anchor="middle" fill="#f7dfbf" font-size="11" font-family="Georgia">MÄSTARE</text>'
+    +'</svg>'
+    +'<p>Du har hjälpt Maja, Amira, Jo och Elin att minnas.</p>'
+    +'<p class="ch1DiplomaSmall">'+right+' rätta återkallningar på '+tries+' försök. '
+      +'Detta är träning, inte ett betyg.</p>'
+    +'<button class="primary" data-action="restart">Börja om äventyret</button>'
+    +'<button data-action="close">Tillbaka till staden</button></article>';
+   return;
+ }
  let h='<div style="font:600 12px system-ui;color:#685b45;letter-spacing:.1em">'+(s.step?rank():'Kapitel 1')+' · '+paths[current().p]+'</div>';
  if(s.complete){const n=numbers();h+='<h2>Kapitel 1 avklarat!</h2><p>'+esc(current().bye)+'</p><p>21 kunskapsdelar avklarade på '+s.record.length+' försök. '+n.ind+' rätt utan stöd, '+n.aided+' rätt med stöd och '+n.need+' felaktiga försök.</p><p>Det här är träning, inte betyg.</p><button class="primary" data-action="restart">Spela om</button>'}
  else if(s.mode==='intro')h+='<h2>'+esc(s.step?rank()+' · '+paths[current().p]:'Ett nytt uppdrag')+'</h2><p><b>'+current().who+':</b> '+esc(current().hello)+'</p><button class="primary" data-action="start">'+(s.step?'Börja återkalla':'Ta uppdraget')+'</button>';
