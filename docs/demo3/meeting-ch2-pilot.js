@@ -25,7 +25,7 @@
     ]},
     palace:{name:'Amira',color:'#846956',woman:true,role:'amira',lines:[['Du','Hej!'],['Amira','Välkommen till slottet.']]},
     barnhus:{name:'Siri',color:'#937056',woman:true,role:'siri',lines:[['Du','Hej, Siri!'],['Siri','Välkommen till Barnhuset.']]},
-    church:{name:'Märta',color:'#7c7660',woman:true,role:'marta',lines:[['Du','Hej, Märta!'],['Märta','Välkommen till Kyrkan.']]},
+    church:{name:'Olof',color:'#6f6956',role:'olof',lines:[['Du','Hej, Olof!'],['Olof','Välkommen till kyrkan. Jag är klockaren.']]},
     riksdag:{name:'Elin',color:'#6b7461',woman:true,role:'elin',lines:[['Du','Hej!'],['Elin','Välkommen till riksdagssalen.']]},
     archive:{name:'Rut',color:'#67695a',woman:true,role:'rut',lines:[
       ['Du','Hej! Jag letar efter Rut.'],
@@ -103,7 +103,7 @@
   roomView.querySelector('.room-top')?.append(placeLabel);
   const roomLabels={cafe:'Majas kaffebord',palace:'Amiras brev och sigill',
     quay:'Jos handelslistor',riksdag:'Elins protokoll',
-    church:'Märtas anteckningar',barnhus:'Siris barnhusbok',archive:'Ruts bokhyllor'};
+    church:'Olofs anteckningar',barnhus:'Siris barnhusbok',archive:'Ruts bokhyllor'};
   function showRoomIdentity(key){
     const caption=roomLabels[key]||'';
     placeLabel.textContent=caption;
@@ -197,14 +197,19 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     cut(-45,-299,88,12,'#574f40');
     ctx.save();ctx.translate(-60,-153);ctx.rotate(-.12);
     cut(0,0,80,47,'#e6d6b4');for(let j=0;j<3;j++)cut(10,12+j*10,58,2,'#786448');ctx.restore();
-  }else if(role==='marta'){
-    // Plain wool dress, white cap and a folded church note.
-    poly([[-42,-227],[23,-230],[37,-117],[15,-91],[-43,-108]],'#6f735b',false);
-    poly([[-29,-109],[26,-112],[43,-17],[-50,-20]],'#827b69',false);
-    poly([[-31,-293],[-10,-320],[15,-316],[35,-288],[7,-281],[-29,-283]],'#eee5ce',false);
-    cut(-18,-222,21,19,'#ead7bc');
-    ctx.save();ctx.translate(-60,-149);ctx.rotate(-.15);
-    cut(0,0,66,42,'#eee2c9');cut(12,13,44,2,'#a39170');ctx.restore();
+  }else if(role==='olof'){
+    // Klockarens mörka långa rock, vit halsduk, knäbyxor och nyckelknippa.
+    poly([[-43,-227],[34,-229],[43,-113],[17,-99],[-39,-108]],'#5d5549',false);
+    poly([[-33,-110],[29,-111],[34,-26],[-42,-23]],'#766959',false);
+    cut(-25,-221,43,13,'#e7ddc6');
+    poly([[-13,-232],[7,-232],[5,-191],[-10,-196]],'#eee0c9',false);
+    cut(-36,-313,75,10,'#5c564c');
+    poly([[-28,-316],[23,-316],[17,-337],[-19,-337]],'#605b50',false);
+    // Klappbok och liten nyckelring, som förklarar hans roll.
+    ctx.save();ctx.translate(-62,-139);ctx.rotate(-.12);
+    cut(0,0,58,65,'#675943');cut(7,6,43,54,'#ede0c7');ctx.restore();
+    oval(26,-115,8,8,'#ccb17c');
+    cut(29,-111,4,22,'#ccaf72',false);
   }else if(role==='siri'){
     // Simple apron, tied kerchief and a folded washcloth.
     poly([[-42,-226],[26,-226],[34,-112],[-33,-112]],'#876d5a',false);
@@ -369,15 +374,15 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     if(place==='church'){
       if(step===1)return [
         ['Du','Maja sa att du sökte hjälp. Är det här dina papper?'],
-        ['Märta','Ja ... och nu känns de plötsligt främmande. Så förargligt!']
+        ['Olof','Ja ... och nu känns de plötsligt främmande. Så förargligt!']
       ];
       if(step===3)return [
-        ['Du','Märta! Har du kommit på vad som stod här?'],
-        ['Märta','Nästan! Det är som om jag har svaret precis på tungan.']
+        ['Du','Olof! Har du kommit på vad som stod här?'],
+        ['Olof','Nästan! Det är som om jag har svaret precis på tungan.']
       ];
       return [
         ['Du','Du ser fundersam ut. Vad har hänt?'],
-        ['Märta','Titta här. Någon har skrivit något som inte kan stämma.']
+        ['Olof','Titta här. Någon har skrivit något som inte kan stämma.']
       ];
     }
     if(place==='barnhus'){
@@ -397,7 +402,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     return [['Du','Hej!']];
   }
   function memoryAfter(place){
-    const who=place==='church'?'Märta':'Siri';
+    const who=place==='church'?'Olof':'Siri';
     const line=place==='church'
       ?'Åh, nu blev det tydligare. Tack för att du stannade.'
       :'Där kom jag ihåg det! Nu förstår jag anteckningen igen.';
@@ -421,7 +426,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     if(pilot?.wantsMajaMeeting?.(c.key)){
       dialogue={room:interior,cast:{...CAST.cafe,lines:[
         ['Du','Maja, är det något som har hänt?'],
-        ['Maja','Märta kom förbi. Hon såg så bekymrad ut att jag blev orolig.'],
+        ['Maja','Olof kom förbi. Hon såg så bekymrad ut att jag blev orolig.'],
         ['Du','Kan jag hjälpa henne, tror du?'],
         ['Maja',pilot.majaProblem()]
       ]},index:0,special:'giver'};
