@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 // Kapitel 1 i den befintliga stadens gångmotor. Separat sparfil.
-const storage='uppdrag1700.ch1-real-world.20261019.v10';
+const storage='uppdrag1700.ch1-real-world.20261019.v11';
 const facts={
 queen:{ab:'2a',a:'Ulrika Eleonora',answers:['ulrika eleonora'],hint:'Hennes namn börjar med U.',q:['Vilken drottning efterträdde Karl XII?','Vad hette Karl XII:s syster som övertog tronen?','En skrivare påstår att drottningen hette Fredrik. Vad hette hon egentligen?']},
 absolute:{ab:'2b',a:'Drottningen var inte enväldig: hon kunde inte bestämma ensam utan delade makten med riksrådet och riksdagen.',hint:'Vem mer än drottningen hade makt?',q:['Vad menas med att drottningen inte var enväldig?','Vilken begränsning hade Ulrika Eleonora jämfört med enväldiga kungar?','En anteckning säger att Ulrika Eleonora bestämde allt ensam. Rätta felet.']},
@@ -13,21 +13,23 @@ nobles:{ab:'4c',a:'Adeln hade störst makt. Viktiga beslut togs på särskilda m
 };
 const paths={cafe:'Kaffehuset',palace:'Slottet',quay:'Kajen',riksdag:'Riksdagshuset'};
 const runs=[
- {p:'cafe',r:0,f:[],who:'Maja',hello:'Vad skönt att se dig! Jag har en sak jag behöver hjälp med …',bye:'Du, kan du börja hos Amira på slottet? Hon såg så vilsen ut när hon gick förbi här.'},
- {p:'palace',r:0,f:['queen','absolute','freedom'],who:'Amira',hello:'Där är du! Jag satt med ett brev om tiden efter Karl XII och plötsligt blev allt blankt. Till och med namnet på drottningen är borta. Kan du hjälpa mig?',bye:'Nu minns jag igen! Minns du Jo vid kajen? Han behöver nog också hjälp … tror jag.'},
- {p:'quay',r:0,f:['trade'],who:'Jo',hello:'Se på det här! Jag har en handelslista, en tunna och ett helt fartyg. Men vad var det nu vi skulle göra med allt? Det är som bortblåst!',bye:'Jaha! Där föll det på plats. Du, Elin i riksdagshuset stod och muttrade över sina papper nyss. Titta in hos henne också, vetja.'},
- {p:'riksdag',r:0,f:['law','change','nobles'],who:'Elin',hello:'Jag har bläck på fingrarna och tre tomma rader i mina anteckningar. Pinsamt, va? Jag brukar ju veta precis vad som ska stå här. Hjälper du mig?',bye:'Åh, vad skönt! Fast … vänta. Nu när jag ska berätta om det för dig blir det suddigt igen. Kan vi pröva en gång till?'},
- {p:'riksdag',r:1,f:['nobles','law','change'],who:'Elin',hello:'Där är du igen! Jag trodde att jag hade det. Sedan vek jag ihop pappret, och vips var allt borta ur huvudet. Ska vi försöka utan att titta?',bye:'Nu sitter det bättre. Minns du Jo? Han behöver nog också hjälp … tror jag.'},
- {p:'quay',r:1,f:['trade'],who:'Jo',hello:'Du, det där du hjälpte mig med … jag vill kunna berätta det utan att kika på listan. Ska vi se om jag minns?',bye:'Ha! Där satt den. Jag såg Amira i slottsfönstret nyss. Hon såg ut att ha fått en ny huvudvärk. Gå förbi henne, du.'},
- {p:'palace',r:1,f:['freedom','queen','absolute'],who:'Amira',hello:'Åh, tack för att du kom tillbaka. Jag tänkte berätta för en kollega, men så stannade orden mitt i munnen. Kan vi prova igen?',bye:'Så ja! Nu börjar det kännas som mitt eget minne. Men titta på den här anteckningen … är den verkligen riktig?'},
- {p:'palace',r:2,f:['queen','absolute','freedom'],who:'Amira',hello:'Någon har skrivit så märkliga saker här. Och vet du vad som är värst? Jag blev osäker själv. Vill du hjälpa mig skilja det riktiga från det tokiga?',bye:'Du hade rätt – någonting var fel på pappret. Jo har också fått en konstig anteckning. Han står nere vid kajen.'},
- {p:'quay',r:2,f:['trade'],who:'Jo',hello:'Här! Läs den här lappen. Den låter inte alls som det vi kom fram till förut. Jag skulle behöva ditt skarpa minne en gång till.',bye:'Tack, nu känns det riktigt. Elin väntar nog med sitt sista papper. Hon ville visst visa dig något.'},
- {p:'riksdag',r:2,f:['law','change','nobles'],who:'Elin',hello:'Äntligen! Jag har hittat tre påståenden som får mig att rynka på näsan. Hjälp mig rätta dem innan någon tror på dem.',bye:'Sådär ja! Nu känner jag igen mina egna anteckningar igen. Vilken tur att du kom hit!'}
+ {p:'cafe',r:0,f:[],who:'Maja',hello:'Du kom! Jag har en sak att berätta.',bye:'Börja hos Amira på slottet. Hon såg alldeles vilsen ut nyss.'},
+ {p:'palace',r:0,f:['queen','absolute','freedom'],who:'Amira',hello:'Jag satt med brevet och så blev det bara tomt i huvudet. Vem var det som tog över efter Karl XII?',bye:'Åh, där satt det! Minns du Jo vid kajen? Han behöver nog också hjälp.'},
+ {p:'quay',r:0,f:['trade'],who:'Jo',hello:'Ett skepp, en handelslista och ett helt hav … men vad var det nu vi skulle göra? Det är borta!',bye:'Tack! Elin inne i riksdagshuset stod och kliade sig i huvudet över sina papper. Hon kanske behöver dig.'},
+ {p:'riksdag',r:0,f:['law','change','nobles'],who:'Elin',hello:'Titta på mitt protokoll! Tre rader är tomma. Jag brukar kunna det här. Kan du hjälpa mig?',bye:'Så skönt! Men Amira på slottet ville visst fråga dig en sak till. Gå dit när du hinner.'},
+ {p:'palace',r:1,f:['freedom','queen','absolute'],who:'Amira',hello:'Där är du! Jag hade just svaret på tungan, men så försvann det. Kan vi pröva igen?',bye:'Nu satt det bättre! Jo vinkade åt dig från kajen när jag gick förbi.'},
+ {p:'quay',r:1,f:['trade'],who:'Jo',hello:'Hör du, jag tänkte berätta för en sjöman … men orden fastnade. Hjälper du mig en gång till?',bye:'Det var det jag menade! Elin har visst ett nytt protokoll att visa dig.'},
+ {p:'riksdag',r:1,f:['nobles','law','change'],who:'Elin',hello:'Jag tänker, tänker … det är alldeles på tungan! Ska vi försöka utan att kika i pappren?',bye:'Nu vet jag! Amira fick en märklig anteckning förut. Gå tillbaka till slottet.'},
+ {p:'palace',r:2,f:['queen','absolute','freedom'],who:'Amira',hello:'Någon har skrivit tokigheter i brevet. Jag vill vara säker på vad som stämmer. Hjälper du mig?',bye:'Det där blev rätt! Jo har hittat en lika underlig lapp nere vid kajen.'},
+ {p:'quay',r:2,f:['trade'],who:'Jo',hello:'Se här! På den här lappen påstår någon något helt annat. Jag får inte ihop det. Vad säger du?',bye:'Tack för hjälpen! Elin väntar på dig med de sista anteckningarna.'},
+ {p:'riksdag',r:2,f:['law','change','nobles'],who:'Elin',hello:'Nu gäller det sista protokollet. Här är flera saker som inte låter riktigt kloka. Kan vi reda ut dem?',bye:'Sådär! Nu känner jag igen anteckningarna igen. Du har verkligen hjälpt oss att minnas.'}
 ];
+const fresh=()=>({v:2,step:0,index:0,mode:'intro',hint:false,draft:'',record:[],complete:false,
+ daler:3,apples:0,trial:0,earned:{},archiveRounds:0,archiveList:[],archiveIndex:0,archiveMode:'question',archiveHint:false});
 let s;try{s=JSON.parse(localStorage.getItem(storage)||'null')}catch{}
-if(!s||s.v!==1||s.step<0||s.step>=runs.length)s={v:1,step:0,index:0,mode:'intro',hint:false,draft:'',record:[],complete:false};
+if(!s||s.v!==2||!Number.isInteger(s.step)||s.step<0||s.step>=runs.length)s=fresh();
 // Upgrades from pre-gating test saves must not credit unverified knowledge.
-if(s.mode==='end'&&s.step>0&&!runs[s.step].f.every(f=>s.record.some(r=>r.id===f&&r.step===s.step&&r.ok)))s.mode='question';
+if(s.mode==='end'&&s.step>0&&!runs[s.step].f.every(f=>s.record.some(r=>r.id===f&&r.step===s.step&&r.trial===s.trial&&r.ok)))s.mode='question';
 const persist=()=>{try{localStorage.setItem(storage,JSON.stringify(s))}catch{}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
@@ -201,7 +203,7 @@ function memoryProblem(){
  return current().hello;
 }
 function stageSolved(){
- return current().f.every(f=>s.record.some(r=>r.step===s.step&&r.id===f&&r.ok));
+ return current().f.every(f=>s.record.some(r=>r.step===s.step&&r.id===f&&r.trial===s.trial&&r.ok));
 }
 function wantsMemoryThanks(place){return referenceMemory()&&present()&&place===current().p&&s.mode==='end'&&stageSolved();}
 function memoryThanks(){return current().bye;}
@@ -230,8 +232,9 @@ function go(){
 }
 function advance(){
  if(s.step>0&&(s.mode!=='end'||!stageSolved()))return false;
+ if(s.step>0){for(const id of current().f)s.earned[id]=true;s.daler+=1;}
  if(s.step===9){s.complete=true;s.mode='finished';persist();open=true;modal.hidden=false;document.body.classList.add('ch1-open');drawModal();return}
- s.step++;s.index=0;s.mode='intro';s.hint=false;s.draft='';persist();closePanel();drawHud();go();dismiss=-1
+ s.step++;s.index=0;s.trial=0;s.mode='intro';s.hint=false;s.draft='';persist();closePanel();drawHud();go();dismiss=-1
 }
 function next(){
  if(s.mode!=='feedback')return false;
@@ -256,7 +259,7 @@ function next(){
 function mark(ok,{supported=false,response=null}={}){
  if(s.mode!=='question'&&s.mode!=='choices')return;
  const f=current().f[s.index];
- s.record.push({step:s.step,id:f,level:rank(),ok,support:s.hint||supported,
+ s.record.push({step:s.step,trial:s.trial,id:f,level:rank(),ok,support:s.hint||supported,
   ab:item().ab,answer:response??s.draft});
  s.mode='feedback';persist();
  if(memoryVisible)drawMemory();else drawModal();
@@ -292,7 +295,7 @@ function drawModal(){
 function resetChapter(){
  if(!confirm('Börja om kapitel 1 från Maja på Kaffehuset?'))return;
  window.UPPDRAG_MEETINGS?.close?.(false);
- s={v:1,step:0,index:0,mode:'intro',hint:false,draft:'',record:[],complete:false};
+ s=fresh();
  persist();closePanel();dismiss=-1;was='';drawHud();go();
 }
 hud.addEventListener('click',e=>{
