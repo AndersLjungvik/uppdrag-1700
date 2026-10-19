@@ -192,7 +192,7 @@ function enterMemory(){
  hideRoomForMemory();drawMemory();return true;
 }
 function wantsMajaMeeting(place){return referenceMaja()&&present()&&place==='cafe';}
-function majaProblem(){return 'Hör du, något är konstigt med folk i stan. Amira från slottet kom in här nyss och kunde knappt minnas vad hon arbetade med. Jag försökte hjälpa, men hon såg bara mer förvirrad ut. Vill du gå dit och se hur hon har det?';}
+function majaProblem(){return 'Det är något märkligt i stan. Amira var här nyss och mindes knappt sitt eget arbete. Kan du titta till henne på slottet?';}
 function acceptMajaMission(){if(wantsMajaMeeting('cafe'))advance();}
 function wantsMemoryMeeting(place){return referenceMemory()&&present()&&place===current().p&&s.mode!=='end';}
 function memoryProblem(){
@@ -263,7 +263,7 @@ function mark(ok,{supported=false,response=null}={}){
 }
 function drawModal(){
  let h='<div style="font:600 12px system-ui;color:#685b45;letter-spacing:.1em">'+(s.step?rank():'Kapitel 1')+' · '+paths[current().p]+'</div>';
- if(s.complete){const n=numbers();h+='<h2>Kapitel 1 avklarat!</h2><p>'+esc(current().bye)+'</p><p>21 återkallningsförsök: '+n.ind+' självständiga, '+n.aided+' med ledtråd, '+n.need+' behöver övas.</p><p>Det här är träning, inte betyg.</p><button class="primary" data-action="restart">Spela om</button>'}
+ if(s.complete){const n=numbers();h+='<h2>Kapitel 1 avklarat!</h2><p>'+esc(current().bye)+'</p><p>21 kunskapsdelar avklarade på '+s.record.length+' försök. '+n.ind+' rätt utan stöd, '+n.aided+' rätt med stöd och '+n.need+' felaktiga försök.</p><p>Det här är träning, inte betyg.</p><button class="primary" data-action="restart">Spela om</button>'}
  else if(s.mode==='intro')h+='<h2>'+esc(s.step?rank()+' · '+paths[current().p]:'Ett nytt uppdrag')+'</h2><p><b>'+current().who+':</b> '+esc(current().hello)+'</p><button class="primary" data-action="start">'+(s.step?'Börja återkalla':'Ta uppdraget')+'</button>';
  else if(s.mode==='end')h+='<h2>Arbetet är klart</h2><p><b>'+current().who+':</b> '+esc(current().bye)+'</p><button class="primary" data-action="advance">'+(s.step===9?'Avsluta kapitel 1':'Fortsätt till nästa plats')+'</button>';
  else {
