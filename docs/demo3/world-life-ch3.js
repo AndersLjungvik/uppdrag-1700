@@ -367,6 +367,49 @@
     };
   }
 
+  // Gentle, deterministic yielding. Never rewrite the graph route: civilians
+  // step aside a little, ease back to their own lane, and remain on dry land.
+  // Only chapter 3 uses this fork; older chapters retain their normal walkers.
+  function yieldFor(region,states,delta){
+    const world=window.UPPDRAG_CH3_CITY_LIFE;
+    const historical=world?.obstacles?.(region)||[];
+    const bodies=states.map(state=>state.pose).filter(Boolean);
+    const blend=motion.matches?1:Math.min(.32,Math.max(.08,delta/260));
+    for(const state of states){
+      if(!state.pose||state.frozen||state.escort)continue;
+      const pose=state.pose;let pushX=0,pushY=0,close=0;
+      for(const a of historical){
+        const dx=pose.x-a.x,dy=pose.y-a.y;
+        const distance=Math.hypot(dx,dy),radius=(a.radius||34)+30;
+        if(distance>=radius)continue;
+        const length=Math.max(1,distance),m=Math.min(25,(radius-distance)*.63);
+        pushX+=dx/length*m;pushY+=dy/length*m;close++;
+      }
+      for(const other of bodies){
+        if(other===pose||other.id===pose.id)continue;
+        const dx=pose.x-other.x,dy=pose.y-other.y,d=Math.hypot(dx,dy);
+        if(d>=45)continue;
+        // Stable priority ensures two citizens do not choose the same sidestep.
+        const sign=String(pose.id).localeCompare(String(other.id))<0?-1:1;
+        const nx=-Math.sin(pose.heading||0),ny=Math.cos(pose.heading||0);
+        const lateral=dx*nx+dy*ny;
+        const way=Math.abs(lateral)>1?Math.sign(lateral):sign;
+        const m=Math.min(15,(45-d)*.67);
+        pushX+=nx*way*m;pushY+=ny*way*m;close++;
+      }
+      // Cap avoidance radius and ease to avoid twitching from near misses.
+      const length=Math.hypot(pushX,pushY),max=24;
+      if(length>max){pushX=pushX/length*max;pushY=pushY/length*max;}
+      let vx=(state.yieldX||0)*(1-blend)+pushX*blend;
+      let vy=(state.yieldY||0)*(1-blend)+pushY*blend;
+      let factor=1;
+      while(factor>0.0625&&!clearPoint(region,pose.x+vx*factor,pose.y+vy*factor,14))factor*=.5;
+      if(factor<=.0625){vx=0;vy=0;factor=1;}
+      state.yieldX=vx*factor;state.yieldY=vy*factor;
+      pose.x+=state.yieldX;pose.y+=state.yieldY;
+      if(close&&Math.hypot(state.yieldX,state.yieldY)>2)pose.yielding=true;
+    }
+  }
   function population(region) {
     if(!region?.map)return [];
     if(!populations.has(region))populations.set(region,new Map());
@@ -417,13 +460,15 @@
     for(const state of walkers.values()){
       if(state.escort?.mode==='following'&&state.region!==region)cancelEscort(state.person.id);
     }
-    for(const state of population(region)){
+    const activePopulation=population(region);
+    for(const state of activePopulation){
       if(Number.isFinite(player?.x)&&Number.isFinite(player?.y)){
         state.playerX=player.x;state.playerY=player.y;
       }
       if(state.escort)tickEscort(state,delta,player,activeRoom);
       else{if(!state.frozen)state.time+=advance;updateWalker(state);}
     }
+    yieldFor(region,activePopulation,delta);
   }
 
   function freeze(id) {
@@ -559,9 +604,30 @@
     };
   }
 
-  function drawDog(ctx, dog, time, still) {
+  function drawDog(ctx, dog, time, still, region, actors) {
     if (!dog.route) return;
     const pose = dogPose(dog, time);
+    const neighbors=[...people(region).map(p=>({...p,radius:28})),...(actors||[])];
+    // The dog changes lanes or slows to sniff rather than running through legs.
+    let awayX=0,awayY=0;
+    for(const other of neighbors){
+      const dx=pose.x-other.x,dy=pose.y-other.y,d=Math.hypot(dx,dy);
+      const radius=(other.radius||28)+24;
+      if(d>=radius)continue;
+      const safeD=Math.max(1,d),strength=Math.min(35,(radius-d)*.88);
+      if(safeD<7){awayY+=(dog.phase%2===0?1:-1)*strength;}
+      else{awayX+=dx/safeD*strength;awayY+=dy/safeD*strength;}
+    }
+    const max=Math.hypot(awayX,awayY);
+    if(max>36){awayX=awayX/max*36;awayY=awayY/max*36;}
+    const smoothing=still?1:.16;
+    dog.avoidX=(dog.avoidX||0)*(1-smoothing)+awayX*smoothing;
+    dog.avoidY=(dog.avoidY||0)*(1-smoothing)+awayY*smoothing;
+    let factor=1;
+    while(factor>.0625&&!clearPoint(region,pose.x+dog.avoidX*factor,pose.y+dog.avoidY*factor,7))factor*=.5;
+    if(factor<=.0625)factor=0;
+    pose.x+=dog.avoidX*factor;pose.y+=dog.avoidY*factor;
+    dog.lastDrawnPose={x:pose.x,y:pose.y,moving:pose.moving,avoiding:Math.abs(dog.avoidX)+Math.abs(dog.avoidY)>2};
     const stride = !still && pose.moving ? Math.sin(time/95) * 3.8 : 0;
     const wag = !still ? Math.sin(time / (pose.moving ? 130 : 115)) * .22 : 0;
     const sniff = !still&&!pose.moving ? Math.max(0,Math.sin(time/370))*.50 : 0;
@@ -734,7 +800,9 @@
     if (region.id === 'main') {
       drawPaddock(ctx,elapsed,still);
       for (const [i,hen] of HENS.entries()) if(i%3===0)drawHen(ctx,hen,elapsed,still);
-      for (const [i,dog] of dogRoutes(region).entries()) if(i%2===0)drawDog(ctx,dog,elapsed,still);
+      const bodies=window.UPPDRAG_CH3_CITY_LIFE?.obstacles?.(region)||[];
+      for (const [i,dog] of dogRoutes(region).entries())if(i%2===0)
+        drawDog(ctx,dog,elapsed,still,region,bodies);
     }
     for (const person of people(region).sort((a,b) => a.y-b.y)) {
       if (window.UPPDRAG_MEETINGS?.drawMapPerson) {
@@ -746,5 +814,6 @@
   }
 
   window.UPPDRAG_WORLD_LIFE = {tick,draw,people,hit,freeze,release,
+    quietPeople:people,quietDogs:region=>dogRoutes(region).filter((d,i)=>i%2===0).map(d=>d.lastDrawnPose||dogPose(d,elapsed)),
     beginEscort,cancelEscort,endEscort:cancelEscort,escortState};
 })();
