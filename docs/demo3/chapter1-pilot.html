@@ -41,7 +41,7 @@ body[data-room^="waterfront-"] #roomReturnText{display:none}
 <script src="paper-fibres.js?v=3.19.0"></script>
 <script src="paper-look.js?v=3.3-paper"></script>
 <script src="interior-ch1-pilot.js?v=16"></script>
-<script src="more-room-ch1-pilot.js?v=17"></script>
+<script src="more-room-ch2-pilot.js?v=2"></script>
 <script src="harbour-fibre-art.js?v=3.19.0"></script>
 <script src="harbour-chapters.js?v=3.19.0"></script>
 <script src="living-conversation-data.js?v=3.19.0"></script>
@@ -54,9 +54,10 @@ const N=(id,x,y)=>({id,x,y}),E=(a,b,w=66)=>({a,b,w});
 const MAIN={id:'main',name:'Huvudstaden',w:3600,h:1500,land:'#cbc3b1',start:'square',harbor:'quay',
  water:[[[0,1275],[650,1290],[1150,1268],[1700,1300],[2300,1280],[2900,1305],[3600,1260],[3600,1500],[0,1500]],[[2030,0],[2130,0],[2120,230],[2085,430],[2125,630],[2130,820],[2090,1010],[2110,1270],[2010,1280],[2035,1060],[2020,850],[2040,650],[2008,450]]],
  bridges:[{x:1960,y:640,w:230,h:130},{x:2000,y:350,w:150,h:50}],plazas:[{x:1010,y:705,r:145},{x:1700,y:705,r:120},{x:2480,y:705,r:115}],
- nodes:[N('riksdag',1705,1115),N('west',100,720),N('cafe',420,705),N('print',720,710),N('square',1010,705),N('archive',1260,710),N('operaJ',1455,705),N('bridgeW',1960,705),N('bridgeE',2190,705),N('barn',2350,705),N('work',2700,705),N('homes',3100,705),N('village',3290,705),N('east',3520,705),N('scienceJ',520,470),N('castle',825,340),N('science',1120,325),N('operaDoor',1375,535),N('operaTop',1650,300),N('quayJ1',880,970),N('quayJ2',1120,1030),N('quayJ3',1390,1010),N('quay',1480,1120),N('workSouth',2670,1000),N('villageSouth',3220,890),N('countrySouth',3470,930),N('ruralJ1',2840,500),N('ruralJ2',3080,340),N('manor',3390,330)],
- edges:[E('west','cafe',92),E('cafe','print',92),E('print','square',92),E('square','archive',92),E('archive','operaJ',92),E('operaJ','bridgeW',92),E('bridgeW','bridgeE',92),E('bridgeE','barn',92),E('barn','work',92),E('work','homes',92),E('homes','village',92),E('village','east',92),E('cafe','scienceJ',64),E('scienceJ','castle',64),E('castle','science',64),E('science','operaTop',58),E('operaTop','operaDoor',58),E('operaDoor','operaJ',58),E('square','quayJ1',62),E('quayJ1','quayJ2',62),E('quayJ2','quayJ3',62),E('quayJ3','quay',62),E('quayJ3','riksdag',66),E('barn','workSouth',56),E('workSouth','work',56),E('homes','villageSouth',55),E('villageSouth','countrySouth',55),E('countrySouth','village',55),E('work','ruralJ1',58),E('ruralJ1','ruralJ2',58),E('ruralJ2','manor',58),E('manor','east',52)],
+ nodes:[N('church',1110,628),N('riksdag',1705,1115),N('west',100,720),N('cafe',420,705),N('print',720,710),N('square',1010,705),N('archive',1260,710),N('operaJ',1455,705),N('bridgeW',1960,705),N('bridgeE',2190,705),N('barn',2350,705),N('work',2700,705),N('homes',3100,705),N('village',3290,705),N('east',3520,705),N('scienceJ',520,470),N('castle',825,340),N('science',1120,325),N('operaDoor',1375,535),N('operaTop',1650,300),N('quayJ1',880,970),N('quayJ2',1120,1030),N('quayJ3',1390,1010),N('quay',1480,1120),N('workSouth',2670,1000),N('villageSouth',3220,890),N('countrySouth',3470,930),N('ruralJ1',2840,500),N('ruralJ2',3080,340),N('manor',3390,330)],
+ edges:[E('west','cafe',92),E('cafe','print',92),E('print','square',92),E('square','archive',92),E('square','church',76),E('archive','operaJ',92),E('operaJ','bridgeW',92),E('bridgeW','bridgeE',92),E('bridgeE','barn',92),E('barn','work',92),E('work','homes',92),E('homes','village',92),E('village','east',92),E('cafe','scienceJ',64),E('scienceJ','castle',64),E('castle','science',64),E('science','operaTop',58),E('operaTop','operaDoor',58),E('operaDoor','operaJ',58),E('square','quayJ1',62),E('quayJ1','quayJ2',62),E('quayJ2','quayJ3',62),E('quayJ3','quay',62),E('quayJ3','riksdag',66),E('barn','workSouth',56),E('workSouth','work',56),E('homes','villageSouth',55),E('villageSouth','countrySouth',55),E('countrySouth','village',55),E('work','ruralJ1',58),E('ruralJ1','ruralJ2',58),E('ruralJ2','manor',58),E('manor','east',52)],
  buildings:[
+ {x:1005,y:363,w:230,h:172,name:'Kyrkan',entry:'church',roof:'#746b58',wall:'#d8c9ab'},
  {x:1600,y:850,w:250,h:170,name:'Riksdagshuset',entry:'riksdag',roof:'#776e62',wall:'#d7c7a7'},
  {x:250,y:420,w:220,h:155,name:'Kaffehuset',entry:'cafe',roof:'#9a5545',wall:'#c7b79d'},{x:500,y:870,w:245,h:170,name:'Tryckeriet',entry:'print',roof:'#625c55',wall:'#c5b69e'},{x:1130,y:870,w:220,h:160,name:'Arkivet',entry:'archive',roof:'#705f55',wall:'#c7b99f'},{x:1240,y:335,w:255,h:165,name:'Operan',entry:'operaDoor',roof:'#8e6657',wall:'#c6b69b'},{x:660,y:115,w:300,h:190,name:'Slottet',entry:'castle',roof:'#655e56',wall:'#c9baa0'},{x:980,y:160,w:210,h:135,name:'Vetenskapens hus',entry:'science',roof:'#796c5d',wall:'#c5b79c'},{x:2240,y:370,w:320,h:195,name:'Barnhuset',entry:'barn',roof:'#9a5b4c',wall:'#c8b79c'},{x:2580,y:890,w:330,h:185,name:'Verkstäderna',entry:'workSouth',roof:'#5d5953',wall:'#bfae95'},{x:2980,y:360,w:220,h:150,name:'Bostadskvarteren',entry:'homes',roof:'#91654f',wall:'#c8b99d'},{x:3160,y:875,w:220,h:155,name:'Byn',entry:'villageSouth',roof:'#855f4e',wall:'#c7b89c'},{x:3280,y:145,w:240,h:150,name:'Herrgården',entry:'manor',roof:'#745d4d',wall:'#c9bc9e'}],
  labels:[{t:'Torget',node:'square'},{t:'Kajen',node:'quay'},{t:'Barnhuskvarteren',node:'barn'},{t:'Landsbygden',node:'village'}]};
@@ -191,7 +192,7 @@ window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElem
 
 
 
-<script>ROOM_BY_REGION.main["Riksdagshuset"]="riksdag";</script>
+<script>ROOM_BY_REGION.main["Riksdagshuset"]="riksdag";ROOM_BY_REGION.main["Kyrkan"]="church";</script>
 <script src="chapter1-closeups.js?v=11"></script>
 <script src="chapter1-choices.js?v=14"></script>
 <script>
