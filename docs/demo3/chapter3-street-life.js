@@ -45,7 +45,7 @@ css.textContent=[
  '@media(max-width:600px){#ch3StreetDialogue{padding:15px 19px 17px}#ch3StreetDialogue .ch3Words{font-size:16px}}'
 ].join('\n');
 document.head.append(css);
-let active=null,teaser=null,lineIndex=0,viewport=null,enteredAt=performance.now(),lastPhase=1,openedAt=0;
+let active=null,teaser=null,pendingHold=null,lineIndex=0,viewport=null,enteredAt=performance.now(),lastPhase=1,openedAt=0;
 let teaserHiddenUntil=0,arrivalCandidate=null,arrivalAt=0,lastPlayer=null,lastCall=0;
 const encounterCounts=new Map(),spokenRecently=new Map();
 const NEAR=62,LEAVE=108,SPONTANEOUS_PAUSE=850,SPONTANEOUS_GAP=9000;
@@ -75,6 +75,7 @@ function position(actor,now=performance.now()){
  }
  if(active?.id===actor.id)return {...actor,x:active.x,y:active.y,moving:false};
  if(teaser?.id===actor.id)return {...actor,x:teaser.x,y:teaser.y,moving:false};
+ if(pendingHold?.id===actor.id)return {...actor,x:pendingHold.x,y:pendingHold.y,moving:false};
  const t=Math.max(0,now-enteredAt-(talkPaused[actor.id]||0));
  if(actor.id==='cap')return {...actor,...patrol(555,666,709,t,6400,1100)};
  if(actor.id==='hat')return {...actor,...patrol(1594,1775,705,t,7800,3200)};
@@ -228,6 +229,20 @@ function stopTeaser(now=performance.now()){
  teaser=null;
  if(!active)hideBubble();
 }
+function releaseHold(){
+ if(!pendingHold)return;
+ if(pendingHold.role==='civil')window.UPPDRAG_WORLD_LIFE?.release?.(pendingHold.sourceId);
+ pendingHold=null;
+}
+function hold(actor){
+ if(!actor||!viewport?.region)return false;
+ releaseHold();
+ const candidate=find(viewport.region,actor.id);
+ if(!candidate)return false;
+ if(candidate.role==='civil')window.UPPDRAG_WORLD_LIFE?.freeze?.(candidate.sourceId);
+ pendingHold={...candidate};
+ return true;
+}
 function shortThought(actor){
  if(actor.role==='dog')return 'Voff!';
  if(actor.role==='farmer')return 'Ner med skatterna! Nog med krig!';
@@ -258,6 +273,7 @@ function open(actor){
  const now=performance.now();
  if(teaser)stopTeaser(now);
  let source=real;
+ if(pendingHold?.id===real.id)source={...real,x:pendingHold.x,y:pendingHold.y};
  if(real.role==='civil'){
    const stopped=window.UPPDRAG_WORLD_LIFE?.freeze?.(real.sourceId);
    if(stopped)source={...real,x:stopped.x,y:stopped.y};
@@ -266,6 +282,7 @@ function open(actor){
  if(!sequence.length)return false;
  const startWithPlayer=sequence[0][0]==='Du';
  active={...source,lines:sequence,mode:startWithPlayer?'lines':'greeting'};
+ pendingHold=null;
  lineIndex=0;openedAt=now;arrivalCandidate=null;
  window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
  if(!startWithPlayer&&source.role==='dog')active.mode='lines';
@@ -292,7 +309,7 @@ function next(){
 }
 function suspend(){
  if(active)close();
- stopTeaser();arrivalCandidate=null;hideBubble();
+ stopTeaser();releaseHold();arrivalCandidate=null;hideBubble();
 }
 box.addEventListener('click',event=>{
  event.preventDefault();event.stopPropagation();
@@ -488,7 +505,7 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
   const leader=find(region,'farmers');if(leader)paperTag(ctx,'NOG MED KRIG!',leader.x,leader.y-64);
  }
 }
-window.UPPDRAG_CH3_CITY_LIFE={people,find,hit,nearest,open,close,suspend,next,draw,phase,stationedCamps,
+window.UPPDRAG_CH3_CITY_LIFE={people,find,hit,nearest,open,close,suspend,next,draw,phase,stationedCamps,hold,releaseHold,
  obstacles,get active(){return !!active},get teaser(){return teaser?.id||null},get actor(){return active?.id||null},
  get lines(){return active?.lines||[]},get talkers(){return viewport?.region?talkingTargets(viewport.region):[]}};
 })();
