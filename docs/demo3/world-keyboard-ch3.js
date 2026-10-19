@@ -155,7 +155,7 @@
   function nearby(){
     const candidates=[],distance=p=>Math.hypot(player.x-p.x,player.y-p.y);
     const city=window.UPPDRAG_CH3_CITY_LIFE;
-    const conflict=city?.nearest?.(region,player,90);
+    const conflict=city?.nearest?.(region,player,120);
     if(conflict)candidates.push({distance:distance(conflict),priority:-1,run:()=>city.open(conflict)});
     for(const person of window.UPPDRAG_WORLD_LIFE?.people(region)||[]){
       const d=distance(person);
