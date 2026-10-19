@@ -12,6 +12,12 @@ const CAST={
  david:{id:'david',name:'David Hedenquist',region:'marstrand',x:1281,y:378,r:44,role:'david',color:'#736957',heading:-1.57}
 };
 const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
+// Visual camp sites are dramatized placements on this game's map, not claims
+// about documented barracks at these precise addresses.
+const RUSSIAN_CAMPS=[
+ {id:'north',name:'Ryskt läger · norr om Barnhuset',x:2416,y:232,label:'RYSKT LÄGER'},
+ {id:'west',name:'Ryskt läger · väster om Tryckeriet',x:272,y:1108,label:'RYSKT LÄGER'}
+];
 
 const box=document.createElement('div');box.id='ch3StreetDialogue';box.hidden=true;
 box.setAttribute('role','button');box.tabIndex=0;
@@ -141,8 +147,8 @@ function paper(ctx,points,color){
 }
 function cap(ctx,a){
  ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.heading);
- if(a.role==='hat'||a.role==='soldier'){
-  paper(ctx,[[-7,-11],[9,-13],[22,-10],[25,-1],[21,10],[8,13],[-6,9]],a.role==='hat'?'#494237':'#445d71');
+ if(a.role==='hat'||a.role==='soldier'||a.role==='russian'){
+  paper(ctx,[[-7,-11],[9,-13],[22,-10],[25,-1],[21,10],[8,13],[-6,9]],a.role==='hat'?'#494237':a.role==='russian'?'#363c35':'#445d71');
   paper(ctx,[[1,-6],[17,-8],[21,0],[16,8],[1,7]],'#847258');
  }else{
   ctx.fillStyle=a.role==='cap'?'#556c59':'#715d4c';
@@ -179,10 +185,53 @@ function paperTag(ctx,label,x,y){
  ctx.fillStyle='#534334';ctx.font='600 12px Georgia';ctx.textAlign='center';
  ctx.fillText(label,x,y+16);ctx.restore();
 }
+
+function stationedCamps(region){
+ return region?.id==='main'&&step()>=9?RUSSIAN_CAMPS:[];
+}
+function campCanvas(ctx,camp,now){
+ const {x,y}=camp;
+ // Tents and cooking fire use the world's rough, overlapping paper cuttings.
+ // No combat or simulated siege is shown: these are postwar auxiliary troops.
+ paper(ctx,[[x-119,y+40],[x-97,y-29],[x-42,y-11],[x-22,y+38]],'#746b56');
+ paper(ctx,[[x-97,y-29],[x-55,y-29],[x-22,y+38],[x-42,y-11]],'#ada08a');
+ paper(ctx,[[x-26,y+42],[x+4,y-42],[x+62,y-17],[x+84,y+42]],'#80785f');
+ paper(ctx,[[x+4,y-42],[x+48,y-42],[x+84,y+42],[x+62,y-17]],'#b8ab92');
+ paper(ctx,[[x+63,y+31],[x+86,y-17],[x+129,y-6],[x+144,y+36]],'#797660');
+ paper(ctx,[[x+86,y-17],[x+117,y-17],[x+144,y+36],[x+129,y-6]],'#a7987f');
+ for(const shift of [-86,23,111]){
+   paper(ctx,[[x+shift,y+39],[x+shift+21,y+39],[x+shift+14,y+49],[x+shift+7,y+49]],'#67553f');
+ }
+ // Fur cap, green coat and red cuffs of 1740s Russian troops.
+ const soldiers=[
+  {dx:-116,dy:54,size:.92},
+  {dx:-62,dy:73,size:.94},
+  {dx:10,dy:65,size:1},
+  {dx:62,dy:66,size:.90},
+  {dx:120,dy:73,size:.92},
+  {dx:23,dy:101,size:.94}
+ ];
+ for(let i=0;i<soldiers.length;i++){
+   const person=soldiers[i],walking=!reduced?.matches&&(i===1||i===5);
+   const travel=walking?Math.sin(now/(1900+i*270)+i*2)*23:0;
+   const actor={
+     id:camp.id+'-'+i,role:'russian',x:x+person.dx+travel,
+     y:y+person.dy+(walking?Math.cos(now/2300+i)*2:0),
+     color:i%2?'#4c6248':'#53684d',heading:walking?0:.18,
+     moving:walking
+   };
+   drawFigure(ctx,actor,now,person.size);
+   // Red collar marks the uniform even at small map scale.
+   paper(ctx,[[actor.x-8,actor.y-11],[actor.x+2,actor.y-11],
+     [actor.x+6,actor.y-8],[actor.x-6,actor.y-6]],'#9a4e45');
+ }
+ paperTag(ctx,camp.label,x+2,y-69);
+}
 function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
  if(!region||!camera||!layout)return;
  viewport={region,camera:{x:camera.x,y:camera.y},layout:{w:layout.w,h:layout.h,scale:layout.scale},player};
  if(active&&active.region!==region.id)close();
+ for(const camp of stationedCamps(region))campCanvas(ctx,camp,now);
  for(const a of people(region)){
   drawGroup(ctx,a,now);
   if(a.id==='david'&&player&&Math.hypot(player.x-a.x,player.y-a.y)<165)
@@ -193,7 +242,7 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
   const leader=find(region,'farmers');if(leader)paperTag(ctx,'NOG MED KRIG!',leader.x,leader.y-64);
  }
 }
-window.UPPDRAG_CH3_CITY_LIFE={people,find,hit,nearest,open,close,next,draw,phase,
+window.UPPDRAG_CH3_CITY_LIFE={people,find,hit,nearest,open,close,next,draw,phase,stationedCamps,
  get active(){return !!active},get actor(){return active?.id||null},
  get lines(){return active?story(active):[]}};
 })();
