@@ -239,6 +239,89 @@ function wantsMemoryThanks(place){return referenceMemory()&&present()&&place===c
 function memoryThanks(){return current().bye;}
 function finishMemory(){if(wantsMemoryThanks(current().p)&&stageSolved())advance();}
 
+
+// Rut tränar fakta som eleven redan klarat. Om inga fakta klarats ännu,
+// kan eleven göra en första lästräning så att ingen låses ute utan valuta.
+function wantsArchiveMeeting(place){return location()==='archive'&&place==='archive'&&!s.complete;}
+function archiveHello(){
+ const known=Object.keys(s.earned).length;
+ return known
+  ?'Du ser fundersam ut. Kom, så provar vi vad du minns från dina tidigare uppdrag. Det finns ett äpple att tjäna.'
+  :'Har du fastnat? Vi kan öva ett minne tillsammans. När du minns det själv får du ett äpple.';
+}
+function archiveFact(){return s.archiveList[s.archiveIndex]||'queen';}
+function archiveShort(id){return !!facts[id].answers;}
+function enterArchive(){
+ if(location()!=='archive')return false;
+ const known=Object.keys(s.earned).filter(f=>facts[f]);
+ const total=known.length,offset=total?s.archiveRounds%total:0;
+ const rotated=total?known.slice(offset).concat(known.slice(0,offset)):['queen'];
+ s.archiveList=rotated.slice(0,Math.min(3,rotated.length));
+ s.archiveIndex=0;s.archiveMode='question';s.archiveHint=false;s.archiveDraft='';
+ s.archiveActive=true;s.archiveRounds++;persist();
+ open=true;modal.hidden=false;document.body.classList.add('ch1-open');
+ hideRoomForMemory();drawArchive();return true;
+}
+function drawArchive(){
+ const id=archiveFact(),f=facts[id],short=archiveShort(id),
+  spec=!short?window.UPPDRAG_CH1_CHOICES?.optionsFor(id,0):null;
+ if(!f)throw new Error('Rut saknar fråga');
+ const fallback=window.UPPDRAG_CH1_CLOSEUPS?.images?.cafe||'';
+ let sheet='<p class="ch1Count">Ruts arkiv · '+(s.archiveIndex+1)+' / '+s.archiveList.length+'</p>';
+ if(s.archiveMode==='reward'){
+   sheet='<h2 class="ch1Prompt">Du mindes!</h2>'
+    +'<div class="ch1Result ch1ResultRight"><strong>ETT ÄPPLE</strong>'
+    +'<p class="ch1FlashAnswer">Rut ler och räcker dig ett äpple.</p></div>'
+    +'<div class="ch1Actions"><button class="primary" data-action="archive-again">Repetera mer</button>'
+    +'<button data-action="archive-exit">Tillbaka till rummet</button></div>';
+ }else if(s.archiveMode==='failed'){
+   sheet+='<div class="ch1Result ch1ResultWrong"><strong>Inte riktigt än</strong>'
+    +'<p class="ch1FlashAnswer">'+esc(f.a)+'</p></div>'
+    +'<p class="ch1RetryNote">Rut hjälper dig gärna att öva igen. Inget äpple denna gång.</p>'
+    +'<div class="ch1Actions"><button class="primary" data-action="archive-again">Öva igen</button></div>';
+ }else if(s.archiveMode==='feedback'){
+   sheet+='<div class="ch1Result ch1ResultRight"><strong>RÄTT</strong>'
+    +'<p class="ch1FlashAnswer">'+esc(f.a)+'</p></div>'
+    +'<div class="ch1Actions"><button class="primary" data-action="archive-next">Nästa minne</button></div>';
+ }else{
+   sheet+='<h2 class="ch1Prompt">'+esc(f.q[0])+'</h2>';
+   if(s.archiveMode==='question'){
+     if(short)sheet+='<input id="ch1ArchiveInput" type="text" aria-label="Ditt svar"'
+      +' autocomplete="off" value="'+esc(s.archiveDraft)+'">';
+     sheet+='<div class="ch1Actions">';
+     sheet+=short?'<button class="primary" data-action="archive-short">Svara</button>'
+      :'<button class="primary" data-action="archive-choices">Jag har tänkt</button>';
+     if(!s.archiveHint)sheet+='<button data-action="archive-hint">Ledtråd</button>';
+     sheet+='</div>';
+   }else if(s.archiveMode==='choices'){
+     sheet+='<div class="ch1Options" role="group">';
+     spec.options.forEach((v,i)=>sheet+='<button class="ch1Option" data-action="archive-choice" data-index="'+i+'">'+esc(v)+'</button>');
+     sheet+='</div>';
+   }
+   if(s.archiveHint)sheet+='<p class="ch1Hint">'+esc(f.hint)+'</p>';
+ }
+ modal.innerHTML='<div class="ch1MemorySetting" aria-hidden="true">'
+  +'<div class="ch1LegacyFallback">'+fallback+'</div>'
+  +'<canvas id="ch1CutPaperScene" class="ch1CutPaperScene"></canvas></div>'
+  +'<button class="ch1Return" data-action="archive-exit">← Till Rut</button>'
+  +'<article class="ch1Sheet">'+sheet+'</article>';
+ paintCutPaperScene();
+ modal.querySelector('#ch1ArchiveInput')?.focus({preventScroll:true});
+}
+function archiveMark(ok){
+ if(!s.archiveActive||!['question','choices'].includes(s.archiveMode))return false;
+ s.archiveMode=ok?'feedback':'failed';persist();drawArchive();return true;
+}
+function archiveNext(){
+ if(!s.archiveActive||s.archiveMode!=='feedback')return;
+ if(s.archiveIndex+1<s.archiveList.length){
+   s.archiveIndex++;s.archiveMode='question';s.archiveHint=false;s.archiveDraft='';
+ }else{
+   s.archiveMode='reward';s.apples+=1;
+ }
+ persist();drawHud();drawArchive();
+}
+
 const rank=()=>['Lärling','Gesäll','Mästare'][current().r];
 function numbers(){return {ind:s.record.filter(x=>x.ok&&!x.support).length,aided:s.record.filter(x=>x.ok&&x.support).length,need:s.record.filter(x=>!x.ok).length}}
 function drawHud(){
@@ -341,13 +424,33 @@ hud.addEventListener('click',e=>{
  else if(e.target.closest('[data-nav]'))go();
  else if(e.target.closest('[data-open]'))showPanel();
 });
-modal.addEventListener('input',e=>{if(e.target.id==='ch1Answer'){s.draft=e.target.value;persist();}});
+modal.addEventListener('input',e=>{if(e.target.id==='ch1Answer')s.draft=e.target.value;
+ else if(e.target.id==='ch1ArchiveInput')s.archiveDraft=e.target.value;
+ persist();});
 modal.addEventListener('click',e=>{
  const act=e.target.closest('[data-action]')?.dataset.action;if(!act)return;
  if(act==='close'){closePanel();return}
  if(act==='retry-daler'){retryWith('daler');return}
  if(act==='retry-apple'){retryWith('apple');return}
  if(act==='archive-go'){goArchive();return}
+ if(act==='archive-exit'){closePanel();return}
+ if(act==='archive-again'){closePanel();enterArchive();return}
+ if(act==='archive-hint'){if(s.archiveActive){s.archiveHint=true;persist();drawArchive();}return}
+ if(act==='archive-short'){
+   if(!s.archiveActive||s.archiveMode!=='question'||!s.archiveDraft.trim())return;
+   archiveMark(facts[archiveFact()].answers?.some(x=>norm(x)===norm(s.archiveDraft)));return;
+ }
+ if(act==='archive-choices'){
+   if(s.archiveActive&&s.archiveMode==='question'){s.archiveMode='choices';persist();drawArchive();}return;
+ }
+ if(act==='archive-choice'){
+   if(!s.archiveActive||s.archiveMode!=='choices')return;
+   const o=window.UPPDRAG_CH1_CHOICES.optionsFor(archiveFact(),0);
+   const ix=Number(e.target.closest('[data-index]')?.dataset.index);
+   if(Number.isInteger(ix)&&ix>=0&&ix<o.options.length)archiveMark(ix===o.correctIndex);
+   return;
+ }
+ if(act==='archive-next'){archiveNext();return}
  if(act==='restart'){resetChapter();return}
  if(act==='start'){if(s.step===0)advance();else{s.mode='question';persist();drawModal()}return}
  if(act==='hint'){s.hint=true;persist();if(memoryVisible)drawMemory();else drawModal();return}
@@ -369,11 +472,12 @@ modal.addEventListener('click',e=>{
  if(act==='next'){next();return}
  if(act==='advance'){advance();return}
 });
-modal.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();closePanel()}else if(e.key==='Enter'&&e.target.matches('input')){e.preventDefault();modal.querySelector('[data-action="short"]')?.click()}});
+modal.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();closePanel()}else if(e.key==='Enter'&&e.target.matches('input')){e.preventDefault();modal.querySelector(e.target.id==='ch1ArchiveInput'?'[data-action="archive-short"]':'[data-action="short"]')?.click()}});
 function tick(){const p=location();if(p!==was){was=p;if(p===current().p&&!open&&dismiss!==s.step&&!referenceMemory()&&!referenceMaja())showPanel()}if(!open){const key=s.step+'/'+p;if(hud.dataset.key!==key){hud.dataset.key=key;drawHud()}}}
 window.UPPDRAG_CH1_PILOT={tick,go,scenes:runs,saveKey:storage,
  wantsMajaMeeting,majaProblem,acceptMajaMission,
  wantsMemoryMeeting,memoryProblem,enterMemory,wantsMemoryThanks,memoryThanks,finishMemory,resetChapter,
+ wantsArchiveMeeting,archiveHello,enterArchive,goArchive,
  get state(){return s},get memoryVisible(){return memoryVisible}};
 drawHud();setMessage('Frihetstiden · kapitel 1','Börja i Kaffehuset. Använd pilar eller klicka på byggnaderna. Visa vägen ger hjälp.');
 })();
