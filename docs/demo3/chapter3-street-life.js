@@ -46,7 +46,7 @@ css.textContent=[
 ].join('\n');
 document.head.append(css);
 let active=null,teaser=null,pendingHold=null,lineIndex=0,viewport=null,enteredAt=performance.now(),lastPhase=1,openedAt=0;
-let teaserHiddenUntil=0,arrivalCandidate=null,arrivalAt=0,lastPlayer=null,lastCall=0;
+let teaserHiddenUntil=0,arrivalCandidate=null,arrivalAt=0,lastPlayer=null,lastMovedAt=0,lastCall=0;
 const encounterCounts=new Map(),spokenRecently=new Map();
 const NEAR=62,LEAVE=108,SPONTANEOUS_PAUSE=850,SPONTANEOUS_GAP=9000;
 const talkPaused=Object.fromEntries(Object.keys(CAST).map(id=>[id,0]));
