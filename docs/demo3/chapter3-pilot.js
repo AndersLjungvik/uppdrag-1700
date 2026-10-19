@@ -366,10 +366,22 @@ function archiveFact(){return s.archiveList[s.archiveIndex]||'queen';}
 function archiveShort(id){return !!factFor(id)?.answers;}
 function enterArchive(){
  if(location()!=='archive')return false;
- const known=[...new Set([...Object.keys(previous1.earned||{}),...Object.keys(previous2.earned||{}),...Object.keys(s.earned)])].filter(f=>factFor(f));
- const total=known.length,offset=total?s.archiveRounds%total:0;
- const rotated=total?known.slice(offset).concat(known.slice(0,offset)):['queen'];
- s.archiveList=rotated.slice(0,Math.min(3,rotated.length));
+ // Varva kapitlen i stället för att först ge alla gamla frågor i ett block.
+ const pools=[
+   Object.keys(previous1.earned||{}).filter(f=>factFor(f)),
+   Object.keys(previous2.earned||{}).filter(f=>factFor(f)),
+   Object.keys(s.earned).filter(f=>factFor(f))
+ ].filter(items=>items.length);
+ const shuffled=pools.map((items,i)=>items[(s.archiveRounds+i)%items.length]);
+ const merged=[...new Set(shuffled)];
+ if(merged.length<3){
+   const known=[...new Set(pools.flat())];
+   for(const id of known){
+     if(merged.length>=3)break;
+     if(!merged.includes(id))merged.push(id);
+   }
+ }
+ s.archiveList=(merged.length?merged:['queen']).slice(0,3);
  s.archiveIndex=0;s.archiveMode='question';s.archiveHint=false;s.archiveWordHelp=false;s.archiveDraft='';
  s.archiveActive=true;s.archiveRounds++;persist();
  open=true;modal.hidden=false;document.body.classList.add('ch1-open');
