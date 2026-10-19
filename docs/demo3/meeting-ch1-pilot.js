@@ -44,7 +44,7 @@
     #meetingPerson{position:absolute;z-index:4;padding:0;border:0;border-radius:6px;background:transparent;color:#352d24;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px}
     #meetingPerson span{position:absolute;bottom:0;left:50%;transform:translateX(-50%);padding:3px 8px;border:1px solid #9e8965;background:#f1e4c9;font:600 14px/1.15 Georgia,serif;border-radius:4px;white-space:nowrap}
     #meetingPerson:hover span{background:#fff4dc}
-    #meetingPerson:focus-visible{outline:3px solid #355e68;outline-offset:3px}
+    #meetingPerson:focus-visible{outline:2px dashed #826f51;outline-offset:2px}
     #meetingPerson:focus:not(:focus-visible){outline:none}
     #meetingDialogue{position:absolute;z-index:8;left:50%;bottom:12px;transform:translateX(-50%);width:min(660px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;background:#f7ecd5;border:2px solid #a58d63;box-shadow:3px 5px 0 #41342230;border-radius:7px;padding:16px 20px;color:#352d24}
     #meetingTail{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:7}
@@ -123,10 +123,10 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
  const gesture=speaking?-.18+Math.sin(elapsed/300)*.045:.05;ctx.save();ctx.translate(36,-212);ctx.rotate(gesture);cut(-11,0,22,78,color);oval(0,84,12,14,'#c9a57c');ctx.restore();
  cut(-8,-251,22,27,'#c8a377');poly([[-29,-291],[12,-300],[36,-285],[38,-267],[47,-260],[36,-255],[29,-230],[-14,-235],[-28,-253]],'#cda77b');poly([[-32,-288],[-17,-307],[15,-309],[35,-292],[12,-287],[-13,-271],[-27,-253]],woman?'#d7c9ac':'#604a35');oval(28,-272,2,2,'#342c24');const opening=speaking?Math.max(0,Math.sin(elapsed/70))*(1+Math.sin(elapsed/340)**2*1.8):0;oval(35,-249,3.5,.65+opening,'#594132');if(!woman){oval(-1,-301,47,9,color);poly([[-30,-303],[-15,-328],[15,-327],[28,-301]],color)}if(woman)poly([[-36,-116],[44,-113],[58,-18],[-57,-18]],color);if(apron){poly([[-23,-210],[24,-209],[31,-34],[-30,-34]],'#d9caa9');for(const [a,b]of [[8,-110],[-12,-75],[17,-155]])oval(a,b,3,4,'#615445')}ctx.restore()}
     const renderer={
-      side(x,y,s,who,right,t,speaking,walking=false,working=false){
+      side(x,y,s,who,right,t,speaking,walking=false,working=false,turn=0){
         reduced=motion.matches;speechStarted=speechAt;speechUntil=speechEnd;
         ctx.save();ctx.translate(x,y);ctx.scale(s,s);
-        if(working&&!reduced)ctx.rotate(-.016); // occupied with the paper
+        if(!reduced)ctx.rotate(turn); // one small look toward the visitor, no step
         ctx.save();ctx.fillStyle='#42351f26';ctx.beginPath();ctx.ellipse(0,2,57,8,0,0,Math.PI*2);ctx.fill();ctx.restore();
         puppet(0,0,who.color,right,t,speaking,walking,!!who.woman,!!who.apron);ctx.restore();
       },
@@ -184,7 +184,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     const drawings=[{pos:poses[0],who:CAST.player,right:true}];
     if(c.cast&&poses[1])drawings.push({pos:poses[1],who:c.cast,right:false,isNpc:true});
     drawings.sort((a,b)=>a.pos[1]-b.pos[1]);
-    for(const item of drawings){const [x,y,s]=item.pos;a.side(x,y,s,item.who,item.right,now,speaker===item.who.name,!!item.isNpc&&!!geometry.npc?.moving,!!item.isNpc&&!!geometry.npc?.working);if(c.key==='archive'&&pilot&&item.who!==CAST.player)pilot.restoreDesk(g,geometry,roomCanvas);}
+    for(const item of drawings){const [x,y,s]=item.pos;a.side(x,y,s,item.who,item.right,now,speaker===item.who.name,!!item.isNpc&&!!geometry.npc?.moving,!!item.isNpc&&!!geometry.npc?.working,item.isNpc?(geometry.npc?.turn||0):0);if(c.key==='archive'&&pilot&&item.who!==CAST.player)pilot.restoreDesk(g,geometry,roomCanvas);}
     g.restore();
     person.hidden=!c.cast||!!dialogue||!!controller(c.key)?.busy;
     if(c.cast){
@@ -210,7 +210,8 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     dialogue=null;speechEnd=0;panel.hidden=true;dialogueTail.replaceChildren();roomFooter.inert=footerInert;
     delete document.body.dataset.conversation;
     drawPeople(performance.now());
-    if(restore&&!person.hidden)person.focus({preventScroll:true});
+    // Keep pointer-triggered conversations from leaving a focus rectangle on the person.
+    // Keyboard users can still reach the stable button with Tab.
     return true;
   }
   function showLine(){
@@ -330,7 +331,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
       closeTalk(false);activeRoom=interior;wasTravelling=travelling;lastPaint=-Infinity;
       if(!interior||travelling){layer.hidden=true;person.hidden=true;geometry=null;return;}
       drawPeople(now);
-      if(!person.hidden)person.focus({preventScroll:true});
+      // Do not auto-focus the invisible person hit surface on entering a room.
     }
     if(!interior||travelling)return;
     const animating=(dialogue||pilot?.speaker||places?.speaker||living?.speaker||story?.speaker)&&!motion.matches&&!document.hidden&&now<speechEnd;
