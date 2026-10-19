@@ -5,24 +5,24 @@
 'use strict';
 const BANK={
  absolute:[
-  ['Hon kunde inte bestämma ensam. Riksdagen och riksrådet hade också makt.','Hon kunde bestämma ensam, men måste berätta om besluten för riksdagen efteråt.','Hon bestämde ensam om allt utom handeln med Kina.'],
+  ['Hon kunde inte bestämma ensam. Riksdagen och riksrådet hade också makt.','Hon kunde bestämma ensam, men måste berätta om besluten för riksdagen efteråt.','Hon bestämde ensam om lagarna, medan riksdagen bara skötte handeln.'],
   ['Kungens makt var begränsad och riksdagen och riksrådet kunde påverka besluten.','Kungen hade fortfarande sista ordet i alla frågor, även när riksdagen samlades.','Riksdagen fick ge förslag, men kungens envälde var kvar.'],
   ['Hon var inte enväldig; riksdagen och riksrådet hade också makt.','Hon var enväldig men måste låta adeln sköta handeln.','Hon var enväldig så länge grundlagen inte ändrades.']
  ],
  freedom:[
-  ['Kungens envälde upphörde och riksdagen fick större makt.','De fyra stånden fick lika stor makt och behövde inte längre någon kung.','Den gamla kungamakten var kvar, men krigen tog slut.'],
-  ['Kungen kunde inte längre styra ensam; riksdagen och riksrådet fick inflytande.','Sverige slutade vara ett kungarike och styrdes bara av folket.','Det blev en ny kung som styrde lika enväldigt som tidigare.'],
+  ['Kungens envälde upphörde och riksdagen fick större makt.','De fyra stånden fick lika mycket makt, även om kungen fanns kvar.','Kungens makt var kvar som förut; förändringen gällde främst handeln.'],
+  ['Kungen kunde inte längre styra ensam; riksdagen och riksrådet fick inflytande.','Kungen behöll sin makt, men riksdagen fick fler rådgivande uppgifter.','Kungens makt växte när han fick hjälp av riksrådet.'],
   ['Kungen fick mindre makt, men adeln hade fortfarande mest inflytande i riksdagen.','Alla stånd och människor fick lika mycket att säga till om.','Bönderna fick bestämma över riksrådet medan kungen var enväldig.']
  ],
  trade:[
-  ['Handla med Asien och föra hem varor från Kina.','Främst sälja järn till England och styra handeln där.','Sköta tullar och lagar åt Sveriges riksdag.'],
-  ['För att köpa och föra hem varor, till exempel te, siden och porslin.','För att frakta järn till England, som var kompaniets huvuduppgift.','För att riksdagen skulle kunna hålla sina möten till sjöss.'],
-  ['Kompaniet bedrev handel med Kina och tog hem asiatiska varor.','Kompaniet förde krig för att göra Kina till en svensk koloni.','Kompaniet handlade bara inom Sverige men använde kinesiska fartyg.']
+  ['Handla med Asien och föra hem varor från Kina.','Främst sälja järn till England och styra handeln där.','Köpa svenskt järn i England och sälja det vidare till Kina.'],
+  ['För att köpa och föra hem varor, till exempel te, siden och porslin.','För att frakta järn till England, som var kompaniets huvuduppgift.','För att föra varor från Kina till England utan att handla med Sverige.'],
+  ['Kompaniet bedrev handel med Kina och tog hem asiatiska varor.','Kompaniet skeppade främst svenskt järn till England, inte varor från Kina.','Kompaniets uppgift var att övervaka handeln, medan andra skötte resorna till Kina.']
  ],
  law:[
-  ['Hur makten skulle delas i landet.','Hur kungen ensam skulle utse alla riksdagens ledamöter.','Hur Ostindiska kompaniet skulle sköta handeln.'],
-  ['För att slå fast hur makten skulle delas när enväldet upphörde.','För att kungen skulle kunna bestämma ensam även efter frihetstiden.','För att ersätta riksdagen med Ostindiska kompaniet.'],
-  ['Den nya grundlagen reglerade hur makten delades; kungen styrde inte ensam.','Grundlagen gav kungen enväldig makt så länge adeln höll med.','Grundlagen handlade bara om handeln och ändrade inte styret.']
+  ['Hur makten skulle delas i landet.','Vilket stånd som skulle få utse kungen på egen hand.','Hur riksdagen skulle besluta om handel utan att ändra maktfördelningen.'],
+  ['För att slå fast hur makten skulle delas när enväldet upphörde.','För att kungen skulle kunna ändra grundlagen utan riksdagens samtycke.','För att adeln skulle kunna fatta de viktigaste besluten utan någon grundlag.'],
+  ['Den nya grundlagen reglerade hur makten delades; kungen styrde inte ensam.','Grundlagen gav kungen enväldig makt så länge adeln höll med.','Grundlagen ändrade vilka som satt i riksdagen men inte kungens makt.']
  ],
  change:[
   ['När hela riksdagen var överens.','När kungen och riksrådet var överens, utan riksdagen.','När adeln ensam ville ändra den.'],
