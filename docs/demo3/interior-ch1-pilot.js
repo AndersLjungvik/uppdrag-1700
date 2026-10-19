@@ -70,7 +70,7 @@ window.UPPDRAG_ROOM_ART = (() => {
     }
     // The chapter-one café has a recognizable wall of cups, coffee shelf,
     // warm window curtains and a hanging lamp. All use original paper pigments.
-    const sx=tall?480:1028,sy=tall?556:211,sw=tall?211:206;
+    const sx=tall?480:1028,sy=tall?222:211,sw=tall?211:206;
     cut(g,sx-8,sy-91,sw+16,121,'wood');
     cut(g,sx+4,sy-78,sw-9,91,'paper');
     for(let i=0;i<3;i++){
