@@ -24,6 +24,7 @@
       ['Brita','Precis. Bokstäverna kallas typer. Med dem bygger vi texten som ska tryckas.']
     ]},
     palace:{name:'Amira',color:'#846956',woman:true,lines:[['Du','Hej!'],['Amira','Välkommen till slottet.']]},
+    riksdag:{name:'Elin',color:'#6b7461',woman:true,lines:[['Du','Hej!'],['Elin','Välkommen till riksdagssalen.']]},
     archive:{name:'Rut',color:'#67695a',woman:true,lines:[
       ['Du','Hej! Jag letar efter Rut.'],
       ['Rut','Då har du kommit rätt. Jag är läromästaren Rut. Här undersöker vi vad handlingarna faktiskt berättar.'],
@@ -136,7 +137,9 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   const PLACEMENT={
     cafe:{wide:[[295,674,.84],[1060,633,.94]],tall:[[114,971,.80],[378,710,.90]]},
     print:{wide:[[283,685,.82],[1190,668,.94]],tall:[[122,995,.82],[251,710,.91]]},
-    archive:{wide:[[420,690,.83],[1042,682,.94]],tall:[[122,996,.82],[239,710,.90]]}
+    archive:{wide:[[420,690,.83],[1042,682,.94]],tall:[[122,996,.82],[239,710,.90]]},
+    palace:{wide:[[285,686,.81],[1047,688,.88]],tall:[[113,972,.80],[379,714,.88]]},
+    riksdag:{wide:[[298,682,.82],[1040,669,.89]],tall:[[120,978,.80],[387,710,.87]]}
   };
   function current(){
     if(!interior)return null;
@@ -212,7 +215,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     panel.querySelector('.ch1MeetingChoices')?.remove();
     if(dialogue.special&&dialogue.index===dialogue.cast.lines.length-1){
       const container=document.createElement('div');container.className='ch1MeetingChoices';
-      for(const [action,label] of [['accept',dialogue.special==='thanks'?'Fortsätt äventyret':'Jag hjälper dig att minnas'],['decline','Inte nu']]){
+      for(const [action,label] of [['accept',dialogue.special==='thanks'?'Fortsätt äventyret':dialogue.special==='giver'?'Jag hjälper till':'Jag hjälper dig att minnas'],['decline','Inte nu']]){
         const b=document.createElement('button');b.type='button';b.dataset.ch1Choice=action;b.textContent=label;container.append(b);
       }
       panel.append(container);panel.setAttribute('role','group');
@@ -225,9 +228,17 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   function startTalk(){
     const c=current();if(!c?.cast||dialogue||voyage)return false;
     const pilot=window.UPPDRAG_CH1_PILOT;
-    if(c.key==='palace'&&pilot?.wantsPalaceThanks?.())return palaceThanks();
-    if(c.key==='palace'&&pilot?.wantsPalaceMeeting?.()){
-      dialogue={room:interior,cast:{...CAST.palace,lines:[['Du','Hej!'],['Amira',pilot.palaceProblem()]]},index:0,special:'memory'};
+    if(pilot?.wantsMajaMeeting?.(c.key)){
+      dialogue={room:interior,cast:{...CAST.cafe,lines:[
+        ['Du','Hej!'],['Maja',pilot.majaProblem()]
+      ]},index:0,special:'giver'};
+      footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
+    }
+    if(pilot?.wantsMemoryThanks?.(c.key))return memoryThanks();
+    if(pilot?.wantsMemoryMeeting?.(c.key)){
+      dialogue={room:interior,cast:{...c.cast,lines:[
+        ['Du','Hej!'],[c.cast.name,pilot.memoryProblem()]
+      ]},index:0,special:'memory'};
       footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
     }
     if(!CAST[c.key]&&c.storyPlace){
@@ -246,11 +257,11 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     if(++dialogue.index>=dialogue.cast.lines.length)closeTalk();else showLine();
     return true;
   }
-  function palaceThanks(){
-    const pilot=window.UPPDRAG_CH1_PILOT;
-    if(!interior||interior.kind!=='palace'||!pilot?.wantsPalaceThanks?.())return false;
+  function memoryThanks(){
+    const pilot=window.UPPDRAG_CH1_PILOT,c=current();
+    if(!interior||!c?.cast||!pilot?.wantsMemoryThanks?.(c.key))return false;
     closeTalk(false);
-    dialogue={room:interior,cast:{...CAST.palace,lines:[['Amira',pilot.palaceThanks()]]},index:0,special:'thanks'};
+    dialogue={room:interior,cast:{...c.cast,lines:[[c.cast.name,pilot.memoryThanks()]]},index:0,special:'thanks'};
     footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
   }
   person.addEventListener('click',startTalk);
@@ -262,8 +273,9 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
       const type=dialogue.special,answer=button.dataset.ch1Choice;
       closeTalk(false);
       if(answer==='accept'){
-        if(type==='thanks')window.UPPDRAG_CH1_PILOT?.finishPalace();
-        else window.UPPDRAG_CH1_PILOT?.enterPalaceMemory();
+        if(type==='thanks')window.UPPDRAG_CH1_PILOT?.finishMemory();
+        else if(type==='giver')window.UPPDRAG_CH1_PILOT?.acceptMajaMission();
+        else window.UPPDRAG_CH1_PILOT?.enterMemory();
       }
       return;
     }
@@ -338,7 +350,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     lastMapPlayer={x:pos.x,y:pos.y};
     puppets(g).map(pos.x,pos.y,mapHeading,!!goal,now,CAST.player);
   }
-  window.UPPDRAG_MEETINGS={tick,drawMapPlayer,advance,start:startTalk,palaceThanks,close:closeTalk,geometryForRoom:measure,drawMapPerson(g,pos,who,now){puppets(g).map(pos.x,pos.y,Number.isFinite(pos.heading)?pos.heading:0,!!pos.moving,pos.animationTime??now,who);},get state(){return {room:current()?.key||null,npc:current()?.cast?.name||null,talking:!!dialogue,line:dialogue?.index??null};}};
+  window.UPPDRAG_MEETINGS={tick,drawMapPlayer,advance,start:startTalk,memoryThanks,close:closeTalk,geometryForRoom:measure,drawMapPerson(g,pos,who,now){puppets(g).map(pos.x,pos.y,Number.isFinite(pos.heading)?pos.heading:0,!!pos.moving,pos.animationTime??now,who);},get state(){return {room:current()?.key||null,npc:current()?.cast?.name||null,talking:!!dialogue,line:dialogue?.index??null};}};
   document.documentElement.dataset.meetings='ready';tick(performance.now());
 })();
 
