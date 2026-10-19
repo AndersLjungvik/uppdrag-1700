@@ -185,17 +185,56 @@
       tabletop(g,T,(x,y,w)=>{bowl(g,x+65,y-23,.82);bowl(g,x+w*.49,y-23,.82);bowl(g,x+w-70,y-23,.82);
         cut(g,x+w*.44,y-3,86,10,'paper');});
     }else if(id==='church'){
-      // 1700-talskyrkans pappersträ, höga spröjsade fönster och predikstol.
-      const xx=tall?308:813;
-      cut(g,xx,floor-386,tall?149:176,269,'slate');
-      cut(g,xx+11,floor-374,tall?127:154,245,'glass',false);
-      cut(g,xx+(tall?65:80),floor-373,11,243,'wood',false);
-      cut(g,xx+13,floor-264,tall?123:149,12,'wood');
-      cut(g,xx+208,floor-230,121,203,'wood');
-      cut(g,xx+215,floor-245,107,49,'green');
-      flatBook(g,xx+228,floor-271,100);
-      bench(g,tall?76:236,tall?932:659,tall?205:207);
-      bench(g,tall?390:1006,tall?932:659,tall?193:197);
+      // Långhus i klippt papper: högt altare, altartavla, kors, predikstol,
+      // ljuskronor, mittgång och flera bänkrader. Kyrkorum, inte möteslokal.
+      const altarX=tall?322:560,altarY=floor-408,altarW=tall?218:310;
+      // Sten-/träarkitektur kring koret.
+      cut(g,altarX-25,altarY+5,altarW+50,302,'dark');
+      cut(g,altarX-13,altarY+18,altarW+25,269,'paper');
+      cut(g,altarX+8,altarY+34,altarW-18,218,'green',false);
+      // Målning, förgylld ram och ett tydligt kors (ej modernt församlingsbord).
+      cut(g,altarX+17,altarY+47,altarW-35,183,'wood');
+      cut(g,altarX+27,altarY+58,altarW-55,160,'red');
+      cut(g,altarX+altarW*.49-7,altarY+84,14,109,'paper',false);
+      cut(g,altarX+altarW*.49-39,altarY+105,78,14,'paper',false);
+      cut(g,altarX-48,altarY+264,altarW+95,24,'dark');
+      cut(g,altarX-37,altarY+283,altarW+73,45,'paper');
+      flatBook(g,altarX+altarW*.35,altarY+251,altarW*.31);
+      // Ljusstakar vid altaret.
+      for(const offset of [-24,altarW+21]){
+        const cx=altarX+offset;
+        cut(g,cx-6,altarY+229,12,34,'wood');
+        oval(g,cx,altarY+223,8,10,'paper');
+        poly(g,[[cx-3,altarY+208],[cx+3,altarY+208],[cx,altarY+191]],'red',false);
+      }
+      // Hög kyrkfönster, tydligt skilt från en vanlig fönsterram.
+      const wx=tall?196:947,wy=floor-383,ww=tall?103:147;
+      cut(g,wx,wy+24,ww,244,'slate');
+      oval(g,wx+ww/2,wy+24,ww/2,34,'slate');
+      cut(g,wx+12,wy+29,ww-24,226,'glass',false);
+      cut(g,wx+ww*.47,wy+33,10,221,'wood',false);
+      cut(g,wx+14,wy+134,ww-28,10,'wood',false);
+      // Predikstol på ena sidan, upphöjd över bänkarna.
+      const px=tall?72:273,py=floor-207;
+      cut(g,px+13,py+89,20,95,'dark');
+      poly(g,[[px-14,py+19],[px+122,py+19],[px+132,py+106],[px-20,py+106]],'wood');
+      for(let i=0;i<3;i++)cut(g,px+7+i*39,py+45,24,42,'paper');
+      poly(g,[[px-35,py+7],[px+147,py+7],[px+122,py-20],[px-12,py-20]],'dark');
+      // Ljuskrona: samma material och klippta former som övriga interiörer.
+      const lx=tall?387:714,ly=tall?185:104;
+      cut(g,lx-5,27,10,ly-27,'dark',false);
+      for(const dx of [-55,-28,28,55]){
+        cut(g,lx+dx-4,ly+31,8,37,'wood');
+        oval(g,lx+dx,ly+29,7,7,'paper');
+      }
+      poly(g,[[lx-87,ly+45],[lx+87,ly+45],[lx+65,ly+61],[lx-65,ly+61]],'wood');
+      // Tre par kyrkbänkar + mittgång; bänkarna står samlade i kyrkorummet.
+      const yRows=tall?[742,823,904]:[531,590,650];
+      for(let i=0;i<yRows.length;i++){
+        const y=yRows[i],inset=tall?0:i*12;
+        bench(g,tall?40:115+inset,y,tall?245:350-inset);
+        bench(g,tall?437:839,y,tall?236:326-inset);
+      }
     }else if(id==='workshop'){
       loom(g,bx+125,feet,.97);tools(g,bx-13,floor-296,117);
       tabletop(g,T,(x,y,w)=>{cut(g,x+27,y-13,w-53,9,'paper');plane(g,x+w*.46,y-17,1.1);
