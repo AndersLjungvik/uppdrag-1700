@@ -114,7 +114,7 @@ function restoreRoomFromMemory(){
  modal.classList.remove('ch1MemoryFull');
 }
 function drawMemory(){
- const f=item(),short=!!f.answers;
+ const f=item(),short=!!f.answers&&!(current().r===2&&current().f[s.index]==='nobles');
  const photo=window.UPPDRAG_CH1_CLOSEUPS?.images?.[current().p]||'';
  let sheet='<p class="ch1Count">'+(s.index+1)+' / '+current().f.length+'</p>';
  sheet+='<h2 class="ch1Prompt">'+esc(f.q[current().r])+'</h2>';
@@ -183,7 +183,7 @@ function go(){
  else{const b=region.buildings.find(b=>b.name===paths[current().p]);if(b)requestInterior(b)}
 }
 function advance(){
- if(s.step===9){s.complete=true;s.mode='finished';persist();drawModal();return}
+ if(s.step===9){s.complete=true;s.mode='finished';persist();open=true;modal.hidden=false;document.body.classList.add('ch1-open');drawModal();return}
  s.step++;s.index=0;s.mode='intro';s.hint=false;s.draft='';persist();closePanel();drawHud();go();dismiss=-1
 }
 function next(){
