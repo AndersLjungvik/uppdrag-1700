@@ -42,7 +42,7 @@ const speaker=box.querySelector('.ch3Speaker'),speech=box.querySelector('.ch3Wor
 let active=null,teaser=null,lineIndex=0,viewport=null,enteredAt=performance.now(),lastPhase=1,openedAt=0;
 let teaserHiddenUntil=0;
 const NEAR=76,LEAVE=111;
-const talkPaused={farmers:0,soldiers:0};
+const talkPaused=Object.fromEntries(Object.keys(CAST).map(id=>[id,0]));
 function step(){const state=window.UPPDRAG_CH3_PILOT?.state;return state?.complete?99:Math.max(0,state?.step||0);}
 function phase(){const n=step();return n<3?1:n<7?2:3;}
 function visible(region,id){
@@ -52,7 +52,7 @@ function visible(region,id){
 }
 function position(actor,now=performance.now()){
  const cur=phase();
- if(cur!==lastPhase){enteredAt=now;lastPhase=cur;talkPaused.farmers=0;talkPaused.soldiers=0;}
+ if(cur!==lastPhase){enteredAt=now;lastPhase=cur;for(const id of Object.keys(talkPaused))talkPaused[id]=0;}
  if(active?.id===actor.id)return {...actor,x:active.x,y:active.y,moving:false};
  const moving=!reduced?.matches;
  const elapsed=Math.max(0,now-enteredAt-(talkPaused[actor.id]||0));
@@ -179,8 +179,7 @@ function suspend(){
 }
 function close(){
  if(!active)return false;
- if(active.id==='farmers'||active.id==='soldiers')
-   talkPaused[active.id]+=Math.max(0,performance.now()-openedAt);
+ talkPaused[active.id]=(talkPaused[active.id]||0)+Math.max(0,performance.now()-openedAt);
  active=null;lineIndex=0;teaser=null;teaserHiddenUntil=performance.now()+1900;box.hidden=true;return true;
 }
 function next(){if(!active)return false;lineIndex++;return show();}
