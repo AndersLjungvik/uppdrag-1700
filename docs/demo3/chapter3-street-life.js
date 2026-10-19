@@ -109,7 +109,8 @@ function story(actor){
    :[['Mössan','David Hedenquist vägrade skjuta mot bönderna. Det var modigt.'],['Du','En del kallar honom feg.'],['Mössan','Inte jag. De har skickat honom till Marstrands fästning.']];
  if(actor.id==='hat')return n<4
    ?[['Hatten','Vi kan inte låta Ryssland tro att Sverige är svagt!'],['Du','Vill du ha krig?'],['Hatten','Vi vill ta tillbaka det som Sverige har förlorat.']]
-   :[['Hatten','David Hedenquist? En soldat som vägrar lyda är en fegis.'],['Du','Han ville inte skjuta mot bönderna.'],['Hatten','Kan han inte skjuta mot en bonde, hur ska han då skjuta mot en ryss?']];
+   :[['Hatten','David Hedenquist? En soldat som vägrar lyda är en fegis.'],['Du','Han ville inte skjuta mot bönderna.'],['Hatten','Han vågade inte skjuta mot en bonde!'],
+     ['Hatten','Hur ska han då kunna skjuta mot en ryss?']];
  if(actor.id==='farmers')return n>=7
    ?[['En bonde','På Norrmalm sköt soldaterna mot bönderna. Många kom inte hem.'],['Du','Ni ville att de skulle lyssna på er.'],['Bonden','Ja. Vi ville inte ha mer krig.']]
    :[['En bonde','Nog med krig! Nog med höga skatter!'],['Du','Varför har ni kommit till Stockholm?'],['Bonden','De som startade kriget måste ta ansvar!'],
@@ -133,12 +134,13 @@ function story(actor){
    ['En herre','Se så, nu börjar det åtminstone bli ordning i riket.'],
    ['Du','Tycker du om att de ryska soldaterna är här?'],
    ['Herren','Jag är lättad. Böndernas uppror skrämde mig.'],
-   ['Herren','Det är skönt med soldater som håller ordning.']
+   ['Herren','Det är skönt att ryssarna är här och håller ordning.']
  ];
  if(actor.id==='david')return [
    ['Du','Är du David Hedenquist?'],['David','Ja. Jag vägrade skjuta på bönderna i Stockholm.'],
    ['Du','En del kallar dig modig. Andra kallar dig feg.'],
-   ['David','Jag kunde inte skjuta. Jag dömdes först till döden. Nu avtjänar jag straffarbete här på fästningen.']
+   ['David','Jag kunde inte skjuta. Jag dömdes först till döden.'],
+   ['David','Men straffet ändrades. Nu arbetar jag här på fästningen.']
  ];
  return [];
 }
