@@ -420,7 +420,10 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     }
     if(pilot?.wantsMajaMeeting?.(c.key)){
       dialogue={room:interior,cast:{...CAST.cafe,lines:[
-        ['Du','Hej!'],['Maja',pilot.majaProblem()]
+        ['Du','Maja, är det något som har hänt?'],
+        ['Maja','Märta kom förbi. Hon såg så bekymrad ut att jag blev orolig.'],
+        ['Du','Kan jag hjälpa henne, tror du?'],
+        ['Maja',pilot.majaProblem()]
       ]},index:0,special:'giver'};
       footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
     }
