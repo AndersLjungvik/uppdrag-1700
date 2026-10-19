@@ -182,8 +182,8 @@ canvas.addEventListener('pointerleave',()=>{hoverPersonId=null;canvas.style.curs
 window.addEventListener('resize',resize);resize();draw();syncHarbourUI();document.documentElement.dataset.ready='true';requestAnimationFrame(animate);
 window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElement.dataset.paper=ok?'original':'fallback';if(!ok)console.warn('Originalmaterialet saknas. Grundgrafiken visas.');});
 </script>
-<script src="npc-motion-ch1.js?v=11"></script>
-<script src="meeting-ch1-pilot.js?v=11"></script>
+<script src="npc-motion-ch1.js?v=12"></script>
+<script src="meeting-ch1-pilot.js?v=12"></script>
 <script src="world-life.js?v=3.19.0"></script>
 <script src="story-world.js?v=3.19.0"></script>
 <script src="paper-dialogues.js?v=3.19.0"></script>
@@ -193,13 +193,13 @@ window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElem
 
 <script>ROOM_BY_REGION.main["Riksdagshuset"]="riksdag";</script>
 <script src="chapter1-closeups.js?v=11"></script>
-<script src="chapter1-choices.js?v=11"></script>
+<script src="chapter1-choices.js?v=12"></script>
 <script>
 /* Kapitel 1: stadsborna lever vidare visuellt men äldre sidodialoger är avstängda.
    Samtalen med Maja, Amira, Jo och Elin är de aktiva kapitelsamtalen. */
 if(window.UPPDRAG_WORLD_LIFE)window.UPPDRAG_WORLD_LIFE.hit=()=>null;
 </script>
-<script src="chapter1-pilot.js?v=11"></script>
+<script src="chapter1-pilot.js?v=12"></script>
 </body>
 </html>
 
