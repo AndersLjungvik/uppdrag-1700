@@ -13,16 +13,16 @@ nobles:{ab:'4c',a:'Adeln hade störst makt. Viktiga beslut togs på särskilda m
 };
 const paths={cafe:'Kaffehuset',palace:'Slottet',quay:'Kajen',riksdag:'Riksdagshuset'};
 const runs=[
- {p:'cafe',r:0,f:[],who:'Maja',hello:'Du har redan läst kapitlet och arbetat i häftet. Nu behöver vi reda ut vem som bestämmer i Sverige. Hjälp mig att kontrollera det du minns.',bye:'Börja på slottet. Där finns handlingarna om drottningen och hur styret förändrades.'},
- {p:'palace',r:0,f:['queen','absolute','freedom'],who:'Amira',hello:'Jag behöver rätta uppgifterna om drottningen och kungamakten. Försök minnas utan att titta i boken.',bye:'Ta dig till Jo på Kajen, där det finns uppgifter om handeln.'},
- {p:'quay',r:0,f:['trade'],who:'Jo',hello:'Ett handelsskepps uppdrag behöver beskrivas. Vad minns du?',bye:'Nu behöver Elin på Riksdagshuset hjälp med grundlagens regler.'},
- {p:'riksdag',r:0,f:['law','change','nobles'],who:'Elin',hello:'Protokollet är inte komplett. Tre viktiga uppgifter om grundlagen och makten saknas.',bye:'Lärlingsarbetet är klart. Nu får du hämta fram samma kunskap ännu en gång.'},
- {p:'riksdag',r:1,f:['nobles','law','change'],who:'Elin',hello:'Nu är protokollet undanstoppat. Kan du fortfarande återge vad du lärde dig?',bye:'Gå till Jo på Kajen, så återkommer handelsuppdraget.'},
- {p:'quay',r:1,f:['trade'],who:'Jo',hello:'En ny handelsnotis behöver en förklaring. Återkalla vad kompaniet gjorde.',bye:'Återvänd till Slottet för nästa del av gesällprovet.'},
- {p:'palace',r:1,f:['freedom','queen','absolute'],who:'Amira',hello:'Utan handlingarna framför dig, kan du ändå förklara den ändrade kungamakten?',bye:'Nu ska vi granska felaktiga historiska påståenden på mästarnivå.'},
- {p:'palace',r:2,f:['queen','absolute','freedom'],who:'Amira',hello:'En skrivare har blandat ihop namn och makt. Hjälp mig att granska påståendena.',bye:'En felaktig handelsnotis finns vid Kajen.'},
- {p:'quay',r:2,f:['trade'],who:'Jo',hello:'En gammal anteckning säger att kompaniet skulle starta krig. Det behöver rättas.',bye:'Gå till Riksdagshuset för de sista protokollfrågorna.'},
- {p:'riksdag',r:2,f:['law','change','nobles'],who:'Elin',hello:'Nu prövar vi felaktiga påståenden om makten, så att inget trycks fel.',bye:'Kapitel 1 är färdigt! Du har återkallat samma kunskap tre gånger, på nya sätt.'}
+ {p:'cafe',r:0,f:[],who:'Maja',hello:'Vad skönt att se dig! Jag har en sak jag behöver hjälp med …',bye:'Du, kan du börja hos Amira på slottet? Hon såg så vilsen ut när hon gick förbi här.'},
+ {p:'palace',r:0,f:['queen','absolute','freedom'],who:'Amira',hello:'Där är du! Jag satt med ett brev om tiden efter Karl XII och plötsligt blev allt blankt. Till och med namnet på drottningen är borta. Kan du hjälpa mig?',bye:'Nu minns jag igen! Minns du Jo vid kajen? Han behöver nog också hjälp … tror jag.'},
+ {p:'quay',r:0,f:['trade'],who:'Jo',hello:'Se på det här! Jag har en handelslista, en tunna och ett helt fartyg. Men vad var det nu vi skulle göra med allt? Det är som bortblåst!',bye:'Jaha! Där föll det på plats. Du, Elin i riksdagshuset stod och muttrade över sina papper nyss. Titta in hos henne också, vetja.'},
+ {p:'riksdag',r:0,f:['law','change','nobles'],who:'Elin',hello:'Jag har bläck på fingrarna och tre tomma rader i mina anteckningar. Pinsamt, va? Jag brukar ju veta precis vad som ska stå här. Hjälper du mig?',bye:'Åh, vad skönt! Fast … vänta. Nu när jag ska berätta om det för dig blir det suddigt igen. Kan vi pröva en gång till?'},
+ {p:'riksdag',r:1,f:['nobles','law','change'],who:'Elin',hello:'Där är du igen! Jag trodde att jag hade det. Sedan vek jag ihop pappret, och vips var allt borta ur huvudet. Ska vi försöka utan att titta?',bye:'Nu sitter det bättre. Minns du Jo? Han behöver nog också hjälp … tror jag.'},
+ {p:'quay',r:1,f:['trade'],who:'Jo',hello:'Du, det där du hjälpte mig med … jag vill kunna berätta det utan att kika på listan. Ska vi se om jag minns?',bye:'Ha! Där satt den. Jag såg Amira i slottsfönstret nyss. Hon såg ut att ha fått en ny huvudvärk. Gå förbi henne, du.'},
+ {p:'palace',r:1,f:['freedom','queen','absolute'],who:'Amira',hello:'Åh, tack för att du kom tillbaka. Jag tänkte berätta för en kollega, men så stannade orden mitt i munnen. Kan vi prova igen?',bye:'Så ja! Nu börjar det kännas som mitt eget minne. Men titta på den här anteckningen … är den verkligen riktig?'},
+ {p:'palace',r:2,f:['queen','absolute','freedom'],who:'Amira',hello:'Någon har skrivit så märkliga saker här. Och vet du vad som är värst? Jag blev osäker själv. Vill du hjälpa mig skilja det riktiga från det tokiga?',bye:'Du hade rätt – någonting var fel på pappret. Jo har också fått en konstig anteckning. Han står nere vid kajen.'},
+ {p:'quay',r:2,f:['trade'],who:'Jo',hello:'Här! Läs den här lappen. Den låter inte alls som det vi kom fram till förut. Jag skulle behöva ditt skarpa minne en gång till.',bye:'Tack, nu känns det riktigt. Elin väntar nog med sitt sista papper. Hon ville visst visa dig något.'},
+ {p:'riksdag',r:2,f:['law','change','nobles'],who:'Elin',hello:'Äntligen! Jag har hittat tre påståenden som får mig att rynka på näsan. Hjälp mig rätta dem innan någon tror på dem.',bye:'Sådär ja! Nu känner jag igen mina egna anteckningar igen. Vilken tur att du kom hit!'}
 ];
 let s;try{s=JSON.parse(localStorage.getItem(storage)||'null')}catch{}
 if(!s||s.v!==1||s.step<0||s.step>=runs.length)s={v:1,step:0,index:0,mode:'intro',hint:false,draft:'',record:[],complete:false};
@@ -127,10 +127,31 @@ function restoreRoomFromMemory(){
  document.body.classList.remove('ch1-memory');
  modal.classList.remove('ch1MemoryFull');
 }
+function paintCutPaperScene(){
+ const canvas=modal.querySelector('#ch1CutPaperScene');
+ if(!canvas)return;
+ try{
+   if(window.UPPDRAG_ROOM_ART?.renderMemoryCloseup?.(canvas,current().p)){
+     canvas.style.visibility='visible';
+     return;
+   }
+ }catch(error){console.warn('Närbilden kunde inte ritas',error);}
+ canvas.style.visibility='hidden';
+}
+window.addEventListener('resize',()=>{if(memoryVisible)paintCutPaperScene();});
+window.addEventListener('uppdrag-paper-fibres-ready',()=>{if(memoryVisible)paintCutPaperScene();});
+style.textContent+=`
+#ch1Modal.ch1MemoryFull .ch1LegacyFallback,#ch1Modal.ch1MemoryFull .ch1CutPaperScene{
+  position:absolute;inset:0;width:100%;height:100%;display:block}
+#ch1Modal.ch1MemoryFull .ch1LegacyFallback svg{width:100%;height:100%;display:block}
+#ch1Modal.ch1MemoryFull .ch1MemorySetting{background:#b4a38a}
+#ch1Modal.ch1MemoryFull .ch1Sheet{left:63%;max-width:500px}
+@media(max-width:800px){#ch1Modal.ch1MemoryFull .ch1Sheet{left:50%;max-width:500px}}
+`;
 function drawMemory(){
  const f=item(),id=current().f[s.index],short=!!f.answers&&!(current().r===2&&id==='nobles');
- const image=window.UPPDRAG_CH1_CLOSEUPS?.images?.[current().p];
- if(!image||!image.includes('<svg'))throw new Error('Närbilden saknas för '+current().p);
+ const fallback=window.UPPDRAG_CH1_CLOSEUPS?.images?.[current().p];
+ if(!fallback||!fallback.includes('<svg'))throw new Error('Reservbilden saknas för '+current().p);
  const choices=short?null:window.UPPDRAG_CH1_CHOICES?.optionsFor(id,current().r);
  if(!short&&!choices)throw new Error('Granskade alternativ saknas för '+id+' på '+current().r);
  let sheet='<p class="ch1Count">'+(s.index+1)+' / '+current().f.length+'</p>';
@@ -153,9 +174,12 @@ function drawMemory(){
    sheet+='<div class="ch1Result" role="status"><strong>'+label+'</strong><p>'+esc(f.a)+'</p></div>';
    sheet+='<div class="ch1Actions"><button class="primary" data-action="next">'+(s.index===current().f.length-1?'Färdig':'Nästa')+'</button></div>';
  }
- modal.innerHTML='<div class="ch1MemorySetting" aria-hidden="true">'+image+'</div>'
-   +'<button class="ch1Return" data-action="close" type="button">← Till rummet</button>'
-   +'<article class="ch1Sheet" aria-label="Minnesarbetet">'+sheet+'</article>';
+ modal.innerHTML='<div class="ch1MemorySetting" aria-hidden="true">'
+    +'<div class="ch1LegacyFallback">'+fallback+'</div>'
+    +'<canvas id="ch1CutPaperScene" class="ch1CutPaperScene" aria-hidden="true"></canvas></div>'
+    +'<button class="ch1Return" data-action="close" type="button">← Till rummet</button>'
+    +'<article class="ch1Sheet" aria-label="Minnesarbetet">'+sheet+'</article>';
+ paintCutPaperScene();
  modal.querySelector('#ch1Answer')?.focus({preventScroll:true});
 }
 function enterMemory(){
@@ -165,18 +189,16 @@ function enterMemory(){
  hideRoomForMemory();drawMemory();return true;
 }
 function wantsMajaMeeting(place){return referenceMaja()&&present()&&place==='cafe';}
-function majaProblem(){return 'Jag försöker få ordning på ett anslag om frihetstiden. Men nu är det som om flera viktiga minnen försvunnit! Vem bestämmer egentligen efter Karl XII? Vill du hjälpa oss?';}
+function majaProblem(){return 'Hör du, något är konstigt med folk i stan. Amira från slottet kom in här nyss och kunde knappt minnas vad hon arbetade med. Jag försökte hjälpa, men hon såg bara mer förvirrad ut. Vill du gå dit och se hur hon har det?';}
 function acceptMajaMission(){if(wantsMajaMeeting('cafe'))advance();}
 function wantsMemoryMeeting(place){return referenceMemory()&&present()&&place===current().p&&s.mode!=='end';}
 function memoryProblem(){
  if(s.mode!=='intro')return 'Jag har fortfarande en lucka i mina anteckningar. Vill du hjälpa mig att fortsätta?';
- if(s.step===1)return 'Jag skrev om tiden efter Karl XII, men minns plötsligt inte vem som tog över tronen. Kan du hjälpa mig?';
+ if(s.step===1)return current().hello;
  return current().hello;
 }
 function wantsMemoryThanks(place){return referenceMemory()&&present()&&place===current().p&&s.mode==='end';}
-function memoryThanks(){return s.step===1
- ?'Tack! Nu minns jag igen. Jo vid kajen verkar också behöva hjälp med sina handelslistor.'
- :current().bye;}
+function memoryThanks(){return current().bye;}
 function finishMemory(){if(wantsMemoryThanks(current().p))advance();}
 
 const rank=()=>['Lärling','Gesäll','Mästare'][current().r];
