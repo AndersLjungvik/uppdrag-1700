@@ -167,6 +167,10 @@ function open(actor){
  window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
  return show();
 }
+function suspend(){
+ if(active)close();
+ teaser=null;box.hidden=true;
+}
 function close(){
  if(!active)return false;
  if(active.id==='farmers'||active.id==='soldiers')
@@ -335,7 +339,7 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
   const leader=find(region,'farmers');if(leader)paperTag(ctx,'NOG MED KRIG!',leader.x,leader.y-64);
  }
 }
-window.UPPDRAG_CH3_CITY_LIFE={people,find,hit,nearest,open,close,next,draw,phase,stationedCamps,
+window.UPPDRAG_CH3_CITY_LIFE={people,find,hit,nearest,open,close,suspend,next,draw,phase,stationedCamps,
  obstacles,get active(){return !!active},get teaser(){return teaser?.id||null},get actor(){return active?.id||null},
  get lines(){return active?story(active):[]}};
 })();
