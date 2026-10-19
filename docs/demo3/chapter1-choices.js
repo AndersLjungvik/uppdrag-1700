@@ -10,7 +10,7 @@ const BANK={
   ['Hon var inte enväldig; riksdagen och riksrådet hade också makt.','Hon var enväldig men måste låta adeln sköta handeln.','Hon var enväldig så länge grundlagen inte ändrades.']
  ],
  freedom:[
-  ['Enväldet upphörde och riksdagen fick större makt.','De fyra stånden fick lika mycket makt, även om kungen fanns kvar.','Regentens makt var kvar som förut; förändringen gällde främst handeln.'],
+  ['Enväldet upphörde och riksdagen fick större makt.','De fyra stånden fick lika mycket makt, även om en regent fanns kvar.','Regentens makt var kvar som förut; förändringen gällde främst handeln.'],
   ['Den som regerade kunde inte längre bestämma ensam; riksdagen och riksrådet fick inflytande.','Regenten behöll all makt, men riksdagen fick ge fler råd.','Regentens makt växte när riksrådet började hjälpa till.'],
   ['Den som satt på tronen fick mindre makt, men adeln hade fortfarande mest inflytande i riksdagen.','Alla stånd och människor fick lika mycket att säga till om.','Bönderna bestämde över riksrådet, medan regenten fortfarande var enväldig.']
  ],
@@ -20,13 +20,13 @@ const BANK={
   ['Kompaniet bedrev handel med Kina och tog hem asiatiska varor.','Kompaniet skeppade främst svenskt järn till England, inte varor från Kina.','Kompaniets uppgift var att övervaka handeln, medan andra skötte resorna till Kina.']
  ],
  law:[
-  ['Hur makten skulle delas i landet.','Vilket stånd som skulle få utse kungen på egen hand.','Hur riksdagen skulle besluta om handel utan att ändra maktfördelningen.'],
-  ['För att slå fast hur makten skulle delas när enväldet upphörde.','För att kungen skulle kunna ändra grundlagen utan riksdagens samtycke.','För att adeln skulle kunna fatta de viktigaste besluten utan någon grundlag.'],
-  ['Den nya grundlagen reglerade hur makten delades; kungen styrde inte ensam.','Grundlagen gav kungen enväldig makt så länge adeln höll med.','Grundlagen ändrade vilka som satt i riksdagen men inte kungens makt.']
+  ['Hur makten skulle delas i landet.','Vilket stånd som ensamt skulle få utse regenten.','Hur riksdagen skulle besluta om handel utan att ändra maktfördelningen.'],
+  ['För att slå fast hur makten skulle delas när enväldet upphörde.','För att regenten skulle kunna ändra grundlagen utan riksdagens samtycke.','För att adeln skulle kunna fatta de viktigaste besluten utan någon grundlag.'],
+  ['Den nya grundlagen reglerade hur makten delades; regenten styrde inte ensam.','Grundlagen gav regenten enväldig makt så länge adeln höll med.','Grundlagen ändrade vilka som satt i riksdagen men inte regentens makt.']
  ],
  change:[
-  ['När hela riksdagen var överens.','När kungen och riksrådet var överens, utan riksdagen.','När adeln ensam ville ändra den.'],
-  ['Ändringen krävde att hela riksdagen var överens.','Det räckte om kungen godkände ändringen.','Det räckte att adelns stånd röstade för den.'],
+  ['När hela riksdagen var överens.','När regenten och riksrådet var överens, utan riksdagen.','När adeln ensam ville ändra den.'],
+  ['Ändringen krävde att hela riksdagen var överens.','Det räckte om regenten godkände ändringen.','Det räckte att adelns stånd röstade för den.'],
   ['Hela riksdagen måste vara överens om ändringen.','Adeln kunde själv ändra lagen eftersom den hade mest makt.','Riksrådet kunde ändra lagen utan att rådfråga riksdagen.']
  ],
  nobles:[
@@ -35,11 +35,11 @@ const BANK={
   ['Adeln dominerade viktiga beslut; bönderna deltog inte i vissa avgörande möten.','Alla fyra stånden var alltid med och hade lika stor makt vid besluten.','Bönderna valde riksrådet, men adeln fick bestämma vad det skulle handla om.']
  ]
 };
-function optionsFor(key,rank){
+function optionsFor(key,rank,attempt=0){
  const list=BANK[key]?.[rank];
  if(!list)return null;
- // Stable order for a given question; correct answer is not always first.
- const seed=(key+':'+rank).split('').reduce((n,c)=>(n*33+c.charCodeAt(0))>>>0,5381);
+ // Change option positions on paid retries so a click position cannot be memorised.
+ const seed=(key+':'+rank+':'+attempt).split('').reduce((n,c)=>(n*33+c.charCodeAt(0))>>>0,5381);
  const shift=seed%3;
  const order=[0,1,2].map((_,i)=>(i+shift)%3);
  if(seed%2)order.reverse();
