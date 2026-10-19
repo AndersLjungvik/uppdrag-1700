@@ -5,7 +5,7 @@ const storage='uppdrag1700.ch1-real-world.20261019.v11';
 const facts={
 queen:{ab:'2a',a:'Ulrika Eleonora',answers:['ulrika eleonora'],hint:'Hennes namn börjar med U.',q:['Vilken drottning efterträdde Karl XII?','Vad hette Karl XII:s syster som övertog tronen?','En skrivare påstår att drottningen hette Fredrik. Vad hette hon egentligen?']},
 absolute:{ab:'2b',a:'Drottningen var inte enväldig: hon kunde inte bestämma ensam utan delade makten med riksrådet och riksdagen.',hint:'Vem mer än drottningen hade makt?',q:['Vad menas med att drottningen inte var enväldig?','Vilken begränsning hade Ulrika Eleonora jämfört med enväldiga kungar?','En anteckning säger att Ulrika Eleonora bestämde allt ensam. Rätta felet.']},
-freedom:{ab:'1',a:'Kungens envälde upphörde och riksdagen och riksrådet fick mer makt. Men friheten var fortfarande olika för olika grupper.',hint:'Tänk på kungens makt före och efter 1719.',q:['Varför kallas tiden 1719–1772 för frihetstiden?','Vad förändrades i styret när frihetstiden började?','Varför var makten friare för vissa, men inte lika för alla?']},
+freedom:{ab:'1',a:'Det tidigare enväldet upphörde och riksdagen och riksrådet fick mer makt. Men olika grupper hade fortfarande olika mycket inflytande.',hint:'Tänk på vem som fick bestämma före och efter 1719.',q:['Varför kallas tiden 1719–1772 för frihetstiden?','Vad förändrades i styret när frihetstiden började?','Varför var makten friare för vissa, men inte lika för alla?']},
 trade:{ab:'3',a:'Ostindiska kompaniet skulle handla med Asien, särskilt Kina, och importera te, siden och porslin till Sverige.',hint:'Vad tog handelsfartygen hem från Kina?',q:['Vilken uppgift hade Ostindiska kompaniet?','Varför seglade Ostindiska kompaniets fartyg från Göteborg till Kina?','Ett brev säger att kompaniets uppdrag var att kriga mot Kina. Vad stämmer i stället?']},
 law:{ab:'4a',a:'Grundlagen reglerade hur makten skulle delas och hur Sverige skulle styras.',hint:'Vad handlade den nya maktfördelningen om?',q:['Vad skulle den nya grundlagen innehålla tydliga regler för?','Varför skrevs en ny grundlag efter enväldet?','En skrivare säger att grundlagen gav kungen oinskränkt makt. Rätta påståendet.']},
 change:{ab:'4b',a:'Enligt grundbokens text kunde den bara ändras om hela riksdagen var överens.',hint:'Det krävdes särskild enighet.',q:['När kunde grundlagen ändras enligt grundboken?','Varför kunde inte en ensam riksdagsman ändra grundlagen?','En adelsman säger att han själv får ändra grundlagen. Vilket krav har han glömt?']},
@@ -29,10 +29,29 @@ const fresh=()=>({v:2,step:0,index:0,mode:'intro',hint:false,draft:'',record:[],
 let s;try{s=JSON.parse(localStorage.getItem(storage)||'null')}catch{}
 if(!s||s.v!==2||!Number.isInteger(s.step)||s.step<0||s.step>=runs.length)s=fresh();
 // Upgrades from pre-gating test saves must not credit unverified knowledge.
+s.archiveActive=false;
 if(s.mode==='end'&&s.step>0&&!runs[s.step].f.every(f=>s.record.some(r=>r.id===f&&r.step===s.step&&r.trial===s.trial&&r.ok)))s.mode='question';
 const persist=()=>{try{localStorage.setItem(storage,JSON.stringify(s))}catch{}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+
+function nearlySameName(a,b){
+ if(Math.abs(a.length-b.length)>2||a.length<11)return false;
+ const prev=Array.from({length:b.length+1},(_,i)=>i);
+ for(let i=1;i<=a.length;i++){
+   let last=prev[0];prev[0]=i;
+   for(let j=1;j<=b.length;j++){
+     const old=prev[j];
+     prev[j]=Math.min(prev[j]+1,prev[j-1]+1,last+(a[i-1]===b[j-1]?0:1));
+     last=old;
+   }
+ }
+ return prev[b.length]<=2;
+}
+function correctShort(input,answers){
+ const given=norm(input);
+ return !!given&&answers.some(a=>given===norm(a)||nearlySameName(given,norm(a)));
+}
 const current=()=>runs[s.step],item=()=>facts[current().f[s.index]];
 const location=()=>!interior?'':interior.outdoor&&interior.regionId==='main'?'quay':interior.name==='Riksdagshuset'?'riksdag':interior.name==='Slottet'?'palace':interior.name==='Kaffehuset'?'cafe':interior.name==='Arkivet'?'archive':'';
 const present=()=>location()===current().p;
@@ -252,7 +271,7 @@ function finishMemory(){if(wantsMemoryThanks(current().p)&&stageSolved())advance
 
 // Rut tränar fakta som eleven redan klarat. Om inga fakta klarats ännu,
 // kan eleven göra en första lästräning så att ingen låses ute utan valuta.
-function wantsArchiveMeeting(place){return location()==='archive'&&place==='archive'&&!s.complete;}
+function wantsArchiveMeeting(place){return location()==='archive'&&place==='archive';}
 function archiveHello(){
  const known=Object.keys(s.earned).length;
  return known
@@ -468,7 +487,7 @@ modal.addEventListener('click',e=>{
  if(act==='archive-hint'){if(s.archiveActive){s.archiveHint=true;persist();drawArchive();}return}
  if(act==='archive-short'){
    if(!s.archiveActive||s.archiveMode!=='question'||!s.archiveDraft.trim())return;
-   archiveMark(facts[archiveFact()].answers?.some(x=>norm(x)===norm(s.archiveDraft)));return;
+   archiveMark(correctShort(s.archiveDraft,facts[archiveFact()].answers||[]));return;
  }
  if(act==='archive-choices'){
    if(s.archiveActive&&s.archiveMode==='question'){s.archiveMode='choices';persist();drawArchive();}return;
@@ -484,7 +503,7 @@ modal.addEventListener('click',e=>{
  if(act==='restart'){resetChapter();return}
  if(act==='start'){if(s.step===0)advance();else{s.mode='question';persist();drawModal()}return}
  if(act==='hint'){s.hint=true;persist();if(memoryVisible)drawMemory();else drawModal();return}
- if(act==='short'){if(!s.draft.trim())return;mark(item().answers.some(a=>norm(a)===norm(s.draft)));return}
+ if(act==='short'){if(!s.draft.trim())return;mark(correctShort(s.draft,item().answers));return}
  if(act==='skip'){s.draft='';mark(false);return}
  if(act==='choices'){
    const questionId=current().f[s.index];
