@@ -517,8 +517,13 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
   if(a.id==='david'&&player&&Math.hypot(player.x-a.x,player.y-a.y)<165)
    paperTag(ctx,'DAVID HEDENQUIST',a.x,a.y+31);
  }
- if(active){root.hidden=false;putSpeech(active,speaker.textContent);}
- else updateNearby(region,player,now);
+ if(active){
+   // As in the earliest demo, the player's little "Hej!" is only a brief beat,
+   // not a separate click or a reading task.
+   if(active.mode==='greeting'&&now-openedAt>=850){
+     active.mode='lines';showLine();
+   }else{root.hidden=false;putSpeech(active,speaker.textContent);}
+ }else updateNearby(region,player,now);
  // Protests are expressed by group behaviour and spontaneous paper speech.
 }
 window.UPPDRAG_CH3_CITY_LIFE={people,find,hit,nearest,open,close,suspend,next,draw,phase,stationedCamps,hold,releaseHold,
