@@ -9,9 +9,9 @@ const facts={
   hint:'Tänk på vilka rättigheter gifta kvinnor hade på 1700-talet.',
   q:['Vem bestämde över en gift kvinna enligt boken?','Hade en gift kvinna samma rätt att bestämma som sin man?','En anteckning säger att en gift kvinna alltid fick bestämma själv. Vad stämmer?'],
   variants:[
-   ['Enligt boken bestämde mannen över sin hustru.','Mannen och hustrun hade alltid lika stor rätt att bestämma.','Den gifta kvinnans far bestämde alltid i stället för maken.'],
-   ['Nej, enligt boken hade mannen mer rätt att bestämma.','Ja, gifta kvinnor hade samma bestämmanderätt som sina män.','Ja, gifta kvinnor hade större bestämmanderätt än män.'],
-   ['Mannen hade rätt att bestämma över sin hustru enligt tidens regler.','En gift kvinna bestämde alltid själv, utan mannens inblandning.','En gift kvinna måste lyda prästen men inte sin man.']
+   ['Enligt boken bestämde mannen över sin hustru.','Den gifta kvinnans far fortsatte bestämma över henne.','Gifta kvinnor hade större rätt än ogifta att bestämma helt själva.'],
+   ['Nej, enligt boken hade mannen mer rätt att bestämma.','Ja, men bara om hustrun ägde mark.','Nej, det var kvinnans far som bestämde även efter giftermålet.'],
+   ['Mannen hade rätt att bestämma över sin hustru enligt tidens regler.','Mannen fick bara bestämma över barnen, inte över hustrun.','Kvinnan behövde bara lyda sin far, även som gift.']
   ]
  },
  unmarried:{
@@ -20,9 +20,9 @@ const facts={
   hint:'Tänk på vad boken säger om kvinnor som inte var gifta.',
   q:['Fick ogifta kvinnor bestämma helt fritt över sig själva?','Vem förväntades en ogift kvinna lyda?','En skrivare påstår att ogifta kvinnor alltid var fria att bestämma. Rätta felet.'],
   variants:[
-   ['Nej, de förväntades lyda en manlig släkting.','Ja, de fick alltid bestämma helt själva.','Ja, men bara om en präst hade gett sitt tillstånd.'],
-   ['Sin far, bror eller annan manlig släkting.','Enbart sin make, fast hon inte var gift.','Bara en lärare på barnhuset.'],
-   ['Ogifta kvinnor förväntades ofta lyda en manlig släkting.','Ogifta kvinnor var helt fria och behövde aldrig lyda någon.','Ogifta kvinnor lydde enbart en man om de själva ville.']
+   ['Nej, de förväntades lyda en manlig släkting.','Ja, en ogift kvinna hade alltid mer makt än en gift kvinna.','De behövde lyda sin man även om de aldrig hade gift sig.'],
+   ['Sin far, bror eller annan manlig släkting.','Enbart en präst, aldrig sin egen familj.','Enbart sina barn, som kunde bestämma över henne.'],
+   ['Ogifta kvinnor förväntades ofta lyda en manlig släkting.','En ogift kvinna fick bestämma själv så länge hennes far levde.','Ogifta kvinnor förväntades bara lyda prästerna, aldrig familjen.']
   ]
  },
  priests:{
@@ -31,9 +31,9 @@ const facts={
   hint:'Hur förklarade prästerna männens makt enligt texten?',
   q:['Vad sa prästerna om männens rätt att bestämma?','Hur motiverade prästerna mäns makt på den tiden?','En lapp säger att prästerna motsatte sig männens makt. Vad står i boken?'],
   variants:[
-   ['De lärde att männens makt var Guds vilja.','De lärde att kvinnor och män alltid hade samma rätt att bestämma.','De sa att enbart riksdagen fick bestämma i familjerna.'],
-   ['De menade att det var Guds vilja att män bestämde.','De sa att makten bara berodde på handeln med Kina.','De menade att barn alltid skulle bestämma över sina föräldrar.'],
-   ['Prästerna beskrev männens bestämmanderätt som Guds vilja.','Prästerna sa att alla kvinnor fick bestämma utan begränsningar.','Prästerna menade att gifta kvinnor skulle styra riksdagen.']
+   ['De lärde att männens makt var Guds vilja.','De lärde att det var männen som skulle lyda sina hustrur.','De sa att riksdagen ensam skulle bestämma över familjerna.'],
+   ['De menade att det var Guds vilja att män bestämde.','De menade att männen fått sin makt genom riksdagens val.','De sa att det var kvinnor som hade fått makten av Gud.'],
+   ['Prästerna beskrev männens bestämmanderätt som Guds vilja.','Prästerna menade att det bara var adeln som fick bestämma i familjer.','Prästerna sade att makten över familjen skulle delas helt lika.']
   ]
  },
  punishment:{
@@ -42,9 +42,9 @@ const facts={
   hint:'Vad innebar aga i texten?',
   q:['Vad fick män göra mot hustru och barn enligt den tidens regler?','Vad berättar boken om aga i familjen?','En skribent hävdar att bestraffning inom familjen alltid var förbjuden. Vad stämmer om 1700-talet?'],
   variants:[
-   ['Reglerna tillät män att aga hustru och barn.','Alla former av aga var förbjudna redan då.','Enbart barnen fick bestraffa de vuxna.'],
-   ['Män fick enligt tidens regler slå hustru och barn som straff.','Män fick inte alls använda aga under den här tiden.','Aga betydde bara att ge barnen fler läxor.'],
-   ['Boken beskriver att män fick aga hustru och barn.','Boken säger att sådana bestraffningar var förbjudna överallt.','Boken säger att bara präster fick använda aga.']
+   ['Reglerna tillät män att aga hustru och barn.','Män fick aga sina barn men inte sina hustrur.','Bara adelsmän hade rätt att använda aga hemma.'],
+   ['Män fick enligt tidens regler slå hustru och barn som straff.','Män fick aga barnen men inte hustrun.','Aga var bara tillåtet när en präst såg på.'],
+   ['Boken beskriver att män fick aga hustru och barn.','Aga var bara tillåtet mot barn, inte mot hustrur.','Endast adeln, inte andra män, fick använda aga hemma.']
   ]
  },
  noble:{
@@ -53,9 +53,9 @@ const facts={
   hint:'Vilken makt hade adeln över bönder som bodde på adelns jord?',
   q:['Fick en adelsman aga bönder som bodde på hans mark?','Vad säger boken om adelns makt över bönderna?','En anteckning säger att adeln inte fick aga sina bönder. Vad är fel?'],
   variants:[
-   ['Ja, adeln fick rätt att aga bönder på sin mark.','Nej, det var helt förbjudet för adeln att aga bönder.','Ja, men bara när bönderna var med i riksdagen.'],
-   ['Adeln fick rätt att aga bönder som bodde på deras mark.','Adeln var tvungen att fråga varje bonde om lov att aga honom.','Bönderna bestämde alltid över adelsmännen på godsen.'],
-   ['Adeln fick enligt boken rätt att aga bönder på sin mark.','Det var förbjudet för adeln att använda aga mot bönder.','Boken säger att enbart riksdagen hade rätt att aga bönder.']
+   ['Ja, adeln fick rätt att aga bönder på sin mark.','Nej, adeln kunde bara ge bönderna böter.','Nej, rätten att aga gällde bara adelsmännens egna barn.'],
+   ['Adeln fick rätt att aga bönder som bodde på deras mark.','Adeln hade bara rätt att ge bönder böter.','Bönderna hade rätt att aga adelsmän som ägde marken.'],
+   ['Adeln fick enligt boken rätt att aga bönder på sin mark.','Adeln fick bara använda aga mot sin egen familj.','Boken säger att adeln fick ta ut böter men inte använda aga.']
   ]
  },
  mother:{
@@ -64,9 +64,9 @@ const facts={
   hint:'Tänk på vad som kunde hända med en ogift kvinna som väntade barn.',
   q:['Varför kunde det vara svårt att vänta barn utan att vara gift?','Vilka följder kunde en ogift graviditet få på 1700-talet?','En lapp säger att ogifta mödrar aldrig straffades. Vad berättar boken?'],
   variants:[
-   ['Kvinnan kunde få böter och bli offentligt förnedrad.','Kvinnan fick automatiskt högre lön och mer makt.','Kvinnan fick alltid kostnadsfri hjälp utan att dömas.'],
-   ['Böter och offentlig skam, till exempel skampålen.','Ett erbjudande om arbete som lärare på barnhuset.','Rätt att automatiskt rösta i riksdagen.'],
-   ['Kvinnor kunde få böter och utsättas för offentlig skam.','Boken säger att ingen ogift gravid kvinna riskerade straff.','Alla ogifta kvinnor fick samma stöd och rättigheter som män.']
+   ['Kvinnan kunde få böter och bli offentligt förnedrad.','Kvinnan kunde få kritik men aldrig något lagligt straff.','Kvinnan kunde förlora sitt arbete, men fick aldrig böter.'],
+   ['Böter och offentlig skam, till exempel skampålen.','Bara en tillsägelse från prästen, aldrig böter.','Enbart mannen som var far till barnet fick böter.'],
+   ['Kvinnor kunde få böter och utsättas för offentlig skam.','Ogift graviditet kunde skapa skam men gav aldrig böter.','Det fanns inga regler mot ogift graviditet under den här tiden.']
   ]
  },
  barnhusNeed:{
@@ -75,9 +75,9 @@ const facts={
   hint:'Vad kunde saknas i ett barns liv så att det behövde bo på barnhus?',
   q:['Varför hamnade en del barn på barnhus?','Varför behövdes barnhus i städerna?','En lapp säger att bara rika barn kom till barnhus. Vad stämmer?'],
   variants:[
-   ['Ingen ville eller kunde ta hand om barnen.','Barnen var alltid rika och valde barnhus som semester.','Alla barn måste bo på barnhus tills de fyllde arton år.'],
-   ['En del barn hade ingen som kunde ta hand om dem.','Barnhusen byggdes bara för barn vars föräldrar var rika.','Barnen flyttade dit för att slippa gå upp på morgonen.'],
-   ['Barnhusen tog hand om barn som saknade omsorg.','Barnhusen var särskilda skolor för bara rika barn.','Alla barn hade en förälder på barnhuset som arbetade där.']
+   ['Ingen ville eller kunde ta hand om barnen.','Bara barn som förlorat båda sina föräldrar fick komma in.','Barn flyttade dit enbart för att gå i en bättre skola.'],
+   ['En del barn hade ingen som kunde ta hand om dem.','Barnhusen var bara för barn som helt saknade båda föräldrarna.','Barn kunde bara komma in om föräldrarna betalade mycket pengar.'],
+   ['Barnhusen tog hand om barn som saknade omsorg.','Barnhusen var framför allt skolor för barn med fungerande hem.','Alla barn på barnhuset var föräldralösa, utan undantag.']
   ]
  },
  barnhusWork:{
@@ -86,9 +86,9 @@ const facts={
   hint:'Vad behövde de flesta barn göra från morgon till kväll?',
   q:['Vad gjorde många barn på barnhuset under dagarna?','Hur såg många barns arbetsdagar på barnhuset ut?','En anteckning säger att barnen bara lekte hela dagarna. Rätta felet.'],
   variants:[
-   ['De arbetade långa dagar med olika sysslor.','De fick för det mesta leka och vila hela dagen.','De arbetade bara en kort stund varje månad.'],
-   ['Många arbetade från morgon till kväll, sex dagar i veckan.','De var alltid lediga och bestämde själva sina tider.','Alla fick bara läsa böcker och behövde aldrig arbeta.'],
-   ['Många barn arbetade långa dagar.','Barnen gjorde inget annat än att leka på barnhuset.','Arbetet var helt frivilligt och pågick bara på söndagar.']
+   ['De arbetade långa dagar med olika sysslor.','De flesta barn gick i skolan hela dagen och behövde inte arbeta.','Arbete förekom bara någon timme per vecka.'],
+   ['Många arbetade från morgon till kväll, sex dagar i veckan.','De gick oftast i skola hela dagen och arbetade bara någon kväll.','Barnen kunde välja om de ville arbeta eller studera.'],
+   ['Många barn arbetade långa dagar.','Alla barn på barnhuset gick i skolan utan att arbeta.','Barnen fick själva bestämma vilka dagar de ville arbeta.']
   ]
  },
  barnhusLife:{
@@ -97,9 +97,9 @@ const facts={
   hint:'Tänk på maten, omsorgen och hur barnen behandlades.',
   q:['Ge ett exempel på att livet på barnhus kunde vara svårt.','Vad berättar boken om mat och behandling på barnhus?','En text säger att barn på barnhus alltid åt bra och behandlades väl. Vad stämmer?'],
   variants:[
-   ['Det kunde vara dålig mat och hårda bestraffningar.','Alla barn fick mycket god mat och kunde välja att vila hela dagen.','Barnen var alltid lediga och fick aldrig några straff.'],
-   ['Maten kunde vara dålig och barnen behandlades hårt.','Alla barn fick alltid bra mat och slapp arbeta.','Arbete och bestraffningar förekom inte på barnhus.'],
-   ['Barn kunde få dålig mat och bli hårt behandlade.','Alla barn fick alltid bra omsorg och mycket god mat.','Barnhusen lät alla barn gå hem när de själva ville.']
+   ['Det kunde vara dålig mat och hårda bestraffningar.','Barnen arbetade hårt men fick alltid god mat och trygg omsorg.','Barnen kunde få dålig mat men slapp helt bestraffningar.'],
+   ['Maten kunde vara dålig och barnen behandlades hårt.','Barnen fick alltid tillräckligt med mat men bestraffades ibland.','Barnen fick arbeta men blev aldrig straffade.'],
+   ['Barn kunde få dålig mat och bli hårt behandlade.','Barnen arbetade hårt men maten och hygienen var alltid god.','Barnen fick alltid bra mat men var tvungna att arbeta.']
   ]
  }
 };
