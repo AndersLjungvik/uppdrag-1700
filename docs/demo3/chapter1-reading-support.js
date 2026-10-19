@@ -43,7 +43,7 @@ const WORDS={
   ['egentligen','på riktigt']
  ],
  absolute:[
-  ['enväldig','Ett historiskt begrepp som du ska förklara. Tänk tillbaka på texten.'],
+  null, // 'enväldig' is the concept being tested; defining it here would reveal the answer.
   ['begränsades','fick inte bestämma lika mycket'],
   ['rätta felet','tala om vad som stämmer i stället']
  ],
