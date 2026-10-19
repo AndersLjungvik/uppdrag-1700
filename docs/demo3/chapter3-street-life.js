@@ -112,24 +112,28 @@ function story(actor){
    :[['Hatten','David Hedenquist? En soldat som vägrar lyda är en fegis.'],['Du','Han ville inte skjuta mot bönderna.'],['Hatten','Kan han inte skjuta mot en bonde, hur ska han då skjuta mot en ryss?']];
  if(actor.id==='farmers')return n>=7
    ?[['En bonde','På Norrmalm sköt soldaterna mot bönderna. Många kom inte hem.'],['Du','Ni ville att de skulle lyssna på er.'],['Bonden','Ja. Vi ville inte ha mer krig.']]
-   :[['En bonde','Nog med krig! Nog med höga skatter!'],['Du','Varför har ni kommit till Stockholm?'],['Bonden','De som startade kriget måste ta ansvar!']];
+   :[['En bonde','Nog med krig! Nog med höga skatter!'],['Du','Varför har ni kommit till Stockholm?'],['Bonden','De som startade kriget måste ta ansvar!'],
+     ['Bonden','Vi vill ha den danske kronprinsen Fredrik som tronföljare!']];
  if(actor.id==='soldiers')return n>=7
    ?[['En soldat','På Norrmalm sköts många bönder. Vi fick fruktansvärda order.'],['Du','Ville du möta dem?'],['Soldaten','Nej. Jag ville inte rikta mitt vapen mot svenska bönder.']]
    :[['En soldat','De säger att vi ska stoppa bönderna.'],['Du','Vill du det?'],['Soldaten','Jag vill hellre hem till gården, eller möta fienden. Inte våra egna.']];
  if(actor.id==='rusBeach')return [
    ['Rysk vakt','Halt! Är du dansk?'],
    ['Du','Nej, jag bor här i Sverige.'],
-   ['Rysk vakt','Vi har kommit för att avskräcka danskarna. Inga danska soldater här, tack!']
+   ['Rysk vakt','Vi är här för att avskräcka danskarna.'],
+   ['Rysk vakt','Inga danska soldater i det här lägret!']
  ];
  if(actor.id==='rusNorth')return [
    ['Rysk vakt','Stopp. Här ska vara lugnt och ordning!'],
    ['Du','Varför är era soldater här?'],
-   ['Rysk vakt','Svenskarna bad om hjälp mot danskarna. Vi vill inte ha bråk. Håll dig lugn, bonnläpp!']
+   ['Rysk vakt','Svenskarna bad om hjälp mot danskarna.'],
+   ['Rysk vakt','Inget bråk här. Håll dig lugn, bonnläpp!']
  ];
  if(actor.id==='noble')return [
    ['En herre','Se så, nu börjar det åtminstone bli ordning i riket.'],
    ['Du','Tycker du om att de ryska soldaterna är här?'],
-   ['Herren','Jag är lättad. Efter böndernas uppror vågar jag knappt tänka på mer oro.']
+   ['Herren','Jag är lättad. Böndernas uppror skrämde mig.'],
+   ['Herren','Det är skönt med soldater som håller ordning.']
  ];
  if(actor.id==='david')return [
    ['Du','Är du David Hedenquist?'],['David','Ja. Jag vägrade skjuta på bönderna i Stockholm.'],
