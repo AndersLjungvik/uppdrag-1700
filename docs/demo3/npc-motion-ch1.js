@@ -4,10 +4,11 @@
 (function(){
 'use strict';
 const ACTORS={
- cafe:{name:'Maja',work:{wide:[794,671,.92],tall:[603,872,.89]},duration:350,cycle:4650,breath:.65,angle:.045},
- palace:{name:'Amira',work:{wide:[749,658,.87],tall:[588,822,.86]},duration:410,cycle:5370,breath:.55,angle:.052},
+ cafe:{name:'Maja',work:{wide:[440,684,.92],tall:[211,875,.87]},duration:350,cycle:4650,breath:.65,angle:.045},
+ palace:{name:'Amira',work:{wide:[890,678,.86],tall:[693,911,.70]},duration:410,cycle:5370,breath:.55,angle:.052},
  quay:{name:'Jo',work:{wide:[1130,683,.45],tall:[1130,683,.45]},duration:280,cycle:3710,breath:.78,angle:.048},
- riksdag:{name:'Elin',work:{wide:[756,660,.88],tall:[598,822,.87]},duration:440,cycle:6020,breath:.50,angle:.038}
+ riksdag:{name:'Elin',work:{wide:[844,676,.86],tall:[688,906,.70]},duration:440,cycle:6020,breath:.50,angle:.038},
+ archive:{name:'Rut',work:{wide:[1035,679,.92],tall:[602,873,.86]},duration:510,cycle:6350,breath:.25,angle:.024}
 };
 let actor=null,from=0,target=0,at=0;
 const clamp=v=>Math.min(1,Math.max(0,v));
