@@ -6,7 +6,7 @@
 'use strict';
 function fact(ab,a,hint,q,choices,page){
  if(q.length!==3||choices.length!==3)throw Error('Invalid learning unit');
- return {ab,a,hint,q,variants:q.map((_,i)=>choices.map((c,j)=>(i===0?c:i===1?j===0?'Det stämmer att '+c.charAt(0).toLowerCase()+c.slice(1):c:j===0?'Rätt uppgift: '+c.charAt(0).toLowerCase()+c.slice(1):c))),page};
+ return {ab,a,hint,q,variants:q.map(()=>choices),page};
 }
 const facts={
  hatsWar:fact('8a','Hattarna ville att Sverige skulle kriga mot Ryssland.','Det var en grupp yngre riksdagsmän som ville ta tillbaka förlorad mark.',
