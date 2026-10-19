@@ -49,6 +49,17 @@ const facts={
  ['Vad vägrade soldaten David Hedenquist att göra?','Vad blev följden för David som inte lydde ordern?','En text påstår att David fick en belöning för att han sköt. Vad stämmer?'],
  ['David vägrade skjuta på bönderna och fick ett hårt straff.','David sköt mot bönderna och belönades av befälet.','David blev genast frikänd och fick lämna armén.'],'73')
 };
+// David's later levels test the *consequence* too, not merely his refusal.
+facts.david.variants[1]=[
+ 'Han dömdes till döden. Straffet ändrades till livstids straffarbete på Marstrands fästning.',
+ 'Han fick lovord och kunde lämna armén direkt.',
+ 'Han fick bara en tillsägelse och behövde inte avtjäna ett straff.'
+];
+facts.david.variants[2]=[
+ 'Han vägrade skjuta mot bönderna och straffades. Dödsstraffet ändrades till livstids straffarbete.',
+ 'Han sköt mot bönderna och fick en belöning.',
+ 'Han vägrade men straffades aldrig för det.'
+];
 const runs=[
  {p:'cafe',r:0,f:[],who:'Maja',
  hello:'Det är något oroligt i staden. Folk grälar om krig och fred.',
