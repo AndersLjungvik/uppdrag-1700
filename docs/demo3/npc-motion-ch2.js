@@ -8,7 +8,7 @@ const ACTORS={
  palace:{name:'Amira',work:{wide:[890,678,.86],tall:[684,911,.60]},duration:410,cycle:5370,breath:.55,angle:.052},
  quay:{name:'Jo',work:{wide:[1130,683,.45],tall:[1130,683,.45]},duration:280,cycle:3710,breath:.78,angle:.048},
  riksdag:{name:'Elin',work:{wide:[844,676,.86],tall:[687,906,.60]},duration:440,cycle:6020,breath:.50,angle:.038},
- church:{name:'Olof',work:{wide:[849,677,.87],tall:[654,911,.62]},duration:420,cycle:5200,breath:.35,angle:.039},
+ church:{name:'Olof',work:{wide:[756,689,.84],tall:[366,970,.66]},duration:420,cycle:5200,breath:.35,angle:.039},
  barnhus:{name:'Siri',work:{wide:[899,678,.87],tall:[661,911,.59]},duration:320,cycle:3970,breath:.45,angle:.044},
  archive:{name:'Rut',work:{wide:[1035,679,.92],tall:[686,899,.57]},duration:510,cycle:6350,breath:.25,angle:.024}
 };
