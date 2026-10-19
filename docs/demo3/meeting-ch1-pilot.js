@@ -63,6 +63,25 @@
   #meetingDialogue .ch1MeetingChoices button:first-child{background:#e4d1aa}
   #meetingDialogue .ch1MeetingChoices button:last-child{background:transparent}
   `;
+
+  styles.textContent+=`
+  #interiorView #meetingDialogue[data-paper-room]{max-width:none!important;box-sizing:border-box!important;
+    padding:22px 34px!important;overflow-wrap:break-word;line-height:1.35}
+  #interiorView #meetingDialogue[data-paper-room] #meetingLine{font:18px/1.42 Georgia,serif!important;
+    margin:0!important;white-space:normal;overflow-wrap:break-word}
+  #interiorView #meetingDialogue[data-paper-room] .ch1MeetingChoices{margin-top:16px;justify-content:center}
+  #interiorView #meetingDialogue[data-paper-room] .ch1MeetingChoices button{
+    min-width:118px;max-width:100%;white-space:normal;font:15px/1.3 Georgia,serif}
+  @media(max-width:640px){
+    #interiorView #meetingDialogue[data-paper-room]{padding:18px 26px!important}
+    #interiorView #meetingDialogue[data-paper-room] #meetingLine{font:16px/1.36 Georgia,serif!important}
+    #interiorView #meetingDialogue[data-paper-room] .ch1MeetingChoices button{font-size:14px}
+  }
+  @media(max-height:440px){
+    #interiorView #meetingDialogue[data-paper-room]{padding:12px 22px!important}
+    #interiorView #meetingDialogue[data-paper-room] #meetingLine{font-size:14px!important}
+  }
+  `;
   document.head.append(styles);
   const layer=document.createElement('canvas');layer.id='meetingLayer';layer.setAttribute('aria-hidden','true');
   const person=document.createElement('button');person.id='meetingPerson';person.type='button';person.hidden=true;
@@ -197,12 +216,33 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     positionDialogue();
     lastPaint=now;
   }
+  // One quiet and fully legible paper bubble per line. Its text and shape do NOT
+  // follow breathing/turn animations. Re-layout only on a new line or resize.
   function positionDialogue(){
-    if(!dialogue||!geometry)return;
-    const geo=geometry,p=geo.p;
-    const heads=geo.poses.slice(0,2).map(a=>({x:geo.left+p.x+a[0]*p.scale,y:geo.top+p.y+(a[1]-305*a[2])*p.scale,s:a[2]*p.scale}));
-    const speakerIndex=dialogue.cast.lines[dialogue.index][0]==='Du'?0:1;
-    window.UPPDRAG_PAPER_DIALOGUES?.placeRoomBubble?.({bubble:panel,tail:dialogueTail,mode:'speech',geometry:geo,heads,speakerIndex});
+    if(!dialogue||!geometry||dialogue.bubblePlaced)return;
+    const geo=geometry,wide=Math.min(540,geo.w-24),maxHeight=geo.h-20;
+    if(wide<140||maxHeight<85)return;
+    const speaker=dialogue.cast.lines[dialogue.index][0];
+    const speakerIndex=speaker==='Du'?0:1,body=geo.poses[speakerIndex];
+    const p=geo.p,head={x:geo.left+p.x+body[0]*p.scale,
+      y:geo.top+p.y+(body[1]-305*body[2])*p.scale};
+    panel.dataset.paperRoom='speech';
+    panel.style.width=wide+'px';
+    panel.style.height='auto';
+    panel.style.maxHeight=maxHeight+'px';
+    panel.style.overflowX='hidden';
+    panel.style.overflowY='auto';
+    // Leave a generous margin so the papery outline never touches the text.
+    const measured=panel.getBoundingClientRect();
+    const actualHeight=Math.min(maxHeight,Math.max(72,measured.height));
+    const box={x:geo.left+(geo.w-wide)/2,
+      y:geo.top+Math.max(10,Math.min(geo.h-actualHeight-10,geo.h*.12)),
+      w:wide,h:actualHeight};
+    Object.assign(panel.style,{left:box.x+'px',top:box.y+'px'});
+    const tip={x:Math.max(box.x+wide*.20,Math.min(box.x+wide*.80,head.x)),
+      y:Math.max(box.y+actualHeight+12,Math.min(geo.top+geo.h-12,head.y+20))};
+    window.UPPDRAG_PAPER_DIALOGUES?.drawSpeech?.(dialogueTail,{box,tip,round:.85});
+    dialogue.bubblePlaced=true;
   }
   function closeTalk(restore=true){
     if(!dialogue)return false;
@@ -217,6 +257,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   function showLine(){
     if(!dialogue)return;
     const [speaker,text]=dialogue.cast.lines[dialogue.index];
+    dialogue.bubblePlaced=false;
     panel.querySelector('#meetingLine').textContent=text;
     panel.querySelector('.ch1MeetingChoices')?.remove();
     if(dialogue.special&&dialogue.index===dialogue.cast.lines.length-1){
@@ -343,7 +384,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
       if(!animating)speechEnd=0;drawPeople(now);
     }
   }
-  new ResizeObserver(()=>{lastPaint=-Infinity;if(interior&&!voyage)drawPeople(performance.now());}).observe(roomCanvas);
+  new ResizeObserver(()=>{lastPaint=-Infinity;if(dialogue)dialogue.bubblePlaced=false;if(interior&&!voyage)drawPeople(performance.now());}).observe(roomCanvas);
   motion.addEventListener('change',()=>{lastPaint=-Infinity;});
   window.addEventListener('uppdrag-paper-fibres-ready',()=>{lastPaint=-Infinity;if(interior&&!voyage)drawPeople(performance.now());});
   let mapHeading=-Math.PI/2,lastMapPlayer=null;
