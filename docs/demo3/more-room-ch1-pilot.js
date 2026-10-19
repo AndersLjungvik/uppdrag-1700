@@ -7,7 +7,7 @@
   const approved=window.UPPDRAG_ROOM_ART;
   if(!approved)throw new Error('Grundrummen måste laddas först.');
   const extraNames={barnhus:'Barnhuset',workshop:'Verkstäderna',science:'Vetenskapens hus',
-    opera:'Operan',palace:'Slottet',homes:'Bostadskvarteren',farm:'Byn',manor:'Herrgården',
+    opera:'Operan',palace:'Slottet',riksdag:'Riksdagshuset',homes:'Bostadskvarteren',farm:'Byn',manor:'Herrgården',
     fort:'Fästningen',marstrandHarbor:'Hamnen på Marstrand',townShop:'Stadens hus',
     gustavia:'Gustavia',colonyHarbor:'Hamnen i Gustavia',trading:'Handelsplatsen'};
   const descriptions={
@@ -15,7 +15,8 @@
     workshop:'Vävstol, verktyg och en arbetsbänk med hyvel och virke.',
     science:'Växtprover, skåp med glas och ett undersökningsbord.',
     opera:'En liten scen med ridåer, notställ och sittplatser.',
-    palace:'En sal med porträtt, hög stol och matta.',
+    palace:'En sal med porträtt, hög stol och Amiras skrivbord.',
+    riksdag:'En stor sammanträdessal med bänkar, talarstol och protokollbord.',
     homes:'Ett enkelt bostadsrum med eldstad, bänk och köksbord.',
     farm:'En bondstuga med redskap, säckar och ett bord med en korg.',
     manor:'Ett arbetsrum med skåp, fönster och skrivbord.',
@@ -207,6 +208,28 @@
         scroll(g,x+w*.57,y-29,.67);
         material(g,'ink',x+w-48,y-17,.62);
         quill(g,x+w-51,y-54);
+      });
+    }else if(id==='riksdag'){
+      // No reused throne room: benches, raised speakers' desk and the assembly record.
+      // All surfaces use the game's established cut-paper material functions.
+      const ox=tall?119:690;
+      for(let i=0;i<3;i++){
+        cut(g,ox+i*124,floor-367,105,218,'wood');
+        cut(g,ox+10+i*124,floor-353,85,192,'green');
+        cut(g,ox+42+i*124,floor-352,8,192,'wood',false);
+      }
+      cut(g,ox-16,floor-151,418,19,'slate');
+      cut(g,bx+215,floor-187,139,181,'dark');
+      cut(g,bx+227,floor-200,114,40,'wood');
+      cut(g,bx+240,floor-217,89,16,'paper');
+      lines(g,bx+256,floor-206,58,2,8);
+      bench(g,tall?94:243,tall?899:675,tall?240:215);
+      bench(g,tall?408:913,tall?899:675,tall?220:204);
+      tabletop(g,T,(x,y,w)=>{
+        flatBook(g,x+16,y-29,Math.min(158,w*.48));
+        scroll(g,x+w*.53,y-28,.72);
+        material(g,'ink',x+w-50,y-18,.65);
+        quill(g,x+w-54,y-50);
       });
     }else if(id==='homes'){
       windowPane(g,bx,floor-339,170,194);stove(g,bx+265,feet,.93);
