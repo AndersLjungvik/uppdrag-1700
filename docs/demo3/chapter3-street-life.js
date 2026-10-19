@@ -36,7 +36,8 @@ css.textContent=[
  '@media(max-width:550px){#ch3StreetDialogue{width:min(244px,calc(100% - 18px));padding:12px 17px 14px}#ch3StreetDialogue .ch3Words{font-size:15px}}'
 ].join('\n');document.head.append(css);
 const speaker=box.querySelector('.ch3Speaker'),speech=box.querySelector('.ch3Words');
-let active=null,lineIndex=0,viewport=null,enteredAt=performance.now(),lastPhase=1;
+let active=null,lineIndex=0,viewport=null,enteredAt=performance.now(),lastPhase=1,openedAt=0;
+const talkPaused={farmers:0,soldiers:0};
 function step(){const state=window.UPPDRAG_CH3_PILOT?.state;return state?.complete?99:Math.max(0,state?.step||0);}
 function phase(){const n=step();return n<3?1:n<7?2:3;}
 function visible(region,id){
@@ -45,10 +46,10 @@ function visible(region,id){
 }
 function position(actor,now=performance.now()){
  const cur=phase();
- if(cur!==lastPhase){enteredAt=now;lastPhase=cur;}
+ if(cur!==lastPhase){enteredAt=now;lastPhase=cur;talkPaused.farmers=0;talkPaused.soldiers=0;}
  if(active?.id===actor.id)return {...actor,x:active.x,y:active.y,moving:false};
  const moving=!reduced?.matches;
- const elapsed=Math.max(0,now-enteredAt);
+ const elapsed=Math.max(0,now-enteredAt-(talkPaused[actor.id]||0));
  if(actor.role==='farmer'){
    // March from the printshop road into the square; then remain for discussion.
    const fraction=cur===2?(moving?Math.min(1,elapsed/37000):0):1;
@@ -123,11 +124,16 @@ function show(){
 function open(actor){
  if(!actor||active||!viewport)return false;
  const real=find(viewport.region,actor.id);if(!real)return false;
- active=real;lineIndex=0;
+ active=real;lineIndex=0;openedAt=performance.now();
  window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
  return show();
 }
-function close(){if(!active)return false;active=null;lineIndex=0;box.hidden=true;return true;}
+function close(){
+ if(!active)return false;
+ if(active.id==='farmers'||active.id==='soldiers')
+   talkPaused[active.id]+=Math.max(0,performance.now()-openedAt);
+ active=null;lineIndex=0;box.hidden=true;return true;
+}
 function next(){if(!active)return false;lineIndex++;return show();}
 box.addEventListener('click',()=>{next();});
 window.addEventListener('keydown',e=>{
