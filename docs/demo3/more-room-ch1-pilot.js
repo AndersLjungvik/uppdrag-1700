@@ -219,13 +219,16 @@
     }else if(id==='riksdag'){
       // Parliament: four distinct suspended estate banners, benches, tall
       // windows and the raised protocol lectern (no throne or royal portrait).
-      const banners=tall?[235,351,467,583]:[324,508,692,876];
+      // Hanging paper banners belong on the clear wall, never behind or
+      // across window openings. The wide room has free wall at x=238–672;
+      // the portrait room has free wall at x=486–716.
+      const banners=tall?[489,543,597,651]:[240,348,456,564];
       banners.forEach((x,i)=>{
-        const y=tall?92:71,w=tall?77:116,h=tall?150:176;
-        poly(g,[[x,y],[x+w,y],[x+w,y+h-29],[x+w*.5,y+h],[x,y+h-29]],i%2?'slate':'green');
-        cut(g,x+13,y+17,w-26,10,'paper',false);
-        oval(g,x+w*.5,y+81,tall?17:24,tall?21:28,'paper');
-        oval(g,x+w*.5,y+81,tall?10:14,tall?13:18,'red');
+        const y=tall?55:63,w=tall?47:89,h=tall?108:140;
+        poly(g,[[x,y],[x+w,y],[x+w,y+h-20],[x+w*.5,y+h],[x,y+h-20]],i%2?'slate':'green');
+        cut(g,x+9,y+12,w-18,6,'paper',false);
+        oval(g,x+w*.5,y+h*.48,tall?10:15,tall?13:18,'paper');
+        oval(g,x+w*.5,y+h*.48,tall?6:9,tall?8:11,'red');
       });
       // No reused throne room: benches, raised speakers' desk and the assembly record.
       const ox=tall?119:690;
