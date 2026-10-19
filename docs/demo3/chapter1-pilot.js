@@ -4,10 +4,10 @@
 const storage='uppdrag1700.ch1-real-world.20261019.v11';
 const facts={
 queen:{ab:'2a',a:'Ulrika Eleonora',answers:['ulrika eleonora'],hint:'Hennes namn börjar med U.',q:['Vilken drottning efterträdde Karl XII?','Vad hette Karl XII:s syster som övertog tronen?','En skrivare påstår att drottningen hette Fredrik. Vad hette hon egentligen?']},
-absolute:{ab:'2b',a:'Drottningen var inte enväldig: hon kunde inte bestämma ensam utan delade makten med riksrådet och riksdagen.',hint:'Vem mer än drottningen hade makt?',q:['Vad menas med att drottningen inte var enväldig?','Vilken begränsning hade Ulrika Eleonora jämfört med enväldiga kungar?','En anteckning säger att Ulrika Eleonora bestämde allt ensam. Rätta felet.']},
+absolute:{ab:'2b',a:'Drottningen var inte enväldig: hon kunde inte bestämma ensam utan delade makten med riksrådet och riksdagen.',hint:'Vem mer än drottningen hade makt?',q:['Vad menas med att drottningen inte var enväldig?','Hur begränsades Ulrika Eleonoras makt jämfört med tidigare envälde?','En anteckning säger att Ulrika Eleonora bestämde allt ensam. Rätta felet.']},
 freedom:{ab:'1',a:'Det tidigare enväldet upphörde och riksdagen och riksrådet fick mer makt. Men olika grupper hade fortfarande olika mycket inflytande.',hint:'Tänk på vem som fick bestämma före och efter 1719.',q:['Varför kallas tiden 1719–1772 för frihetstiden?','Vad förändrades i styret när frihetstiden började?','Varför var makten friare för vissa, men inte lika för alla?']},
 trade:{ab:'3',a:'Ostindiska kompaniet skulle handla med Asien, särskilt Kina, och importera te, siden och porslin till Sverige.',hint:'Vad tog handelsfartygen hem från Kina?',q:['Vilken uppgift hade Ostindiska kompaniet?','Varför seglade Ostindiska kompaniets fartyg från Göteborg till Kina?','Ett brev säger att kompaniets uppdrag var att kriga mot Kina. Vad stämmer i stället?']},
-law:{ab:'4a',a:'Grundlagen reglerade hur makten skulle delas och hur Sverige skulle styras.',hint:'Vad handlade den nya maktfördelningen om?',q:['Vad skulle den nya grundlagen innehålla tydliga regler för?','Varför skrevs en ny grundlag efter enväldet?','En skrivare säger att grundlagen gav kungen oinskränkt makt. Rätta påståendet.']},
+law:{ab:'4a',a:'Grundlagen reglerade hur makten skulle delas och hur Sverige skulle styras.',hint:'Vad handlade den nya maktfördelningen om?',q:['Vad skulle den nya grundlagen innehålla tydliga regler för?','Varför skrevs en ny grundlag efter enväldet?','En skrivare säger att grundlagen gav regenten oinskränkt makt. Rätta påståendet.']},
 change:{ab:'4b',a:'Enligt grundbokens text kunde den bara ändras om hela riksdagen var överens.',hint:'Det krävdes särskild enighet.',q:['När kunde grundlagen ändras enligt grundboken?','Varför kunde inte en ensam riksdagsman ändra grundlagen?','En adelsman säger att han själv får ändra grundlagen. Vilket krav har han glömt?']},
 nobles:{ab:'4c',a:'Adeln hade störst makt. Viktiga beslut togs på särskilda möten där bönderna inte fick vara med.',answers:['adeln','adel'],hint:'Ett av de fyra stånden.',q:['Vilket stånd hade mest makt i riksdagen?','Vilket stånd dominerade de viktiga besluten?','Hur kunde adeln ha störst inflytande trots att fyra stånd fanns?']}
 };
@@ -211,7 +211,7 @@ function drawMemory(){
  const f=item(),id=current().f[s.index],short=!!f.answers&&!(current().r===2&&id==='nobles');
  const fallback=window.UPPDRAG_CH1_CLOSEUPS?.images?.[s.archiveActive?'cafe':current().p];
  if(!fallback||!fallback.includes('<svg'))throw new Error('Reservbilden saknas för '+current().p);
- const choices=short?null:window.UPPDRAG_CH1_CHOICES?.optionsFor(id,current().r);
+ const choices=short?null:window.UPPDRAG_CH1_CHOICES?.optionsFor(id,current().r,s.trial);
  if(!short&&!choices)throw new Error('Granskade alternativ saknas för '+id+' på '+current().r);
  let sheet='<p class="ch1Count">'+(s.index+1)+' / '+current().f.length+'</p>';
  if(s.mode==='question'||s.mode==='choices')sheet+='<h2 class="ch1Prompt">'+esc(f.q[current().r])+'</h2>';
@@ -293,7 +293,7 @@ function enterArchive(){
 }
 function drawArchive(){
  const id=archiveFact(),f=facts[id],short=archiveShort(id),
-  spec=!short?window.UPPDRAG_CH1_CHOICES?.optionsFor(id,0):null;
+  spec=!short?window.UPPDRAG_CH1_CHOICES?.optionsFor(id,0,s.archiveRounds):null;
  if(!f)throw new Error('Rut saknar fråga');
  const fallback=window.UPPDRAG_CH1_CLOSEUPS?.images?.cafe||'';
  let sheet='<p class="ch1Count">Ruts arkiv · '+(s.archiveIndex+1)+' / '+s.archiveList.length+'</p>';
@@ -447,7 +447,7 @@ function drawModal(){
  h+=short?'<button class="primary" data-action="short">Svara</button><button data-action="skip">Jag minns inte</button>':'<button class="primary" data-action="choices">Jag har tänkt</button>';
  if(!s.hint)h+='<button data-action="hint">Visa ledtråd</button>';
  }else if(s.mode==='choices'){
- const list=window.UPPDRAG_CH1_CHOICES?.optionsFor(current().f[s.index],current().r);
+ const list=window.UPPDRAG_CH1_CHOICES?.optionsFor(current().f[s.index],current().r,s.trial);
  if(!list)throw new Error('Alternativ saknas');
  h+='<div class="ch1Options">';
  list.options.forEach((v,i)=>h+='<button class="ch1Option" data-action="choice" data-index="'+i+'">'+esc(v)+'</button>');
@@ -494,7 +494,7 @@ modal.addEventListener('click',e=>{
  }
  if(act==='archive-choice'){
    if(!s.archiveActive||s.archiveMode!=='choices')return;
-   const o=window.UPPDRAG_CH1_CHOICES.optionsFor(archiveFact(),0);
+   const o=window.UPPDRAG_CH1_CHOICES.optionsFor(archiveFact(),0,s.archiveRounds);
    const ix=Number(e.target.closest('[data-index]')?.dataset.index);
    if(Number.isInteger(ix)&&ix>=0&&ix<o.options.length)archiveMark(ix===o.correctIndex);
    return;
@@ -507,12 +507,12 @@ modal.addEventListener('click',e=>{
  if(act==='skip'){s.draft='';mark(false);return}
  if(act==='choices'){
    const questionId=current().f[s.index];
-   if(!window.UPPDRAG_CH1_CHOICES?.optionsFor(questionId,current().r))return;
+   if(!window.UPPDRAG_CH1_CHOICES?.optionsFor(questionId,current().r,s.trial))return;
    s.mode='choices';persist();if(memoryVisible)drawMemory();else drawModal();return;
  }
  if(act==='choice'){
    if(s.mode!=='choices')return;
-   const questionId=current().f[s.index],set=window.UPPDRAG_CH1_CHOICES.optionsFor(questionId,current().r);
+   const questionId=current().f[s.index],set=window.UPPDRAG_CH1_CHOICES.optionsFor(questionId,current().r,s.trial);
    const index=Number(e.target.closest('[data-index]')?.dataset.index);
    if(!Number.isInteger(index)||index<0||index>=set.options.length)return;
    mark(index===set.correctIndex,{supported:true,response:set.options[index]});return;
