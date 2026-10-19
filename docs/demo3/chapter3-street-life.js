@@ -176,51 +176,127 @@ function story(actor){
  ];
  return [];
 }
-function positionPanel(actor,who){
- if(!viewport)return;
- const {camera,layout,player}=viewport,target=who==='Du'&&player?player:position(actor);
- const sx=layout.w/2+(target.x-camera.x)*layout.scale;
- const sy=layout.h/2+(target.y-camera.y)*layout.scale;
- box.hidden=false;
- const bounds=box.getBoundingClientRect();
- const width=Math.min(bounds.width,layout.w-20),height=Math.min(bounds.height,layout.h-18);
- const left=Math.max(9,Math.min(layout.w-width-9,sx-width*.52));
- const top=Math.max(8,Math.min(layout.h-height-8,sy-height-24));
- box.style.left=left+'px';box.style.top=top+'px';
- box.style.setProperty('--tail-x',Math.max(24,Math.min(width-24,sx-left))+'px');
+// Same speaker-anchored, cut-white-paper speech approach as living-dialogues.js.
+const clamp=(n,lo,hi)=>Math.max(lo,Math.min(Math.max(lo,hi),n));
+const overlap=(a,b)=>Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x))
+ *Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y));
+function screenPoint(pos){
+ if(!viewport||!pos)return{x:0,y:0};
+ const {camera,layout}=viewport;
+ return{x:layout.w/2+(pos.x-camera.x)*layout.scale,
+        y:layout.h/2+(pos.y-camera.y)*layout.scale};
 }
-function show(){
+function putSpeech(a,who){
+ if(!viewport||!a)return;
+ const {layout,player}=viewport;
+ const target=who==='Du'&&player?player:find(viewport.region,a.id)||a;
+ const anchor=screenPoint(target),playerHead=screenPoint(player||target);
+ const npcHead=screenPoint(find(viewport.region,a.id)||a);
+ const greeting=active?.mode==='greeting';
+ const text=speech.textContent||'';
+ const width=greeting?94:Math.min(layout.w-24,Math.max(123,Math.min(276,148+text.length*1.1)));
+ box.style.width=width+'px';box.style.minHeight=greeting?'58px':'';
+ root.hidden=false;
+ const bounds=box.getBoundingClientRect(),height=Math.max(50,bounds.height);
+ const minX=12,maxX=Math.max(minX,layout.w-width-12);
+ const minY=9,maxY=Math.max(minY,layout.h-height-10);
+ const bodies=[playerHead,npcHead].map(p=>({x:p.x-25,y:p.y-25,w:50,h:50}));
+ const points=[
+  {x:anchor.x-width*.5,y:Math.min(playerHead.y,npcHead.y)-height-28},
+  {x:anchor.x+32,y:anchor.y-height*.5},
+  {x:anchor.x-width-32,y:anchor.y-height*.5},
+  {x:anchor.x-width*.5,y:Math.max(playerHead.y,npcHead.y)+27}
+ ].concat([{x:minX,y:minY},{x:maxX,y:minY},{x:minX,y:maxY},{x:maxX,y:maxY}])
+  .map(q=>({x:clamp(q.x,minX,maxX),y:clamp(q.y,minY,maxY),w:width,h:height}));
+ for(const q of points)q.score=bodies.reduce((n,v)=>n+overlap(q,v)*26,0)
+  +Math.hypot(q.x+width*.5-anchor.x,q.y+height*.7-anchor.y)*.23;
+ points.sort((x,y)=>x.score-y.score);
+ const best=points[0];
+ box.style.left=best.x+'px';box.style.top=best.y+'px';
+ const toward=who==='Du'?npcHead:playerHead,ang=Math.atan2(toward.y-anchor.y,toward.x-anchor.x);
+ const tip={x:anchor.x+Math.cos(ang)*12*layout.scale,y:anchor.y+Math.sin(ang)*12*layout.scale};
+ window.UPPDRAG_PAPER_DIALOGUES?.drawSpeech(tail,{box:best,tip,round:.69});
+}
+function hideBubble(){
+ root.hidden=true;tail.replaceChildren();
+}
+function stopTeaser(now=performance.now()){
+ if(!teaser)return;
+ if(teaser.role==='civil')window.UPPDRAG_WORLD_LIFE?.release?.(teaser.sourceId);
+ if(CAST[teaser.id])talkPaused[teaser.id]=(talkPaused[teaser.id]||0)+Math.max(0,now-teaser.shownAt);
+ teaser=null;
+ if(!active)hideBubble();
+}
+function shortThought(actor){
+ if(actor.role==='dog')return 'Voff!';
+ if(actor.role==='farmer')return 'Ner med skatterna! Nog med krig!';
+ if(actor.role==='soldier')return 'Jag vill inte skjuta mot bönderna!';
+ const raw=actor.role==='civil'?humanThought(actor):
+   (story(actor).find(line=>line[0]!=='Du')||[])[1]||'';
+ const first=raw.match(/^.{1,85}?(?:[.!?](?=\s|$)|$)/)?.[0]||raw.slice(0,85);
+ return first.length>85?first.slice(0,81)+'…':first;
+}
+function showLine(){
  if(!active)return false;
- const lines=story(active);
- if(lineIndex>=lines.length)return close();
- const [who,text]=lines[lineIndex];speaker.textContent=who;speech.textContent=text;
- box.setAttribute('aria-label',who+': '+text+' Klicka för nästa replik.');
- teaser=null;box.hidden=false;positionPanel(active,who);
+ const lines=active.lines;
+ if(active.mode==='greeting'){
+   speaker.textContent='Du';speech.textContent='Hej!';
+ }else{
+   if(lineIndex>=lines.length)return close();
+   const [who,text]=lines[lineIndex];
+   speaker.textContent=who;speech.textContent=text;
+ }
+ box.setAttribute('aria-label',speaker.textContent+': '+speech.textContent+'. Klicka för nästa replik.');
+ root.hidden=false;putSpeech(active,speaker.textContent);
  box.focus({preventScroll:true});return true;
 }
 function open(actor){
  if(!actor||active||!viewport)return false;
- const real=find(viewport.region,actor.id);if(!real)return false;
- active=real;teaser=null;lineIndex=0;openedAt=performance.now();
+ const real=find(viewport.region,actor.id);
+ if(!real)return false;
+ const now=performance.now();
+ if(teaser)stopTeaser(now);
+ let source=real;
+ if(real.role==='civil'){
+   const stopped=window.UPPDRAG_WORLD_LIFE?.freeze?.(real.sourceId);
+   if(stopped)source={...real,x:stopped.x,y:stopped.y};
+ }
+ const sequence=story(source);
+ if(!sequence.length)return false;
+ const startWithPlayer=sequence[0][0]==='Du';
+ active={...source,lines:sequence,mode:startWithPlayer?'lines':'greeting'};
+ lineIndex=0;openedAt=now;arrivalCandidate=null;
  window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
- return show();
+ if(!startWithPlayer&&source.role==='dog')active.mode='lines';
+ return showLine();
+}
+function close(){
+ const now=performance.now();
+ if(!active)return false;
+ const speakerActor=active;
+ if(speakerActor.role==='civil'){
+   window.UPPDRAG_WORLD_LIFE?.release?.(speakerActor.sourceId);
+   encounterCounts.set(speakerActor.sourceId,(encounterCounts.get(speakerActor.sourceId)||0)+1);
+ }else if(CAST[speakerActor.id]){
+   talkPaused[speakerActor.id]=(talkPaused[speakerActor.id]||0)+Math.max(0,now-openedAt);
+ }
+ active=null;lineIndex=0;arrivalCandidate=null;teaserHiddenUntil=now+1700;
+ lastCall=now;spokenRecently.set(speakerActor.id,now);
+ hideBubble();return true;
+}
+function next(){
+ if(!active)return false;
+ if(active.mode==='greeting'){active.mode='lines';return showLine();}
+ lineIndex++;return showLine();
 }
 function suspend(){
  if(active)close();
- teaser=null;box.hidden=true;
+ stopTeaser();arrivalCandidate=null;hideBubble();
 }
-function close(){
- if(!active)return false;
- talkPaused[active.id]=(talkPaused[active.id]||0)+Math.max(0,performance.now()-openedAt);
- active=null;lineIndex=0;teaser=null;teaserHiddenUntil=performance.now()+1900;box.hidden=true;return true;
-}
-function next(){if(!active)return false;lineIndex++;return show();}
-box.addEventListener('click',()=>{
+box.addEventListener('click',event=>{
+ event.preventDefault();event.stopPropagation();
  if(active)next();
- else if(teaser&&viewport?.region){
-   const available=find(viewport.region,teaser.id);
-   if(available)open(available);
- }
+ else if(teaser&&viewport?.region)open(teaser);
 });
 window.addEventListener('keydown',e=>{
  if(!active||e.defaultPrevented||e.key!=='Escape')return;
