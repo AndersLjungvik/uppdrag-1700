@@ -284,6 +284,115 @@
     roomFurniture(g,id,tall,floor);g.restore();
     return {x:ox+exit.x*scale,y:oy+exit.y*scale,w:exit.w*scale,h:(exit.h+15)*scale};
   }
+
+  // Nearviews are painted with the *same* cut-paper primitives and source-image
+  // pigment/fibres as the rooms. A memory scene is not a flat SVG or brown cover.
+  function renderMemoryCloseup(canvas,placeId){
+    if(!['cafe','palace','quay','riksdag'].includes(placeId))return false;
+    const bounds=canvas.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
+    if(!bounds.width||!bounds.height)return false;
+    const W=Math.round(bounds.width*d),H=Math.round(bounds.height*d);
+    if(canvas.width!==W)canvas.width=W;if(canvas.height!==H)canvas.height=H;
+    const g=canvas.getContext('2d');
+    if(!g)return false;
+    g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,bounds.width,bounds.height);
+    g.save();g.scale(bounds.width/1280,bounds.height/720);
+    const rect=(x,y,w,h,t)=>cut(g,x,y,w,h,t,false);
+    const plank=(y,n=5)=>{for(let i=0;i<n;i++){
+      rect(0,y+i*88+(i%2?2:0),1280,5,'dark');
+      for(let k=0;k<5;k++)rect(k*275+(i%3)*41,y+15+i*88,3,63,'dark');
+    }};
+    const documentSheet=(x,y,w,h)=>{
+      g.save();g.translate(x,y);
+      poly(g,[[4,6],[w*.4,0],[w-3,7],[w,h*.48],[w-5,h],[w*.43,h+2],[-4,h-2],[-2,h*.36]],'paper');
+      cut(g,22,21,w*.55,5,'ink',false);
+      lines(g,22,58,w-59,6,22);
+      oval(g,w-57,h-53,30,29,'red');oval(g,w-57,h-53,15,14,'wood');
+      g.restore();
+    };
+    const rope=(x,y,r)=>{
+      g.save();g.lineWidth=13;g.strokeStyle=mat(g,'paper');
+      for(let i=0;i<4;i++){g.beginPath();g.ellipse(x,y-i*6,r-i*4,r*.43-i*1.5,-.2,0,Math.PI*2);g.stroke()}
+      g.restore();
+    };
+    if(placeId==='palace'){
+      rect(0,0,1280,720,'wall');
+      // Part of Amira's royal room: tapestry, framed portrait, deep wooden desk.
+      cut(g,100,3,354,259,'dark');
+      cut(g,119,17,318,222,'paper');
+      cut(g,128,27,298,199,'green');
+      oval(g,279,116,47,53,'paper');
+      poly(g,[[190,220],[224,157],[326,155],[373,222]],'red');
+      cut(g,0,270,1280,19,'wood');
+      cut(g,0,303,1280,417,'wood');
+      plank(339,5);
+      // Desk is a close look at the actual papers visible beside Amira.
+      cut(g,38,414,384,255,'dark');
+      cut(g,55,423,352,222,'red');
+      documentSheet(484,343,372,292);
+      material(g,'ink',1115,435,2.1);
+      quill(g,1127,437);
+      oval(g,175,558,64,61,'red');oval(g,175,558,32,31,'wood');
+      place(g,854,145,1.4,()=>{
+        cut(g,0,0,172,155,'wood');
+        cut(g,24,22,124,110,'red');
+        oval(g,85,42,25,18,'paper');
+      });
+    }else if(placeId==='riksdag'){
+      rect(0,0,1280,720,'wall');
+      // Three ranks of benches and the record-keeper's desk distinguish this
+      // from the royal room (no portraits, throne, wax seal or tapestry).
+      for(let i=0;i<4;i++){
+        const x=35+i*314;
+        cut(g,x,68,270,210,'wood');
+        cut(g,x+14,78,240,179,'green');
+        cut(g,x+117,83,10,165,'wood',false);
+      }
+      cut(g,0,282,1280,19,'slate');
+      for(let i=0;i<3;i++){
+        const y=320+i*73;
+        cut(g,0,y,1280,21,i%2?'dark':'wood');
+        cut(g,20,y+24,1240,37,'wood');
+      }
+      rect(0,525,1280,195,'wood');plank(547,2);
+      documentSheet(456,343,405,296);
+      cut(g,955,256,241,270,'dark');
+      cut(g,971,268,210,58,'wood');
+      cut(g,999,289,155,16,'paper');
+      material(g,'ink',1070,431,2.0);
+      quill(g,1083,429);
+      // Assembly benches and raised table are deliberately distinct.
+    }else if(placeId==='quay'){
+      rect(0,0,1280,720,'glass');
+      // Real harbour sky, open water, ship's sail and rough cut planks.
+      cut(g,0,177,1280,251,'green');
+      for(const y of [221,265,311,371])rect(0,y,1280,3,'paper');
+      cut(g,888,12,20,358,'wood');
+      poly(g,[[902,28],[1038,291],[911,291]],'paper');
+      cut(g,0,397,1280,323,'wood');plank(418,4);
+      crate(g,929,653,245,233);
+      barrel(g,279,656,304,382);
+      material(g,'ink',1114,506,1.3);
+      rope(445,561,95);
+      documentSheet(497,426,274,209);
+      // Actual loading ropes, not an office desk or palace document.
+    }else{
+      rect(0,0,1280,720,'wall');
+      windowPane(g,55,52,304,263);
+      cut(g,404,0,20,340,'wood');
+      cut(g,435,53,316,261,'paper');
+      noticeBoard(g,494,67,213,197);
+      rect(0,348,1280,372,'wood');plank(384,4);
+      documentSheet(445,368,375,265);
+      cup(g,208,485,2.5);
+      bowl(g,997,496,2.0);
+      cut(g,924,540,201,128,'paper');
+      lines(g,948,574,153,4,20);
+    }
+    g.restore();
+    return true;
+  }
+
   function render(canvas,id){
     if(Object.prototype.hasOwnProperty.call(approved.names,id))return approved.render(canvas,id);
     if(!extraNames[id])throw new Error('Okänd interiör: '+id);
@@ -291,7 +400,7 @@
     const w=Math.round(r.width*d),h=Math.round(r.height*d);if(canvas.width!==w)canvas.width=w;if(canvas.height!==h)canvas.height=h;
     const g=canvas.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,r.width,r.height);return newScene(g,id,r.width,r.height);
   }
-  window.UPPDRAG_ROOM_ART={names:{...approved.names,...extraNames},descriptions,render,
+  window.UPPDRAG_ROOM_ART={names:{...approved.names,...extraNames},descriptions,render,renderMemoryCloseup,
     ready:Promise.all([approved.ready,fibres.ready]).then(v=>v.every(Boolean)),
     get originalLoaded(){return fibres.loaded&&approved.originalLoaded;}};
 })();
