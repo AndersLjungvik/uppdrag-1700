@@ -173,6 +173,12 @@ style.textContent+=`
 #ch1Modal.ch1MemoryFull .ch1WordHelp{background:#f4f1e8;
  padding:8px 11px;margin:0 0 15px;text-align:left;font:15px/1.4 Georgia,serif}
 `;
+style.textContent+=`
+#ch1Modal .ch1NoHints{
+ display:block;max-width:100%;color:#6c5d49;font:13px/1.4 Georgia,serif;
+ padding:6px;text-align:center
+}
+`;
 let open=false,was='',dismiss=-1;
 const referenceMemory=()=>s.step>=1&&!s.complete;
 const referenceMaja=()=>s.step===0&&!s.complete;
@@ -245,6 +251,30 @@ function listenCurrent(archive=false){
  }
  return api.say(line);
 }
+// A memory hook is purchased explicitly using exactly one currency.
+ // Only one charge is possible on a question; redrawing the panel costs nothing.
+function hintButtons(archive=false){
+ const prefix=archive?'archive-':'';
+ let h='';
+ if(s.daler>0)h+='<button class="quiet" data-action="'+prefix+'hint-daler">Ledtråd · 1 daler</button>';
+ if(s.apples>0)h+='<button class="quiet" data-action="'+prefix+'hint-apple">Ledtråd · 1 äpple</button>';
+ if(!h)h='<span class="ch1NoHints">Inga daler eller äpplen kvar för en ledtråd.</span>';
+ return h;
+}
+function buyHint(currency,archive=false){
+ const wallet=currency==='apple'?'apples':'daler';
+ if(s[wallet]<1)return false;
+ if(archive){
+   if(!s.archiveActive||location()!=='archive'||s.archiveMode!=='question'||s.archiveHint)return false;
+   s[wallet]--;s.archiveHint=true;
+   persist();drawHud();drawArchive();return true;
+ }
+ if(!referenceMemory()||!present()||s.mode!=='question'||s.hint)return false;
+ s[wallet]--;s.hint=true;
+ persist();drawHud();
+ if(memoryVisible)drawMemory();else drawModal();
+ return true;
+}
 function retryButtons(){
  let h='<div class="ch1Actions">';
  if(s.daler>0)h+='<button class="primary" data-action="retry-daler">Nytt prov · 1 daler</button>';
@@ -272,7 +302,7 @@ function drawMemory(){
    sheet+='<div class="ch1Actions">';
    sheet+=short?'<button class="primary" data-action="short">Svara</button><button class="quiet" data-action="skip">Minns inte</button>'
       :'<button class="primary" data-action="choices">Jag har tänkt</button>';
-   if(!s.hint)sheet+='<button class="quiet" data-action="hint">Ledtråd</button>';
+   if(!s.hint)sheet+=hintButtons(false);
    sheet+='</div>';
  }else if(s.mode==='choices'){
    sheet+='<div class="ch1Options" role="group" aria-label="Välj det historiskt riktiga svaret">';
@@ -372,7 +402,7 @@ function drawArchive(){
      sheet+='<div class="ch1Actions">';
      sheet+=short?'<button class="primary" data-action="archive-short">Svara</button>'
       :'<button class="primary" data-action="archive-choices">Jag har tänkt</button>';
-     if(!s.archiveHint)sheet+='<button data-action="archive-hint">Ledtråd</button>';
+     if(!s.archiveHint)sheet+=hintButtons(true);
      sheet+='</div>';
    }else if(s.archiveMode==='choices'){
      sheet+='<div class="ch1Options" role="group">';
@@ -497,7 +527,7 @@ function drawModal(){
  if(s.mode==='question'){
  h+=short?'<input id="ch1Answer" type="text" maxlength="120" autocomplete="off" placeholder="Kort svar" value="'+esc(s.draft)+'">':'<textarea id="ch1Answer" placeholder="Skriv stödord eller tänk igenom ditt svar">'+esc(s.draft)+'</textarea>';
  h+=short?'<button class="primary" data-action="short">Svara</button><button data-action="skip">Jag minns inte</button>':'<button class="primary" data-action="choices">Jag har tänkt</button>';
- if(!s.hint)h+='<button data-action="hint">Visa ledtråd</button>';
+ if(!s.hint)h+=hintButtons(false);
  }else if(s.mode==='choices'){
  const list=window.UPPDRAG_CH1_CHOICES?.optionsFor(current().f[s.index],current().r,s.trial);
  if(!list)throw new Error('Alternativ saknas');
@@ -546,7 +576,8 @@ modal.addEventListener('click',e=>{
  if(act==='archive-go'){goArchive();return}
  if(act==='archive-exit'){closePanel();return}
  if(act==='archive-again'){closePanel();enterArchive();return}
- if(act==='archive-hint'){if(s.archiveActive){s.archiveHint=true;persist();drawArchive();}return}
+ if(act==='archive-hint-daler'){buyHint('daler',true);return}
+ if(act==='archive-hint-apple'){buyHint('apple',true);return}
  if(act==='archive-short'){
    if(!s.archiveActive||s.archiveMode!=='question'||!s.archiveDraft.trim())return;
    archiveMark(correctShort(s.archiveDraft,facts[archiveFact()].answers||[]));return;
@@ -564,7 +595,8 @@ modal.addEventListener('click',e=>{
  if(act==='archive-next'){archiveNext();return}
  if(act==='restart'){resetChapter();return}
  if(act==='start'){if(s.step===0)advance();else{s.mode='question';persist();drawModal()}return}
- if(act==='hint'){s.hint=true;persist();if(memoryVisible)drawMemory();else drawModal();return}
+ if(act==='hint-daler'){buyHint('daler');return}
+ if(act==='hint-apple'){buyHint('apple');return}
  if(act==='short'){if(!s.draft.trim())return;mark(correctShort(s.draft,item().answers));return}
  if(act==='skip'){s.draft='';mark(false);return}
  if(act==='choices'){
