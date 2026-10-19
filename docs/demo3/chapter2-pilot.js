@@ -165,6 +165,15 @@ style.textContent+=`
  padding:6px;text-align:center
 }
 `;
+style.textContent+=`
+#ch1Modal.ch1MemoryFull .ch1AnswerMore{background:#fbf9f2;padding:5px 9px 9px;
+  border-top:1px solid #ddd0b5;margin-top:10px}
+#ch1Modal.ch1MemoryFull .ch1AnswerMore summary{font:600 15px/1.5 Georgia,serif;
+  color:#4e5b51;padding:6px 0}
+#ch1Modal.ch1MemoryFull .ch1AnswerMore p{margin:12px 0!important;
+  font:17px/1.55 Georgia,serif!important;color:#362f28!important;
+  text-align:left}
+`;
 let open=false,was='',dismiss=-1;
 const referenceMemory=()=>s.step>=1&&!s.complete;
 const referenceMaja=()=>s.step===0&&!s.complete;
@@ -211,9 +220,14 @@ style.textContent+=`
 `;
 
 function memoryAnswer(id,rank){
- const full=factFor(id)?.a||'',brief=window.UPPDRAG_CH2_READING?.core(id,rank)||full;
- return '<p class="ch1FlashAnswer">'+esc(brief)+'</p>'
-  +(brief.trim()===full.trim()?'':'<details class="ch1AnswerMore"><summary>Läs mer</summary><p>'+esc(full)+'</p></details>');
+ const full=factFor(id)?.a||'',api=window.UPPDRAG_CH2_READING,brief=api?.core(id,rank)||full;
+ const paragraphs=api?.explain?.(id)||[];
+ const expanded=paragraphs.length
+   ?'<details class="ch1AnswerMore"><summary>Läs mer</summary>'
+     +paragraphs.map(p=>'<p>'+esc(p)+'</p>').join('')+'</details>'
+   :brief.trim()!==full.trim()
+     ?'<details class="ch1AnswerMore"><summary>Läs mer</summary><p>'+esc(full)+'</p></details>':'';
+ return '<p class="ch1FlashAnswer">'+esc(brief)+'</p>'+expanded;
 }
 function languageTools(id,rank,archive=false){
  const api=window.UPPDRAG_CH2_READING,entry=api?.word(id,rank),
