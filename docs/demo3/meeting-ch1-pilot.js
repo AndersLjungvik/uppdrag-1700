@@ -82,6 +82,12 @@
     #interiorView #meetingDialogue[data-paper-room] #meetingLine{font-size:14px!important}
   }
   `;
+  styles.textContent+= [
+    '#interiorView .room-top{position:relative}',
+    '#ch1RoomIdentity{position:absolute;right:14px;top:15px;font:italic 14px/1.3 Georgia,serif;color:#75624b;max-width:42%;text-align:right;pointer-events:none}',
+    '#ch1RoomIdentity[hidden]{display:none!important}',
+    '@media(max-width:620px){#ch1RoomIdentity{font-size:12px;top:10px}#interiorTitle{max-width:55%}}'
+  ].join('');
   document.head.append(styles);
   const layer=document.createElement('canvas');layer.id='meetingLayer';layer.setAttribute('aria-hidden','true');
   const person=document.createElement('button');person.id='meetingPerson';person.type='button';person.hidden=true;
@@ -91,6 +97,15 @@
   panel.innerHTML='<p id="meetingLine" aria-live="polite" aria-atomic="true"></p>';
   const dialogueTail=document.createElementNS('http://www.w3.org/2000/svg','svg');dialogueTail.id='meetingTail';dialogueTail.setAttribute('aria-hidden','true');
   roomView.append(layer,person,dialogueTail,panel);
+  const placeLabel=document.createElement('span');placeLabel.id='ch1RoomIdentity';placeLabel.hidden=true;
+  roomView.querySelector('.room-top')?.append(placeLabel);
+  const roomLabels={cafe:'Majas kaffebord',palace:'Amiras brev och sigill',
+    quay:'Jos handelslistor',riksdag:'Elins protokoll',archive:'Ruts bokhyllor'};
+  function showRoomIdentity(key){
+    const caption=roomLabels[key]||'';
+    placeLabel.textContent=caption;
+    placeLabel.hidden=!caption;
+  }
   let activeRoom=null,dialogue=null,geometry=null,lastPaint=-Infinity,wasTravelling=false;
   let speechAt=0,speechEnd=0,footerInert=false;
   const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -442,6 +457,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     const travelling=!!voyage;
     if(interior!==activeRoom||travelling!==wasTravelling){
       closeTalk(false);activeRoom=interior;wasTravelling=travelling;lastPaint=-Infinity;
+      showRoomIdentity(interior&&!travelling?current()?.key:null);
       if(!interior||travelling){layer.hidden=true;person.hidden=true;geometry=null;return;}
       drawPeople(now);
       // Do not auto-focus the invisible person hit surface on entering a room.
