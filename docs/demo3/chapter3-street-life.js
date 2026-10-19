@@ -74,6 +74,7 @@ function position(actor,now=performance.now()){
    for(const id of Object.keys(talkPaused))talkPaused[id]=0;
  }
  if(active?.id===actor.id)return {...actor,x:active.x,y:active.y,moving:false};
+ if(teaser?.id===actor.id)return {...actor,x:teaser.x,y:teaser.y,moving:false};
  const t=Math.max(0,now-enteredAt-(talkPaused[actor.id]||0));
  if(actor.id==='cap')return {...actor,...patrol(555,666,709,t,6400,1100)};
  if(actor.id==='hat')return {...actor,...patrol(1594,1775,705,t,7800,3200)};
@@ -421,24 +422,41 @@ function campCanvas(ctx,camp,now){
  paperTag(ctx,camp.label,x+2,y-69);
 }
 function updateNearby(region,player,now){
- if(active)return;
- if(!player||!region||now<teaserHiddenUntil){teaser=null;box.hidden=true;return;}
+ if(!region||!player||active)return;
+ if(lastPlayer){
+   if(Math.hypot(player.x-lastPlayer.x,player.y-lastPlayer.y)>1.8)lastMovedAt=now;
+ }else lastMovedAt=now;
+ lastPlayer={x:player.x,y:player.y};
+ if(teaser){
+   const here=find(region,teaser.id);
+   if(!here||now>=teaser.until||Math.hypot(player.x-here.x,player.y-here.y)>LEAVE)
+     stopTeaser(now);
+   else{root.hidden=false;putSpeech(teaser,teaser.who);return;}
+ }
+ if(now<teaserHiddenUntil||now-lastCall<SPONTANEOUS_GAP){hideBubble();return;}
  const wanted=nearest(region,player,NEAR);
- if(!wanted){
-   // A little hysteresis keeps the white bubble from flickering at the edge.
-   if(!teaser||!find(region,teaser.id)||Math.hypot(player.x-teaser.x,player.y-teaser.y)>LEAVE){
-     teaser=null;box.hidden=true;
-   }
-   return;
+ if(!wanted){arrivalCandidate=null;hideBubble();return;}
+ if(now-(spokenRecently.get(wanted.id)||-Infinity)<27000){hideBubble();return;}
+ if(arrivalCandidate?.id!==wanted.id){arrivalCandidate={id:wanted.id,at:now};return;}
+ const d=Math.hypot(wanted.x-player.x,wanted.y-player.y);
+ const waiting=now-arrivalCandidate.at>SPONTANEOUS_PAUSE&&now-lastMovedAt>360;
+ const passing=d<37&&now-arrivalCandidate.at>480;
+ const bark=wanted.role==='dog'&&d<57&&now-arrivalCandidate.at>220;
+ if(!waiting&&!passing&&!bark)return;
+ const text=shortThought(wanted);
+ if(!text)return;
+ let inPlace=wanted;
+ if(wanted.role==='civil'){
+   const stopped=window.UPPDRAG_WORLD_LIFE?.freeze?.(wanted.sourceId);
+   if(stopped)inPlace={...wanted,x:stopped.x,y:stopped.y};
  }
- if(teaser?.id!==wanted.id){
-   const first=story(wanted).find(line=>line[0]!=='Du')||story(wanted)[0];
-   if(!first)return;
-   teaser=wanted;
-   speaker.textContent=first[0];speech.textContent=first[1];
-   box.setAttribute('aria-label','Prata med '+wanted.name+'. '+first[1]);
- }
- box.hidden=false;positionPanel(teaser,speaker.textContent);
+ const who=wanted.role==='dog'?'Hund':wanted.role==='civil'?wanted.name
+   :(story(wanted).find(line=>line[0]!=='Du')?.[0]||wanted.name);
+ teaser={...inPlace,who,shownAt:now,until:now+(wanted.role==='dog'?1600:2400)};
+ speaker.textContent=who;speech.textContent=text;
+ box.setAttribute('aria-label',who+': '+text+'. Klicka för att prata vidare.');
+ lastCall=now;spokenRecently.set(wanted.id,now);
+ arrivalCandidate=null;root.hidden=false;putSpeech(teaser,who);
 }
 function obstacles(region){
  if(!region)return[];
@@ -464,7 +482,7 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
   if(a.id==='david'&&player&&Math.hypot(player.x-a.x,player.y-a.y)<165)
    paperTag(ctx,'DAVID HEDENQUIST',a.x,a.y+31);
  }
- if(active){const lines=story(active);positionPanel(active,lines[lineIndex]?.[0]||'');}
+ if(active){root.hidden=false;putSpeech(active,speaker.textContent);}
  else updateNearby(region,player,now);
  if(region.id==='main'&&phase()===2&&!active&&!reduced?.matches&&now%16000<2600){
   const leader=find(region,'farmers');if(leader)paperTag(ctx,'NOG MED KRIG!',leader.x,leader.y-64);
@@ -472,5 +490,5 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
 }
 window.UPPDRAG_CH3_CITY_LIFE={people,find,hit,nearest,open,close,suspend,next,draw,phase,stationedCamps,
  obstacles,get active(){return !!active},get teaser(){return teaser?.id||null},get actor(){return active?.id||null},
- get lines(){return active?story(active):[]}};
+ get lines(){return active?.lines||[]},get talkers(){return viewport?.region?talkingTargets(viewport.region):[]}};
 })();
