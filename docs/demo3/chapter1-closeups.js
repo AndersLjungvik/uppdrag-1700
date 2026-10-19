@@ -27,5 +27,5 @@ function decorate(modal,run,state){
    +'<div class="ch1Bubble" role="note"><strong>'+run.who+'</strong><p>'+speech(run,state)+'</p></div>';
  modal.append(scene,copy);
 }
-window.UPPDRAG_CH1_CLOSEUPS={decorate,images:Object.keys(images)};
+window.UPPDRAG_CH1_CLOSEUPS={decorate,images,places:Object.keys(images)};
 })();
