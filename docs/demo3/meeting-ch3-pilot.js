@@ -403,6 +403,13 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     const reply=place==='riksdag'?'Nu vet jag! Så skönt att minnas igen.'
       :place==='quay'?'Där satt det! Nu kan jag berätta för skepparna.'
       :'Tack! Nu minns jag Stora daldansen igen.';
+    if(place==='quay'&&window.UPPDRAG_CH3_PILOT?.state?.step===8){
+      return [[who,reply],
+        ['Jo','Vänta! Efter freden har ryska hjälptrupper kommit till Sverige.'],
+        ['Du','Ryska soldater? Här?'],
+        ['Jo','Ja, flera läger har slagits upp. Titta på kartan när du går vidare.'],
+        ['Jo',window.UPPDRAG_CH3_PILOT.memoryThanks()]];
+    }
     return [[who,reply],['Du','Vad behöver jag göra nu?'],
       [who,window.UPPDRAG_CH3_PILOT.memoryThanks()]];
   }
