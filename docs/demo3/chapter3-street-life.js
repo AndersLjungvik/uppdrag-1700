@@ -47,6 +47,7 @@ css.textContent=[
 document.head.append(css);
 let active=null,teaser=null,pendingHold=null,lineIndex=0,viewport=null,enteredAt=performance.now(),lastPhase=1,openedAt=0;
 let teaserHiddenUntil=0,arrivalCandidate=null,arrivalAt=0,lastPlayer=null,lastMovedAt=0,lastCall=0;
+let phase3FarmerX=2038;
 const encounterCounts=new Map(),spokenRecently=new Map();
 const NEAR=62,LEAVE=108,SPONTANEOUS_PAUSE=850,SPONTANEOUS_GAP=9000;
 const talkPaused=Object.fromEntries(Object.keys(CAST).map(id=>[id,0]));
@@ -67,9 +68,19 @@ function patrol(x0,x1,y,elapsed,duration,seed=0){
   return {x,y,heading:forward?(x1>=x0?0:Math.PI):(x0>=x1?0:Math.PI),
     moving:!reduced?.matches&&Math.sin(Math.PI*f)>.12};
 }
+function marchProgress(elapsed){
+ const cycle=6200,walk=4400,maxTravel=32600;
+ const travelled=Math.floor(elapsed/cycle)*walk+Math.min(elapsed%cycle,walk);
+ return {fraction:Math.min(1,travelled/maxTravel),
+   moving:!reduced?.matches&&elapsed%cycle<walk&&travelled<maxTravel};
+}
 function position(actor,now=performance.now()){
  const cur=phase();
  if(cur!==lastPhase){
+   if(lastPhase===2&&cur===3){
+     const prior=Math.max(0,now-enteredAt-(talkPaused.farmers||0));
+     phase3FarmerX=2448-410*marchProgress(prior).fraction;
+   }else if(cur===2)phase3FarmerX=2038;
    enteredAt=now;lastPhase=cur;
    for(const id of Object.keys(talkPaused))talkPaused[id]=0;
  }
@@ -81,13 +92,13 @@ function position(actor,now=performance.now()){
  if(actor.id==='hat')return {...actor,...patrol(1594,1775,705,t,7800,3200)};
  if(actor.id==='soldiers')return {...actor,...patrol(1842,1957,706,t,6800,2100)};
  if(actor.id==='farmers'){
-   // The group begins at the eastern square, then marches toward the bridge.
-   // Small stop-and-go bursts keep the crowd visibly angry instead of gliding.
-   const fraction=cur===2?Math.min(1,t/46000):1;
-   const x=2448-410*fraction;
-   const shout=!reduced?.matches&&cur===2&&Math.sin(t/1900)>-.45;
-   return {...actor,x,y:705+(shout?Math.sin(t/620)*1.1:0),
-     heading:Math.PI,moving:shout&&fraction<1,crowdShouting:shout};
+   // When the crowd shouts it stops moving. Marching and foot animation agree.
+   const progress=marchProgress(t);
+   const x=cur===2?2448-410*progress.fraction:Math.max(2038,phase3FarmerX-t*.009);
+   const shouting=!reduced?.matches&&Math.sin(t/750)>.05;
+   const moving=cur===2?progress.moving:!reduced?.matches&&x>2038;
+   return {...actor,x,y:705+(shouting?Math.sin(t/620)*1.1:0),
+     heading:Math.PI,moving,crowdShouting:shouting};
  }
  if(actor.id==='noble')return {...actor,...patrol(3368,3440,354,t,11000,2900)};
  if(actor.id==='rusBeach')return {...actor,...patrol(274,307,1062,t,7300,600)};
