@@ -203,7 +203,7 @@ function drawModal(){
  modal.querySelector('#ch1Answer')?.focus({preventScroll:true})
 }
 hud.addEventListener('click',e=>{if(e.target.closest('[data-nav]'))go();else if(e.target.closest('[data-open]'))showPanel()});
-modal.addEventListener('input',e=>{if(e.target.id==='ch1Answer')s.draft=e.target.value});
+modal.addEventListener('input',e=>{if(e.target.id==='ch1Answer'){s.draft=e.target.value;persist();}});
 modal.addEventListener('click',e=>{
  const act=e.target.closest('[data-action]')?.dataset.action;if(!act)return;
  if(act==='close'){closePanel();return}
