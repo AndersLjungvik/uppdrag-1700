@@ -91,6 +91,7 @@ function drawModal(){
  }
  h+='<p><button data-action="close">Stäng och promenera</button></p>';
  modal.innerHTML=h;
+ window.UPPDRAG_CH1_CLOSEUPS?.decorate(modal,current(),s);
  modal.querySelector('#ch1Answer')?.focus({preventScroll:true})
 }
 hud.addEventListener('click',e=>{if(e.target.closest('[data-nav]'))go();else if(e.target.closest('[data-open]'))showPanel()});
