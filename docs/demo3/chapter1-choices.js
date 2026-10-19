@@ -6,13 +6,13 @@
 const BANK={
  absolute:[
   ['Hon kunde inte bestämma ensam. Riksdagen och riksrådet hade också makt.','Hon kunde bestämma ensam, men måste berätta om besluten för riksdagen efteråt.','Hon bestämde ensam om lagarna, medan riksdagen bara skötte handeln.'],
-  ['Kungens makt var begränsad och riksdagen och riksrådet kunde påverka besluten.','Kungen hade fortfarande sista ordet i alla frågor, även när riksdagen samlades.','Riksdagen fick ge förslag, men kungens envälde var kvar.'],
+  ['Ulrika Eleonoras makt var begränsad. Riksdagen och riksrådet kunde också påverka besluten.','Drottningen hade fortfarande sista ordet i alla frågor, även när riksdagen samlades.','Riksdagen fick ge förslag, men drottningen bestämde ensam ändå.'],
   ['Hon var inte enväldig; riksdagen och riksrådet hade också makt.','Hon var enväldig men måste låta adeln sköta handeln.','Hon var enväldig så länge grundlagen inte ändrades.']
  ],
  freedom:[
-  ['Kungens envälde upphörde och riksdagen fick större makt.','De fyra stånden fick lika mycket makt, även om kungen fanns kvar.','Kungens makt var kvar som förut; förändringen gällde främst handeln.'],
-  ['Kungen kunde inte längre styra ensam; riksdagen och riksrådet fick inflytande.','Kungen behöll sin makt, men riksdagen fick fler rådgivande uppgifter.','Kungens makt växte när han fick hjälp av riksrådet.'],
-  ['Kungen fick mindre makt, men adeln hade fortfarande mest inflytande i riksdagen.','Alla stånd och människor fick lika mycket att säga till om.','Bönderna fick bestämma över riksrådet medan kungen var enväldig.']
+  ['Enväldet upphörde och riksdagen fick större makt.','De fyra stånden fick lika mycket makt, även om kungen fanns kvar.','Regentens makt var kvar som förut; förändringen gällde främst handeln.'],
+  ['Den som regerade kunde inte längre bestämma ensam; riksdagen och riksrådet fick inflytande.','Regenten behöll all makt, men riksdagen fick ge fler råd.','Regentens makt växte när riksrådet började hjälpa till.'],
+  ['Den som satt på tronen fick mindre makt, men adeln hade fortfarande mest inflytande i riksdagen.','Alla stånd och människor fick lika mycket att säga till om.','Bönderna bestämde över riksrådet, medan regenten fortfarande var enväldig.']
  ],
  trade:[
   ['Handla med Asien och föra hem varor från Kina.','Främst sälja järn till England och styra handeln där.','Köpa svenskt järn i England och sälja det vidare till Kina.'],
