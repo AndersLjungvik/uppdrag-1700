@@ -4,12 +4,12 @@
 const storage='uppdrag1700.ch1-real-world.20261019.v11';
 const facts={
 queen:{ab:'2a',a:'Ulrika Eleonora',answers:['ulrika eleonora'],hint:'Hennes namn börjar med U.',q:['Vilken drottning efterträdde Karl XII?','Vad hette Karl XII:s syster som övertog tronen?','En skrivare påstår att drottningen hette Fredrik. Vad hette hon egentligen?']},
-absolute:{ab:'2b',a:'Drottningen var inte enväldig: hon kunde inte bestämma ensam utan delade makten med riksrådet och riksdagen.',hint:'Vem mer än drottningen hade makt?',q:['Vad menas med att drottningen inte var enväldig?','Hur begränsades Ulrika Eleonoras makt jämfört med tidigare envälde?','En anteckning säger att Ulrika Eleonora bestämde allt ensam. Rätta felet.']},
-freedom:{ab:'1',a:'Det tidigare enväldet upphörde och riksdagen och riksrådet fick mer makt. Men olika grupper hade fortfarande olika mycket inflytande.',hint:'Tänk på vem som fick bestämma före och efter 1719.',q:['Varför kallas tiden 1719–1772 för frihetstiden?','Vad förändrades i styret när frihetstiden började?','Varför var makten friare för vissa, men inte lika för alla?']},
-trade:{ab:'3',a:'Ostindiska kompaniet skulle handla med Asien, särskilt Kina, och importera te, siden och porslin till Sverige.',hint:'Vad tog handelsfartygen hem från Kina?',q:['Vilken uppgift hade Ostindiska kompaniet?','Varför seglade Ostindiska kompaniets fartyg från Göteborg till Kina?','Ett brev säger att kompaniets uppdrag var att kriga mot Kina. Vad stämmer i stället?']},
-law:{ab:'4a',a:'Grundlagen reglerade hur makten skulle delas och hur Sverige skulle styras.',hint:'Vad handlade den nya maktfördelningen om?',q:['Vad skulle den nya grundlagen innehålla tydliga regler för?','Varför skrevs en ny grundlag efter enväldet?','En skrivare säger att grundlagen gav regenten oinskränkt makt. Rätta påståendet.']},
-change:{ab:'4b',a:'Enligt grundbokens text kunde den bara ändras om hela riksdagen var överens.',hint:'Det krävdes särskild enighet.',q:['När kunde grundlagen ändras enligt grundboken?','Varför kunde inte en ensam riksdagsman ändra grundlagen?','En adelsman säger att han själv får ändra grundlagen. Vilket krav har han glömt?']},
-nobles:{ab:'4c',a:'Adeln hade störst makt. Viktiga beslut togs på särskilda möten där bönderna inte fick vara med.',answers:['adeln','adel'],hint:'Ett av de fyra stånden.',q:['Vilket stånd hade mest makt i riksdagen?','Vilket stånd dominerade de viktiga besluten?','Hur kunde adeln ha störst inflytande trots att fyra stånd fanns?']}
+absolute:{ab:'2b',a:'Drottningen var inte enväldig: hon kunde inte bestämma ensam utan delade makten med riksrådet och riksdagen.',hint:'Vem mer än drottningen hade makt?',q:['Vad menas med att drottningen inte var enväldig?','Varför kunde Ulrika Eleonora inte bestämma ensam?','En anteckning säger att Ulrika Eleonora bestämde allt ensam. Rätta felet.']},
+freedom:{ab:'1',a:'Det tidigare enväldet upphörde och riksdagen och riksrådet fick mer makt. Men olika grupper hade fortfarande olika mycket inflytande.',hint:'Tänk på vem som fick bestämma före och efter 1719.',q:['Varför kallas tiden 1719–1772 för frihetstiden?','Vad förändrades i styret när frihetstiden började?','Varför fick inte alla lika mycket makt under frihetstiden?']},
+trade:{ab:'3',a:'Ostindiska kompaniet skulle handla med Asien, särskilt Kina, och importera te, siden och porslin till Sverige.',hint:'Vad tog handelsfartygen hem från Kina?',q:['Vilken uppgift hade Ostindiska kompaniet?','Varför seglade Ostindiska kompaniets fartyg från Göteborg till Kina?','Skulle Ostindiska kompaniet handla med Kina eller kriga där?']},
+law:{ab:'4a',a:'Grundlagen reglerade hur makten skulle delas och hur Sverige skulle styras.',hint:'Vad handlade den nya maktfördelningen om?',q:['Vad bestämde den nya grundlagen om makten?','Varför skrevs en ny grundlag efter enväldet?','En skrivare säger att regenten fick bestämma allt. Rätta felet.']},
+change:{ab:'4b',a:'Enligt grundbokens text kunde den bara ändras om hela riksdagen var överens.',hint:'Det krävdes särskild enighet.',q:['När kunde grundlagen ändras enligt grundboken?','Varför kunde inte en ensam riksdagsman ändra grundlagen?','En adelsman vill ändra grundlagen själv. Varför går inte det?']},
+nobles:{ab:'4c',a:'Adeln hade störst makt. Viktiga beslut togs på särskilda möten där bönderna inte fick vara med.',answers:['adeln','adel'],hint:'Ett av de fyra stånden.',q:['Vilket stånd hade mest makt i riksdagen?','Vilket stånd bestämde mest i riksdagen?','Hur kunde adeln ha mest makt trots att fyra stånd fanns?']}
 };
 const paths={cafe:'Kaffehuset',palace:'Slottet',quay:'Kajen',riksdag:'Riksdagshuset'};
 const runs=[
@@ -150,6 +150,29 @@ style.textContent+=`
  filter:drop-shadow(3px 4px 1px #64533b4d)}
 #ch1Modal .ch1DiplomaSmall{font:13px/1.45 system-ui,sans-serif;color:#776b5b}
 `;
+
+style.textContent+=`
+#ch1Modal.ch1MemoryFull .ch1ResultRight{background:#fffefa;border:1px solid #b8cbb9}
+#ch1Modal.ch1MemoryFull .ch1ResultWrong{background:#fffaf8;border:1px solid #e0cfc9}
+#ch1Modal.ch1MemoryFull .ch1Result strong{
+ display:inline-block;background:#5f8768;color:#fff;padding:6px 12px;
+ font:700 14px/1.25 system-ui,sans-serif;letter-spacing:.04em}
+#ch1Modal.ch1MemoryFull .ch1ResultWrong strong{background:#a77566}
+#ch1Modal.ch1MemoryFull .ch1FlashAnswer{
+ font:600 clamp(22px,3vw,29px)/1.38 Georgia,serif;color:#302d27;
+ text-align:left;margin:16px 0 12px}
+#ch1Modal.ch1MemoryFull .ch1AnswerMore{margin:9px 0 2px;text-align:left;
+ font:15px/1.45 Georgia,serif;color:#4d463d}
+#ch1Modal.ch1MemoryFull .ch1AnswerMore summary{cursor:pointer;font:14px/1.4 system-ui,sans-serif;color:#615548}
+#ch1Modal.ch1MemoryFull .ch1AnswerMore p{margin:8px 0 3px}
+#ch1Modal.ch1MemoryFull .ch1ReadingActions{display:flex;justify-content:center;gap:12px;
+ margin:-7px 0 14px;flex-wrap:wrap}
+#ch1Modal.ch1MemoryFull .ch1ReadingActions button{
+ background:none;border:0;text-decoration:underline;color:#615548;
+ min-height:32px;font:13px system-ui,sans-serif;padding:2px 5px;margin:0}
+#ch1Modal.ch1MemoryFull .ch1WordHelp{background:#f4f1e8;
+ padding:8px 11px;margin:0 0 15px;text-align:left;font:15px/1.4 Georgia,serif}
+`;
 let open=false,was='',dismiss=-1;
 const referenceMemory=()=>s.step>=1&&!s.complete;
 const referenceMaja=()=>s.step===0&&!s.complete;
@@ -194,6 +217,34 @@ style.textContent+=`
 #ch1Modal.ch1MemoryFull .ch1Sheet{left:63%;max-width:500px}
 @media(max-width:800px){#ch1Modal.ch1MemoryFull .ch1Sheet{left:50%;max-width:500px}}
 `;
+
+function memoryAnswer(id,rank){
+ const full=facts[id]?.a||'',brief=window.UPPDRAG_CH1_READING?.core(id,rank)||full;
+ return '<p class="ch1FlashAnswer">'+esc(brief)+'</p>'
+  +(brief.trim()===full.trim()?'':'<details class="ch1AnswerMore"><summary>Läs mer</summary><p>'+esc(full)+'</p></details>');
+}
+function languageTools(id,rank,archive=false){
+ const api=window.UPPDRAG_CH1_READING,entry=api?.word(id,rank),
+   expanded=archive?!!s.archiveWordHelp:!!s.wordHelp,prefix=archive?'archive-':'';
+ let h='<div class="ch1ReadingActions">';
+ if(api?.canSpeak)h+='<button type="button" data-action="'+prefix+'listen">Lyssna</button>';
+ if(entry)h+='<button type="button" data-action="'+prefix+'word">Förklara ord</button>';
+ h+='</div>';
+ if(expanded&&entry)h+='<p class="ch1WordHelp"><b>'+esc(entry[0])+'</b> – '+esc(entry[1])+'</p>';
+ return h;
+}
+function listenCurrent(archive=false){
+ const api=window.UPPDRAG_CH1_READING;
+ if(!api?.canSpeak)return false;
+ const id=archive?archiveFact():current().f[s.index],rank=archive?0:current().r,
+  mode=archive?s.archiveMode:s.mode;
+ let line=facts[id]?.q[rank]||'';
+ if(mode==='choices'){
+   const choices=window.UPPDRAG_CH1_CHOICES?.optionsFor(id,rank,archive?s.archiveRounds:s.trial);
+   if(choices)line+=' '+choices.options.map((v,i)=>'Alternativ '+(i+1)+'. '+v).join('. ');
+ }
+ return api.say(line);
+}
 function retryButtons(){
  let h='<div class="ch1Actions">';
  if(s.daler>0)h+='<button class="primary" data-action="retry-daler">Nytt prov · 1 daler</button>';
@@ -214,7 +265,7 @@ function drawMemory(){
  const choices=short?null:window.UPPDRAG_CH1_CHOICES?.optionsFor(id,current().r,s.trial);
  if(!short&&!choices)throw new Error('Granskade alternativ saknas för '+id+' på '+current().r);
  let sheet='<p class="ch1Count">'+(s.index+1)+' / '+current().f.length+'</p>';
- if(s.mode==='question'||s.mode==='choices')sheet+='<h2 class="ch1Prompt">'+esc(f.q[current().r])+'</h2>';
+ if(s.mode==='question'||s.mode==='choices'){sheet+='<h2 class="ch1Prompt">'+esc(f.q[current().r])+'</h2>';sheet+=languageTools(id,current().r);}
  if(s.mode==='question'){
    if(short)sheet+='<input id="ch1Answer" aria-label="Ditt svar" type="text" maxlength="120" autocomplete="off" value="'+esc(s.draft)+'">';
    if(s.hint)sheet+='<p class="ch1Hint">'+esc(f.hint)+'</p>';
@@ -230,11 +281,11 @@ function drawMemory(){
    if(s.hint)sheet+='<p class="ch1Hint">'+esc(f.hint)+'</p>';
  }else if(s.mode==='failed'){
    sheet+='<div class="ch1Result ch1ResultWrong" role="status"><strong>Inte rätt än</strong>'
-       +'<p class="ch1FlashAnswer">'+esc(f.a)+'</p></div>';
+       +memoryAnswer(id,current().r)+'</div>';
    sheet+='<p class="ch1RetryNote">Vill du försöka igen börjar hela uppdraget om.</p>'+retryButtons();
  }else if(s.mode==='feedback'){
    sheet+='<div class="ch1Result ch1ResultRight" role="status"><strong>RÄTT</strong>'
-       +'<p class="ch1FlashAnswer">'+esc(f.a)+'</p></div>';
+       +memoryAnswer(id,current().r)+'</div>';
    sheet+='<div class="ch1Actions"><button class="primary" data-action="next">'
      +(s.index===current().f.length-1?'Lämna minnesprovet':'Nästa fråga')+'</button></div>';
  }
@@ -305,12 +356,12 @@ function drawArchive(){
     +'<button data-action="archive-exit">Tillbaka till rummet</button></div>';
  }else if(s.archiveMode==='failed'){
    sheet+='<div class="ch1Result ch1ResultWrong"><strong>Inte riktigt än</strong>'
-    +'<p class="ch1FlashAnswer">'+esc(f.a)+'</p></div>'
+    +memoryAnswer(id,0)+'</div>'
     +'<p class="ch1RetryNote">Rut hjälper dig gärna att öva igen. Inget äpple denna gång.</p>'
     +'<div class="ch1Actions"><button class="primary" data-action="archive-again">Öva igen</button></div>';
  }else if(s.archiveMode==='feedback'){
    sheet+='<div class="ch1Result ch1ResultRight"><strong>RÄTT</strong>'
-    +'<p class="ch1FlashAnswer">'+esc(f.a)+'</p></div>'
+    +memoryAnswer(id,0)+'</div>'
     +'<div class="ch1Actions"><button class="primary" data-action="archive-next">Nästa minne</button></div>';
  }else{
    sheet+='<h2 class="ch1Prompt">'+esc(f.q[0])+'</h2>';
