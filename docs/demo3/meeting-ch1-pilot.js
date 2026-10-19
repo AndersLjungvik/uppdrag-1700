@@ -205,7 +205,8 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     drawings.sort((a,b)=>a.pos[1]-b.pos[1]);
     for(const item of drawings){const [x,y,s]=item.pos;a.side(x,y,s,item.who,item.right,now,speaker===item.who.name,!!item.isNpc&&!!geometry.npc?.moving,!!item.isNpc&&!!geometry.npc?.working,item.isNpc?(geometry.npc?.turn||0):0);if(c.key==='archive'&&pilot&&item.who!==CAST.player)pilot.restoreDesk(g,geometry,roomCanvas);}
     g.restore();
-    person.hidden=!c.cast||!!dialogue||!!controller(c.key)?.busy;
+    const chapterOneOnly=!!window.UPPDRAG_CH1_PILOT;
+    person.hidden=!c.cast||!!dialogue||!!controller(c.key)?.busy||(chapterOneOnly&&!['cafe','palace','quay','riksdag'].includes(c.key));
     if(c.cast){
       const [x,y,s]=poses[1],unit=p.scale*s;
       const width=Math.max(44,122*unit),height=Math.max(44,333*unit+26);
@@ -289,6 +290,15 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
       ]},index:0,special:'memory'};
       footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
     }
+    // The pilot never falls through to any pre-chapter dialogue/topic menu.
+    // Visiting someone outside their memory mission gets one human line only.
+    if(pilot&&['cafe','palace','quay','riksdag'].includes(c.key)){
+      dialogue={room:interior,cast:{...c.cast,lines:[
+        [c.cast.name,'Åh, hej! Jag har fullt upp just nu. Vi ses snart igen.']
+      ]},index:0};
+      footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
+    }
+    if(pilot)return false;
     if(!CAST[c.key]&&c.storyPlace){
       const story=window.UPPDRAG_STORY_STATE,guidance=!story?.taskAt?.(c.storyPlace)&&!!story?.guidanceAt?.(c.storyPlace);
       return window.UPPDRAG_STORY_WORK?.open(c.storyPlace,{thoughtsFirst:true,guidance})||false;
