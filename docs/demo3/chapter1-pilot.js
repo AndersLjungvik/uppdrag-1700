@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 // Kapitel 1 i den befintliga stadens gångmotor. Separat sparfil.
-const storage='uppdrag1700.ch1-real-world.20261019.v6';
+const storage='uppdrag1700.ch1-real-world.20261019.v10';
 const facts={
 queen:{ab:'2a',a:'Ulrika Eleonora',answers:['ulrika eleonora'],hint:'Hennes namn börjar med U.',q:['Vilken drottning efterträdde Karl XII?','Vad hette Karl XII:s syster som övertog tronen?','En skrivare påstår att drottningen hette Fredrik. Vad hette hon egentligen?']},
 absolute:{ab:'2b',a:'Drottningen var inte enväldig: hon kunde inte bestämma ensam utan delade makten med riksrådet och riksdagen.',hint:'Vem mer än drottningen hade makt?',q:['Vad menas med att drottningen inte var enväldig?','Vilken begränsning hade Ulrika Eleonora jämfört med enväldiga kungar?','En anteckning säger att Ulrika Eleonora bestämde allt ensam. Rätta felet.']},
@@ -26,6 +26,8 @@ const runs=[
 ];
 let s;try{s=JSON.parse(localStorage.getItem(storage)||'null')}catch{}
 if(!s||s.v!==1||s.step<0||s.step>=runs.length)s={v:1,step:0,index:0,mode:'intro',hint:false,draft:'',record:[],complete:false};
+// Upgrades from pre-gating test saves must not credit unverified knowledge.
+if(s.mode==='end'&&s.step>0&&!runs[s.step].f.every(f=>s.record.some(r=>r.id===f&&r.step===s.step&&r.ok)))s.mode='question';
 const persist=()=>{try{localStorage.setItem(storage,JSON.stringify(s))}catch{}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
@@ -170,9 +172,10 @@ function drawMemory(){
    sheet+='</div>';
    if(s.hint)sheet+='<p class="ch1Hint">'+esc(f.hint)+'</p>';
  }else if(s.mode==='feedback'){
-   const last=s.record[s.record.length-1],label=last?.ok?'Rätt':'Inte riktigt';
-   sheet+='<div class="ch1Result" role="status"><strong>'+label+'</strong><p>'+esc(f.a)+'</p></div>';
-   sheet+='<div class="ch1Actions"><button class="primary" data-action="next">'+(s.index===current().f.length-1?'Färdig':'Nästa')+'</button></div>';
+   const last=s.record[s.record.length-1],correct=!!last?.ok;
+   sheet+='<div class="ch1Result" role="status"><strong>'+(correct?'Rätt!':'Inte riktigt än')+'</strong><p>'+esc(f.a)+'</p></div>';
+   sheet+='<div class="ch1Actions"><button class="primary" data-action="next">'
+    +(correct?(s.index===current().f.length-1?'Färdig':'Nästa fråga'):'Försök igen')+'</button></div>';
  }
  modal.innerHTML='<div class="ch1MemorySetting" aria-hidden="true">'
     +'<div class="ch1LegacyFallback">'+fallback+'</div>'
@@ -197,9 +200,12 @@ function memoryProblem(){
  if(s.step===1)return current().hello;
  return current().hello;
 }
-function wantsMemoryThanks(place){return referenceMemory()&&present()&&place===current().p&&s.mode==='end';}
+function stageSolved(){
+ return current().f.every(f=>s.record.some(r=>r.step===s.step&&r.id===f&&r.ok));
+}
+function wantsMemoryThanks(place){return referenceMemory()&&present()&&place===current().p&&s.mode==='end'&&stageSolved();}
 function memoryThanks(){return current().bye;}
-function finishMemory(){if(wantsMemoryThanks(current().p))advance();}
+function finishMemory(){if(wantsMemoryThanks(current().p)&&stageSolved())advance();}
 
 const rank=()=>['Lärling','Gesäll','Mästare'][current().r];
 function numbers(){return {ind:s.record.filter(x=>x.ok&&!x.support).length,aided:s.record.filter(x=>x.ok&&x.support).length,need:s.record.filter(x=>!x.ok).length}}
@@ -223,19 +229,38 @@ function go(){
  else{const b=region.buildings.find(b=>b.name===paths[current().p]);if(b)requestInterior(b)}
 }
 function advance(){
+ if(s.step>0&&(s.mode!=='end'||!stageSolved()))return false;
  if(s.step===9){s.complete=true;s.mode='finished';persist();open=true;modal.hidden=false;document.body.classList.add('ch1-open');drawModal();return}
  s.step++;s.index=0;s.mode='intro';s.hint=false;s.draft='';persist();closePanel();drawHud();go();dismiss=-1
 }
 function next(){
- s.index++;s.mode=s.index>=current().f.length?'end':'question';s.hint=false;s.draft='';persist();
+ if(s.mode!=='feedback')return false;
+ const last=s.record[s.record.length-1];
+ if(!last||last.step!==s.step||last.id!==current().f[s.index])return false;
+ if(!last.ok){
+   // A wrong or missing answer never unlocks another question or person.
+   s.mode='question';s.hint=true;s.draft='';persist();
+   if(memoryVisible)drawMemory();else drawModal();
+   return false;
+ }
+ s.index++;
+ s.mode=s.index>=current().f.length?'end':'question';
+ s.hint=false;s.draft='';persist();
  if(referenceMemory()){
-   if(s.mode==='end'){
-     closePanel();
-     window.UPPDRAG_MEETINGS?.memoryThanks?.();
+   if(s.mode==='end'&&stageSolved()){
+     closePanel();window.UPPDRAG_MEETINGS?.memoryThanks?.();
    }else drawMemory();
  }else drawModal();
+ return true;
 }
-function mark(ok,{supported=false,response=null}={}){const f=current().f[s.index];s.record.push({id:f,level:rank(),ok,support:s.hint||supported,ab:item().ab,answer:response??s.draft});s.mode='feedback';persist();if(memoryVisible)drawMemory();else drawModal()}
+function mark(ok,{supported=false,response=null}={}){
+ if(s.mode!=='question'&&s.mode!=='choices')return;
+ const f=current().f[s.index];
+ s.record.push({step:s.step,id:f,level:rank(),ok,support:s.hint||supported,
+  ab:item().ab,answer:response??s.draft});
+ s.mode='feedback';persist();
+ if(memoryVisible)drawMemory();else drawModal();
+}
 function drawModal(){
  let h='<div style="font:600 12px system-ui;color:#685b45;letter-spacing:.1em">'+(s.step?rank():'Kapitel 1')+' · '+paths[current().p]+'</div>';
  if(s.complete){const n=numbers();h+='<h2>Kapitel 1 avklarat!</h2><p>'+esc(current().bye)+'</p><p>21 återkallningsförsök: '+n.ind+' självständiga, '+n.aided+' med ledtråd, '+n.need+' behöver övas.</p><p>Det här är träning, inte betyg.</p><button class="primary" data-action="restart">Spela om</button>'}
@@ -256,7 +281,7 @@ function drawModal(){
  list.options.forEach((v,i)=>h+='<button class="ch1Option" data-action="choice" data-index="'+i+'">'+esc(v)+'</button>');
  h+='</div>';
 }
- else if(s.mode==='feedback'){const r=s.record[s.record.length-1];h+='<div class="answer"><b>'+(r.ok?'Svar registrerat':'Det här får du repetera')+'</b><p>'+esc(f.a)+'</p></div><button class="primary" data-action="next">'+(s.index===current().f.length-1?'Avsluta arbetet här':'Nästa fråga')+'</button>';}
+ else if(s.mode==='feedback'){const r=s.record[s.record.length-1];h+='<div class="answer"><b>'+(r.ok?'Rätt!':'Inte riktigt än')+'</b><p>'+esc(f.a)+'</p></div><button class="primary" data-action="next">'+(r.ok?(s.index===current().f.length-1?'Färdig':'Nästa fråga'):'Försök igen')+'</button>';}
  h+='<small>Grundboken s. 64–65 · Elevernas arbetsbok '+esc(f.ab)+'. Frågor med alternativ registreras som stödda svar.</small>';
  }
  h+='<p><button data-action="close">Stäng och promenera</button></p>';
