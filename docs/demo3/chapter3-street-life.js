@@ -9,7 +9,10 @@ const CAST={
  hat:{id:'hat',name:'En hatt',region:'main',x:1095,y:770,r:40,role:'hat',color:'#75604b',heading:-2.1},
  farmers:{id:'farmers',name:'Bönder från Dalarna',region:'main',x:749,y:709,r:55,role:'farmer',color:'#8d7656',heading:0},
  soldiers:{id:'soldiers',name:'Två soldater',region:'main',x:1432,y:708,r:51,role:'soldier',color:'#687b82',heading:-.7},
- david:{id:'david',name:'David Hedenquist',region:'marstrand',x:1281,y:378,r:44,role:'david',color:'#736957',heading:-1.57}
+ david:{id:'david',name:'David Hedenquist',region:'marstrand',x:1281,y:378,r:44,role:'david',color:'#736957',heading:-1.57},
+ rusBeach:{id:'rusBeach',name:'Rysk lägervakt vid stranden',region:'main',x:284,y:1061,r:39,role:'russian',color:'#53684d',heading:-1.15},
+ rusNorth:{id:'rusNorth',name:'Rysk lägervakt vid Barnhuset',region:'main',x:2438,y:301,r:39,role:'russian',color:'#4c6248',heading:.30},
+ noble:{id:'noble',name:'En herre från herrgården',region:'main',x:3393,y:356,r:40,role:'noble',color:'#71645d',heading:-1.8}
 };
 const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
 // Visual camp sites are dramatized placements on this game's map, not claims
@@ -26,22 +29,25 @@ box.innerHTML='<span class="ch3Speaker"></span><span class="ch3Words"></span><sp
 stage.append(box);
 const css=document.createElement('style');
 css.textContent=[
- '#ch3StreetDialogue{position:absolute;z-index:22;box-sizing:border-box;width:min(274px,calc(100% - 24px));max-height:calc(100% - 18px);overflow:auto;background:#fff8e9;border:1.5px solid #ac9774;border-radius:35% 31% 34% 30% / 23% 27% 26% 24%;box-shadow:2px 3px 0 #46372520;padding:14px 21px 16px;color:#3b3227;pointer-events:auto;text-align:center;cursor:pointer}',
+ '#ch3StreetDialogue{position:absolute;z-index:22;box-sizing:border-box;width:min(226px,calc(100% - 24px));max-height:none;overflow:visible;background:#fffefa;border:1.5px solid #ac9774;border-radius:35% 31% 34% 30% / 23% 27% 26% 24%;box-shadow:2px 3px 0 #46372520;padding:11px 16px 13px;color:#3b3227;pointer-events:auto;text-align:center;cursor:pointer}',
  '#ch3StreetDialogue[hidden]{display:none!important}',
- '#ch3StreetDialogue:after{content:"";position:absolute;left:var(--tail-x,50%);bottom:1px;width:14px;height:11px;transform:translate(-50%,79%) rotate(-20deg);border:1px solid #ac9774;border-radius:55% 40%;background:#fff8e9;pointer-events:none}',
+ '#ch3StreetDialogue:after{content:"";position:absolute;left:var(--tail-x,50%);bottom:1px;width:14px;height:11px;transform:translate(-50%,79%) rotate(-20deg);border:1px solid #ac9774;border-radius:55% 40%;background:#fffefa;pointer-events:none}',
  '#ch3StreetDialogue .ch3Speaker{display:block;font:600 12px/1.25 Georgia,serif;color:#78624b;margin:0 0 5px}',
  '#ch3StreetDialogue .ch3Words{display:block;font:16px/1.38 Georgia,serif;overflow-wrap:break-word}',
  '#ch3StreetDialogue .ch3Arrow{display:block;font:19px/1 Georgia,serif;color:#8c765c;text-align:right;margin:-1px 0 -6px}',
  '#ch3StreetDialogue:focus-visible{outline:2px dashed #8f7b5e;outline-offset:3px}',
- '@media(max-width:550px){#ch3StreetDialogue{width:min(244px,calc(100% - 18px));padding:12px 17px 14px}#ch3StreetDialogue .ch3Words{font-size:15px}}'
+ '@media(max-width:550px){#ch3StreetDialogue{width:min(216px,calc(100% - 18px));padding:12px 17px 14px}#ch3StreetDialogue .ch3Words{font-size:15px}}'
 ].join('\n');document.head.append(css);
 const speaker=box.querySelector('.ch3Speaker'),speech=box.querySelector('.ch3Words');
-let active=null,lineIndex=0,viewport=null,enteredAt=performance.now(),lastPhase=1,openedAt=0;
+let active=null,teaser=null,lineIndex=0,viewport=null,enteredAt=performance.now(),lastPhase=1,openedAt=0;
+let teaserHiddenUntil=0;
+const NEAR=76,LEAVE=111;
 const talkPaused={farmers:0,soldiers:0};
 function step(){const state=window.UPPDRAG_CH3_PILOT?.state;return state?.complete?99:Math.max(0,state?.step||0);}
 function phase(){const n=step();return n<3?1:n<7?2:3;}
 function visible(region,id){
  const c=CAST[id];if(!region||!c||region.id!==c.region)return false;
+ if(['rusBeach','rusNorth','noble'].includes(id))return step()>=9;
  return id==='farmers'||id==='soldiers'?phase()>=2:id==='david'?step()>=4:true;
 }
 function position(actor,now=performance.now()){
@@ -59,6 +65,24 @@ function position(actor,now=performance.now()){
    // Two soldiers pace along the archive–opera road, with visible travel.
    const advance=moving?(1-Math.cos(elapsed/2600))*.5:0;
    return {...actor,x:1432-146*advance,y:708+advance*2,moving,heading:advance>.5?-2.9:0};
+ }
+ if(actor.role==='cap'||actor.role==='hat'){
+   // They pace and turn while arguing, unlike static map ornaments.
+   const speed=actor.role==='cap'?2250:1880,amplitude=actor.role==='cap'?28:33;
+   const sway=moving?Math.sin(elapsed/speed+actor.x/117)*amplitude:0;
+   const dy=moving?Math.sin(elapsed/(speed*1.45)+actor.y/230)*5:0;
+   return {...actor,x:actor.x+sway,y:actor.y+dy,
+     heading:actor.heading+(moving?Math.sin(elapsed/(speed*.8))*.22:0),moving};
+ }
+ if(actor.role==='noble'){
+   const stepSide=moving?Math.sin(elapsed/2900)*13:0;
+   return {...actor,x:actor.x+stepSide,y:actor.y+(moving?Math.sin(elapsed/4200)*3:0),
+     heading:actor.heading+.05*Math.sin(elapsed/3000),moving};
+ }
+ if(actor.role==='russian'){
+   const travel=moving?Math.sin(elapsed/2300+actor.x/420)*10:0;
+   return {...actor,x:actor.x+travel,y:actor.y+(moving?Math.cos(elapsed/2400)*3:0),
+     heading:actor.heading+.08*Math.sin(elapsed/2100),moving};
  }
  return {...actor,y:actor.y+(moving?Math.sin(now/(2600+actor.x%700))*.5:0),moving:false};
 }
@@ -92,6 +116,21 @@ function story(actor){
  if(actor.id==='soldiers')return n>=7
    ?[['En soldat','På Norrmalm sköts många bönder. Vi fick fruktansvärda order.'],['Du','Ville du möta dem?'],['Soldaten','Nej. Jag ville inte rikta mitt vapen mot svenska bönder.']]
    :[['En soldat','De säger att vi ska stoppa bönderna.'],['Du','Vill du det?'],['Soldaten','Jag vill hellre hem till gården, eller möta fienden. Inte våra egna.']];
+ if(actor.id==='rusBeach')return [
+   ['Rysk vakt','Halt! Är du dansk?'],
+   ['Du','Nej, jag bor här i Sverige.'],
+   ['Rysk vakt','Vi har kommit för att avskräcka danskarna. Inga danska soldater här, tack!']
+ ];
+ if(actor.id==='rusNorth')return [
+   ['Rysk vakt','Stopp. Här ska vara lugnt och ordning!'],
+   ['Du','Varför är era soldater här?'],
+   ['Rysk vakt','Svenskarna bad om hjälp mot danskarna. Vi vill inte ha bråk. Håll dig lugn, bonnläpp!']
+ ];
+ if(actor.id==='noble')return [
+   ['En herre','Se så, nu börjar det åtminstone bli ordning i riket.'],
+   ['Du','Tycker du om att de ryska soldaterna är här?'],
+   ['Herren','Jag är lättad. Efter böndernas uppror vågar jag knappt tänka på mer oro.']
+ ];
  if(actor.id==='david')return [
    ['Du','Är du David Hedenquist?'],['David','Ja. Jag vägrade skjuta på bönderna i Stockholm.'],
    ['Du','En del kallar dig modig. Andra kallar dig feg.'],
@@ -118,13 +157,13 @@ function show(){
  if(lineIndex>=lines.length)return close();
  const [who,text]=lines[lineIndex];speaker.textContent=who;speech.textContent=text;
  box.setAttribute('aria-label',who+': '+text+' Klicka för nästa replik.');
- box.hidden=false;positionPanel(active,who);
+ teaser=null;box.hidden=false;positionPanel(active,who);
  box.focus({preventScroll:true});return true;
 }
 function open(actor){
  if(!actor||active||!viewport)return false;
  const real=find(viewport.region,actor.id);if(!real)return false;
- active=real;lineIndex=0;openedAt=performance.now();
+ active=real;teaser=null;lineIndex=0;openedAt=performance.now();
  window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
  return show();
 }
@@ -132,10 +171,16 @@ function close(){
  if(!active)return false;
  if(active.id==='farmers'||active.id==='soldiers')
    talkPaused[active.id]+=Math.max(0,performance.now()-openedAt);
- active=null;lineIndex=0;box.hidden=true;return true;
+ active=null;lineIndex=0;teaser=null;teaserHiddenUntil=performance.now()+1900;box.hidden=true;return true;
 }
 function next(){if(!active)return false;lineIndex++;return show();}
-box.addEventListener('click',()=>{next();});
+box.addEventListener('click',()=>{
+ if(active)next();
+ else if(teaser&&viewport?.region){
+   const available=find(viewport.region,teaser.id);
+   if(available)open(available);
+ }
+});
 window.addEventListener('keydown',e=>{
  if(!active||e.defaultPrevented||e.key!=='Escape')return;
  e.preventDefault();e.stopImmediatePropagation();close();
@@ -153,13 +198,20 @@ function paper(ctx,points,color){
 }
 function cap(ctx,a){
  ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.heading);
- if(a.role==='hat'||a.role==='soldier'||a.role==='russian'){
+ if(a.role==='hat'||a.role==='soldier'||a.role==='russian'||a.role==='noble'){
   paper(ctx,[[-7,-11],[9,-13],[22,-10],[25,-1],[21,10],[8,13],[-6,9]],a.role==='hat'?'#494237':a.role==='russian'?'#363c35':'#445d71');
   paper(ctx,[[1,-6],[17,-8],[21,0],[16,8],[1,7]],'#847258');
  }else{
   ctx.fillStyle=a.role==='cap'?'#556c59':'#715d4c';
   ctx.beginPath();ctx.ellipse(8,0,10,9,0,0,Math.PI*2);ctx.fill();
   if(a.role!=='david')paper(ctx,[[3,-8],[15,-8],[19,-3],[0,-3]],'#a28d6d');
+ }
+ if(a.role==='noble'){
+   // Pudergrå, krullig peruk, tydligt olik hattarnas trekantiga hattar.
+   ctx.fillStyle='#d6ceba';
+   for(const [xx,yy] of [[-8,-10],[0,-14],[10,-14],[19,-8],[-10,1],[19,5],[-8,12],[15,12]]){
+     ctx.beginPath();ctx.ellipse(xx+9,yy,6,5,0,0,Math.PI*2);ctx.fill();
+   }
  }
  ctx.restore();
 }
@@ -233,6 +285,40 @@ function campCanvas(ctx,camp,now){
  }
  paperTag(ctx,camp.label,x+2,y-69);
 }
+function updateNearby(region,player,now){
+ if(active)return;
+ if(!player||!region||now<teaserHiddenUntil){teaser=null;box.hidden=true;return;}
+ const wanted=nearest(region,player,NEAR);
+ if(!wanted){
+   // A little hysteresis keeps the white bubble from flickering at the edge.
+   if(!teaser||!find(region,teaser.id)||Math.hypot(player.x-teaser.x,player.y-teaser.y)>LEAVE){
+     teaser=null;box.hidden=true;
+   }
+   return;
+ }
+ if(teaser?.id!==wanted.id){
+   const first=story(wanted).find(line=>line[0]!=='Du')||story(wanted)[0];
+   if(!first)return;
+   teaser=wanted;
+   speaker.textContent=first[0];speech.textContent=first[1];
+   box.setAttribute('aria-label','Prata med '+wanted.name+'. '+first[1]);
+ }
+ box.hidden=false;positionPanel(teaser,speaker.textContent);
+}
+function obstacles(region){
+ if(!region)return[];
+ const scene=people(region).flatMap(a=>{
+   if(a.id==='farmers')return [{id:a.id,x:a.x-30,y:a.y,radius:77},{id:a.id+'-line',x:a.x-58,y:a.y+14,radius:40}];
+   if(a.id==='soldiers')return [{id:a.id,x:a.x+13,y:a.y+5,radius:62}];
+   return[{id:a.id,x:a.x,y:a.y,radius:36}];
+ });
+ if(region.id==='main'){
+   for(const camp of stationedCamps(region)){
+     scene.push({id:'tent-'+camp.id,x:camp.x,y:camp.y,radius:67});
+   }
+ }
+ return scene;
+}
 function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
  if(!region||!camera||!layout)return;
  viewport={region,camera:{x:camera.x,y:camera.y},layout:{w:layout.w,h:layout.h,scale:layout.scale},player};
@@ -244,11 +330,12 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
    paperTag(ctx,'DAVID HEDENQUIST',a.x,a.y+31);
  }
  if(active){const lines=story(active);positionPanel(active,lines[lineIndex]?.[0]||'');}
+ else updateNearby(region,player,now);
  if(region.id==='main'&&phase()===2&&!active&&!reduced?.matches&&now%16000<2600){
   const leader=find(region,'farmers');if(leader)paperTag(ctx,'NOG MED KRIG!',leader.x,leader.y-64);
  }
 }
 window.UPPDRAG_CH3_CITY_LIFE={people,find,hit,nearest,open,close,next,draw,phase,stationedCamps,
- get active(){return !!active},get actor(){return active?.id||null},
+ obstacles,get active(){return !!active},get teaser(){return teaser?.id||null},get actor(){return active?.id||null},
  get lines(){return active?story(active):[]}};
 })();
