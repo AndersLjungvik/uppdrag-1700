@@ -455,7 +455,7 @@ function go(){
 function advance(){
  if(s.step>0&&(s.mode!=='end'||!stageSolved()))return false;
  if(s.step>0){for(const id of current().f)s.earned[id]=true;s.daler+=1;}
- if(s.step===runs.length-1){s.complete=true;s.mode='finished';persist();open=true;modal.hidden=false;document.body.classList.add('ch1-open');drawModal();return}
+ if(s.step===runs.length-1){s.complete=true;s.mode='finished';persist();drawHud();open=true;modal.hidden=false;document.body.classList.add('ch1-open');drawModal();return}
  s.step++;s.index=0;s.trial=0;s.mode='intro';s.hint=false;s.wordHelp=false;s.draft='';persist();closePanel();drawHud();go();dismiss=-1
 }
 function next(){
@@ -495,7 +495,7 @@ function drawModal(){
     +'<text x="90" y="39" text-anchor="middle" fill="#f7dfbf" font-size="11" font-family="Georgia">MINNES</text>'
     +'<text x="90" y="151" text-anchor="middle" fill="#f7dfbf" font-size="11" font-family="Georgia">MÄSTARE</text>'
     +'</svg>'
-    +'<p>Du har hjälpt Maja, Amira, Jo och Elin att minnas.</p>'
+    +'<p>Du har hjälpt Maja, Märta och Siri att minnas.</p>'
     +'<p class="ch1DiplomaSmall">'+right+' rätta återkallningar på '+tries+' försök. '
       +'Detta är träning, inte ett betyg.</p>'
     +'<button class="primary" data-action="restart">Börja om äventyret</button>'
@@ -503,7 +503,7 @@ function drawModal(){
    return;
  }
  let h='<div style="font:600 12px system-ui;color:#685b45;letter-spacing:.1em">'+(s.step?rank():'Kapitel 2')+' · '+paths[current().p]+'</div>';
- if(s.complete){const n=numbers();h+='<h2>Kapitel 2 avklarat!</h2><p>'+esc(current().bye)+'</p><p>21 kunskapsdelar avklarade på '+s.record.length+' försök. '+n.ind+' rätt utan stöd, '+n.aided+' rätt med stöd och '+n.need+' felaktiga försök.</p><p>Det här är träning, inte betyg.</p><button class="primary" data-action="restart">Spela om</button>'}
+ if(s.complete){const n=numbers();h+='<h2>Kapitel 2 avklarat!</h2><p>'+esc(current().bye)+'</p><p>27 kunskapsdelar avklarade på '+s.record.length+' försök. '+n.ind+' rätt utan stöd, '+n.aided+' rätt med stöd och '+n.need+' felaktiga försök.</p><p>Det här är träning, inte betyg.</p><button class="primary" data-action="restart">Spela om</button>'}
  else if(s.mode==='intro')h+='<h2>'+esc(s.step?rank()+' · '+paths[current().p]:'Ett nytt uppdrag')+'</h2><p><b>'+current().who+':</b> '+esc(current().hello)+'</p><button class="primary" data-action="start">'+(s.step?'Börja återkalla':'Ta uppdraget')+'</button>';
  else if(s.mode==='end')h+='<h2>Arbetet är klart</h2><p><b>'+current().who+':</b> '+esc(current().bye)+'</p><button class="primary" data-action="advance">'+(s.step===runs.length-1?'Avsluta kapitel 2':'Fortsätt till nästa plats')+'</button>';
  else {
