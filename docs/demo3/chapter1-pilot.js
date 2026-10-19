@@ -34,7 +34,7 @@ const persist=()=>{try{localStorage.setItem(storage,JSON.stringify(s))}catch{}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
 const current=()=>runs[s.step],item=()=>facts[current().f[s.index]];
-const location=()=>!interior?'':interior.outdoor&&interior.regionId==='main'?'quay':interior.name==='Riksdagshuset'?'riksdag':interior.name==='Slottet'?'palace':interior.name==='Kaffehuset'?'cafe':'';
+const location=()=>!interior?'':interior.outdoor&&interior.regionId==='main'?'quay':interior.name==='Riksdagshuset'?'riksdag':interior.name==='Slottet'?'palace':interior.name==='Kaffehuset'?'cafe':interior.name==='Arkivet'?'archive':'';
 const present=()=>location()===current().p;
 const hud=document.createElement('div'),modal=document.createElement('div');hud.id='ch1Hud';modal.id='ch1Modal';modal.hidden=true;stage.append(hud,modal);
 const style=document.createElement('style');style.textContent=[
@@ -108,6 +108,19 @@ style.textContent+=`
 #ch1Modal .ch1Result strong{font:600 18px/1.2 Georgia,serif}
 @media(max-width:620px){#ch1Modal button.ch1Option{font-size:14px;padding:10px 11px;min-height:45px}}
 `;
+
+style.textContent+=`
+#ch1Hud .ch1Wallet{font:600 13px Georgia,serif;margin-top:3px;color:#644a31}
+#ch1Modal.ch1MemoryFull .ch1Sheet{background:#fffcf6;border:1px solid #c9bba1}
+#ch1Modal.ch1MemoryFull .ch1Result{border:0;margin:5px 0 15px;padding:18px 15px;background:#f0f4e9}
+#ch1Modal.ch1MemoryFull .ch1ResultWrong{background:#f8e9e4}
+#ch1Modal.ch1MemoryFull .ch1ResultRight{background:#e8f1e7;border:2px solid #719778}
+#ch1Modal.ch1MemoryFull .ch1Result strong{display:block;font:700 20px/1.25 Georgia,serif}
+#ch1Modal.ch1MemoryFull .ch1FlashAnswer{font:600 clamp(22px,3vw,28px)/1.45 Georgia,serif;margin:13px 0 4px;color:#27362e}
+#ch1Modal.ch1MemoryFull .ch1ResultWrong .ch1FlashAnswer{color:#422e2a}
+#ch1Modal.ch1MemoryFull .ch1Count{margin-bottom:8px}
+#ch1Modal.ch1MemoryFull .ch1RetryNote{font:15px/1.4 Georgia,serif;text-align:center;color:#594a38}
+`;
 let open=false,was='',dismiss=-1;
 const referenceMemory=()=>s.step>=1&&!s.complete;
 const referenceMaja=()=>s.step===0&&!s.complete;
@@ -135,7 +148,7 @@ function paintCutPaperScene(){
  const canvas=modal.querySelector('#ch1CutPaperScene');
  if(!canvas)return;
  try{
-   if(window.UPPDRAG_ROOM_ART?.renderMemoryCloseup?.(canvas,current().p)){
+   if(window.UPPDRAG_ROOM_ART?.renderMemoryCloseup?.(canvas,s.archiveActive?'archive':current().p)){
      canvas.style.visibility='visible';
      return;
    }
@@ -152,14 +165,27 @@ style.textContent+=`
 #ch1Modal.ch1MemoryFull .ch1Sheet{left:63%;max-width:500px}
 @media(max-width:800px){#ch1Modal.ch1MemoryFull .ch1Sheet{left:50%;max-width:500px}}
 `;
+function retryButtons(){
+ let h='<div class="ch1Actions">';
+ if(s.daler>0)h+='<button class="primary" data-action="retry-daler">Nytt prov · 1 daler</button>';
+ if(s.apples>0)h+='<button class="primary" data-action="retry-apple">Nytt prov · 1 äpple</button>';
+ return h+'<button data-action="archive-go">Träna hos Rut i Arkivet</button></div>';
+}
+function retryWith(kind){
+ if(s.mode!=='failed'||!present())return false;
+ const wallet=kind==='apple'?'apples':'daler';
+ if(s[wallet]<1)return false;
+ s[wallet]--;s.trial++;s.index=0;s.mode='question';s.hint=false;s.draft='';
+ persist();drawHud();drawMemory();return true;
+}
 function drawMemory(){
  const f=item(),id=current().f[s.index],short=!!f.answers&&!(current().r===2&&id==='nobles');
- const fallback=window.UPPDRAG_CH1_CLOSEUPS?.images?.[current().p];
+ const fallback=window.UPPDRAG_CH1_CLOSEUPS?.images?.[s.archiveActive?'cafe':current().p];
  if(!fallback||!fallback.includes('<svg'))throw new Error('Reservbilden saknas för '+current().p);
  const choices=short?null:window.UPPDRAG_CH1_CHOICES?.optionsFor(id,current().r);
  if(!short&&!choices)throw new Error('Granskade alternativ saknas för '+id+' på '+current().r);
  let sheet='<p class="ch1Count">'+(s.index+1)+' / '+current().f.length+'</p>';
- sheet+='<h2 class="ch1Prompt">'+esc(f.q[current().r])+'</h2>';
+ if(s.mode==='question'||s.mode==='choices')sheet+='<h2 class="ch1Prompt">'+esc(f.q[current().r])+'</h2>';
  if(s.mode==='question'){
    if(short)sheet+='<input id="ch1Answer" aria-label="Ditt svar" type="text" maxlength="120" autocomplete="off" value="'+esc(s.draft)+'">';
    if(s.hint)sheet+='<p class="ch1Hint">'+esc(f.hint)+'</p>';
@@ -173,11 +199,15 @@ function drawMemory(){
    choices.options.forEach((text,i)=>{sheet+='<button class="ch1Option" type="button" data-action="choice" data-index="'+i+'">'+esc(text)+'</button>';});
    sheet+='</div>';
    if(s.hint)sheet+='<p class="ch1Hint">'+esc(f.hint)+'</p>';
+ }else if(s.mode==='failed'){
+   sheet+='<div class="ch1Result ch1ResultWrong" role="status"><strong>Inte rätt än</strong>'
+       +'<p class="ch1FlashAnswer">'+esc(f.a)+'</p></div>';
+   sheet+='<p class="ch1RetryNote">Vill du försöka igen börjar hela uppdraget om.</p>'+retryButtons();
  }else if(s.mode==='feedback'){
-   const last=s.record[s.record.length-1],correct=!!last?.ok;
-   sheet+='<div class="ch1Result" role="status"><strong>'+(correct?'Rätt!':'Inte riktigt än')+'</strong><p>'+esc(f.a)+'</p></div>';
+   sheet+='<div class="ch1Result ch1ResultRight" role="status"><strong>RÄTT</strong>'
+       +'<p class="ch1FlashAnswer">'+esc(f.a)+'</p></div>';
    sheet+='<div class="ch1Actions"><button class="primary" data-action="next">'
-    +(correct?(s.index===current().f.length-1?'Färdig':'Nästa fråga'):'Försök igen')+'</button></div>';
+     +(s.index===current().f.length-1?'Lämna minnesprovet':'Nästa fråga')+'</button></div>';
  }
  modal.innerHTML='<div class="ch1MemorySetting" aria-hidden="true">'
     +'<div class="ch1LegacyFallback">'+fallback+'</div>'
@@ -213,14 +243,26 @@ const rank=()=>['Lärling','Gesäll','Mästare'][current().r];
 function numbers(){return {ind:s.record.filter(x=>x.ok&&!x.support).length,aided:s.record.filter(x=>x.ok&&x.support).length,need:s.record.filter(x=>!x.ok).length}}
 function drawHud(){
  const label=present()?'Prata med '+current().who:'Visa vägen';
- hud.innerHTML='<strong>Frihetstiden · '+(s.step?rank():'Start')+'</strong><span>Nästa: <b>'+paths[current().p]+'</b></span>'
-   +'<div><button class="primary" data-nav="1">'+esc(label)+'</button>'
-   +'<button type="button" data-reset="1" title="Börja om hela kapitel 1">Börja om kapitel 1</button></div>';
+ hud.innerHTML='<strong>Frihetstiden · '+(s.step?rank():'Start')+'</strong>'
+  +'<span>Nästa: <b>'+paths[current().p]+'</b></span>'
+  +'<div class="ch1Wallet">'+s.daler+' daler · '+s.apples+' äpplen</div>'
+  +'<div><button class="primary" data-nav="1">'+esc(label)+'</button>'
+  +'<button data-archive="1">Arkivet · repetera</button>'
+  +'<button type="button" data-reset="1" title="Börja om hela kapitel 1">Börja om</button></div>';
 }
-function closePanel(){open=false;modal.hidden=true;document.body.classList.remove('ch1-open');restoreRoomFromMemory();dismiss=s.step}
+function closePanel(){open=false;modal.hidden=true;document.body.classList.remove('ch1-open');restoreRoomFromMemory();if(s.archiveActive){s.archiveActive=false;persist();}dismiss=s.step}
 function showPanel(){if(!present())return;
  if(referenceMemory()||referenceMaja())return window.UPPDRAG_MEETINGS?.start?.();
  open=true;modal.hidden=false;document.body.classList.add('ch1-open');drawModal();
+}
+function goArchive(){
+ closePanel();
+ if(region.id!=='main'){setMessage('Arkivet','Återvänd till staden först.');return false;}
+ if(location()==='archive')return window.UPPDRAG_MEETINGS?.start?.();
+ if(interior)leaveInterior();
+ const building=region.buildings.find(b=>b.name==='Arkivet');
+ if(building)requestInterior(building);
+ return !!building;
 }
 function go(){
  closePanel();
@@ -240,12 +282,7 @@ function next(){
  if(s.mode!=='feedback')return false;
  const last=s.record[s.record.length-1];
  if(!last||last.step!==s.step||last.id!==current().f[s.index])return false;
- if(!last.ok){
-   // A wrong or missing answer never unlocks another question or person.
-   s.mode='question';s.hint=true;s.draft='';persist();
-   if(memoryVisible)drawMemory();else drawModal();
-   return false;
- }
+ if(!last.ok)return false;
  s.index++;
  s.mode=s.index>=current().f.length?'end':'question';
  s.hint=false;s.draft='';persist();
@@ -261,7 +298,7 @@ function mark(ok,{supported=false,response=null}={}){
  const f=current().f[s.index];
  s.record.push({step:s.step,trial:s.trial,id:f,level:rank(),ok,support:s.hint||supported,
   ab:item().ab,answer:response??s.draft});
- s.mode='feedback';persist();
+ s.mode=ok?'feedback':'failed';persist();
  if(memoryVisible)drawMemory();else drawModal();
 }
 function drawModal(){
@@ -300,6 +337,7 @@ function resetChapter(){
 }
 hud.addEventListener('click',e=>{
  if(e.target.closest('[data-reset]'))resetChapter();
+ else if(e.target.closest('[data-archive]'))goArchive();
  else if(e.target.closest('[data-nav]'))go();
  else if(e.target.closest('[data-open]'))showPanel();
 });
@@ -307,6 +345,9 @@ modal.addEventListener('input',e=>{if(e.target.id==='ch1Answer'){s.draft=e.targe
 modal.addEventListener('click',e=>{
  const act=e.target.closest('[data-action]')?.dataset.action;if(!act)return;
  if(act==='close'){closePanel();return}
+ if(act==='retry-daler'){retryWith('daler');return}
+ if(act==='retry-apple'){retryWith('apple');return}
+ if(act==='archive-go'){goArchive();return}
  if(act==='restart'){resetChapter();return}
  if(act==='start'){if(s.step===0)advance();else{s.mode='question';persist();drawModal()}return}
  if(act==='hint'){s.hint=true;persist();if(memoryVisible)drawMemory();else drawModal();return}
