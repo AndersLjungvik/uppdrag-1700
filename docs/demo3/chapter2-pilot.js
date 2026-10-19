@@ -334,7 +334,7 @@ function enterMemory(){
  hideRoomForMemory();drawMemory();return true;
 }
 function wantsMajaMeeting(place){return referenceMaja()&&present()&&place==='cafe';}
-function majaProblem(){return 'Jag tror det. Gå till Märta i Kyrkan först. Siri på Barnhuset behöver nog också någon som lyssnar.';}
+function majaProblem(){return 'Jag tror det. Gå till Olof i Kyrkan först. Siri på Barnhuset behöver nog också någon som lyssnar.';}
 function acceptMajaMission(){if(wantsMajaMeeting('cafe'))advance();}
 function wantsMemoryMeeting(place){return referenceMemory()&&present()&&place===current().p&&s.mode!=='end';}
 function memoryProblem(){
@@ -509,7 +509,7 @@ function drawModal(){
     +'<text x="90" y="39" text-anchor="middle" fill="#f7dfbf" font-size="11" font-family="Georgia">MINNES</text>'
     +'<text x="90" y="151" text-anchor="middle" fill="#f7dfbf" font-size="11" font-family="Georgia">MÄSTARE</text>'
     +'</svg>'
-    +'<p>Du har hjälpt Maja, Märta och Siri att minnas.</p>'
+    +'<p>Du har hjälpt Maja, Olof och Siri att minnas.</p>'
     +'<p class="ch1DiplomaSmall">'+right+' rätta återkallningar på '+tries+' försök. '
       +'Detta är träning, inte ett betyg.</p>'
     +'<button class="primary" data-action="restart">Börja om äventyret</button>'
