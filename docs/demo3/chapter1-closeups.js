@@ -10,7 +10,7 @@ function speech(run,state){
  if(state.mode==='intro')return run.hello;
  if(state.mode==='end')return run.bye;
  if(state.mode==='rating')return 'Hade du huvudpoängen innan svaret visades?';
- if(state.mode==='feedback')return state.record.at(-1)?.ok?'Ja, nu minns jag igen!':'Det är fortfarande lite suddigt. Vi försöker igen senare.';
+ if(state.mode==='feedback')return state.record.at(-1)?.ok?'Det börjar klarna.':'Inte riktigt än. Vi försöker en gång till.';
  return 'En del av min anteckning är borta. Kan du hjälpa mig att minnas?';
 }
 function decorate(modal,run,state){
