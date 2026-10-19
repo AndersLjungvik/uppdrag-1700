@@ -225,6 +225,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   function startTalk(){
     const c=current();if(!c?.cast||dialogue||voyage)return false;
     const pilot=window.UPPDRAG_CH1_PILOT;
+    if(c.key==='palace'&&pilot?.wantsPalaceThanks?.())return palaceThanks();
     if(c.key==='palace'&&pilot?.wantsPalaceMeeting?.()){
       dialogue={room:interior,cast:{...CAST.palace,lines:[['Du','Hej!'],['Amira',pilot.palaceProblem()]]},index:0,special:'memory'};
       footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
@@ -276,6 +277,15 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     if(['Enter','Escape','Tab','ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(key)){
       if(e.isComposing||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey&&key!=='Tab'||e.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="combobox"]'))return;
       if(key==='Tab'||key.startsWith('Arrow')){
+        if(dialogue.special){
+          const buttons=[...panel.querySelectorAll('[data-ch1-choice]')];
+          if(buttons.length){
+            e.preventDefault();e.stopImmediatePropagation();
+            const at=buttons.indexOf(document.activeElement),reverse=key==='ArrowUp'||key==='ArrowLeft'||key==='Tab'&&e.shiftKey;
+            const next=at<0?(reverse?buttons.length-1:0):(at+(reverse?-1:1)+buttons.length)%buttons.length;
+            buttons[next].focus({preventScroll:true});return;
+          }
+        }
         e.preventDefault();e.stopImmediatePropagation();
         panel.focus({preventScroll:true});return;
       }
