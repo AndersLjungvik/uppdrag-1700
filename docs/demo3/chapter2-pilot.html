@@ -41,7 +41,7 @@ body[data-room^="waterfront-"] #roomReturnText{display:none}
 <script src="paper-fibres.js?v=3.19.0"></script>
 <script src="paper-look.js?v=3.3-paper"></script>
 <script src="interior-ch1-pilot.js?v=16"></script>
-<script src="more-room-ch2-pilot.js?v=1"></script>
+<script src="more-room-ch2-pilot.js?v=3"></script>
 <script src="harbour-fibre-art.js?v=3.19.0"></script>
 <script src="harbour-chapters.js?v=3.19.0"></script>
 <script src="living-conversation-data.js?v=3.19.0"></script>
@@ -183,8 +183,8 @@ canvas.addEventListener('pointerleave',()=>{hoverPersonId=null;canvas.style.curs
 window.addEventListener('resize',resize);resize();draw();syncHarbourUI();document.documentElement.dataset.ready='true';requestAnimationFrame(animate);
 window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElement.dataset.paper=ok?'original':'fallback';if(!ok)console.warn('Originalmaterialet saknas. Grundgrafiken visas.');});
 </script>
-<script src="npc-motion-ch2.js?v=1"></script>
-<script src="meeting-ch2-pilot.js?v=4"></script>
+<script src="npc-motion-ch2.js?v=3"></script>
+<script src="meeting-ch2-pilot.js?v=5"></script>
 <script src="world-life.js?v=3.19.0"></script>
 <script src="story-world.js?v=3.19.0"></script>
 <script src="paper-dialogues.js?v=3.19.0"></script>
@@ -200,12 +200,12 @@ window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElem
    Samtalen med Maja, Märta, Siri och Rut är de aktiva kapitelsamtalen. */
 if(window.UPPDRAG_WORLD_LIFE)window.UPPDRAG_WORLD_LIFE.hit=()=>null;
 </script>
-<script src="chapter2-content.js?v=2"></script>
+<script src="chapter2-content.js?v=3"></script>
 <script src="chapter2-choices.js?v=2"></script>
 <script src="chapter2-closeups.js?v=1"></script>
 <script src="chapter1-reading-support.js?v=19"></script>
 <script src="chapter2-reading.js?v=4"></script>
-<script src="chapter2-pilot.js?v=4"></script>
+<script src="chapter2-pilot.js?v=5"></script>
 </body>
 </html>
 
