@@ -221,7 +221,9 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   // follow breathing/turn animations. Re-layout only on a new line or resize.
   function positionDialogue(){
     if(!dialogue||!geometry||dialogue.bubblePlaced)return;
-    const geo=geometry,wide=Math.min(540,geo.w-24),maxHeight=geo.h-20;
+    const geo=geometry,maxHeight=geo.h-20;
+    const letters=panel.textContent.trim().length;
+    const wide=Math.min(geo.w-24,Math.max(325,Math.min(515,295+letters*1.52)));
     if(wide<140||maxHeight<85)return;
     const speaker=dialogue.cast.lines[dialogue.index][0];
     const speakerIndex=speaker==='Du'?0:1,body=geo.poses[speakerIndex];
@@ -236,13 +238,17 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     // Leave a generous margin so the papery outline never touches the text.
     const measured=panel.getBoundingClientRect();
     const actualHeight=Math.min(maxHeight,Math.max(72,measured.height));
-    const box={x:geo.left+(geo.w-wide)/2,
-      y:geo.top+Math.max(10,Math.min(geo.h-actualHeight-10,geo.h*.12)),
-      w:wide,h:actualHeight};
+    // Position this bubble relative to its speaker, not in the room's center.
+    // The line is laid out once; tiny gestures never pull the words around.
+    const minX=geo.left+12,maxX=Math.max(minX,geo.left+geo.w-wide-12);
+    const x=Math.max(minX,Math.min(maxX,head.x-wide*(speakerIndex===0?.36:.64)));
+    const minY=geo.top+9,maxY=Math.max(minY,geo.top+geo.h-actualHeight-9);
+    const y=Math.max(minY,Math.min(maxY,head.y-actualHeight-22));
+    const box={x,y,w:wide,h:actualHeight};
     Object.assign(panel.style,{left:box.x+'px',top:box.y+'px'});
-    const tip={x:Math.max(box.x+wide*.20,Math.min(box.x+wide*.80,head.x)),
-      y:box.y+actualHeight+14};
-    window.UPPDRAG_PAPER_DIALOGUES?.drawSpeech?.(dialogueTail,{box,tip,round:.56});
+    const tip={x:Math.max(box.x+wide*.26,Math.min(box.x+wide*.74,head.x)),
+      y:Math.min(geo.top+geo.h-4,box.y+actualHeight+19)};
+    window.UPPDRAG_PAPER_DIALOGUES?.drawSpeech?.(dialogueTail,{box,tip,round:.57});
     dialogue.bubblePlaced=true;
   }
   function closeTalk(restore=true){
