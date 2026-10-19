@@ -175,18 +175,23 @@ function requestStreetChat(actor){
  city.hold?.(found);
  const edgePoints=region.edges.map(edge=>roadProjection(found,edge))
   .sort((a,b)=>Math.hypot(a.x-found.x,a.y-found.y)-Math.hypot(b.x-found.x,b.y-found.y));
- const projected=edgePoints[0];
- if(!projected){city.releaseHold?.();return false;}
- const {edge}=projected,a=navigationPoint(region,edge.a),b=navigationPoint(region,edge.b);
- const total=Math.max(1,Math.hypot(b.x-a.x,b.y-a.y));
- const from=roadProjection(player,edge),side=from.t<=projected.t?-1:1;
- const fraction=Math.max(.02,Math.min(.98,projected.t+side*42/total));
- const goal={x:a.x+(b.x-a.x)*fraction,y:a.y+(b.y-a.y)*fraction};
- const next=routeAlongRoads(goal,edge);
- if(!next){city.releaseHold?.();return false;}
- path=next;follow=true;pendingStreetChat=found.id;
- window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
- return true;
+ // A geometrically close segment may run behind a house or fortress wall.
+ // Try valid connected roads, and approach on the player's side of the speaker.
+ for(const projected of edgePoints){
+   const {edge}=projected,a=navigationPoint(region,edge.a),b=navigationPoint(region,edge.b);
+   if(!a||!b)continue;
+   const total=Math.max(1,Math.hypot(b.x-a.x,b.y-a.y));
+   const from=roadProjection(player,edge),side=from.t<=projected.t?-1:1;
+   const fraction=Math.max(.02,Math.min(.98,projected.t+side*42/total));
+   const goal={x:a.x+(b.x-a.x)*fraction,y:a.y+(b.y-a.y)*fraction};
+   if(Math.hypot(goal.x-found.x,goal.y-found.y)>113)continue;
+   const next=routeAlongRoads(goal,edge);
+   if(!next)continue;
+   path=next;follow=true;pendingStreetChat=found.id;
+   window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
+   return true;
+ }
+ city.releaseHold?.();return false;
 }
 // A selected passerby waits at the clicked road position while the player
 // approaches. Both remain on that road, about one figure's width apart.
