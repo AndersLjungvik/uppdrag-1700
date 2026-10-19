@@ -146,27 +146,48 @@ function draw(){if(interior)return;const{w,h,d,scale}=layout;ctx.setTransform(d,
 canvas.addEventListener('pointerdown',e=>{if(interior||sailing||(window.UPPDRAG_LIVING_DIALOGUES?.busy||window.UPPDRAG_STORY_WORK?.busy))return;canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,cx:camera.x,cy:camera.y,moved:false}});canvas.addEventListener('pointermove',e=>{if(!drag){hoverPersonId=window.UPPDRAG_CH3_CITY_LIFE?.hit(region,screen(e))?.id||null;canvas.style.cursor=hoverPersonId?'pointer':'default';return;}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>8)drag.moved=true;if(drag.moved){follow=false;camera.x=drag.cx-dx/layout.scale;camera.y=drag.cy-dy/layout.scale;clamp()}});canvas.addEventListener('pointerup',e=>{if(!drag)return;const moved=drag.moved;drag=null;if(moved||interior||sailing||(window.UPPDRAG_LIVING_DIALOGUES?.busy||window.UPPDRAG_STORY_WORK?.busy))return;cancelPersonArrival();pending=null;returnPending=false;pendingRoom=null;pendingStreetChat=null;
  const p=screen(e),city=window.UPPDRAG_CH3_CITY_LIFE;
  if(city?.active)return;
+ city?.releaseHold?.();
  const actor=city?.hit(region,p);
- if(actor){
-   if(Math.hypot(player.x-actor.x,player.y-actor.y)<=98){
-     path=[];follow=true;city.open(actor);
-   }else{
-     pendingStreetChat=actor.id;
-     const goal=nearestNode(region,actor.x,actor.y);
-     if(!go(goal.id,'Till '+actor.name))pendingStreetChat=null;
-   }
-   return;
- }
+ if(actor){requestStreetChat(actor);return;}
  if(harbourMapHit(p)){requestHarbour();return;}const b=region.buildings.find(b=>inRect(p.x,p.y,b,15));if(b){if(roomKind(b))requestInterior(b);else go(b.entry,b.name);return}const n=nearestNode(region,p.x,p.y);go(n.id)});canvas.addEventListener('wheel',e=>{e.preventDefault();if((window.UPPDRAG_LIVING_DIALOGUES?.busy||window.UPPDRAG_STORY_WORK?.busy))return;follow=false;camera.x+=e.deltaX/layout.scale;camera.y+=e.deltaY/layout.scale;clamp()},{passive:false});
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{pending=null;returnPending=false;return go(b.dataset.go,b.textContent);});document.querySelector('#visitHarbour').onclick=()=>requestHarbour();document.querySelector('#sailM').onclick=()=>requestHarbour('marstrand');document.querySelector('#sailS').onclick=()=>requestHarbour('colony');document.querySelector('#return').onclick=()=>requestHarbour('main');document.querySelector('#follow').onclick=()=>{follow=true};
 function animate(now){const dt=Math.max(0,Math.min(.05,(now-last)/1000));last=now;const activeRoom=interior?.outdoor?(interior.regionId==='main'?'quay':null):interior?.kind||null;window.UPPDRAG_WORLD_LIFE?.tick(now,{region,player,activeRoom});window.UPPDRAG_LIVING_DIALOGUES?.tick(now);window.UPPDRAG_MEETINGS?.tick(now);window.UPPDRAG_WORLD_KEYBOARD?.tick(dt);window.UPPDRAG_STORY_WORLD?.tick(now);window.UPPDRAG_CH3_PILOT?.tick();if(interior){window.UPPDRAG_CH3_CITY_LIFE?.suspend?.();tickHarbourVoyage(now);requestAnimationFrame(animate);return}if(sailing&&now-sailing.at>1300){const trip=sailing;switchRegion(trip.to,trip.to==='main'?'quay':null)}if(path.length&&!sailing&&!window.UPPDRAG_STORY_WORK?.busy){const n=path[0],dx=n.x-player.x,dy=n.y-player.y,d=Math.hypot(dx,dy),step=180*dt;if(d<=step){player.x=n.x;player.y=n.y;path.shift()}else{player.x+=dx/d*step;player.y+=dy/d*step}if(!path.length&&pending&&region===MAIN&&Math.hypot(player.x-navigationPoint(MAIN,'quay').x,player.y-navigationPoint(MAIN,'quay').y)<60){const to=pending;pending=null;sailing={to,at:now}}if(!path.length&&returnPending&&region!==MAIN){const port=navigationPoint(region,region.harbor);if(Math.hypot(player.x-port.x,player.y-port.y)<60){returnPending=false;sailing={to:'main',at:now,returning:true};setMessage('Ombord','Fartyget lämnar hamnen och seglar tillbaka mot kajen.')}}}finishDoorArrival();finishPersonArrival();
  if(pendingStreetChat&&!path.length&&!interior&&!sailing&&!voyage){
    const actor=window.UPPDRAG_CH3_CITY_LIFE?.find(region,pendingStreetChat);
-   if(actor&&Math.hypot(player.x-actor.x,player.y-actor.y)<=130)
+   if(actor&&Math.hypot(player.x-actor.x,player.y-actor.y)<=118)
      window.UPPDRAG_CH3_CITY_LIFE.open(actor);
+   else window.UPPDRAG_CH3_CITY_LIFE?.releaseHold?.();
    pendingStreetChat=null;
  }
  if(follow&&!drag&&!interior){camera.x+=(player.x-camera.x)*.12;camera.y+=(player.y-camera.y)*.12;clamp()}draw();requestAnimationFrame(animate)}
+// Original demo behaviour: click a person, walk to the nearest valid stretch
+// of road, and only begin talking when both are actually close together.
+function requestStreetChat(actor){
+ const city=window.UPPDRAG_CH3_CITY_LIFE;
+ if(!actor||!city||interior||sailing||voyage)return false;
+ const found=city.find(region,actor.id);
+ if(!found)return false;
+ cancelPersonArrival();pending=null;returnPending=false;pendingRoom=null;
+ if(Math.hypot(player.x-found.x,player.y-found.y)<=78){
+   path=[];follow=true;pendingStreetChat=null;
+   return city.open(found);
+ }
+ city.hold?.(found);
+ const edgePoints=region.edges.map(edge=>roadProjection(found,edge))
+  .sort((a,b)=>Math.hypot(a.x-found.x,a.y-found.y)-Math.hypot(b.x-found.x,b.y-found.y));
+ const projected=edgePoints[0];
+ if(!projected){city.releaseHold?.();return false;}
+ const {edge}=projected,a=navigationPoint(region,edge.a),b=navigationPoint(region,edge.b);
+ const total=Math.max(1,Math.hypot(b.x-a.x,b.y-a.y));
+ const from=roadProjection(player,edge),side=from.t<=projected.t?-1:1;
+ const fraction=Math.max(.02,Math.min(.98,projected.t+side*42/total));
+ const goal={x:a.x+(b.x-a.x)*fraction,y:a.y+(b.y-a.y)*fraction};
+ const next=routeAlongRoads(goal,edge);
+ if(!next){city.releaseHold?.();return false;}
+ path=next;follow=true;pendingStreetChat=found.id;
+ window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
+ return true;
+}
 // A selected passerby waits at the clicked road position while the player
 // approaches. Both remain on that road, about one figure's width apart.
 function requestPerson(person){
