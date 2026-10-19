@@ -25,7 +25,7 @@ const runs=[
  {p:'riksdag',r:2,f:['law','change','nobles'],who:'Elin',hello:'Nu gäller det sista protokollet. Här är flera saker som inte låter riktigt kloka. Kan vi reda ut dem?',bye:'Sådär! Nu känner jag igen anteckningarna igen. Du har verkligen hjälpt oss att minnas.'}
 ];
 const fresh=()=>({v:2,step:0,index:0,mode:'intro',hint:false,draft:'',record:[],complete:false,
- daler:3,apples:0,trial:0,earned:{},archiveRounds:0,archiveList:[],archiveIndex:0,archiveMode:'question',archiveHint:false});
+ daler:3,apples:0,trial:0,earned:{},archiveRounds:0,archiveList:[],archiveIndex:0,archiveMode:'question',archiveHint:false,wordHelp:false,archiveWordHelp:false});
 let s;try{s=JSON.parse(localStorage.getItem(storage)||'null')}catch{}
 if(!s||s.v!==2||!Number.isInteger(s.step)||s.step<0||s.step>=runs.length)s=fresh();
 // Upgrades from pre-gating test saves must not credit unverified knowledge.
@@ -255,7 +255,7 @@ function retryWith(kind){
  if(s.mode!=='failed'||!present())return false;
  const wallet=kind==='apple'?'apples':'daler';
  if(s[wallet]<1)return false;
- s[wallet]--;s.trial++;s.index=0;s.mode='question';s.hint=false;s.draft='';
+ s[wallet]--;s.trial++;s.index=0;s.mode='question';s.hint=false;s.wordHelp=false;s.draft='';
  persist();drawHud();drawMemory();return true;
 }
 function drawMemory(){
@@ -337,7 +337,7 @@ function enterArchive(){
  const total=known.length,offset=total?s.archiveRounds%total:0;
  const rotated=total?known.slice(offset).concat(known.slice(0,offset)):['queen'];
  s.archiveList=rotated.slice(0,Math.min(3,rotated.length));
- s.archiveIndex=0;s.archiveMode='question';s.archiveHint=false;s.archiveDraft='';
+ s.archiveIndex=0;s.archiveMode='question';s.archiveHint=false;s.archiveWordHelp=false;s.archiveDraft='';
  s.archiveActive=true;s.archiveRounds++;persist();
  open=true;modal.hidden=false;document.body.classList.add('ch1-open');
  hideRoomForMemory();drawArchive();return true;
@@ -365,6 +365,7 @@ function drawArchive(){
     +'<div class="ch1Actions"><button class="primary" data-action="archive-next">Nästa minne</button></div>';
  }else{
    sheet+='<h2 class="ch1Prompt">'+esc(f.q[0])+'</h2>';
+   sheet+=languageTools(id,0,true);
    if(s.archiveMode==='question'){
      if(short)sheet+='<input id="ch1ArchiveInput" type="text" aria-label="Ditt svar"'
       +' autocomplete="off" value="'+esc(s.archiveDraft)+'">';
@@ -395,7 +396,7 @@ function archiveMark(ok){
 function archiveNext(){
  if(!s.archiveActive||s.archiveMode!=='feedback')return;
  if(s.archiveIndex+1<s.archiveList.length){
-   s.archiveIndex++;s.archiveMode='question';s.archiveHint=false;s.archiveDraft='';
+   s.archiveIndex++;s.archiveMode='question';s.archiveHint=false;s.archiveWordHelp=false;s.archiveDraft='';
  }else{
    s.archiveMode='reward';s.apples+=1;
  }
@@ -439,7 +440,7 @@ function advance(){
  if(s.step>0&&(s.mode!=='end'||!stageSolved()))return false;
  if(s.step>0){for(const id of current().f)s.earned[id]=true;s.daler+=1;}
  if(s.step===9){s.complete=true;s.mode='finished';persist();open=true;modal.hidden=false;document.body.classList.add('ch1-open');drawModal();return}
- s.step++;s.index=0;s.trial=0;s.mode='intro';s.hint=false;s.draft='';persist();closePanel();drawHud();go();dismiss=-1
+ s.step++;s.index=0;s.trial=0;s.mode='intro';s.hint=false;s.wordHelp=false;s.draft='';persist();closePanel();drawHud();go();dismiss=-1
 }
 function next(){
  if(s.mode!=='feedback')return false;
@@ -448,7 +449,7 @@ function next(){
  if(!last.ok)return false;
  s.index++;
  s.mode=s.index>=current().f.length?'end':'question';
- s.hint=false;s.draft='';persist();
+ s.hint=false;s.wordHelp=false;s.draft='';persist();
  if(referenceMemory()){
    if(s.mode==='end'&&stageSolved()){
      closePanel();window.UPPDRAG_MEETINGS?.memoryThanks?.();
@@ -460,7 +461,7 @@ function mark(ok,{supported=false,response=null}={}){
  if(s.mode!=='question'&&s.mode!=='choices')return;
  const f=current().f[s.index];
  s.record.push({step:s.step,trial:s.trial,id:f,level:rank(),ok,support:s.hint||supported,
-  ab:item().ab,answer:response??s.draft});
+  ab:item().ab,languageSupport:!!s.wordHelp,answer:response??s.draft});
  s.mode=ok?'feedback':'failed';persist();
  if(memoryVisible)drawMemory();else drawModal();
 }
@@ -530,6 +531,16 @@ modal.addEventListener('input',e=>{if(e.target.id==='ch1Answer')s.draft=e.target
 modal.addEventListener('click',e=>{
  const act=e.target.closest('[data-action]')?.dataset.action;if(!act)return;
  if(act==='close'){closePanel();return}
+ if(act==='listen'){listenCurrent(false);return}
+ if(act==='word'){
+   if(!s.archiveActive){s.wordHelp=!s.wordHelp;persist();if(memoryVisible)drawMemory();}
+   return;
+ }
+ if(act==='archive-listen'){listenCurrent(true);return}
+ if(act==='archive-word'){
+   if(s.archiveActive){s.archiveWordHelp=!s.archiveWordHelp;persist();drawArchive();}
+   return;
+ }
  if(act==='retry-daler'){retryWith('daler');return}
  if(act==='retry-apple'){retryWith('apple');return}
  if(act==='archive-go'){goArchive();return}
