@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 // Kapitel 1 i den befintliga stadens gångmotor. Separat sparfil.
-const storage='uppdrag1700.ch1-real-world.20261019.v5';
+const storage='uppdrag1700.ch1-real-world.20261019.v6';
 const facts={
 queen:{ab:'2a',a:'Ulrika Eleonora',answers:['ulrika eleonora'],hint:'Hennes namn börjar med U.',q:['Vilken drottning efterträdde Karl XII?','Vad hette Karl XII:s syster som övertog tronen?','En skrivare påstår att drottningen hette Fredrik. Vad hette hon egentligen?']},
 absolute:{ab:'2b',a:'Drottningen var inte enväldig: hon kunde inte bestämma ensam utan delade makten med riksrådet och riksdagen.',hint:'Vem mer än drottningen hade makt?',q:['Vad menas med att drottningen inte var enväldig?','Vilken begränsning hade Ulrika Eleonora jämfört med enväldiga kungar?','En anteckning säger att Ulrika Eleonora bestämde allt ensam. Rätta felet.']},
@@ -90,6 +90,20 @@ style.textContent+=`
 @media(max-height:480px){#ch1Modal.ch1MemoryFull .ch1Sheet{max-height:calc(100% - 45px)}
 #ch1Modal.ch1MemoryFull .ch1Return{top:3px;left:3px;min-height:32px}}
 `;
+
+style.textContent+=`
+#ch1Modal .ch1Options{display:grid;gap:9px;margin-top:15px}
+#ch1Modal button.ch1Option{display:block;width:100%;text-align:left;white-space:normal;
+  line-height:1.32;font:16px/1.38 system-ui,sans-serif;padding:12px 16px;min-height:48px;
+  background:#fffbf1;border:1px solid #a18e6f;border-radius:5px;color:#342b20}
+#ch1Modal button.ch1Option:hover{background:#f0e4cb;border-color:#665840}
+#ch1Modal button.ch1Option:focus-visible{outline:3px solid #346a70;outline-offset:2px}
+#ch1Modal .ch1Result{text-align:center;border-top:1px solid #b7a888;border-bottom:1px solid #b7a888;
+ padding:12px 4px;margin:10px 0}
+#ch1Modal .ch1Result p{margin:7px 0 0;font:16px/1.45 Georgia,serif}
+#ch1Modal .ch1Result strong{font:600 18px/1.2 Georgia,serif}
+@media(max-width:620px){#ch1Modal button.ch1Option{font-size:14px;padding:10px 11px;min-height:45px}}
+`;
 let open=false,was='',dismiss=-1;
 const referenceMemory=()=>s.step>=1&&!s.complete;
 const referenceMaja=()=>s.step===0&&!s.complete;
@@ -114,8 +128,11 @@ function restoreRoomFromMemory(){
  modal.classList.remove('ch1MemoryFull');
 }
 function drawMemory(){
- const f=item(),short=!!f.answers&&!(current().r===2&&current().f[s.index]==='nobles');
- const photo=window.UPPDRAG_CH1_CLOSEUPS?.images?.[current().p]||'';
+ const f=item(),id=current().f[s.index],short=!!f.answers&&!(current().r===2&&id==='nobles');
+ const image=window.UPPDRAG_CH1_CLOSEUPS?.images?.[current().p];
+ if(!image||!image.includes('<svg'))throw new Error('Närbilden saknas för '+current().p);
+ const choices=short?null:window.UPPDRAG_CH1_CHOICES?.optionsFor(id,current().r);
+ if(!short&&!choices)throw new Error('Granskade alternativ saknas för '+id+' på '+current().r);
  let sheet='<p class="ch1Count">'+(s.index+1)+' / '+current().f.length+'</p>';
  sheet+='<h2 class="ch1Prompt">'+esc(f.q[current().r])+'</h2>';
  if(s.mode==='question'){
@@ -123,19 +140,20 @@ function drawMemory(){
    if(s.hint)sheet+='<p class="ch1Hint">'+esc(f.hint)+'</p>';
    sheet+='<div class="ch1Actions">';
    sheet+=short?'<button class="primary" data-action="short">Svara</button><button class="quiet" data-action="skip">Minns inte</button>'
-      :'<button class="primary" data-action="reveal">Jag har tänkt</button>';
+      :'<button class="primary" data-action="choices">Jag har tänkt</button>';
    if(!s.hint)sheet+='<button class="quiet" data-action="hint">Ledtråd</button>';
    sheet+='</div>';
- }else if(s.mode==='rating'){
-   sheet+='<p class="ch1Answer">'+esc(f.a)+'</p>';
-   sheet+='<p style="text-align:center">Mindes du huvudpoängen?</p>';
-   sheet+='<div class="ch1Actions"><button class="primary" data-action="yes">Ja</button><button data-action="no">Nej</button></div>';
+ }else if(s.mode==='choices'){
+   sheet+='<div class="ch1Options" role="group" aria-label="Välj det historiskt riktiga svaret">';
+   choices.options.forEach((text,i)=>{sheet+='<button class="ch1Option" type="button" data-action="choice" data-index="'+i+'">'+esc(text)+'</button>';});
+   sheet+='</div>';
+   if(s.hint)sheet+='<p class="ch1Hint">'+esc(f.hint)+'</p>';
  }else if(s.mode==='feedback'){
-   const r=s.record[s.record.length-1];
-   sheet+='<p class="ch1Answer">'+esc(f.a)+'</p>';
+   const last=s.record[s.record.length-1],label=last?.ok?'Rätt':'Inte riktigt';
+   sheet+='<div class="ch1Result" role="status"><strong>'+label+'</strong><p>'+esc(f.a)+'</p></div>';
    sheet+='<div class="ch1Actions"><button class="primary" data-action="next">'+(s.index===current().f.length-1?'Färdig':'Nästa')+'</button></div>';
  }
- modal.innerHTML='<div class="ch1MemorySetting" aria-hidden="true">'+photo+'</div>'
+ modal.innerHTML='<div class="ch1MemorySetting" aria-hidden="true">'+image+'</div>'
    +'<button class="ch1Return" data-action="close" type="button">← Till rummet</button>'
    +'<article class="ch1Sheet" aria-label="Minnesarbetet">'+sheet+'</article>';
  modal.querySelector('#ch1Answer')?.focus({preventScroll:true});
@@ -195,7 +213,7 @@ function next(){
    }else drawMemory();
  }else drawModal();
 }
-function mark(ok){const f=current().f[s.index];s.record.push({id:f,level:rank(),ok,support:s.hint,ab:item().ab,answer:s.draft});s.mode='feedback';persist();if(memoryVisible)drawMemory();else drawModal()}
+function mark(ok,{supported=false,response=null}={}){const f=current().f[s.index];s.record.push({id:f,level:rank(),ok,support:s.hint||supported,ab:item().ab,answer:response??s.draft});s.mode='feedback';persist();if(memoryVisible)drawMemory();else drawModal()}
 function drawModal(){
  let h='<div style="font:600 12px system-ui;color:#685b45;letter-spacing:.1em">'+(s.step?rank():'Kapitel 1')+' · '+paths[current().p]+'</div>';
  if(s.complete){const n=numbers();h+='<h2>Kapitel 1 avklarat!</h2><p>'+esc(current().bye)+'</p><p>21 återkallningsförsök: '+n.ind+' självständiga, '+n.aided+' med ledtråd, '+n.need+' behöver övas.</p><p>Det här är träning, inte betyg.</p><button class="primary" data-action="restart">Spela om</button>'}
@@ -207,11 +225,17 @@ function drawModal(){
  if(s.hint)h+='<p class="hint">Ledtråd: '+esc(f.hint)+'</p>';
  if(s.mode==='question'){
  h+=short?'<input id="ch1Answer" type="text" maxlength="120" autocomplete="off" placeholder="Kort svar" value="'+esc(s.draft)+'">':'<textarea id="ch1Answer" placeholder="Skriv stödord eller tänk igenom ditt svar">'+esc(s.draft)+'</textarea>';
- h+=short?'<button class="primary" data-action="short">Svara</button><button data-action="skip">Jag minns inte</button>':'<button class="primary" data-action="reveal">Jag har tänkt – visa facit</button>';
+ h+=short?'<button class="primary" data-action="short">Svara</button><button data-action="skip">Jag minns inte</button>':'<button class="primary" data-action="choices">Jag har tänkt</button>';
  if(!s.hint)h+='<button data-action="hint">Visa ledtråd</button>';
- }else if(s.mode==='rating')h+='<div class="answer"><b>Korrekt innehåll</b><p>'+esc(f.a)+'</p></div><p>Hade du själv huvudpoängen före facit?</p><button class="primary" data-action="yes">Ja</button><button data-action="no">Nej</button>';
+ }else if(s.mode==='choices'){
+ const list=window.UPPDRAG_CH1_CHOICES?.optionsFor(current().f[s.index],current().r);
+ if(!list)throw new Error('Alternativ saknas');
+ h+='<div class="ch1Options">';
+ list.options.forEach((v,i)=>h+='<button class="ch1Option" data-action="choice" data-index="'+i+'">'+esc(v)+'</button>');
+ h+='</div>';
+}
  else if(s.mode==='feedback'){const r=s.record[s.record.length-1];h+='<div class="answer"><b>'+(r.ok?'Svar registrerat':'Det här får du repetera')+'</b><p>'+esc(f.a)+'</p></div><button class="primary" data-action="next">'+(s.index===current().f.length-1?'Avsluta arbetet här':'Nästa fråga')+'</button>';}
- h+='<small>Grundboken s. 64–65 · Elevernas arbetsbok '+esc(f.ab)+'. Frågor som kräver förklaring självskattas i denna pilot.</small>';
+ h+='<small>Grundboken s. 64–65 · Elevernas arbetsbok '+esc(f.ab)+'. Frågor med alternativ registreras som stödda svar.</small>';
  }
  h+='<p><button data-action="close">Stäng och promenera</button></p>';
  modal.innerHTML=h;
@@ -238,8 +262,19 @@ modal.addEventListener('click',e=>{
  if(act==='hint'){s.hint=true;persist();if(memoryVisible)drawMemory();else drawModal();return}
  if(act==='short'){if(!s.draft.trim())return;mark(item().answers.some(a=>norm(a)===norm(s.draft)));return}
  if(act==='skip'){s.draft='';mark(false);return}
- if(act==='reveal'){s.mode='rating';persist();if(memoryVisible)drawMemory();else drawModal();return}
- if(act==='yes'){mark(true);return}if(act==='no'){mark(false);return}
+ if(act==='choices'){
+   const questionId=current().f[s.index];
+   if(!window.UPPDRAG_CH1_CHOICES?.optionsFor(questionId,current().r))return;
+   s.mode='choices';persist();if(memoryVisible)drawMemory();else drawModal();return;
+ }
+ if(act==='choice'){
+   if(s.mode!=='choices')return;
+   const questionId=current().f[s.index],set=window.UPPDRAG_CH1_CHOICES.optionsFor(questionId,current().r);
+   const index=Number(e.target.closest('[data-index]')?.dataset.index);
+   if(!Number.isInteger(index)||index<0||index>=set.options.length)return;
+   mark(index===set.correctIndex,{supported:true,response:set.options[index]});return;
+ }
+ 
  if(act==='next'){next();return}
  if(act==='advance'){advance();return}
 });
