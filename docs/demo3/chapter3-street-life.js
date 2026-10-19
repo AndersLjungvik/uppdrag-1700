@@ -93,23 +93,48 @@ function position(actor,now=performance.now()){
  if(actor.id==='david')return {...actor,x:actor.x,y:actor.y,moving:false};
  return {...actor,y:actor.y,moving:false};
 }
-function people(region){return Object.values(CAST).filter(a=>visible(region,a.id)).map(a=>position(a));}
-function find(region,id){return visible(region,id)?position(CAST[id]):null;}
-function hit(region,point){
- let selected=null,minimum=Infinity;
- if(!point)return null;
- for(const a of people(region)){
-   const d=Math.hypot(a.x-point.x,a.y-point.y);
-   if(d<=a.r&&d<minimum){selected=a;minimum=d;}
- }
- return selected;
+function people(region){
+ return Object.values(CAST).filter(a=>visible(region,a.id)).map(a=>position(a));
 }
-function nearest(region,player,range=92){
- if(!player)return null;
- return people(region).map(p=>({...p,distance:Math.hypot(player.x-p.x,player.y-p.y)}))
-  .filter(p=>p.distance<=range).sort((a,b)=>a.distance-b.distance)[0]||null;
+function ambientTargets(region){
+ const walker=window.UPPDRAG_WORLD_LIFE?.quietPeople?.(region)||[];
+ const ordinary=walker.map(p=>({...p,id:'civil:'+p.id,sourceId:p.id,role:'civil',
+   region:region.id,name:p.name||'En stadsbo',r:29}));
+ const dogs=region?.id==='main'?(window.UPPDRAG_WORLD_LIFE?.quietDogs?.(region)||[]):[];
+ const animals=dogs.map((p,i)=>({...p,id:'dog:'+i,role:'dog',sourceId:i,
+   region:region.id,name:'En hund',r:25,heading:p.facing<0?Math.PI:0,color:'#998268'}));
+ return ordinary.concat(animals);
+}
+function talkingTargets(region){
+ return people(region).concat(ambientTargets(region));
+}
+function find(region,id){
+ if(CAST[id])return visible(region,id)?position(CAST[id]):null;
+ return ambientTargets(region).find(a=>a.id===id)||null;
+}
+function hit(region,point){
+ let nearest=null,distance=Infinity;
+ if(!point||!region)return null;
+ for(const a of talkingTargets(region)){
+  const d=Math.hypot(a.x-point.x,a.y-point.y),radius=a.r||32;
+  if(d<=radius&&d/radius<distance){nearest=a;distance=d/radius;}
+ }
+ return nearest;
+}
+function nearest(region,player,range=120){
+ if(!region||!player)return null;
+ return talkingTargets(region).map(a=>({...a,distance:Math.hypot(a.x-player.x,a.y-player.y)}))
+  .filter(a=>a.distance<=range).sort((a,b)=>a.distance-b.distance)[0]||null;
+}
+const ponderings=new Map((window.UPPDRAG_LIVING_CONTENT?.ponderings||[]).map(entry=>[entry.id,entry.text]));
+function humanThought(a){
+ const options=(a.ponderings||[]).map(id=>ponderings.get(id)).filter(Boolean);
+ const index=encounterCounts.get(a.sourceId)||0;
+ return options.length?options[index%options.length]:a.introduction||'Det är oroligt i staden i dag.';
 }
 function story(actor){
+ if(actor.role==='civil')return [['Du','Hej!'],[actor.name,humanThought(actor)]];
+ if(actor.role==='dog')return [['Hunden','Voff!']];
  const n=step();
  if(actor.id==='cap')return n<4
    ?[['Mössan','Varför ska vi ha ännu ett krig? Det är ju bönderna som får betala.'],['Du','Vad vill ni mössor?'],['Mössan','Hellre fred än ännu ett misslyckat krig.']]
