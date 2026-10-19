@@ -51,7 +51,7 @@ Q(1,'kompani','Vilket svenskt handelsbolag skickade skepp till Kina?','Ostindisk
 Q(1,'kina','Till vilket land seglade Ostindiska kompaniets skepp för att handla?','Kina','LL:2');
 Q(1,'goteborg','Från vilken svensk stad seglade kompaniets skepp?','Göteborg','LL:2');
 Q(1,'kompanivaror','Vilka tre varor köpte kompaniet i Kina enligt texten?','Te, siden och porslin','LL:2;P1:1a',['te siden porslin','porslin siden och te','siden te och porslin','te porslin och siden','porslin te och siden','siden porslin och te']);
-Q(1,'tsar','Vilken rysk titel motsvarar kejsare?','Tsar','P1:1a');
+// The assessment-only Russian title has no verified definition in this chapter.
 Q(1,'grundlag-svarandrad','Vad skiljer en grundlag från en vanlig lag när man vill ändra den?','Den är svårare att ändra','LL:1;F1:2;P1:3c;AB:4b',['svårare att ändra','svår att ändra','mycket svår att ändra']);
 C(1,'frihet-forklaring',2,'Bygg en förklaring till namnet frihetstiden.','LL:1;BE:1;F1:1;AB:1',[
  ['Kungens','envälde avskaffades','envälde förstärktes','riksdag avskaffades'],
@@ -63,9 +63,9 @@ C(1,'kompaniets-uppgift',2,'Bygg en förklaring av vad Ostindiska kompaniet gjor
  ['Dess skepp seglade','från Göteborg till Kina','från Kina till Dalarna','från Dalarna till Stockholm'],
  ['De köpte','te, siden och porslin för att sälja i Sverige','åkrar för att genomföra skiften','röster för att välja riksrådet']
 ],['kompani','kina','goteborg','kompanivaror']);
-C(1,'frihet-olika',3,'Pröva påståendet: Under frihetstiden blev alla lika fria.','F1:1–2;LL:1;L2:Man bestämde över kvinnor och barn;AB:5',[
+C(1,'frihet-maktfordelning',3,'Pröva påståendet: Under frihetstiden blev alla lika fria.','F1:1–2;LL:1;L1:facit s.65 fråga 3;AB:4c',[
  ['Kungen fick','mindre makt','ensam makt','mer makt än tidigare'],
- ['Men kvinnor fick','fortfarande inte bestämma fritt över sig själva','samma makt som alla män','välja alla i riksrådet'],
+ ['Viktiga beslut kunde dessutom tas','på särskilda möten utan bönderna','på möten där bondeståndet ensamt bestämde','efter omröstning där samtliga stånd deltog'],
  ['Och bönderna fick','inte välja riksrådets medlemmar','ensamma välja riksrådet','ensamma styra landet']
 ],['bonder-inflytande','riksdag']);
 C(1,'bonder-begransning',2,'Förklara böndernas begränsade inflytande i riksdagen.','P1:3b;F1:2;L1:facit s.65 fråga 3;AB:4',[

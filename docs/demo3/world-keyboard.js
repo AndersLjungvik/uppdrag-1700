@@ -7,8 +7,22 @@
   'use strict';
   const SPEED=180,RADIUS=24,EPS=.0001,STEP=3;
   const arrows=new Set(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight']);
-  const held=new Set();
-  let moving=false,vector={x:0,y:0},manualNotified=false,spaceHeld=false;
+  const held=new Set(),actions=new Set();
+  let moving=false,vector={x:0,y:0},manualNotified=false;
+
+  function keyOf(event){
+    if(event.code==='Space'||[' ','Space','Spacebar'].includes(event.key))return ' ';
+    if(event.code==='NumpadEnter'||event.key==='Enter')return 'Enter';
+    return event.key==='Esc'?'Escape':event.key;
+  }
+  function consume(event){event.preventDefault();event.stopImmediatePropagation();}
+  function claimAction(event){
+    const key=keyOf(event);
+    if(![' ','Enter','Escape'].includes(key))return false;
+    consume(event);
+    const first=!actions.has(key)&&!event.repeat;
+    actions.add(key);return first;
+  }
 
   function finitePoint(p){return !!p&&Number.isFinite(p.x)&&Number.isFinite(p.y);}
   function inWater(r,x,y){return waterAt(r,x,y);}
@@ -64,7 +78,10 @@
     return !!(document.hidden||interior||sailing||voyage||activeDialogue()||editable(document.activeElement));
   }
   function stopMotion(){moving=false;vector={x:0,y:0};}
-  function clear(){held.clear();manualNotified=false;spaceHeld=false;stopMotion();}
+  // Dialogue changes may clear movement while the activating key is still down.
+  // Its owner is retained until keyup, so it cannot also activate the next view.
+  function clear(){held.clear();manualNotified=false;stopMotion();}
+  function releaseAll(){clear();actions.clear();}
   function cancelRoute(){
     path=[];pending=null;returnPending=false;pendingRoom=null;
     cancelPersonArrival();drag=null;follow=true;canvas.focus({preventScroll:true});
@@ -121,6 +138,8 @@
       if(archive?.state.mode==='speech')return archive.advance();
       if(place?.state.mode==='speech')return place.advance();
       if(meeting?.state.talking)return meeting.advance();
+      const focused=document.activeElement?.closest?.('button');
+      if(focused&&box.contains(focused)&&visible(focused)){focused.click();return true;}
       const next=box.querySelector('[data-action="next"],#meetingNext,[data-action="conclusion"]');
       if(visible(next)){next.click();return true;}
       // A thought or answer is never silently preselected. Space from a heading
@@ -151,53 +170,53 @@
   function interact(){
     if(document.hidden||sailing||voyage||window.UPPDRAG_STORY_WORK?.busy||editable(document.activeElement))return false;
     held.clear();manualNotified=false;stopMotion();
-    if(window.UPPDRAG_LIVING_DIALOGUES?.active){window.UPPDRAG_LIVING_DIALOGUES.close();return true;}
+    if(window.UPPDRAG_LIVING_DIALOGUES?.active){const living=window.UPPDRAG_LIVING_DIALOGUES;return (living.advance?.()??living.close())!==false;}
     if(interior)return interactRoom();
     const target=nearby();return target?target.run()!==false:false;
   }
 
   window.addEventListener('keydown',event=>{
     if(event.defaultPrevented)return;
+    const key=keyOf(event);
+    // This is checked before focus and mode: an action can open a text field or
+    // close a dialogue while its original physical key is still being held.
+    if(actions.has(key)){consume(event);return;}
     if(window.UPPDRAG_STORY_WORK?.busy){clear();return;}
     if(event.isComposing||modified(event)||editable(event.target)){held.clear();manualNotified=false;stopMotion();return;}
-    if(arrows.has(event.key)){
+    if(arrows.has(key)){
       if(interior){
         held.clear();stopMotion();
-        if(!voyage&&!sailing&&moveRoomFocus(event.key)){event.preventDefault();event.stopImmediatePropagation();}
+        if(!voyage&&!sailing&&moveRoomFocus(key)){event.preventDefault();event.stopImmediatePropagation();}
         return;
       }
       event.preventDefault();
       if(blocked()){held.clear();manualNotified=false;stopMotion();return;}
       // A held arrow cleared by a dialogue/blur may not resume as key repeat.
-      if(event.repeat&&!held.has(event.key))return;
+      if(event.repeat&&!held.has(key))return;
       if(!held.size){cancelRoute();manualNotified=false;}
-      held.add(event.key);return;
+      held.add(key);return;
     }
-    if(event.key!==' '&&event.code!=='Space')return;
-    // A previous capture listener may just have closed a dialogue and restored
-    // focus to a native person button. Repeats must not arm a new keyup click.
-    if(event.repeat){event.preventDefault();return;}
-    // A focused native control owns its own keyup click. Room controllers which
-    // click on keydown have already consumed the event in earlier capture.
-    if(event.target.closest?.('button,a[href],input,select,textarea,[role="button"]'))return;
-    event.preventDefault();event.stopImmediatePropagation();
-    if(spaceHeld)return;
-    spaceHeld=true;interact();
+    if(key!==' '&&key!=='Enter')return;
+    if(!claimAction(event))return;
+    const control=event.target.closest?.('button,a[href],summary,[role="button"]');
+    if(visible(control)){control.click();return;}
+    interact();
   },true);
   window.addEventListener('keyup',event=>{
-    if(arrows.has(event.key)){
-      held.delete(event.key);
+    const key=keyOf(event);
+    if(arrows.has(key)){
+      held.delete(key);
       if(!held.size){manualNotified=false;stopMotion();}
     }
-    if(event.key===' '||event.code==='Space')spaceHeld=false;
+    if(actions.delete(key))consume(event);
   },true);
-  window.addEventListener('blur',clear);
-  document.addEventListener('visibilitychange',clear);
+  window.addEventListener('blur',releaseAll);
+  document.addEventListener('visibilitychange',releaseAll);
   window.addEventListener('pointerdown',clear,true);
   document.addEventListener('focusin',event=>{if(editable(event.target))clear();});
 
   window.UPPDRAG_WORLD_KEYBOARD={
-    tick,clear,interact,walkablePoint,clearSegment,
+    tick,clear,interact,walkablePoint,clearSegment,keyOf,claimAction,
     get moving(){return moving;},
     get vector(){return {...vector};},
     get motionPath(){return moving?[{x:player.x+vector.x*20,y:player.y+vector.y*20}]:null;},

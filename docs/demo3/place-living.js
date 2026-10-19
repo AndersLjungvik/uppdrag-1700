@@ -80,11 +80,11 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
     position();bubble.focus({preventScroll:true});return true;
   }
   function storyChoice(){
-    const old=bubble.querySelector('[data-thought="story"]'),focused=old===document.activeElement;old?.remove();
+    const old=bubble.querySelector('[data-thought="story"],[data-thought="storyGuide"]'),focused=old===document.activeElement;old?.remove();
     const place=window.UPPDRAG_STORY_WORLD?.currentPlace?.()||key;
-    const task=window.UPPDRAG_STORY_STATE?.taskAt?.(place);
-    if(task){
-      const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought='story';b.textContent=task.thought||'Jag frågar om uppdraget.';bubble.append(b);if(focused)b.focus({preventScroll:true});
+    const story=window.UPPDRAG_STORY_STATE,task=story?.taskAt?.(place),guide=!task&&story?.guidanceAt?.(place);
+    if(task||guide){
+      const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought=task?'story':'storyGuide';b.textContent=task?(task.thought||'Jag frågar om uppdraget.'):'Vart ska jag nu?';bubble.append(b);if(focused)b.focus({preventScroll:true});
     }else if(focused)bubble.focus({preventScroll:true});
     update();
   }
@@ -107,25 +107,26 @@ window.UPPDRAG_PLACE_THOUGHTS=(()=>{
   root.addEventListener('click',e=>{
     if(mode==='speech'&&bubble.contains(e.target)){e.preventDefault();e.stopPropagation();advance();return;}
     const b=e.target.closest('button');
-    if(b?.dataset.thought==='story'){const place=window.UPPDRAG_STORY_WORLD?.currentPlace?.()||key;close(false);window.UPPDRAG_STORY_WORK?.open(place);return;}
+    if(['story','storyGuide'].includes(b?.dataset.thought)){const place=window.UPPDRAG_STORY_WORLD?.currentPlace?.()||key,guidance=b.dataset.thought==='storyGuide';close(false);window.UPPDRAG_STORY_WORK?.open(place,{guidance});return;}
     if(b?.dataset.thought)speak(b.dataset.thought);
   });
-  // No preselected thought. Enter confirms only an intentionally focused choice.
+  // The first action press reaches a thought; another confirms that choice.
   window.addEventListener('keydown',e=>{
     if(!active||!mode)return;
-    if(!['Enter','Escape','Tab','ArrowDown','ArrowUp','ArrowLeft','ArrowRight',' '].includes(e.key))return;
-    if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey&&e.key!=='Tab'||e.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
-    if(e.isComposing){e.stopImmediatePropagation();return;}
+    const keyboard=window.UPPDRAG_WORLD_KEYBOARD,key=keyboard?.keyOf?.(e)||e.key;
+    if(!['Enter','Escape','Tab','ArrowDown','ArrowUp','ArrowLeft','ArrowRight',' '].includes(key))return;
+    if(e.isComposing||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey&&key!=='Tab'||e.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="combobox"]'))return;
     const buttons=[...bubble.querySelectorAll('button')].filter(b=>!b.hidden&&!b.disabled);
-    if(e.key==='Tab'||e.key.startsWith('Arrow')){
+    if(key==='Tab'||key.startsWith('Arrow')){
       e.preventDefault();e.stopImmediatePropagation();
       if(mode==='speech'){bubble.focus({preventScroll:true});return;}
-      const old=buttons.indexOf(document.activeElement),back=e.key==='ArrowUp'||e.key==='ArrowLeft'||e.key==='Tab'&&e.shiftKey;
+      const old=buttons.indexOf(document.activeElement),back=key==='ArrowUp'||key==='ArrowLeft'||key==='Tab'&&e.shiftKey;
       const i=old<0?(back?buttons.length-1:0):(old+(back?-1:1)+buttons.length)%buttons.length;
       buttons[i]?.focus({preventScroll:true});return;
     }
-    e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;
-    if(e.key==='Escape')close();else if(mode==='speech')advance();else if(buttons.includes(document.activeElement))document.activeElement.click();
+    if(keyboard?.claimAction){if(!keyboard.claimAction(e))return;}
+    else{e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;}
+    if(key==='Escape')close();else if(mode==='speech')advance();else if(buttons.includes(document.activeElement))document.activeElement.click();else buttons[0]?.focus({preventScroll:true});
   },true);
   for(const event of ['pointerdown','pointerup','click'])roomCanvas.addEventListener(event,e=>{if(active&&mode){e.preventDefault();e.stopImmediatePropagation();if(event==='click')close();}},true);
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));

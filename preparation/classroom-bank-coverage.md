@@ -1,6 +1,6 @@
 # Klassrummets frågebank
 
-Version sos-classroom-2026-10-16-v1. 139 rättningsbara frågor och 12 öppna samtalsfrågor. De rättningsbara frågorna består av 97 kortsvar och 42 byggsvar. Byggsvar tränar val av samband och jämförelser; de visar inte att eleven själv kan formulera ett helt resonemang.
+Version sos-classroom-2026-10-16-v1. 138 rättningsbara frågor och 12 öppna samtalsfrågor. De rättningsbara frågorna består av 96 kortsvar och 42 byggsvar. Byggsvar tränar val av samband och jämförelser; de visar inte att eleven själv kan formulera ett helt resonemang.
 
 Alla frågor är omarbetningar för spelet, inte ordagranna kopior av prov. Varje fråga har en plats i bokens ordning och en egen hänvisning. Felalternativ är konstruerade motsatser eller felkopplingar av kapitlets innehåll; de är inte ytterligare fakta att lära in. Den tidigare banken med 81 frågor är inte belägg för den nya.
 
@@ -8,7 +8,7 @@ Alla frågor är omarbetningar för spelet, inte ordagranna kopior av prov. Varj
 
 | Avsnitt | Kortsvar | Byggsvar nivå 2 | Byggsvar nivå 3 | Öppna samtal |
 |---|---:|---:|---:|---:|
-| 1. Frihetstiden 1719–1772 | 12 | 3 | 1 | 1 |
+| 1. Frihetstiden 1719–1772 | 11 | 3 | 1 | 1 |
 | 2. Fria och ofria | 7 | 2 | 1 | 3 |
 | 3. Krig eller fred? | 9 | 2 | 1 | 0 |
 | 4. Nya tider, nya tankar | 17 | 3 | 1 | 2 |
@@ -25,7 +25,8 @@ Alla frågor är omarbetningar för spelet, inte ordagranna kopior av prov. Varj
 - Grundlag: bedömningsstödet kräver på ett ställe att hela riksdagen är överens. Banken använder underlagets gemensamma och försiktigare uppgift att grundlagen är svårare att ändra än vanliga lagar.
 - Gustav IV: prov del 2 fråga 8 förkortar namnet. Banken använder Gustav IV Adolf enligt läroboken och daterar inte hans reaktion till 1789.
 - Historiska källor, prov 2 uppgift 3: urskilj material från perioden och senare framställningar i ett öppet samtal. Film och lärobok ska inte få automatiskt falskt enbart för att de är senare.
-- Arbetsbok 2a (drottningens namn): frågan är synlig men ingen läst svarskälla har kunnat knytas till den. Den är uttryckligen kvar som lucka; ingen gissning införs.
+- Kapitelpassen följer det undervisade avsnittet. Den fristående provdefinitionen av tsar ingår inte eftersom en säker kapitelkoppling saknas. Första avsnittets mästarfråga återkallar kungens makt och böndernas begränsade inflytande från s. 64–65; kvinnors villkor kommer i avsnitt 2.
+- Arbetsbok 2a (drottningens namn): namnet står i den lästa grundboken s. 64, men det prövas inte i frågebanken.
 - Arbetsbok 10: huvudförloppet är med. Alla orden i ordrutan, exempelvis platsnamnet Norrmalm, har inte gjorts till fristående faktafrågor utan läst svarskälla.
 - Arbetsbok 14c, 28b, 32, 34–35 och provens egna-reflektioner hanteras som samtal eller förberedande byggsvar. Bildtolkning kräver de faktiska bilderna och räknas inte som fullgjord enbart genom metodfrågan.
 - En uppgift som nämns som extramaterial i lärarguiden är inte samma sak som att extramaterialet har lästs. Mylingar, Johan Fredriks källövning och andra sådana tillägg ingår inte.
@@ -113,14 +114,6 @@ Vilka tre varor köpte kompaniet i Kina enligt texten?
 
 **Underlag:** Bra att veta – 1700-talets Sverige · 2; Prov – 1700-talets Sverige del 1 · 1a
 
-### sos-tsar · avsnitt 1, nivå 1
-
-Vilken rysk titel motsvarar kejsare?
-
-**Svar:** Tsar
-
-**Underlag:** Prov – 1700-talets Sverige del 1 · 1a
-
 ### sos-grundlag-svarandrad · avsnitt 1, nivå 1
 
 Vad skiljer en grundlag från en vanlig lag när man vill ändra den?
@@ -145,13 +138,13 @@ Bygg en förklaring av vad Ostindiska kompaniet gjorde.
 
 **Underlag:** Bra att veta – 1700-talets Sverige · 2; Bedömningsstöd del 1 · 2; Prov – 1700-talets Sverige del 1 · 2; Elevernas arbetsbok s. 24–39 · 3
 
-### sos-frihet-olika · avsnitt 1, nivå 3
+### sos-frihet-maktfordelning · avsnitt 1, nivå 3
 
 Pröva påståendet: Under frihetstiden blev alla lika fria.
 
-**Svar:** Kungen fick mindre makt. Men kvinnor fick fortfarande inte bestämma fritt över sig själva. Och bönderna fick inte välja riksrådets medlemmar
+**Svar:** Kungen fick mindre makt. Viktiga beslut kunde dessutom tas på särskilda möten utan bönderna. Och bönderna fick inte välja riksrådets medlemmar
 
-**Underlag:** Bedömningsstöd del 1 · 1–2; Bra att veta – 1700-talets Sverige · 1; Lärarguide – Fria och ofria · Man bestämde över kvinnor och barn; Elevernas arbetsbok s. 24–39 · 5
+**Underlag:** Bedömningsstöd del 1 · 1–2; Bra att veta – 1700-talets Sverige · 1; Lärarguide – Frihetstiden · facit s.65 fråga 3; Elevernas arbetsbok s. 24–39 · 4c
 
 ### sos-bonder-begransning · avsnitt 1, nivå 2
 

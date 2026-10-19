@@ -3,8 +3,12 @@
 import {createEngine, validBank, SAVE_KEY as ORIGINAL_SAVE_KEY, BANK_KEY} from '../world/engine.mjs?v=0.6.17-enter';
 import {PLACES, LEVEL_NAMES} from '../world/content.mjs?v=0.6.17-enter';
 import {choicesFor} from '../world/learning.mjs?v=0.6.17-enter';
-import {applyChapterJobs} from './chapter-jobs.mjs?v=3.20.0';
-import {createWorkEvidence} from './work-evidence.mjs?v=3.20.0';
+import {applyChapterJobs} from './chapter-jobs.mjs?v=3.21.0';
+import {createWorkEvidence} from './work-evidence.mjs?v=3.21.0';
+import {createQuestGuide, guideSpeech} from './quest-guide.mjs?v=3.21.0';
+import {normalizeChapterScopeBank, migrateChapterScopeSave, chapterScopeRestoreBank,
+  removeRetiredRuntimeQuestions, completeMigratedQuizzes,
+  questionForReport, curriculumNotice} from './chapter-scope.mjs?v=3.21.0';
 
 export const SAVE_KEY = 'uppdrag1700.living-story.v1';
 export const PREVIOUS_GAME_KEY = 'uppdrag1700.living-story.previous.v1';
@@ -14,10 +18,11 @@ const copy = value => JSON.parse(JSON.stringify(value));
 const base = window.CLASSROOM_CURRICULUM;
 if (!base || !window.UPPDRAG_PRACTICE) throw new Error('Bokens underlag kunde inte läsas in.');
 const imported = read(BANK_KEY);
-const bank = imported?.bankId === base.bankId && validBank(imported, base) ? imported : base;
+const selectedBank = imported?.bankId === base.bankId && validBank(imported, base) ? imported : base;
+const bank = normalizeChapterScopeBank(selectedBank, base);
 // An older saved official bank may lack the subsequently reviewed choices.
 // Refresh only identical official questions; never write to the bank's save key.
-if (bank !== base && bank.sourcePolicy === base.sourcePolicy) {
+if (selectedBank !== base && bank.sourcePolicy === base.sourcePolicy) {
   const official = new Map(base.missions.flatMap(m => m.cards.map(q => [q.id, q])));
   for (const mission of bank.missions) for (const question of mission.cards) {
     const source = official.get(question.id);
@@ -46,12 +51,27 @@ function persist(value) {
 }
 const saved = read(SAVE_KEY);
 const initial = saved?.version === 2 ? saved : read(ORIGINAL_SAVE_KEY);
-const engine = createEngine({bank, practice: window.UPPDRAG_PRACTICE, initial, onSave: persist});
-applyChapterJobs(engine.content);
-// Make later reads, including invitations, entirely free of state mutations.
-for (const chapter of engine.content.chapters) engine.world().jobs[chapter.id] ||= {done: 0, active: null};
-preserveWorkSessionTime(engine, initial);
-let evidence = createWorkEvidence(engine);
+const loaded = createGameEngine(initial, persist);
+let engine = loaded.engine, evidence = loaded.evidence;
+
+function createGameEngine(source, onSave = () => {}) {
+  const migrated = migrateChapterScopeSave(source, bank);
+  let ready = false;
+  const target = createEngine({bank: chapterScopeRestoreBank(bank, migrated.initial),
+    practice: window.UPPDRAG_PRACTICE, initial: migrated.initial,
+    onSave: value => { if (ready) onSave(value); }});
+  applyChapterJobs(target.content);
+  // Read-only invitations and book pages must not initialize progression.
+  for (const chapter of target.content.chapters) target.world().jobs[chapter.id] ||= {done: 0, active: null};
+  preserveWorkSessionTime(target, migrated.initial);
+  removeRetiredRuntimeQuestions(target, bank);
+  const targetEvidence = createWorkEvidence(target);
+  // Only acknowledge already answered questions. No answer or grading method
+  // runs during migration, and no intermediate compatibility state is saved.
+  completeMigratedQuizzes(target, targetEvidence, migrated.completions);
+  ready = true;
+  return {engine: target, evidence: targetEvidence};
+}
 
 function preserveWorkSessionTime(target, source) {
   if (source?.bankId !== bank.bankId) return;
@@ -78,12 +98,7 @@ function previousGame() {
     (previous.knownPeople === null || typeof previous.knownPeople === 'string') ? previous : null;
 }
 function preparedGame(initial) {
-  const candidate = createEngine({bank, practice: window.UPPDRAG_PRACTICE, initial});
-  applyChapterJobs(candidate.content);
-  for (const chapter of candidate.content.chapters) candidate.world().jobs[chapter.id] ||= {done: 0, active: null};
-  preserveWorkSessionTime(candidate, initial);
-  createWorkEvidence(candidate);
-  return candidate.snapshot();
+  return createGameEngine(initial, persist);
 }
 function switchGame(restorePrevious = false) {
   const previous = restorePrevious ? previousGame() : null;
@@ -91,7 +106,8 @@ function switchGame(restorePrevious = false) {
   // Prepare and validate the destination without changing the active engine.
   // A valid empty save also prevents the legacy fallback from importing the
   // old answers again on the next load.
-  const next = preparedGame(previous?.game || null);
+  const prepared = preparedGame(previous?.game || null);
+  const next = prepared.engine.snapshot();
   const writes = [];
   function write(key, value) {
     const before = localStorage.getItem(key);
@@ -123,9 +139,8 @@ function switchGame(restorePrevious = false) {
     return {ok: false, reason: 'save'};
   }
   awaitingReload = true;
-  engine.replace(next);
-  preserveWorkSessionTime(engine, next);
-  evidence = createWorkEvidence(engine);
+  engine = prepared.engine;
+  evidence = prepared.evidence;
   quizContext = null; physicalPlace = null; saveError = false;
   changed();
   return {ok: true, reload: true};
@@ -149,7 +164,8 @@ function taskAt(place) {
   const stop = phase === 'pickup' ? level.pickups[active.pickup] : phase === 'handoff' ? level.handoffs[active.handoff] : null;
   const labels = {
     offer: 'Jag frågar om ' + level.title.toLowerCase() + '.',
-    work: (active?.quiz ? 'Jag fortsätter med ' : 'Jag börjar med ') + level.artifact.toLowerCase() + '.',
+    work: active?.quiz ? (level.job?.dialogue?.resumeLabel || 'Jag fortsätter med ' + level.artifact.toLowerCase() + '.')
+      : 'Jag frågar om arbetet med ' + level.artifact.toLowerCase() + '.',
     materials: 'Nu kan jag göra provtrycket.',
     puzzle: 'Jag vill jämföra kartorna.',
     deliver: 'Jag har med mig ' + level.artifact.toLowerCase() + '.'
@@ -164,6 +180,13 @@ function taskAt(place) {
     label: stop?.label || labels[phase] || 'Jag tar med mig underlaget.',
     giver: level.giver, recipient: level.recipient
   };
+}
+
+function guidanceAt(place) {
+  if (!PLACES[place] || ['town','gate'].includes(place)) return null;
+  const guide = createQuestGuide(engine);
+  return {key:guide.key, place, target:guide.target, phase:guide.phase,
+    chapter:guide.chapter, level:guide.level, text:guideSpeech(engine, place, guide)};
 }
 
 function invitationFor(person) {
@@ -256,7 +279,7 @@ function act(method, ...args) {
     return result;
   }
   if (method === 'beginGateExam') {
-    if (!place || !engine.availablePlaces().includes(place)) return rejected('place');
+    if (place !== 'archive') return rejected('place');
     const result = engine.world().review?.kind === 'gate' ? engine.beginReview() : engine.beginGateExam();
     if (result.ok && !result.already) quizContext = {place, kind: 'gate'};
     return result;
@@ -279,8 +302,12 @@ function act(method, ...args) {
 }
 
 export const story = {
-  engine, bank, PLACES, LEVEL_NAMES, choicesFor, taskAt, syncPlace, act, invitationFor,
+  get engine() { return engine; },
+  bank, PLACES, LEVEL_NAMES, choicesFor, taskAt, guidanceAt, syncPlace, act, invitationFor,
+  guide: () => createQuestGuide(engine),
   workReport: (chapter, level) => evidence.report(chapter, level),
+  questionForReport: (id, report) => questionForReport(engine, id, report),
+  get curriculumNotice() { return curriculumNotice(engine); },
   get lastWorkReport() { return evidence.latest; },
   get revision() { return revision; }, get saveError() { return saveError; },
   get saveKey() { return SAVE_KEY; },

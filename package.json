@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "node curriculum/build.mjs && node scripts/build-offline.mjs && node scripts/build-pages.mjs",
-    "test": "node scripts/verify.mjs && node scripts/ui-smoke.mjs && node --test preparation/google-sync/google-sync.test.mjs scripts/practice.test.mjs scripts/gameplay.test.mjs scripts/sound.test.mjs scripts/world.test.mjs scripts/classroom-bank.test.mjs scripts/demo.test.mjs scripts/narration.test.mjs && node scripts/paper-ui-smoke.mjs"
+    "test": "node scripts/verify.mjs && node scripts/ui-smoke.mjs && node --test preparation/google-sync/google-sync.test.mjs scripts/practice.test.mjs scripts/gameplay.test.mjs scripts/sound.test.mjs scripts/world.test.mjs scripts/classroom-bank.test.mjs scripts/chapter-scope.test.mjs scripts/demo.test.mjs scripts/narration.test.mjs && node scripts/paper-ui-smoke.mjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "0.1.100"

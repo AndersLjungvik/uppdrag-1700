@@ -111,14 +111,14 @@ export const vettedChainOptions = {
       "socker, kaffe och tobak från Västindien"
     ]
   ],
-  "sos-frihet-olika": [
+  "sos-frihet-maktfordelning": [
     [
       "större makt över riksdagen",
       "rätt att styra utan riksrådet"
     ],
     [
-      "rösta i riksdagen genom ett eget stånd",
-      "välja riksrådets ledamöter"
+      "på möten där bondeståndet ensamt bestämde",
+      "efter omröstning där samtliga stånd deltog"
     ],
     [
       "utse riksrådets medlemmar",

@@ -210,7 +210,10 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   }
   function startTalk(){
     const c=current();if(!c?.cast||dialogue||voyage)return false;
-    if(!CAST[c.key]&&c.storyPlace)return window.UPPDRAG_STORY_WORK?.open(c.storyPlace,{thoughtsFirst:true})||false;
+    if(!CAST[c.key]&&c.storyPlace){
+      const story=window.UPPDRAG_STORY_STATE,guidance=!story?.taskAt?.(c.storyPlace)&&!!story?.guidanceAt?.(c.storyPlace);
+      return window.UPPDRAG_STORY_WORK?.open(c.storyPlace,{thoughtsFirst:true,guidance})||false;
+    }
     const talk=controller(c.key);if(talk?.active)return talk.open();
     dialogue={room:interior,cast:c.cast,index:0};footerInert=roomFooter.inert;roomFooter.inert=true;
     panel.hidden=false;showLine();return true;
@@ -226,16 +229,17 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   // an accidental second click or an exit. IME composition and key repeat ignored.
   window.addEventListener('keydown',e=>{
     if(!dialogue)return;
-    if(['Enter','Escape','Tab','ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)){
-      if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey&&e.key!=='Tab'||e.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
-      if(e.isComposing){e.stopImmediatePropagation();return;}
-      if(e.key==='Tab'||e.key.startsWith('Arrow')){
+    const keyboard=window.UPPDRAG_WORLD_KEYBOARD,key=keyboard?.keyOf?.(e)||e.key;
+    if(['Enter','Escape','Tab','ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(key)){
+      if(e.isComposing||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey&&key!=='Tab'||e.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="combobox"]'))return;
+      if(key==='Tab'||key.startsWith('Arrow')){
         e.preventDefault();e.stopImmediatePropagation();
         panel.focus({preventScroll:true});return;
       }
-      if(e.key==='Enter'||e.key==='Escape'||e.key===' '){
-        e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;
-        if(e.key==='Escape')closeTalk();else advance();
+      if(key==='Enter'||key==='Escape'||key===' '){
+        if(keyboard?.claimAction){if(!keyboard.claimAction(e))return;}
+        else{e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;}
+        if(key==='Escape')closeTalk();else advance();
       }
     }
   },true);

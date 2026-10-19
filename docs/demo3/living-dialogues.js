@@ -28,7 +28,7 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
   `;
   document.head.append(style);
   const root=document.createElement('div');root.id='livingDialogue';root.hidden=true;
-  root.innerHTML='<svg id="livingTail" aria-hidden="true" focusable="false"></svg><div id="livingBubble" class="speech" role="status" aria-live="polite" aria-atomic="true"><span class="speechSpeaker"></span><p id="livingLine"></p></div>';
+  root.innerHTML='<svg id="livingTail" aria-hidden="true" focusable="false"></svg><div id="livingBubble" class="speech" role="button" tabindex="0" aria-keyshortcuts="Enter Space Escape" aria-live="polite" aria-atomic="true"><span class="speechSpeaker"></span><p id="livingLine"></p></div>';
   const bubble=root.querySelector('#livingBubble'),tail=root.querySelector('#livingTail');
   const speakerLabel=bubble.querySelector('.speechSpeaker'),line=bubble.querySelector('p');
   const peopleLayer=document.createElement('div');peopleLayer.id='worldPeople';peopleLayer.setAttribute('role','group');peopleLayer.setAttribute('aria-label','Människor längs vägen');stage.append(peopleLayer,root);
@@ -59,11 +59,19 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
     context.speech={at,end:at+(mode==='greeting'?850:Math.min(3600,700+line.textContent.length*24))};
     document.body.dataset.livingMode=mode;revision++;lastSignature='';position();
   }
+  function advance(){
+    if(!context)return false;
+    if(context.mode==='greeting')showPhase('speech',clock);else close();
+    return true;
+  }
   function openWorld(person){
     if(context||interior||sailing||voyage||!person||person.region!==region.id)return false;
     const current=window.UPPDRAG_WORLD_LIFE?.people(region).find(p=>p.id===person.id);
     if(!current||Math.hypot(player.x-current.x,player.y-current.y)>80)return false;
-    const proposed=current.role==='host'?window.UPPDRAG_STORY_STATE?.invitationFor(current):null;
+    const story=window.UPPDRAG_STORY_STATE;
+    const offered=current.role==='host'?story?.invitationFor?.(current):null;
+    const guide=!offered&&current.role==='host'?story?.guidanceAt?.(current.home):null;
+    const proposed=offered||(guide?{key:guide.key,place:current.home,text:guide.text}:null);
     const invitation=proposed&&typeof proposed.key==='string'&&typeof proposed.place==='string'&&typeof proposed.text==='string'
       ?{key:proposed.key,place:proposed.place,text:proposed.text}:null;
     const thoughts=(current.ponderings||[]).map(id=>ponderings.get(id)).filter(Boolean);
@@ -76,15 +84,20 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
     path=[];pendingPerson=null;drag=null;follow=true;
     delete document.body.dataset.livingApproach;
     camera.x=(player.x+stopped.x)/2;camera.y=(player.y+stopped.y)/2;clamp();
-    root.hidden=false;showPhase('greeting',clock);return true;
+    root.hidden=false;showPhase('greeting',clock);bubble.focus({preventScroll:true});return true;
   }
-  bubble.addEventListener('click',event=>{event.stopPropagation();close();});
+  bubble.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();advance();});
   window.addEventListener('keydown',event=>{
-    if(!context||event.repeat||event.isComposing||!['Enter','Escape',' '].includes(event.key))return;
+    if(!context)return;
+    const keyboard=window.UPPDRAG_WORLD_KEYBOARD,key=keyboard?.keyOf?.(event)||event.key;
+    if(!['Enter','Escape',' '].includes(key)||event.isComposing||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
     const target=event.target;
+    if(target.isContentEditable||target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="combobox"]'))return;
     // Tab and normal world controls remain available throughout the encounter.
-    if(event.key!=='Escape'&&target!==document.body&&target!==canvas&&!bubble.contains(target)&&target!==personButtons.get(context.person.id))return;
-    event.preventDefault();event.stopImmediatePropagation();close();
+    if(key!=='Escape'&&target!==document.body&&target!==canvas&&!bubble.contains(target)&&target!==personButtons.get(context.person.id))return;
+    if(keyboard?.claimAction){if(!keyboard.claimAction(event))return;}
+    else{event.preventDefault();event.stopImmediatePropagation();if(event.repeat)return;}
+    if(key==='Escape')close();else advance();
   },true);
   const bound=(n,a,b)=>Math.max(a,Math.min(Math.max(a,b),n));
   const overlap=(a,b)=>Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x))*Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y));
@@ -240,5 +253,5 @@ window.UPPDRAG_LIVING_DIALOGUES=(()=>{
     delete interior.greetedHost;return true;
   }
   new ResizeObserver(()=>{lastSignature='';if(context)position();}).observe(stage);
-  return {openWorld,close,tick,consumeGreeting,onManualMove,get companion(){return companion?{...companion}:null;},get busy(){return false;},get active(){return !!context;},get roomKey(){return null;},get personId(){return context?.person.id||null;},get revision(){return revision;},get speaker(){return context?.speaker||'';},get speech(){return context?.speech||{at:0,end:0};},get state(){return {room:null,person:context?.person.id||null,mode:context?.mode||null,thought:context?.thought.id||null,introducing:!!context?.introducing,invitation:context?.invitation?{...context.invitation}:null};}};
+  return {openWorld,advance,close,tick,consumeGreeting,onManualMove,get companion(){return companion?{...companion}:null;},get busy(){return false;},get active(){return !!context;},get roomKey(){return null;},get personId(){return context?.person.id||null;},get revision(){return revision;},get speaker(){return context?.speaker||'';},get speech(){return context?.speech||{at:0,end:0};},get state(){return {room:null,person:context?.person.id||null,mode:context?.mode||null,thought:context?.thought.id||null,introducing:!!context?.introducing,invitation:context?.invitation?{...context.invitation}:null};}};
 })();

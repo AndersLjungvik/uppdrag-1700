@@ -17,18 +17,18 @@ window.CLASSROOM_CURRICULUM={
     {
       "material": "Arbetsboken",
       "assignment": "2a",
-      "status": "Lucka",
+      "status": "Ingår inte",
       "ids": [],
-      "note": "Drottningens namn behöver beläggas i en läst svarskälla. Ingen gissning införs."
+      "note": "Namnet anges i den lästa grundboken s. 64, men det prövas inte i frågebanken."
     },
     {
       "material": "Arbetsboken",
       "assignment": "2b",
       "status": "Delvis",
       "ids": [
-        "sos-frihet-olika"
+        "sos-frihet-maktfordelning"
       ],
-      "note": "Maktbegränsningen tränas generellt, inte som ett belagt personpåstående om drottningen."
+      "note": "Maktbegränsningen tränas generellt; frågan gäller inte särskilt drottningen."
     },
     {
       "material": "Arbetsboken",
@@ -283,16 +283,16 @@ window.CLASSROOM_CURRICULUM={
     {
       "material": "Prov del 1",
       "assignment": "1a–b",
-      "status": "Tränas",
+      "status": "Delvis",
       "ids": [
-        "sos-frihet-olika",
+        "sos-frihet-maktfordelning",
+        "sos-ogift-press",
         "sos-kompanivaror",
         "sos-tryckfrihet-forst",
-        "sos-tsar",
         "sos-hattar-mossor",
         "sos-potatis-ursprung"
       ],
-      "note": "Alla sex påståendens innehåll finns med. De falska påståendena ersätts med korrekta förklaringar."
+      "note": "Maktfördelning, kvinnors utsatthet och fyra andra påståendens innehåll tränas i sina avsnitt. Tsar-definitionen utgår eftersom en säker koppling till ett undervisat kapitel saknas. Kvinnors villkor tränas först i avsnitt 2."
     },
     {
       "material": "Prov del 1",
@@ -469,7 +469,7 @@ window.CLASSROOM_CURRICULUM={
     }
   ],
   "scope": "Endast uppladdade SOS-underlag för 1700-talets Sverige. Proven och arbetsboken styr täckningen. Ingen webbfakta, tidigare AI-bank eller spelmanus används som belägg.",
-  "sourcePolicy": "Varje post har egna källhänvisningar. Oklara eller öppna uppgifter rättas inte automatiskt.",
+  "sourcePolicy": "Varje post har egna källhänvisningar och ska kunna knytas till det undervisade avsnittet. Fristående provfakta utan säker kapitelkoppling ingår inte i kapitelpassen. Oklara eller öppna uppgifter rättas inte automatiskt.",
   "missions": [
     {
       "id": "press",
@@ -1055,7 +1055,6 @@ window.CLASSROOM_CURRICULUM={
         "Kina.",
         "Göteborg.",
         "Te, siden och porslin.",
-        "Tsar.",
         "Den är svårare att ändra.",
         "Hattar och mössor.",
         "Hattarna.",
@@ -1468,34 +1467,6 @@ window.CLASSROOM_CURRICULUM={
           ]
         },
         {
-          "id": "sos-tsar",
-          "storyChapter": 1,
-          "level": 1,
-          "chapter": 1,
-          "type": "short",
-          "question": "Vilken rysk titel motsvarar kejsare?",
-          "simpleQuestion": "Vilken rysk titel motsvarar kejsare?",
-          "answer": "Tsar",
-          "accept": [
-            "Tsar"
-          ],
-          "explanation": "Tsar.",
-          "references": [
-            {
-              "source": "P1",
-              "location": "1a"
-            }
-          ],
-          "concept": null,
-          "origin": "bearbetning av klassrumsmaterial",
-          "missionId": "power",
-          "bookReference": "Prov – 1700-talets Sverige del 1 · 1a",
-          "distractors": [
-            "Sultan",
-            "Storfurste"
-          ]
-        },
-        {
           "id": "sos-grundlag-svarandrad",
           "storyChapter": 1,
           "level": 1,
@@ -1672,7 +1643,7 @@ window.CLASSROOM_CURRICULUM={
           "bookReference": "Bra att veta – 1700-talets Sverige · 2; Bedömningsstöd del 1 · 2; Prov – 1700-talets Sverige del 1 · 2; Elevernas arbetsbok s. 24–39 · 3"
         },
         {
-          "id": "sos-frihet-olika",
+          "id": "sos-frihet-maktfordelning",
           "storyChapter": 1,
           "level": 3,
           "chapter": 1,
@@ -1691,12 +1662,12 @@ window.CLASSROOM_CURRICULUM={
               ]
             },
             {
-              "connector": "Men kvinnor fick",
-              "answer": "fortfarande inte bestämma fritt över sig själva",
+              "connector": "Viktiga beslut kunde dessutom tas",
+              "answer": "på särskilda möten utan bönderna",
               "options": [
-                "fortfarande inte bestämma fritt över sig själva",
-                "rösta i riksdagen genom ett eget stånd",
-                "välja riksrådets ledamöter"
+                "på särskilda möten utan bönderna",
+                "på möten där bondeståndet ensamt bestämde",
+                "efter omröstning där samtliga stånd deltog"
               ]
             },
             {
@@ -1713,7 +1684,7 @@ window.CLASSROOM_CURRICULUM={
             "sos-bonder-inflytande",
             "sos-riksdag"
           ],
-          "explanation": "Kungen fick mindre makt. Men kvinnor fick fortfarande inte bestämma fritt över sig själva. Och bönderna fick inte välja riksrådets medlemmar.",
+          "explanation": "Kungen fick mindre makt. Viktiga beslut kunde dessutom tas på särskilda möten utan bönderna. Och bönderna fick inte välja riksrådets medlemmar.",
           "references": [
             {
               "source": "F1",
@@ -1724,17 +1695,17 @@ window.CLASSROOM_CURRICULUM={
               "location": "1"
             },
             {
-              "source": "L2",
-              "location": "Man bestämde över kvinnor och barn"
+              "source": "L1",
+              "location": "facit s.65 fråga 3"
             },
             {
               "source": "AB",
-              "location": "5"
+              "location": "4c"
             }
           ],
           "origin": "byggsvar utifrån klassrumsmaterial",
           "missionId": "power",
-          "bookReference": "Bedömningsstöd del 1 · 1–2; Bra att veta – 1700-talets Sverige · 1; Lärarguide – Fria och ofria · Man bestämde över kvinnor och barn; Elevernas arbetsbok s. 24–39 · 5"
+          "bookReference": "Bedömningsstöd del 1 · 1–2; Bra att veta – 1700-talets Sverige · 1; Lärarguide – Frihetstiden · facit s.65 fråga 3; Elevernas arbetsbok s. 24–39 · 4c"
         },
         {
           "id": "sos-bonder-begransning",
@@ -7052,7 +7023,6 @@ window.CLASSROOM_CURRICULUM={
             "sos-kina",
             "sos-goteborg",
             "sos-kompanivaror",
-            "sos-tsar",
             "sos-grundlag-svarandrad"
           ]
         },
@@ -7067,7 +7037,7 @@ window.CLASSROOM_CURRICULUM={
         {
           "level": 3,
           "ids": [
-            "sos-frihet-olika"
+            "sos-frihet-maktfordelning"
           ]
         }
       ]
@@ -7582,7 +7552,6 @@ window.CLASSROOM_CURRICULUM={
         "sos-stand",
         "sos-kompani",
         "sos-kompanivaror",
-        "sos-tsar",
         "sos-grundlag-svarandrad",
         "sos-kompaniets-uppgift",
         "sos-bonder-begransning",

@@ -1,10 +1,32 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
-Uppdaterad 18 oktober 2026. Aktuell arbetsversion är **Demo 3.20 – Kapitelarbeten och färdiga arbetsblad**.
+Uppdaterad 19 oktober 2026. Aktuell arbetsversion är **Demo 3.21 – En tydlig väg genom kapitlets uppdrag**.
 
 ## Börja här
 
-[Starta Demo 3.20](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.20.0). Startfilen är `docs/demo3/living-world.html`.
+[Starta Demo 3.21](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.21.0). Startfilen är `docs/demo3/living-world.html`.
+
+## Vägvisning, konkreta föremål och kapitlets innehåll – 3.21
+
+Uppdragsboken visar nästa handling, person, plats och syfte överst. En numrerad väg följer arbetets riktiga faser: beställning, eventuella hämtningar, återkallning, material eller kartor, överlämningar och slutlig leverans. Klara, aktuella och kommande steg skiljs åt. Den samlade resan visar alla tio kapitel och de tre arbetenas stämplar. Detaljer och färdiga arbetsblad finns kvar i en öppningsbar del av boken.
+
+Beställningslappar och föremål syns i packningen. Första kapitlet går från Majas lapp till Britas manus. Gesällsuppdraget hos Jo ger nu en porslinslåda som lämnas till Maja; detta är den enda ändrade fysiska mottagaren. Provtrycket, Majas godkännande och de färdiga anslagen visas som skilda föremål i mästararbetet. Inga nya föremålsbilder ger poäng eller stämplar. Samma fysiska leveranskontroller gäller som tidigare.
+
+Personerna ger påminnelser även när nästa handling finns någon annanstans. En accepterad beställning följs av en konkret riktning, och ett återbesök kan besvara ”Vart ska jag nu?”. Ett nytt arbete öppnar först en beskrivning av beställningen, kapitlets kunskapstema, bokhänvisningen och resultatet. Frågorna börjar först när eleven väljer ”Jag prövar vad jag minns”.
+
+Mellanslag och Enter fortsätter dialogen. Gemensamt tangentägarskap från nedtryckning till uppsläpp förhindrar att en hållen tangent hoppar över flera repliker eller läcker in i nästa meny. Pilar väljer bland alternativ, Escape lägger undan och B öppnar uppdragsboken. Fritext, modifierade genvägar och IME behandlas separat.
+
+Den ritade världen har ingen stadsport. Avsnittets avslutning sker nu hos Rut i arkivet, med uttrycklig start där. Äldre pausade avslutningar fortsätter hos Rut. De interna sparvärdena för provtypen behålls för kompatibilitet; nästa avsnitt öppnas med samma bedömningsregel som tidigare.
+
+Alla arbetens titel, beställning, introduktion och kunskapstema har jämförts med frågorna och det undervisade kapitlet. Samma arbetsplats återkommer i flera kapitel, medan frågorna följer det valda avsnittet. Två avgränsningar har rättats i första kapitlet: en rysk härskartitel saknas på s. 64–65 och utgår från bedömningen; mästarfrågans steg om kvinnors villkor från nästa kapitel ersätts av de belagda särskilda mötena utan bönderna. Den ändrade mästarfrågan får ett nytt ID. Tidigare svar får inte räknas som svar på den nya frågan. Spelets bankidentitet och sparade resa behålls.
+
+3.20.1:s val mellan fortsatt och ny omgång finns kvar. Att öppna den nya versionslänken nollställer inte spelet. En ny omgång startas uttryckligen i uppdragsboken, efter att den pågående omgången har säkerhetskopierats.
+
+Den slutliga kontrollen av första kapitlet passerar med samtliga 15 aktuella frågor, 224 hela tangentcykler, 18 faktiska resor, 15 boklägen, tre uttryckliga arbetsstarter och fyra omladdningar mitt i arbetet. Den omfattar pressen, godkännandena, de fysiska leveranserna och äldre sparningar hos Jo. Ruts avslutning kräver fysisk ankomst till arkivet; sparad fel-feedback och bedömningen fyra av fem bevaras.
+
+Den portabla migreringsregressionen i `scripts/chapter-scope.test.mjs` passerar 12 fall. Resetgränssnittets fem fall och fem ytterligare migrationsfall i det faktiska gränssnittet passerar också, inklusive återställning efter nekade skrivningar, gamla originalrapporter och en uttrycklig ny start på den ändrade mästarfrågan. Originalmotorn och rättningsreglerna är hashidentiska; de 137 övriga aktiva frågeobjekten är oförändrade. Slutkörningarna har inga körfel och produktfilerna var stabila under kontrollerna.
+
+Den här arbetsmiljön saknar den tillgängliga webbläsarstyrning som Sites kräver. Kontrollerna ovan verifierar funktion och progression; ingen ny visuell webbläsargranskning eller elevprovning ingår i denna version.
 
 ## Kapitelarbeten efter undervisningen – 3.20
 

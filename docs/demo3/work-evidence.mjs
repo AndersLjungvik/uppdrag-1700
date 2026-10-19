@@ -1,5 +1,6 @@
 // A completed work sheet records this pass, independently of lifetime totals.
 // This ledger never grades answers, awards money or changes chapter progression.
+import {historicalQuestion, reportIdsAllowed} from './chapter-scope.mjs?v=3.21.0';
 const clone = value => JSON.parse(JSON.stringify(value));
 const object = value => value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 const keyOf = (chapter, level) => `${chapter}:${level}`;
@@ -10,15 +11,15 @@ export function createWorkEvidence(engine) {
   const previous = object(engine.state.livingWorkLedger);
   const ledger = {version: 1, bankId, sessions: {}, reports: {}, lastKey: null};
   const compatible = previous.version === 1 && previous.bankId === bankId;
-  const validIds = (ids, level) => Array.isArray(ids) && ids.length === level.ids.length &&
-    new Set(ids).size === ids.length && ids.every(id => level.ids.includes(id));
+  const validIds = (ids, chapter, level) => reportIdsAllowed(ids, chapter.id, level.level, level.ids, bankId);
   const firstAnswers = (raw, ids) => {
     const source = object(raw), clean = {};
     for (const id of ids) {
       const answer = object(source[id]);
       if (typeof answer.correct === 'boolean' && typeof answer.supported === 'boolean') {
         // Building from visible parts always provides recognition support.
-        clean[id] = {correct: answer.correct, supported: answer.supported || engine.content.cards.get(id)?.type === 'chain'};
+        clean[id] = {correct: answer.correct, supported: answer.supported ||
+          (engine.content.cards.get(id) || historicalQuestion(id))?.type === 'chain'};
       }
     }
     return clean;
@@ -39,7 +40,7 @@ export function createWorkEvidence(engine) {
     const active = engine.world().jobs[chapter.id]?.active;
     const rawSession = object(object(previous.sessions)[key]);
     if (active?.level === level.level && active.phase === 'work' && active.quiz &&
-        rawSession.startedAt === active.quiz.startedAt && validIds(rawSession.ids, level) &&
+        rawSession.startedAt === active.quiz.startedAt && validIds(rawSession.ids, chapter, level) &&
         rawSession.ids.every((id, index) => id === active.quiz.ids[index])) {
       ledger.sessions[key] = {chapter: chapter.id, level: level.level, startedAt: rawSession.startedAt,
         ids: [...rawSession.ids], first: firstAnswers(rawSession.first, rawSession.ids), repeat: active.repeat === true};
@@ -47,7 +48,7 @@ export function createWorkEvidence(engine) {
     const rawReport = object(object(previous.reports)[key]);
     const done = engine.world().jobs[chapter.id]?.done || 0;
     const eligible = done >= level.level || (active?.level === level.level && !['pickup', 'work'].includes(active.phase));
-    if (eligible && validIds(rawReport.ids, level) && timestamp(rawReport.startedAt) &&
+    if (eligible && validIds(rawReport.ids, chapter, level) && timestamp(rawReport.startedAt) &&
         timestamp(rawReport.finishedAt) && rawReport.finishedAt >= rawReport.startedAt) {
       const first = firstAnswers(rawReport.first, rawReport.ids);
       ledger.reports[key] = {chapter: chapter.id, level: level.level, ids: [...rawReport.ids], first,

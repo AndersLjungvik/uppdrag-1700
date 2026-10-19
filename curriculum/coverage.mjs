@@ -2,8 +2,8 @@
 // matching a topic does not establish that every part of an assignment is covered.
 export const coverage=[
  ['Arbetsboken','1','Tränas','frihetstid,frihet-forklaring','Namnet på perioden och maktförändringen.'],
- ['Arbetsboken','2a','Lucka','','Drottningens namn behöver beläggas i en läst svarskälla. Ingen gissning införs.'],
- ['Arbetsboken','2b','Delvis','frihet-olika','Maktbegränsningen tränas generellt, inte som ett belagt personpåstående om drottningen.'],
+ ['Arbetsboken','2a','Ingår inte','','Namnet anges i den lästa grundboken s. 64, men det prövas inte i frågebanken.'],
+ ['Arbetsboken','2b','Delvis','frihet-maktfordelning','Maktbegränsningen tränas generellt; frågan gäller inte särskilt drottningen.'],
  ['Arbetsboken','3','Tränas','kompani,kompaniets-uppgift','Kompaniets uppgift, resväg och varor.'],
  ['Arbetsboken','4a,c','Tränas','grundlag,bonder-inflytande,bonder-begransning','Grundlag och böndernas begränsade inflytande.'],
  ['Arbetsboken','4b','Precisering','grundlag-svarandrad','Svårare att ändra. Kravet att hela riksdagen måste vara överens förs inte över som allmän definition.'],
@@ -24,7 +24,7 @@ export const coverage=[
  ['Arbetsboken','31','Tränas och samtal','historisk-kalla,kyrkbocker,samtida-kallor,kallor-forandring','Källor och vad de kan berätta.'],
  ['Arbetsboken','32','Delvis','bildtolkning','Metodförberedelse. Själva tolkningen av arbetsbokens tre bilder återstår tills bilderna visas i spelet.'],
  ['Arbetsboken','33–35','Tränas och samtal','huvudmal-frihet,huvudmal-lasning,huvudmal-finland,kung-motsagelse','Sammanfattning och jämförelser av makt. För-/nackdelar är också öppna samtal.'],
- ['Prov del 1','1a–b','Tränas','frihet-olika,kompanivaror,tryckfrihet-forst,tsar,hattar-mossor,potatis-ursprung','Alla sex påståendens innehåll finns med. De falska påståendena ersätts med korrekta förklaringar.'],
+ ['Prov del 1','1a–b','Delvis','frihet-maktfordelning,ogift-press,kompanivaror,tryckfrihet-forst,hattar-mossor,potatis-ursprung','Maktfördelning, kvinnors utsatthet och fyra andra påståendens innehåll tränas i sina avsnitt. Tsar-definitionen utgår eftersom en säker koppling till ett undervisat kapitel saknas. Kvinnors villkor tränas först i avsnitt 2.'],
  ['Prov del 1','2','Tränas','kompani,kompaniets-uppgift','Identifiering och verksamhet.'],
  ['Prov del 1','3a–c','Tränas','stand,bonder-inflytande,bonder-begransning,grundlag,grundlag-svarandrad','Stånd, inflytande och grundlag.'],
  ['Prov del 1','4a–d','Tränas och samtal','ogift-straff,ogift-press','Normer och utsatthet. Följder för kvinnor/barn samt jämförelse med i dag är samtal.'],

@@ -40,8 +40,8 @@ test('every optional multiple-choice set contains exactly one accepted answer',(
 test('vetted answer choices never collide with accepted short answers',()=>{
  const exported=bank.missions.flatMap(m=>m.cards);
  const shorts=exported.filter(q=>q.type==='short');
- assert.equal(shorts.length,97);
- assert.equal(shorts.filter(q=>q.distractors?.length===2).length,88);
+  assert.equal(shorts.length,96);
+  assert.equal(shorts.filter(q=>q.distractors?.length===2).length,87);
  for(const q of shorts){const options=choicesFor(q,exported,()=>.37);
   if(!q.distractors){assert.deepEqual(options,[],q.id);continue}
   assert.equal(options.length,3,q.id);
@@ -62,7 +62,8 @@ test('opinions and ambiguous source classification cannot become auto-scored fac
  assert(reflections.every(q=>q.scored===false));for(const slug of ['kvinnor','kallval','maskerad','seger'])assert(reflections.some(q=>q.id==='sos-samtal-'+slug));
  assert(!cards.some(q=>q.type==='short'&&/varför tror du|vad tycker du/i.test(q.question)));
 });
-test('assessment pools refer only to real questions and keep unscored reflection separate',()=>{
+test('coverage and assessment pools refer only to current questions and keep unscored reflection separate',()=>{
+ for(const row of bank.coverage)assert(row.ids.every(id=>cards.some(q=>q.id===id)),`${row.material}: ${row.assignment}`);
  for(const a of bank.assessments){assert(a.ids.length);assert(a.reflections.length);assert(a.ids.every(id=>cards.some(q=>q.id===id)));assert(a.reflections.every(id=>reflections.some(q=>q.id===id)));assert(!a.ids.some(id=>a.reflections.includes(id)))}
 });
 test('the paper-world game uses only the new source bank and can finish all thirty levels across reloads',()=>{
@@ -85,7 +86,16 @@ test('the paper-world game uses only the new source bank and can finish all thir
    e=createEngine({bank,practice,initial:e.snapshot(),now:()=>2000000000});
   }
   assert.equal(e.progress().done,l);
- }}assert.equal(e.world().effects.length,30);
+ }
+  if(c<10){
+   assert(e.beginGateExam().ok,`chapter ${c} conclusion`);
+   while(e.currentQuiz()){
+    const q=e.question();assert(e.answer(q.type==='short'?q.answer:q.steps.map(s=>s.answer)).correct,q.id);
+    const result=e.nextQuestion();if(result.finished){assert(result.passed,`chapter ${c} conclusion`);break}
+   }
+   e=createEngine({bank,practice,initial:e.snapshot(),now:()=>2000000000});
+  }
+ }assert.equal(e.world().effects.length,30);
 });
 test('old knowledge credits are archived rather than transferred to different classroom questions',()=>{
  const ctx=vm.createContext({window:{},Date});vm.runInContext(fs.readFileSync(new URL('../dist/practice.js',import.meta.url),'utf8'),ctx);

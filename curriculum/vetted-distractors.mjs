@@ -59,10 +59,6 @@ export const vettedDistractors = {
     "Te, bomull och kryddor",
     "Kaffe, socker och tobak"
   ],
-  "sos-tsar": [
-    "Sultan",
-    "Storfurste"
-  ],
   "sos-grundlag-svarandrad": [
     "Den ändras av en enda minister",
     "Den ändras automatiskt varje år"

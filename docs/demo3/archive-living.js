@@ -81,10 +81,11 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
   }
   function storyChoices(){
     const focus=document.activeElement?.dataset?.thought;
-    for(const b of panel.querySelectorAll('[data-thought="story"],[data-thought="story-review"]'))b.remove();
+    for(const b of panel.querySelectorAll('[data-thought="story"],[data-thought="storyGuide"],[data-thought="story-review"]'))b.remove();
     const state=window.UPPDRAG_STORY_STATE,choices=[];
     const task=state?.taskAt?.('archive');
     if(task)choices.push(['story',task.thought||'Jag frågar om uppdraget.']);
+    else if(state?.guidanceAt?.('archive'))choices.push(['storyGuide','Vart ska jag nu?']);
     if(state?.engine&&(state.engine.world().known.length||state.engine.world().review))choices.push(['story-review','Jag vill öva på det jag har lärt mig.']);
     for(const [id,text]of choices){const b=document.createElement('button');b.type='button';b.className='thoughtChoice';b.dataset.thought=id;b.textContent=text;panel.append(b);if(focus===id)b.focus({preventScroll:true});}
     update();
@@ -121,31 +122,32 @@ window.UPPDRAG_ARCHIVE_PILOT=(()=>{
   root.addEventListener('click',e=>{
     if(mode==='speech'&&panel.contains(e.target)){e.preventDefault();e.stopPropagation();advance();return;}
     const b=e.target.closest('button');if(!b)return;
-    if(b.dataset.thought==='story'){close(false);window.UPPDRAG_STORY_WORK?.open('archive');return;}
+    if(['story','storyGuide'].includes(b.dataset.thought)){const guidance=b.dataset.thought==='storyGuide';close(false);window.UPPDRAG_STORY_WORK?.open('archive',{guidance});return;}
     if(b.dataset.thought==='story-review'){close(false);window.UPPDRAG_STORY_WORK?.openReview();return;}
     if(b.dataset.thought)speak(b.dataset.thought);else if(b.dataset.answer)answer(b.dataset.answer);
     else if(b.dataset.action==='close')close();
     else if(b.dataset.action==='conclusion'){setMode('speech');speak('conclusion');}
   });paperButton.addEventListener('click',openPapers);
-  // No default thought/answer. Enter on a heading does nothing; Tab/arrows or
-  // a pointer first choose a real button. Holding Enter never drains the dialogue.
+  // The first action press reaches a thought or answer; another confirms it.
+  // Holding the action key never drains the dialogue.
   window.addEventListener('keydown',e=>{
     if(!active||!mode)return;
-    if(!['Enter','Escape','Tab','ArrowDown','ArrowUp','ArrowLeft','ArrowRight',' '].includes(e.key))return;
-    if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey&&e.key!=='Tab'||e.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
-    if(e.isComposing){e.stopImmediatePropagation();return;}
+    const keyboard=window.UPPDRAG_WORLD_KEYBOARD,key=keyboard?.keyOf?.(e)||e.key;
+    if(!['Enter','Escape','Tab','ArrowDown','ArrowUp','ArrowLeft','ArrowRight',' '].includes(key))return;
+    if(e.isComposing||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey&&key!=='Tab'||e.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="combobox"]'))return;
     const box=mode==='papers'?docs:panel;
     const buttons=[...box.querySelectorAll('button')].filter(b=>!b.hidden&&!b.closest('[hidden]')&&!b.disabled);
-    if(e.key==='Tab'||e.key.startsWith('Arrow')){
+    if(key==='Tab'||key.startsWith('Arrow')){
       e.preventDefault();e.stopImmediatePropagation();const old=buttons.indexOf(document.activeElement);
       if(mode==='speech'){panel.focus({preventScroll:true});return;}
-      const backwards=e.key==='ArrowUp'||e.key==='ArrowLeft'||e.key==='Tab'&&e.shiftKey;
+      const backwards=key==='ArrowUp'||key==='ArrowLeft'||key==='Tab'&&e.shiftKey;
       const i=old<0?(backwards?buttons.length-1:0):(old+(backwards?-1:1)+buttons.length)%buttons.length;
       buttons[i]?.focus({preventScroll:true});return;
     }
-    if(e.key==='Escape'||e.key==='Enter'||e.key===' '){
-      e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;
-      if(e.key==='Escape')close();else if(mode==='speech')advance();else if(buttons.includes(document.activeElement))document.activeElement.click();
+    if(key==='Escape'||key==='Enter'||key===' '){
+      if(keyboard?.claimAction){if(!keyboard.claimAction(e))return;}
+      else{e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;}
+      if(key==='Escape')close();else if(mode==='speech')advance();else if(buttons.includes(document.activeElement))document.activeElement.click();else buttons[0]?.focus({preventScroll:true});
     }
   },true);
   for(const event of ['pointerdown','pointerup','click'])roomCanvas.addEventListener(event,e=>{if(active&&mode){e.preventDefault();e.stopImmediatePropagation();if(event==='click'&&mode!=='papers')close();}},true);
