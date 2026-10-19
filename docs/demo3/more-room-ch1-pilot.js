@@ -288,7 +288,7 @@
   // Nearviews are painted with the *same* cut-paper primitives and source-image
   // pigment/fibres as the rooms. A memory scene is not a flat SVG or brown cover.
   function renderMemoryCloseup(canvas,placeId){
-    if(!['cafe','palace','quay','riksdag'].includes(placeId))return false;
+    if(!['cafe','palace','quay','riksdag','archive'].includes(placeId))return false;
     const bounds=canvas.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
     if(!bounds.width||!bounds.height)return false;
     const W=Math.round(bounds.width*d),H=Math.round(bounds.height*d);
@@ -362,6 +362,18 @@
       material(g,'ink',1070,431,2.0);
       quill(g,1083,429);
       // Assembly benches and raised table are deliberately distinct.
+    }else if(placeId==='archive'){
+      rect(0,0,1280,720,'wall');
+      windowPane(g,49,45,252,285);
+      // Archive shelves, bound volumes and Rut's reading desk.
+      bookcase(g,840,57,344,340);
+      rect(0,382,1280,338,'wood');plank(425,3);
+      cut(g,125,360,300,260,'dark');
+      cut(g,149,379,255,205,'wood');
+      documentSheet(468,349,358,293);
+      material(g,'ink',1034,440,2.2);
+      quill(g,1070,449);
+      flatBook(g,125,413,206);
     }else if(placeId==='quay'){
       rect(0,0,1280,720,'glass');
       // Real harbour sky, open water, ship's sail and rough cut planks.
