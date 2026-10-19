@@ -443,7 +443,7 @@ const rank=()=>['Lärling','Gesäll','Mästare'][current().r];
 function numbers(){return {ind:s.record.filter(x=>x.ok&&!x.support).length,aided:s.record.filter(x=>x.ok&&x.support).length,need:s.record.filter(x=>!x.ok).length}}
 function drawHud(){
  if(s.complete){hud.innerHTML='<strong>Kapitel 2 klart!</strong>'
-  +'<a href="chapter3-pilot.html?v=1">Fortsätt till kapitel 3 →</a>';return;}
+  +'<a href="chapter3-pilot.html?v=3">Fortsätt till kapitel 3 →</a>';return;}
  const label=present()?'Prata med '+current().who:'Visa vägen';
  hud.innerHTML='<strong>Fria och ofria · '+(s.step?rank():'Start')+'</strong>'
   +'<span>Nästa: <b>'+paths[current().p]+'</b></span>'
@@ -520,7 +520,7 @@ function drawModal(){
     +'<p>Du har hjälpt Maja, Olof och Siri att minnas.</p>'
     +'<p class="ch1DiplomaSmall">'+right+' rätta återkallningar på '+tries+' försök. '
       +'Detta är träning, inte ett betyg.</p>'
-    +'<a class="ch1NextChapter" href="chapter3-pilot.html?v=1">Fortsätt till kapitel 3 →</a>'
+    +'<a class="ch1NextChapter" href="chapter3-pilot.html?v=3">Fortsätt till kapitel 3 →</a>'
     +'<button data-action="close">Tillbaka till staden</button>'
     +'<button data-action="restart">Börja om kapitel 2</button></article>';
    return;
