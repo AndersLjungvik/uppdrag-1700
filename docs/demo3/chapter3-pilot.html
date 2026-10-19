@@ -140,7 +140,9 @@ function returnByBoat(){if(interior||sailing||region===MAIN)return;pendingRoom=n
 function resize(){const r=stage.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);layout={w:r.width,h:r.height,d,scale:Math.min(1.08,Math.max(.62,Math.min(r.width/620,r.height/620)))};clamp()}
 function clamp(){const hw=layout.w/(2*layout.scale),hh=layout.h/(2*layout.scale);camera.x=Math.max(hw,Math.min(region.w-hw,camera.x));camera.y=Math.max(hh,Math.min(region.h-hh,camera.y))}
 function screen(e){const r=canvas.getBoundingClientRect();return{x:camera.x+(e.clientX-r.left-r.width/2)/layout.scale,y:camera.y+(e.clientY-r.top-r.height/2)/layout.scale}}
-function draw(){if(interior)return;const{w,h,d,scale}=layout;ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);ctx.translate(w/2-camera.x*scale,h/2-camera.y*scale);ctx.scale(scale,scale);ctx.drawImage(layer(region),0,0);window.UPPDRAG_CH3_CITY_LIFE?.draw(ctx,{region,now:performance.now(),camera,layout,player});if(window.UPPDRAG_MEETINGS){UPPDRAG_MEETINGS.drawMapPlayer(ctx,player,window.UPPDRAG_WORLD_KEYBOARD?.motionPath||path,performance.now());}else{ctx.fillStyle='#476d75';ctx.beginPath();ctx.arc(player.x,player.y+8,14,0,Math.PI*2);ctx.fill();ctx.fillStyle='#e0c09b';ctx.beginPath();ctx.arc(player.x,player.y-9,10,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f4e5c7';ctx.lineWidth=3;ctx.beginPath();ctx.arc(player.x,player.y,22,0,Math.PI*2);ctx.stroke();}if(sailing){ctx.fillStyle='#213d4b99';ctx.fillRect(camera.x-w/(2*scale),camera.y-h/(2*scale),w/scale,h/scale);ctx.fillStyle='#f2e5c7';ctx.font='bold 42px Georgia';ctx.textAlign='center';ctx.fillText(sailing.to==='main'?'Tillbaka mot kajen':sailing.to==='marstrand'?'Mot Marstrand':'Över Atlanten',camera.x,camera.y)}status.textContent=region.name}
+function draw(){if(interior)return;const{w,h,d,scale}=layout;ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);ctx.translate(w/2-camera.x*scale,h/2-camera.y*scale);ctx.scale(scale,scale);ctx.drawImage(layer(region),0,0);ctx.save();ctx.globalAlpha=.77;
+ window.UPPDRAG_WORLD_LIFE?.draw(ctx,{region,now:performance.now()});ctx.restore();
+ window.UPPDRAG_CH3_CITY_LIFE?.draw(ctx,{region,now:performance.now(),camera,layout,player});if(window.UPPDRAG_MEETINGS){UPPDRAG_MEETINGS.drawMapPlayer(ctx,player,window.UPPDRAG_WORLD_KEYBOARD?.motionPath||path,performance.now());}else{ctx.fillStyle='#476d75';ctx.beginPath();ctx.arc(player.x,player.y+8,14,0,Math.PI*2);ctx.fill();ctx.fillStyle='#e0c09b';ctx.beginPath();ctx.arc(player.x,player.y-9,10,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f4e5c7';ctx.lineWidth=3;ctx.beginPath();ctx.arc(player.x,player.y,22,0,Math.PI*2);ctx.stroke();}if(sailing){ctx.fillStyle='#213d4b99';ctx.fillRect(camera.x-w/(2*scale),camera.y-h/(2*scale),w/scale,h/scale);ctx.fillStyle='#f2e5c7';ctx.font='bold 42px Georgia';ctx.textAlign='center';ctx.fillText(sailing.to==='main'?'Tillbaka mot kajen':sailing.to==='marstrand'?'Mot Marstrand':'Över Atlanten',camera.x,camera.y)}status.textContent=region.name}
 canvas.addEventListener('pointerdown',e=>{if(interior||sailing||(window.UPPDRAG_LIVING_DIALOGUES?.busy||window.UPPDRAG_STORY_WORK?.busy))return;canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,cx:camera.x,cy:camera.y,moved:false}});canvas.addEventListener('pointermove',e=>{if(!drag){hoverPersonId=window.UPPDRAG_CH3_CITY_LIFE?.hit(region,screen(e))?.id||null;canvas.style.cursor=hoverPersonId?'pointer':'default';return;}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>8)drag.moved=true;if(drag.moved){follow=false;camera.x=drag.cx-dx/layout.scale;camera.y=drag.cy-dy/layout.scale;clamp()}});canvas.addEventListener('pointerup',e=>{if(!drag)return;const moved=drag.moved;drag=null;if(moved||interior||sailing||(window.UPPDRAG_LIVING_DIALOGUES?.busy||window.UPPDRAG_STORY_WORK?.busy))return;cancelPersonArrival();pending=null;returnPending=false;pendingRoom=null;pendingStreetChat=null;
  const p=screen(e),city=window.UPPDRAG_CH3_CITY_LIFE;
  if(city?.active)return;
@@ -206,7 +208,7 @@ window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElem
 </script>
 <script src="npc-motion-ch3.js?v=1"></script>
 <script src="meeting-ch3-pilot.js?v=1"></script>
-<script src="world-life.js?v=3.19.0"></script>
+<script src="world-life-ch3.js?v=1"></script>
 <script src="story-world.js?v=3.19.0"></script>
 <script src="paper-dialogues.js?v=3.19.0"></script>
 <script src="world-keyboard-ch3.js?v=2"></script>
@@ -217,14 +219,13 @@ window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElem
 <script src="chapter1-closeups.js?v=11"></script>
 <script src="chapter1-choices.js?v=14"></script>
 <script>
-/* Kapitel 3: stadsborna lever vidare visuellt men äldre sidodialoger är avstängda.
+/* Kapitel 3: stillsamt stadsliv kvar i bakgrunden; själva konfliktgrupperna kan prata.
    Samtalen med Maja, Erik, Jo och Lars samt Rut är de aktiva kapitelsamtalen. */
 if(window.UPPDRAG_WORLD_LIFE){
-  // No generic strolling townsfolk, loose dogs, hens, sheep or cows in chapter 3.
-  // Original world and earlier chapters are untouched.
-  Object.assign(window.UPPDRAG_WORLD_LIFE,{
-    draw(){},tick(){},people(){return[]},hit(){return null}
-  });
+  // Civilians, farm animals and the slower gait remain visible in the chapter.
+  // Original old-world conversation handlers are not active in this pilot.
+  // Keep hit/people disabled externally so keyboard/click only targets authored crisis groups.
+  Object.assign(window.UPPDRAG_WORLD_LIFE,{people(){return[]},hit(){return null}});
 }
 </script>
 <script src="chapter2-content.js?v=3"></script>
@@ -236,7 +237,7 @@ if(window.UPPDRAG_WORLD_LIFE){
 <script src="chapter3-closeups.js?v=1"></script>
 <script src="chapter3-reading.js?v=1"></script>
 <script src="chapter3-pilot.js?v=3"></script>
-<script src="chapter3-street-life.js?v=2"></script>
+<script src="chapter3-street-life.js?v=3"></script>
 </body>
 </html>
 
