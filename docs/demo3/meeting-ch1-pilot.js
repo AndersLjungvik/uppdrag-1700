@@ -123,11 +123,12 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
  const gesture=speaking?-.18+Math.sin(elapsed/300)*.045:.05;ctx.save();ctx.translate(36,-212);ctx.rotate(gesture);cut(-11,0,22,78,color);oval(0,84,12,14,'#c9a57c');ctx.restore();
  cut(-8,-251,22,27,'#c8a377');poly([[-29,-291],[12,-300],[36,-285],[38,-267],[47,-260],[36,-255],[29,-230],[-14,-235],[-28,-253]],'#cda77b');poly([[-32,-288],[-17,-307],[15,-309],[35,-292],[12,-287],[-13,-271],[-27,-253]],woman?'#d7c9ac':'#604a35');oval(28,-272,2,2,'#342c24');const opening=speaking?Math.max(0,Math.sin(elapsed/70))*(1+Math.sin(elapsed/340)**2*1.8):0;oval(35,-249,3.5,.65+opening,'#594132');if(!woman){oval(-1,-301,47,9,color);poly([[-30,-303],[-15,-328],[15,-327],[28,-301]],color)}if(woman)poly([[-36,-116],[44,-113],[58,-18],[-57,-18]],color);if(apron){poly([[-23,-210],[24,-209],[31,-34],[-30,-34]],'#d9caa9');for(const [a,b]of [[8,-110],[-12,-75],[17,-155]])oval(a,b,3,4,'#615445')}ctx.restore()}
     const renderer={
-      side(x,y,s,who,right,t,speaking){
+      side(x,y,s,who,right,t,speaking,walking=false,working=false){
         reduced=motion.matches;speechStarted=speechAt;speechUntil=speechEnd;
         ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+        if(working&&!reduced)ctx.rotate(-.016); // occupied with the paper
         ctx.save();ctx.fillStyle='#42351f26';ctx.beginPath();ctx.ellipse(0,2,57,8,0,0,Math.PI*2);ctx.fill();ctx.restore();
-        puppet(0,0,who.color,right,t,speaking,false,!!who.woman,!!who.apron);ctx.restore();
+        puppet(0,0,who.color,right,t,speaking,walking,!!who.woman,!!who.apron);ctx.restore();
       },
       map(x,y,heading,moving,t,who=CAST.player){reduced=motion.matches;mapPuppet(x,y,who,heading,moving,t);}
     };
@@ -162,7 +163,10 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
       p={scale,x:(r.width-D.w*scale)/2,y:(r.height-D.h*scale)/2};
       poses=(c.key==='archive'&&pilot?pilot.poses(tall):PLACEMENT[c.key]?.[tall?'tall':'wide'])||(tall?[[122,996,.82],...(c.cast?[[378,710,.90]]:[])]:[[283,680,.82],...(c.cast?[[1060,633,.94]]:[])]);
     }
-    return {w:r.width,h:r.height,left:r.left-parent.left,top:r.top-parent.top,p,poses,c};
+    poses=poses.map(pose=>[...pose]); // Never mutate static placement constants.
+    const npc=window.UPPDRAG_CH1_NPC_MOTION?.pose(c.key,!interior.outdoor&&r.width/r.height<1.02,performance.now(),motion.matches);
+    if(npc&&poses.length>1)poses[1]=[npc.x,npc.y,npc.size];
+    return {w:r.width,h:r.height,left:r.left-parent.left,top:r.top-parent.top,p,poses,c,npc};
   }
   function drawPeople(now){
     if(!interior||voyage){layer.hidden=true;person.hidden=true;return;}
@@ -178,9 +182,9 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     const a=puppets(g),speaker=talk?.active?talk.speaker:(dialogue?dialogue.cast.lines[dialogue.index][0]:'');
     // Render farther people first, keeping feet anchored in the same floor plane.
     const drawings=[{pos:poses[0],who:CAST.player,right:true}];
-    if(c.cast&&poses[1])drawings.push({pos:poses[1],who:c.cast,right:false});
+    if(c.cast&&poses[1])drawings.push({pos:poses[1],who:c.cast,right:false,isNpc:true});
     drawings.sort((a,b)=>a.pos[1]-b.pos[1]);
-    for(const item of drawings){const [x,y,s]=item.pos;a.side(x,y,s,item.who,item.right,now,speaker===item.who.name);if(c.key==='archive'&&pilot&&item.who!==CAST.player)pilot.restoreDesk(g,geometry,roomCanvas);}
+    for(const item of drawings){const [x,y,s]=item.pos;a.side(x,y,s,item.who,item.right,now,speaker===item.who.name,!!item.isNpc&&!!geometry.npc?.moving,!!item.isNpc&&!!geometry.npc?.working);if(c.key==='archive'&&pilot&&item.who!==CAST.player)pilot.restoreDesk(g,geometry,roomCanvas);}
     g.restore();
     person.hidden=!c.cast||!!dialogue||!!controller(c.key)?.busy;
     if(c.cast){
@@ -202,6 +206,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   }
   function closeTalk(restore=true){
     if(!dialogue)return false;
+    window.UPPDRAG_CH1_NPC_MOTION?.returnToWork?.(performance.now());
     dialogue=null;speechEnd=0;panel.hidden=true;dialogueTail.replaceChildren();roomFooter.inert=footerInert;
     delete document.body.dataset.conversation;
     drawPeople(performance.now());
@@ -227,6 +232,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   }
   function startTalk(){
     const c=current();if(!c?.cast||dialogue||voyage)return false;
+    window.UPPDRAG_CH1_NPC_MOTION?.approach?.(performance.now());
     const pilot=window.UPPDRAG_CH1_PILOT;
     if(pilot?.wantsMajaMeeting?.(c.key)){
       dialogue={room:interior,cast:{...CAST.cafe,lines:[
@@ -261,6 +267,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     const pilot=window.UPPDRAG_CH1_PILOT,c=current();
     if(!interior||!c?.cast||!pilot?.wantsMemoryThanks?.(c.key))return false;
     closeTalk(false);
+    window.UPPDRAG_CH1_NPC_MOTION?.approach?.(performance.now());
     dialogue={room:interior,cast:{...c.cast,lines:[[c.cast.name,pilot.memoryThanks()]]},index:0,special:'thanks'};
     footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
   }
@@ -327,7 +334,11 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     }
     if(!interior||travelling)return;
     const animating=(dialogue||pilot?.speaker||places?.speaker||living?.speaker||story?.speaker)&&!motion.matches&&!document.hidden&&now<speechEnd;
-    if(lastPaint===-Infinity||animating&&now-lastPaint>45||!animating&&speechEnd&&now>=speechEnd){
+    const npcMotion=window.UPPDRAG_CH1_NPC_MOTION;
+    const npcMoving=!document.hidden&&npcMotion?.animating?.(now,motion.matches);
+    const subtlePresence=!document.hidden&&!motion.matches&&!!npcMotion?.actor&&now-lastPaint>=270;
+    if(lastPaint===-Infinity||animating&&now-lastPaint>45||npcMoving&&now-lastPaint>40||
+        subtlePresence||!animating&&speechEnd&&now>=speechEnd){
       if(!animating)speechEnd=0;drawPeople(now);
     }
   }
