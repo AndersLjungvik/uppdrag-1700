@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 // Kapitel 1 i den befintliga stadens gångmotor. Separat sparfil.
-const storage='uppdrag1700.ch1-real-world.20261019';
+const storage='uppdrag1700.ch1-real-world.20261019.v5';
 const facts={
 queen:{ab:'2a',a:'Ulrika Eleonora',answers:['ulrika eleonora'],hint:'Hennes namn börjar med U.',q:['Vilken drottning efterträdde Karl XII?','Vad hette Karl XII:s syster som övertog tronen?','En skrivare påstår att drottningen hette Fredrik. Vad hette hon egentligen?']},
 absolute:{ab:'2b',a:'Drottningen var inte enväldig: hon kunde inte bestämma ensam utan delade makten med riksrådet och riksdagen.',hint:'Vem mer än drottningen hade makt?',q:['Vad menas med att drottningen inte var enväldig?','Vilken begränsning hade Ulrika Eleonora jämfört med enväldiga kungar?','En anteckning säger att Ulrika Eleonora bestämde allt ensam. Rätta felet.']},
@@ -91,7 +91,8 @@ style.textContent+=`
 #ch1Modal.ch1MemoryFull .ch1Return{top:3px;left:3px;min-height:32px}}
 `;
 let open=false,was='',dismiss=-1;
-const referencePalace=()=>s.step===1&&!s.complete&&current().p==='palace';
+const referenceMemory=()=>s.step>=1&&!s.complete;
+const referenceMaja=()=>s.step===0&&!s.complete;
 let memoryVisible=false;
 let memoryRestore=null;
 function hideRoomForMemory(){
@@ -112,9 +113,9 @@ function restoreRoomFromMemory(){
  document.body.classList.remove('ch1-memory');
  modal.classList.remove('ch1MemoryFull');
 }
-function drawPalaceMemory(){
+function drawMemory(){
  const f=item(),short=!!f.answers;
- const photo=window.UPPDRAG_CH1_CLOSEUPS?.images?.palace||'';
+ const photo=window.UPPDRAG_CH1_CLOSEUPS?.images?.[current().p]||'';
  let sheet='<p class="ch1Count">'+(s.index+1)+' / '+current().f.length+'</p>';
  sheet+='<h2 class="ch1Prompt">'+esc(f.q[current().r])+'</h2>';
  if(s.mode==='question'){
@@ -139,25 +140,40 @@ function drawPalaceMemory(){
    +'<article class="ch1Sheet" aria-label="Minnesarbetet">'+sheet+'</article>';
  modal.querySelector('#ch1Answer')?.focus({preventScroll:true});
 }
-function enterPalaceMemory(){
- if(!referencePalace()||!present())return false;
+function enterMemory(){
+ if(!referenceMemory()||!present())return false;
  if(s.mode==='intro'){s.mode='question';persist();}
  open=true;modal.hidden=false;document.body.classList.add('ch1-open');
- hideRoomForMemory();drawPalaceMemory();return true;
+ hideRoomForMemory();drawMemory();return true;
 }
-function wantsPalaceMeeting(){return referencePalace()&&present()&&s.mode!=='end';}
-function palaceProblem(){return s.mode==='intro'
- ?'Åh, vad bra att du kommer! Jag skrev om tiden efter Karl XII, men minns inte längre vem som tog över tronen.'
- :'Jag har fortfarande en lucka i mina anteckningar. Vill du fortsätta hjälpa mig minnas?';}
-function wantsPalaceThanks(){return referencePalace()&&present()&&s.mode==='end';}
-function palaceThanks(){return 'Tack! Nu minns jag igen. Jo vid kajen verkar också behöva hjälp med sina handelslistor.';}
-function finishPalace(){if(wantsPalaceThanks())advance();}
+function wantsMajaMeeting(place){return referenceMaja()&&present()&&place==='cafe';}
+function majaProblem(){return 'Jag försöker få ordning på ett anslag om frihetstiden. Men nu är det som om flera viktiga minnen försvunnit! Vem bestämmer egentligen efter Karl XII? Vill du hjälpa oss?';}
+function acceptMajaMission(){if(wantsMajaMeeting('cafe'))advance();}
+function wantsMemoryMeeting(place){return referenceMemory()&&present()&&place===current().p&&s.mode!=='end';}
+function memoryProblem(){
+ if(s.mode!=='intro')return 'Jag har fortfarande en lucka i mina anteckningar. Vill du hjälpa mig att fortsätta?';
+ if(s.step===1)return 'Jag skrev om tiden efter Karl XII, men minns plötsligt inte vem som tog över tronen. Kan du hjälpa mig?';
+ return current().hello;
+}
+function wantsMemoryThanks(place){return referenceMemory()&&present()&&place===current().p&&s.mode==='end';}
+function memoryThanks(){return s.step===1
+ ?'Tack! Nu minns jag igen. Jo vid kajen verkar också behöva hjälp med sina handelslistor.'
+ :current().bye;}
+function finishMemory(){if(wantsMemoryThanks(current().p))advance();}
 
 const rank=()=>['Lärling','Gesäll','Mästare'][current().r];
 function numbers(){return {ind:s.record.filter(x=>x.ok&&!x.support).length,aided:s.record.filter(x=>x.ok&&x.support).length,need:s.record.filter(x=>!x.ok).length}}
-function drawHud(){hud.innerHTML='<strong>Frihetstiden · '+(s.step?rank():'Start')+'</strong><span>Gå till <b>'+paths[current().p]+'</b></span><div><button class="primary" data-nav="1">'+(present()?(referencePalace()?'Prata med Amira':'Fortsätt här'):'Visa vägen')+'</button><button data-open="1" '+(present()?'':'disabled')+'>'+(referencePalace()?'Prata':'Öppna')+'</button></div>'}
+function drawHud(){
+ const label=present()?'Prata med '+current().who:'Visa vägen';
+ hud.innerHTML='<strong>Frihetstiden · '+(s.step?rank():'Start')+'</strong><span>Nästa: <b>'+paths[current().p]+'</b></span>'
+   +'<div><button class="primary" data-nav="1">'+esc(label)+'</button>'
+   +'<button type="button" data-reset="1" title="Börja om hela kapitel 1">Börja om kapitel 1</button></div>';
+}
 function closePanel(){open=false;modal.hidden=true;document.body.classList.remove('ch1-open');restoreRoomFromMemory();dismiss=s.step}
-function showPanel(){if(!present())return;if(referencePalace())return window.UPPDRAG_MEETINGS?.start?.();open=true;modal.hidden=false;document.body.classList.add('ch1-open');drawModal()}
+function showPanel(){if(!present())return;
+ if(referenceMemory()||referenceMaja())return window.UPPDRAG_MEETINGS?.start?.();
+ open=true;modal.hidden=false;document.body.classList.add('ch1-open');drawModal();
+}
 function go(){
  closePanel();
  if(region.id!=='main'){setMessage('Kapitel 1','Återvänd till huvudstaden.');return}
@@ -172,14 +188,14 @@ function advance(){
 }
 function next(){
  s.index++;s.mode=s.index>=current().f.length?'end':'question';s.hint=false;s.draft='';persist();
- if(referencePalace()){
+ if(referenceMemory()){
    if(s.mode==='end'){
      closePanel();
-     window.UPPDRAG_MEETINGS?.palaceThanks?.();
-   }else drawPalaceMemory();
+     window.UPPDRAG_MEETINGS?.memoryThanks?.();
+   }else drawMemory();
  }else drawModal();
 }
-function mark(ok){const f=current().f[s.index];s.record.push({id:f,level:rank(),ok,support:s.hint,ab:item().ab,answer:s.draft});s.mode='feedback';persist();if(memoryVisible)drawPalaceMemory();else drawModal()}
+function mark(ok){const f=current().f[s.index];s.record.push({id:f,level:rank(),ok,support:s.hint,ab:item().ab,answer:s.draft});s.mode='feedback';persist();if(memoryVisible)drawMemory();else drawModal()}
 function drawModal(){
  let h='<div style="font:600 12px system-ui;color:#685b45;letter-spacing:.1em">'+(s.step?rank():'Kapitel 1')+' · '+paths[current().p]+'</div>';
  if(s.complete){const n=numbers();h+='<h2>Kapitel 1 avklarat!</h2><p>'+esc(current().bye)+'</p><p>21 återkallningsförsök: '+n.ind+' självständiga, '+n.aided+' med ledtråd, '+n.need+' behöver övas.</p><p>Det här är träning, inte betyg.</p><button class="primary" data-action="restart">Spela om</button>'}
@@ -202,23 +218,36 @@ function drawModal(){
  window.UPPDRAG_CH1_CLOSEUPS?.decorate(modal,current(),s);
  modal.querySelector('#ch1Answer')?.focus({preventScroll:true})
 }
-hud.addEventListener('click',e=>{if(e.target.closest('[data-nav]'))go();else if(e.target.closest('[data-open]'))showPanel()});
+function resetChapter(){
+ if(!confirm('Börja om kapitel 1 från Maja på Kaffehuset?'))return;
+ window.UPPDRAG_MEETINGS?.close?.(false);
+ s={v:1,step:0,index:0,mode:'intro',hint:false,draft:'',record:[],complete:false};
+ persist();closePanel();dismiss=-1;was='';drawHud();go();
+}
+hud.addEventListener('click',e=>{
+ if(e.target.closest('[data-reset]'))resetChapter();
+ else if(e.target.closest('[data-nav]'))go();
+ else if(e.target.closest('[data-open]'))showPanel();
+});
 modal.addEventListener('input',e=>{if(e.target.id==='ch1Answer'){s.draft=e.target.value;persist();}});
 modal.addEventListener('click',e=>{
  const act=e.target.closest('[data-action]')?.dataset.action;if(!act)return;
  if(act==='close'){closePanel();return}
- if(act==='restart'){if(confirm('Vill du börja om?')){s={v:1,step:0,index:0,mode:'intro',hint:false,draft:'',record:[],complete:false};persist();closePanel();drawHud();go()}return}
+ if(act==='restart'){resetChapter();return}
  if(act==='start'){if(s.step===0)advance();else{s.mode='question';persist();drawModal()}return}
- if(act==='hint'){s.hint=true;persist();if(memoryVisible)drawPalaceMemory();else drawModal();return}
+ if(act==='hint'){s.hint=true;persist();if(memoryVisible)drawMemory();else drawModal();return}
  if(act==='short'){if(!s.draft.trim())return;mark(item().answers.some(a=>norm(a)===norm(s.draft)));return}
  if(act==='skip'){s.draft='';mark(false);return}
- if(act==='reveal'){s.mode='rating';persist();if(memoryVisible)drawPalaceMemory();else drawModal();return}
+ if(act==='reveal'){s.mode='rating';persist();if(memoryVisible)drawMemory();else drawModal();return}
  if(act==='yes'){mark(true);return}if(act==='no'){mark(false);return}
  if(act==='next'){next();return}
  if(act==='advance'){advance();return}
 });
 modal.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();closePanel()}else if(e.key==='Enter'&&e.target.matches('input')){e.preventDefault();modal.querySelector('[data-action="short"]')?.click()}});
-function tick(){const p=location();if(p!==was){was=p;if(p===current().p&&!open&&dismiss!==s.step&&!referencePalace())showPanel()}if(!open){const key=s.step+'/'+p;if(hud.dataset.key!==key){hud.dataset.key=key;drawHud()}}}
-window.UPPDRAG_CH1_PILOT={tick,go,scenes:runs,saveKey:storage,wantsPalaceMeeting,palaceProblem,enterPalaceMemory,wantsPalaceThanks,palaceThanks,finishPalace,get state(){return s},get memoryVisible(){return memoryVisible}};
+function tick(){const p=location();if(p!==was){was=p;if(p===current().p&&!open&&dismiss!==s.step&&!referenceMemory()&&!referenceMaja())showPanel()}if(!open){const key=s.step+'/'+p;if(hud.dataset.key!==key){hud.dataset.key=key;drawHud()}}}
+window.UPPDRAG_CH1_PILOT={tick,go,scenes:runs,saveKey:storage,
+ wantsMajaMeeting,majaProblem,acceptMajaMission,
+ wantsMemoryMeeting,memoryProblem,enterMemory,wantsMemoryThanks,memoryThanks,finishMemory,resetChapter,
+ get state(){return s},get memoryVisible(){return memoryVisible}};
 drawHud();setMessage('Frihetstiden · kapitel 1','Börja i Kaffehuset. Använd pilar eller klicka på byggnaderna. Visa vägen ger hjälp.');
 })();
