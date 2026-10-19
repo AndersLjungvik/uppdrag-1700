@@ -5,10 +5,10 @@
 'use strict';
 const stage=document.getElementById('stage');if(!stage)return;
 const CAST={
- cap:{id:'cap',name:'En mössa',region:'main',x:934,y:767,r:40,role:'cap',color:'#7b866b',heading:-1.2},
- hat:{id:'hat',name:'En hatt',region:'main',x:1095,y:770,r:40,role:'hat',color:'#75604b',heading:-2.1},
- farmers:{id:'farmers',name:'Bönder från Dalarna',region:'main',x:749,y:709,r:55,role:'farmer',color:'#8d7656',heading:0},
- soldiers:{id:'soldiers',name:'Två soldater',region:'main',x:1432,y:708,r:51,role:'soldier',color:'#687b82',heading:-.7},
+ cap:{id:'cap',name:'En mössa',region:'main',x:601,y:708,r:39,role:'cap',color:'#7b866b',heading:0},
+ hat:{id:'hat',name:'En hatt',region:'main',x:1688,y:705,r:39,role:'hat',color:'#75604b',heading:0},
+ farmers:{id:'farmers',name:'Bönder från Dalarna',region:'main',x:2385,y:705,r:65,role:'farmer',color:'#8d7656',heading:Math.PI},
+ soldiers:{id:'soldiers',name:'Två soldater',region:'main',x:1872,y:705,r:52,role:'soldier',color:'#687b82',heading:0},
  david:{id:'david',name:'David Hedenquist',region:'marstrand',x:1281,y:378,r:44,role:'david',color:'#736957',heading:-1.57},
  rusBeach:{id:'rusBeach',name:'Rysk lägervakt vid stranden',region:'main',x:284,y:1061,r:39,role:'russian',color:'#53684d',heading:-1.15},
  rusNorth:{id:'rusNorth',name:'Rysk lägervakt vid Barnhuset',region:'main',x:2438,y:301,r:39,role:'russian',color:'#4c6248',heading:.30},
@@ -50,41 +50,41 @@ function visible(region,id){
  if(['rusBeach','rusNorth','noble'].includes(id))return step()>=9;
  return id==='farmers'||id==='soldiers'?phase()>=2:id==='david'?step()>=4:true;
 }
+function patrol(x0,x1,y,elapsed,duration,seed=0){
+  // Walk with the body's actual direction, ease to a stop, turn, walk back.
+  const cycle=(Math.max(0,elapsed)+seed)%(2*duration);
+  const forward=cycle<duration;
+  const f=(cycle%duration)/duration;
+  const eased=(1-Math.cos(Math.PI*f))*.5;
+  const x=forward?x0+(x1-x0)*eased:x1+(x0-x1)*eased;
+  return {x,y,heading:forward?(x1>=x0?0:Math.PI):(x0>=x1?0:Math.PI),
+    moving:!reduced?.matches&&Math.sin(Math.PI*f)>.12};
+}
 function position(actor,now=performance.now()){
  const cur=phase();
- if(cur!==lastPhase){enteredAt=now;lastPhase=cur;for(const id of Object.keys(talkPaused))talkPaused[id]=0;}
+ if(cur!==lastPhase){
+   enteredAt=now;lastPhase=cur;
+   for(const id of Object.keys(talkPaused))talkPaused[id]=0;
+ }
  if(active?.id===actor.id)return {...actor,x:active.x,y:active.y,moving:false};
- const moving=!reduced?.matches;
- const elapsed=Math.max(0,now-enteredAt-(talkPaused[actor.id]||0));
- if(actor.role==='farmer'){
-   // March from the printshop road into the square; then remain for discussion.
-   const fraction=cur===2?(moving?Math.min(1,elapsed/37000):0):1;
-   return {...actor,x:749+238*fraction,y:709+Math.sin(now/1300)*.7,moving:cur===2&&fraction<1&&moving,heading:0};
+ const t=Math.max(0,now-enteredAt-(talkPaused[actor.id]||0));
+ if(actor.id==='cap')return {...actor,...patrol(555,666,709,t,6400,1100)};
+ if(actor.id==='hat')return {...actor,...patrol(1594,1775,705,t,7800,3200)};
+ if(actor.id==='soldiers')return {...actor,...patrol(1842,1957,706,t,6800,2100)};
+ if(actor.id==='farmers'){
+   // The group begins at the eastern square, then marches toward the bridge.
+   // Small stop-and-go bursts keep the crowd visibly angry instead of gliding.
+   const fraction=cur===2?Math.min(1,t/46000):1;
+   const x=2448-410*fraction;
+   const shout=!reduced?.matches&&cur===2&&Math.sin(t/1900)>-.45;
+   return {...actor,x,y:705+(shout?Math.sin(t/620)*1.1:0),
+     heading:Math.PI,moving:shout&&fraction<1,crowdShouting:shout};
  }
- if(actor.role==='soldier'){
-   // Two soldiers pace along the archive–opera road, with visible travel.
-   const advance=moving?(1-Math.cos(elapsed/2600))*.5:0;
-   return {...actor,x:1432-146*advance,y:708+advance*2,moving,heading:advance>.5?-2.9:0};
- }
- if(actor.role==='cap'||actor.role==='hat'){
-   // They pace and turn while arguing, unlike static map ornaments.
-   const speed=actor.role==='cap'?2250:1880,amplitude=actor.role==='cap'?28:33;
-   const sway=moving?Math.sin(elapsed/speed+actor.x/117)*amplitude:0;
-   const dy=moving?Math.sin(elapsed/(speed*1.45)+actor.y/230)*5:0;
-   return {...actor,x:actor.x+sway,y:actor.y+dy,
-     heading:actor.heading+(moving?Math.sin(elapsed/(speed*.8))*.22:0),moving};
- }
- if(actor.role==='noble'){
-   const stepSide=moving?Math.sin(elapsed/2900)*13:0;
-   return {...actor,x:actor.x+stepSide,y:actor.y+(moving?Math.sin(elapsed/4200)*3:0),
-     heading:actor.heading+.05*Math.sin(elapsed/3000),moving};
- }
- if(actor.role==='russian'){
-   const travel=moving?Math.sin(elapsed/2300+actor.x/420)*10:0;
-   return {...actor,x:actor.x+travel,y:actor.y+(moving?Math.cos(elapsed/2400)*3:0),
-     heading:actor.heading+.08*Math.sin(elapsed/2100),moving};
- }
- return {...actor,y:actor.y+(moving?Math.sin(now/(2600+actor.x%700))*.5:0),moving:false};
+ if(actor.id==='noble')return {...actor,...patrol(3368,3440,354,t,11000,2900)};
+ if(actor.id==='rusBeach')return {...actor,...patrol(274,307,1062,t,7300,600)};
+ if(actor.id==='rusNorth')return {...actor,...patrol(2415,2456,314,t,7800,2000)};
+ if(actor.id==='david')return {...actor,x:actor.x,y:actor.y,moving:false};
+ return {...actor,y:actor.y,moving:false};
 }
 function people(region){return Object.values(CAST).filter(a=>visible(region,a.id)).map(a=>position(a));}
 function find(region,id){return visible(region,id)?position(CAST[id]):null;}
@@ -237,11 +237,29 @@ function drawFigure(ctx,a,now,scale=1){
 }
 function drawGroup(ctx,a,now){
  if(a.id==='farmers'){
-  for(const [j,dx,dy,color] of [[0,-36,-10,'#78694d'],[1,-68,14,'#92785b'],[2,32,18,'#766e57']])
-   drawFigure(ctx,{...a,x:a.x+dx,y:a.y+dy,color,heading:.04+j*.11},now,.84);
-  paper(ctx,[[a.x-83,a.y-23],[a.x-79,a.y-23],[a.x-56,a.y+17],[a.x-60,a.y+17]],'#705541');
- }else if(a.id==='soldiers'){
-  drawFigure(ctx,{...a,x:a.x+35,y:a.y+17,color:'#687783',heading:-.6},now,.92);
+  // Ragged marching order: shouting gestures and paper staffs, not a solid block.
+  const elapsed=Math.max(0,now-enteredAt);
+  const figures=[[-52,-19,'#78694d',.91],[-89,16,'#92785b',.86],
+    [32,24,'#766e57',.88],[-15,39,'#8a7054',.87]];
+  for(let j=0;j<figures.length;j++){
+    const [dx,dy,color,size]=figures[j];
+    const excited=!reduced?.matches&&Math.sin(elapsed/540+j*1.8)>-.25;
+    const shake=excited?Math.sin(elapsed/170+j)*3:0;
+    const follower={...a,x:a.x+dx+shake,y:a.y+dy+(excited?Math.sin(elapsed/230+j)*2:0),
+      heading:Math.PI+(excited?Math.sin(elapsed/530+j)*.24:0),
+      color,moving:!!a.moving&&j%3!==1};
+    drawFigure(ctx,follower,now,size);
+    if(excited){
+      const sx=follower.x+Math.cos(j*2)*8,sy=follower.y-10;
+      paper(ctx,[[sx-1,sy-17],[sx+2,sy-17],[sx+5,sy+7],[sx+1,sy+8]],'#72563d');
+    }
+  }
+  drawFigure(ctx,a,now);
+  if(a.crowdShouting)paper(ctx,[[a.x-3,a.y-17],[a.x+1,a.y-17],[a.x+15,a.y+2],[a.x+11,a.y+5]],'#5e4c3b');
+  return;
+ }
+ if(a.id==='soldiers'){
+  drawFigure(ctx,{...a,x:a.x-26,y:a.y+20,color:'#687783',moving:a.moving},now,.94);
  }
  drawFigure(ctx,a,now);
 }
