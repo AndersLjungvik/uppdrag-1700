@@ -334,7 +334,7 @@ function enterMemory(){
  hideRoomForMemory();drawMemory();return true;
 }
 function wantsMajaMeeting(place){return referenceMaja()&&present()&&place==='cafe';}
-function majaProblem(){return 'Du minns nog hur staden styrdes nu. Men hur hade människor det? Märta vid Kyrkan försöker förstå sina anteckningar om rättigheter, och Siri på Barnhuset har också många frågor. Vill du hjälpa dem?';}
+function majaProblem(){return 'Jag tror det. Gå till Märta i Kyrkan först. Siri på Barnhuset behöver nog också någon som lyssnar.';}
 function acceptMajaMission(){if(wantsMajaMeeting('cafe'))advance();}
 function wantsMemoryMeeting(place){return referenceMemory()&&present()&&place===current().p&&s.mode!=='end';}
 function memoryProblem(){
