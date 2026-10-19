@@ -179,6 +179,13 @@ style.textContent+=`
  padding:6px;text-align:center
 }
 `;
+style.textContent+=`
+#ch1Modal .ch1NextChapter{display:block;max-width:340px;margin:16px auto 10px;
+ padding:13px 17px;background:#446958;color:#fff;text-align:center;text-decoration:none;
+ border:1px solid #365b4b;border-radius:6px;font:600 17px/1.35 Georgia,serif}
+#ch1Modal .ch1NextChapter:focus-visible{outline:3px solid #d5ab65;outline-offset:2px}
+#ch1Hud>a{display:block;margin-top:7px;color:#355e54;font-weight:600}
+`;
 let open=false,was='',dismiss=-1;
 const referenceMemory=()=>s.step>=1&&!s.complete;
 const referenceMaja=()=>s.step===0&&!s.complete;
@@ -436,6 +443,8 @@ function archiveNext(){
 const rank=()=>['Lärling','Gesäll','Mästare'][current().r];
 function numbers(){return {ind:s.record.filter(x=>x.ok&&!x.support).length,aided:s.record.filter(x=>x.ok&&x.support).length,need:s.record.filter(x=>!x.ok).length}}
 function drawHud(){
+ if(s.complete){hud.innerHTML='<strong>Frihetstiden · kapitel 1 klart</strong>'
+  +'<a href="chapter2-pilot.html?v=1">Fortsätt till kapitel 2 →</a>';return;}
  const label=present()?'Prata med '+current().who:'Visa vägen';
  hud.innerHTML='<strong>Frihetstiden · '+(s.step?rank():'Start')+'</strong>'
   +'<span>Nästa: <b>'+paths[current().p]+'</b></span>'
@@ -469,7 +478,7 @@ function go(){
 function advance(){
  if(s.step>0&&(s.mode!=='end'||!stageSolved()))return false;
  if(s.step>0){for(const id of current().f)s.earned[id]=true;s.daler+=1;}
- if(s.step===9){s.complete=true;s.mode='finished';persist();open=true;modal.hidden=false;document.body.classList.add('ch1-open');drawModal();return}
+ if(s.step===9){s.complete=true;s.mode='finished';persist();drawHud();open=true;modal.hidden=false;document.body.classList.add('ch1-open');drawModal();return}
  s.step++;s.index=0;s.trial=0;s.mode='intro';s.hint=false;s.wordHelp=false;s.draft='';persist();closePanel();drawHud();go();dismiss=-1
 }
 function next(){
@@ -512,8 +521,9 @@ function drawModal(){
     +'<p>Du har hjälpt Maja, Amira, Jo och Elin att minnas.</p>'
     +'<p class="ch1DiplomaSmall">'+right+' rätta återkallningar på '+tries+' försök. '
       +'Detta är träning, inte ett betyg.</p>'
-    +'<button class="primary" data-action="restart">Börja om äventyret</button>'
-    +'<button data-action="close">Tillbaka till staden</button></article>';
+    +'<a class="ch1NextChapter" href="chapter2-pilot.html?v=1">Fortsätt till kapitel 2 →</a>'
+    +'<button data-action="close">Tillbaka till staden</button>'
+    +'<button data-action="restart">Börja om kapitel 1</button></article>';
    return;
  }
  let h='<div style="font:600 12px system-ui;color:#685b45;letter-spacing:.1em">'+(s.step?rank():'Kapitel 1')+' · '+paths[current().p]+'</div>';
