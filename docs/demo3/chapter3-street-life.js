@@ -22,26 +22,33 @@ const RUSSIAN_CAMPS=[
  {id:'west',name:'Ryskt läger · väster om Tryckeriet',x:272,y:1108,label:'RYSKT LÄGER'}
 ];
 
-const box=document.createElement('div');box.id='ch3StreetDialogue';box.hidden=true;
-box.setAttribute('role','button');box.tabIndex=0;
-box.setAttribute('aria-label','Pratbubbla. Klicka för nästa replik.');
-box.innerHTML='<span class="ch3Speaker"></span><span class="ch3Words"></span><span class="ch3Arrow" aria-hidden="true">›</span>';
-stage.append(box);
+const root=document.createElement('div');
+root.id='ch3StreetRoot';root.hidden=true;
+root.innerHTML='<svg id="ch3StreetTail" aria-hidden="true" focusable="false"></svg>'
+  +'<div id="ch3StreetDialogue" role="button" class="speech" tabindex="0" aria-keyshortcuts="Enter Space Escape">'
+  +'<span class="ch3Speaker"></span><p class="ch3Words"></p></div>';
+stage.append(root);
+const tail=root.querySelector('#ch3StreetTail'),box=root.querySelector('#ch3StreetDialogue'),
+ speaker=box.querySelector('.ch3Speaker'),speech=box.querySelector('.ch3Words');
 const css=document.createElement('style');
 css.textContent=[
- '#ch3StreetDialogue{position:absolute;z-index:22;box-sizing:border-box;width:min(226px,calc(100% - 24px));max-height:none;overflow:visible;background:#fffefa;border:1.5px solid #ac9774;border-radius:35% 31% 34% 30% / 23% 27% 26% 24%;box-shadow:2px 3px 0 #46372520;padding:11px 16px 13px;color:#3b3227;pointer-events:auto;text-align:center;cursor:pointer}',
- '#ch3StreetDialogue[hidden]{display:none!important}',
- '#ch3StreetDialogue:after{content:"";position:absolute;left:var(--tail-x,50%);bottom:1px;width:14px;height:11px;transform:translate(-50%,79%) rotate(-20deg);border:1px solid #ac9774;border-radius:55% 40%;background:#fffefa;pointer-events:none}',
- '#ch3StreetDialogue .ch3Speaker{display:block;font:600 12px/1.25 Georgia,serif;color:#78624b;margin:0 0 5px}',
- '#ch3StreetDialogue .ch3Words{display:block;font:16px/1.38 Georgia,serif;overflow-wrap:break-word}',
- '#ch3StreetDialogue .ch3Arrow{display:block;font:19px/1 Georgia,serif;color:#8c765c;text-align:right;margin:-1px 0 -6px}',
- '#ch3StreetDialogue:focus-visible{outline:2px dashed #8f7b5e;outline-offset:3px}',
- '@media(max-width:550px){#ch3StreetDialogue{width:min(216px,calc(100% - 18px));padding:12px 17px 14px}#ch3StreetDialogue .ch3Words{font-size:15px}}'
-].join('\n');document.head.append(css);
-const speaker=box.querySelector('.ch3Speaker'),speech=box.querySelector('.ch3Words');
+ '#ch3StreetRoot{position:absolute;inset:0;z-index:24;pointer-events:none;color:#362f27}',
+ '#ch3StreetRoot[hidden]{display:none!important}',
+ '#ch3StreetTail{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}',
+ '#ch3StreetDialogue{position:absolute;box-sizing:border-box;width:260px;max-width:calc(100% - 22px);'
+ +'min-height:54px;overflow:visible;background:transparent;border:0;box-shadow:none;'
+ +'padding:17px 21px 19px;border-radius:0;pointer-events:auto;cursor:pointer;color:#352d25;text-align:center}',
+ '#ch3StreetDialogue .ch3Speaker{position:absolute;width:1px;height:1px;padding:0;margin:-1px;'
+ +'overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}',
+ '#ch3StreetDialogue .ch3Words{font:17px/1.36 Georgia,serif;overflow-wrap:break-word;margin:0}',
+ '#ch3StreetDialogue:focus-visible{outline:2px dashed #86745d;outline-offset:2px}',
+ '@media(max-width:600px){#ch3StreetDialogue{padding:15px 19px 17px}#ch3StreetDialogue .ch3Words{font-size:16px}}'
+].join('\n');
+document.head.append(css);
 let active=null,teaser=null,lineIndex=0,viewport=null,enteredAt=performance.now(),lastPhase=1,openedAt=0;
-let teaserHiddenUntil=0;
-const NEAR=76,LEAVE=111;
+let teaserHiddenUntil=0,arrivalCandidate=null,arrivalAt=0,lastPlayer=null,lastCall=0;
+const encounterCounts=new Map(),spokenRecently=new Map();
+const NEAR=62,LEAVE=108,SPONTANEOUS_PAUSE=850,SPONTANEOUS_GAP=9000;
 const talkPaused=Object.fromEntries(Object.keys(CAST).map(id=>[id,0]));
 function step(){const state=window.UPPDRAG_CH3_PILOT?.state;return state?.complete?99:Math.max(0,state?.step||0);}
 function phase(){const n=step();return n<3?1:n<7?2:3;}
