@@ -9,7 +9,7 @@ const CAST={
  hat:{id:'hat',name:'En hatt',region:'main',x:1688,y:705,r:39,role:'hat',color:'#75604b',heading:0},
  farmers:{id:'farmers',name:'Bönder från Dalarna',region:'main',x:2385,y:705,r:65,role:'farmer',color:'#8d7656',heading:Math.PI},
  soldiers:{id:'soldiers',name:'Två soldater',region:'main',x:1872,y:705,r:52,role:'soldier',color:'#687b82',heading:0},
- david:{id:'david',name:'David Hedenquist',region:'marstrand',x:1281,y:378,r:44,role:'david',color:'#736957',heading:-1.57},
+ david:{id:'david',name:'David Hedenquist',region:'marstrand',x:1096,y:469,r:44,role:'david',color:'#736957',heading:-1.57},
  rusBeach:{id:'rusBeach',name:'Rysk lägervakt vid stranden',region:'main',x:284,y:1061,r:39,role:'russian',color:'#53684d',heading:-1.15},
  rusNorth:{id:'rusNorth',name:'Rysk lägervakt vid Barnhuset',region:'main',x:2438,y:301,r:39,role:'russian',color:'#4c6248',heading:.30},
  noble:{id:'noble',name:'En herre från herrgården',region:'main',x:3393,y:356,r:40,role:'noble',color:'#71645d',heading:-1.8}
