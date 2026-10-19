@@ -364,6 +364,49 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     document.body.dataset.conversation=dialogue.cast.name;
     drawPeople(speechAt);panel.focus({preventScroll:true});
   }
+  // The player notices the trouble before the NPC asks for recall.
+  function memoryPrelude(place,step){
+    if(place==='church'){
+      if(step===1)return [
+        ['Du','Maja sa att du sökte hjälp. Är det här dina papper?'],
+        ['Märta','Ja ... och nu känns de plötsligt främmande. Så förargligt!']
+      ];
+      if(step===3)return [
+        ['Du','Märta! Har du kommit på vad som stod här?'],
+        ['Märta','Nästan! Det är som om jag har svaret precis på tungan.']
+      ];
+      return [
+        ['Du','Du ser fundersam ut. Vad har hänt?'],
+        ['Märta','Titta här. Någon har skrivit något som inte kan stämma.']
+      ];
+    }
+    if(place==='barnhus'){
+      if(step===2)return [
+        ['Du','Hej, Siri. Maja sa att du funderade över barnen.'],
+        ['Siri','Ja. Jag läser om deras liv och får så många frågor.']
+      ];
+      if(step===4)return [
+        ['Du','Hej igen! Kommer du ihåg vad vi talade om?'],
+        ['Siri','Jag trodde det. Men utan häftet är det mycket svårare.']
+      ];
+      return [
+        ['Du','Har du också hittat något som verkar fel?'],
+        ['Siri','Ja, och jag vill verkligen få ordning på det.']
+      ];
+    }
+    return [['Du','Hej!']];
+  }
+  function memoryAfter(place){
+    const who=place==='church'?'Märta':'Siri';
+    const line=place==='church'
+      ?'Åh, nu blev det tydligare. Tack för att du stannade.'
+      :'Där kom jag ihåg det! Nu förstår jag anteckningen igen.';
+    return [
+      [who,line],
+      ['Du','Vad bra. Är det någon mer som behöver hjälp?'],
+      [who,window.UPPDRAG_CH2_PILOT.memoryThanks()]
+    ];
+  }
   function startTalk(){
     const c=current();if(!c?.cast||dialogue||voyage)return false;
     window.UPPDRAG_CH2_NPC_MOTION?.approach?.(performance.now());
@@ -384,7 +427,8 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     if(pilot?.wantsMemoryThanks?.(c.key))return memoryThanks();
     if(pilot?.wantsMemoryMeeting?.(c.key)){
       dialogue={room:interior,cast:{...c.cast,lines:[
-        ['Du','Hej!'],[c.cast.name,pilot.memoryProblem()]
+        ...memoryPrelude(c.key,pilot.state?.step),
+        [c.cast.name,pilot.memoryProblem()]
       ]},index:0,special:'memory'};
       footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
     }
@@ -418,7 +462,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     if(!interior||!c?.cast||!pilot?.wantsMemoryThanks?.(c.key))return false;
     closeTalk(false);
     window.UPPDRAG_CH2_NPC_MOTION?.approach?.(performance.now());
-    dialogue={room:interior,cast:{...c.cast,lines:[[c.cast.name,pilot.memoryThanks()]]},index:0,special:'thanks'};
+    dialogue={room:interior,cast:{...c.cast,lines:memoryAfter(c.key)},index:0,special:'thanks'};
     footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
   }
   person.addEventListener('click',startTalk);
