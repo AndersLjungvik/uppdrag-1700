@@ -1,5 +1,11 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
+## Återställd gångtrafik, återstående kapitelspärr – 20 oktober 2026
+
+**Gångtrafik:** Kapitel 4:s civila väjning refererade av misstag till kapitel 3:s gatufolk. Den referensen använder nu kapitel 4:s figurer, och personer som låg på samma koordinater har fått olika sammanhängande promenadstråk. Kontroll på den faktiska stadskartan med 20 kapitelpersoner och 11 bakgrundsvandrare gav noll centrumavstånd under 37 världskoordinatenheter vid 451 provpunkter över ett simulerat treminutersförlopp (tidigare många överlappningar). Avståndstestet är inte ett fullständigt visuellt webbläsartest och utlovar inte kollisionfrihet i alla situationer eller på alla skärmstorlekar. `scripts/chapter-pilot-safety.test.mjs` innehåller nu även ett automatiserat befolkningsprov.
+
+**Kapitelspärr:** De fristående HTML-piloterna kan ännu öppnas direkt via URL och får inte användas som låst elevdistribution. Komplett progression bör kräva föregående kapitels avklarade sparning **och** att läraren aktivt öppnat nästa kapitel för klassen. Lokal lagring kan användas som enklare spärr på samma enhet, men garanterar inte lärarkontroll mellan datorer eller enheter; det kräver autentiserad delad lagring. Bakåtåtkomst till färdiga kapitel och Ruts repetition ska aldrig spärras. Lärarens utvecklingsförhandsvisning behöver separat arbetsflöde.
+
 ## Höstversion: konsekventa personer, tydlig valuta, trygg elevvy – 20 oktober 2026
 
 - **Rollista:** Kapitel 3:s Erik/Lars är åter Elin/Brita som i första kapitlet, inklusive korrekt kvinnofigur, manus, samtal och uppdrag. Siri är kvar på Barnhuset; Cajsa är en separat besökare med en egen klickbar figur. Samma namngivna personer behåller sina rum genom hela kedjan.
