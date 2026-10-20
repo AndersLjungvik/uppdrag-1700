@@ -807,7 +807,7 @@
     if (region.id === 'main') {
       drawPaddock(ctx,elapsed,still);
       for (const [i,hen] of HENS.entries()) if(i%3===0)drawHen(ctx,hen,elapsed,still);
-      const bodies=window.UPPDRAG_CH3_CITY_LIFE?.obstacles?.(region)||[];
+      const bodies=window.UPPDRAG_CH4_CITY_LIFE?.obstacles?.(region)||window.UPPDRAG_CH3_CITY_LIFE?.obstacles?.(region)||[];
       for (const [i,dog] of dogRoutes(region).entries())if(i%2===0)
         drawDog(ctx,dog,elapsed,still,region,bodies);
     }
