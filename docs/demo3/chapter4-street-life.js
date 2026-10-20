@@ -496,6 +496,7 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
  if(!region||!camera||!layout)return;
  viewport={region,camera:{x:camera.x,y:camera.y},layout:{w:layout.w,h:layout.h,scale:layout.scale},player};
  if(active&&active.region!==region.id)close();
+ window.UPPDRAG_CH4_LANDSCAPE?.draw(ctx,{region,now});
  for(const camp of stationedCamps(region))campCanvas(ctx,camp,now);
  for(const a of people(region)){
   drawGroup(ctx,a,now);
