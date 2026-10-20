@@ -224,7 +224,11 @@ function humanThought(a){
 function story(actor){
   if(actor.role==='civil')return [['Du','Hej!'],[actor.name,humanThought(actor)]];
   if(actor.role==='dog')return [['Hunden','Voff!']];
-  const prior=encounterCounts.get(actor.id)||0;
+  if(actor.region==='marstrand'){
+   const errand=window.UPPDRAG_CH5_LETTER?.linesFor(actor.id);
+   if(errand)return errand;
+ }
+ const prior=encounterCounts.get(actor.id)||0;
   if(prior>0&&actor.lines?.length>2){
     const responses=['Åh, hej igen! Jag ska just tillbaka till mitt arbete.',
       'Så trevligt att ses igen. Staden är full av folk i dag.',
@@ -348,6 +352,8 @@ function close(){
  const now=performance.now();
  if(!active)return false;
  const speakerActor=active;
+ if(speakerActor.region==='marstrand'&&lineIndex>=active.lines.length)
+   window.UPPDRAG_CH5_LETTER?.completedConversation(speakerActor.id);
  if(speakerActor.role==='civil'){
    window.UPPDRAG_WORLD_LIFE?.release?.(speakerActor.sourceId);
    encounterCounts.set(speakerActor.sourceId,(encounterCounts.get(speakerActor.sourceId)||0)+1);
@@ -578,6 +584,11 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
  if(active&&active.region!==region.id)close();
  window.UPPDRAG_CH5_LANDSCAPE?.draw(ctx,{region,now});
  if(region.id==='marstrand'){
+   if(window.UPPDRAG_CH5_LETTER?.delivered){
+     // A letter is now ready for the next boat near the harbour.
+     paper(ctx,[[663,842],[701,841],[699,868],[663,868]],'#f2e2c4');
+     paper(ctx,[[670,847],[691,847],[692,852],[671,854]],'#b19771');
+   }
    // A few pieces of the heavy stone work by Carlsten's outer approach.
    // This is static set dressing, never an impassable obstacle or quiz object.
    paper(ctx,[[1029,482],[1119,477],[1127,506],[1022,507]],'#807b72');
