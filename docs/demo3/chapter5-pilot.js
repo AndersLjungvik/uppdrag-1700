@@ -460,6 +460,7 @@ function drawHud(){
   +'<span>Nästa: <b>'+paths[current().p]+'</b></span>'
   +'<div class="ch1Wallet">'+s.daler+' daler · '+s.apples+' äpplen</div>'
   +(window.UPPDRAG_CH4_SIDEQUEST?.hasBook?'<div class="ch1Wallet">Kokbok i packningen · Karin väntar i Bostadskvarteren</div>':'')
+  +(window.UPPDRAG_CH5_LETTER?.hasLetter?'<div class="ch1Wallet">Brev i packningen · lämna i Marstrands hamn</div>':'')
   +'<div><button class="primary" data-nav="1">'+esc(label)+'</button>'
   +'<button data-archive="1">Arkivet · repetera</button>'
   +'<button type="button" data-reset="1" title="Börja om hela kapitel 5">Börja om</button></div>';
@@ -567,7 +568,8 @@ function resetChapter(){
  if(!confirm('Börja om kapitel 5 från Maja på Kaffehuset?'))return;
  window.UPPDRAG_MEETINGS?.close?.(false);
  s=fresh();
- // Preserve the side story's own chapter-four save when replaying chapter five.
+ // Preserve the previous chapter's book and feast.
+ window.UPPDRAG_CH5_LETTER?.reset?.();
  persist();closePanel();dismiss=-1;was='';drawHud();go();
 }
 hud.addEventListener('click',e=>{
@@ -631,7 +633,7 @@ modal.addEventListener('click',e=>{
  if(act==='advance'){advance();return}
 });
 modal.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();closePanel()}else if(e.key==='Enter'&&e.target.matches('input')){e.preventDefault();modal.querySelector(e.target.id==='ch1ArchiveInput'?'[data-action="archive-short"]':'[data-action="short"]')?.click()}});
-function tick(){const p=location();if(p!==was){was=p;if(p===current().p&&!open&&dismiss!==s.step&&!referenceMemory()&&!referenceMaja())showPanel()}if(!open){const key=s.step+'/'+p+'/'+(window.UPPDRAG_CH4_SIDEQUEST?.phase||'');if(hud.dataset.key!==key){hud.dataset.key=key;drawHud()}}}
+function tick(){const p=location();if(p!==was){was=p;if(p===current().p&&!open&&dismiss!==s.step&&!referenceMemory()&&!referenceMaja())showPanel()}if(!open){const key=s.step+'/'+p+'/'+(window.UPPDRAG_CH4_SIDEQUEST?.phase||'')+'/'+(window.UPPDRAG_CH5_LETTER?.phase||'');if(hud.dataset.key!==key){hud.dataset.key=key;drawHud()}}}
 window.UPPDRAG_CH5_PILOT={tick,go,scenes:runs,saveKey:storage,
  wantsMajaMeeting,majaProblem,acceptMajaMission,
  wantsMemoryMeeting,memoryProblem,enterMemory,wantsMemoryThanks,memoryThanks,finishMemory,resetChapter,
