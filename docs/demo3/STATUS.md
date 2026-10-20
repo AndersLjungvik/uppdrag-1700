@@ -1,5 +1,13 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
+## Höstversion: konsekventa personer, tydlig valuta, trygg elevvy – 20 oktober 2026
+
+- **Rollista:** Kapitel 3:s Erik/Lars är åter Elin/Brita som i första kapitlet, inklusive korrekt kvinnofigur, manus, samtal och uppdrag. Siri är kvar på Barnhuset; Cajsa är en separat besökare med en egen klickbar figur. Samma namngivna personer behåller sina rum genom hela kedjan.
+- **Återkallning:** I kapitel 1–4 kan daler bara köpa ledtrådar. Äpplen ger bara en ny omgång och tjänas genom repetition hos Rut. Inget betyg eller extra möjlighet ges av den frivilliga kokboksberättelsen.
+- **Elevsekretess:** Sidan visar inte förlagans prov- eller bedömningshänvisningar. Källmetadata är intern och visas inte i efterhandsförklaringen. Ordknappen som avslöjade svar är avstängd under återkallningen; talsyntes finns kvar. Frågor som nämnde sitt eget rätta svar eller provmaterialet har korrigerats.
+- **Vardagligt vimmel:** Kapitel 4 laddar en egen variant av den godkända befolkningsmotorn med alla ursprungliga höns och båda hundarna. Tretton ursprungliga stadsbor plus tjugo namngivna/skrivna personer rör sig och samtalar på flera platser. De korta utomhussamtalen markeras inte längre med understrykning av tangentbordsfokus.
+- **Verifiering:** Konkreta simulerade svarspass testade ledtråd för daler, förbud mot ledtråd för äpple, fel svar och nytt försök med ett Rut-äpple. Repetition av tre frågor hos Rut gav ett äpple. För alla sjutton kapitel 4-frågors svar återgavs förklaringen utan provkällor. Koden till alla 20 nya stadskaraktärer kördes i en förenklad ritkontroll. `scripts/chapter-pilot-safety.test.mjs` har lagts till i standardtestlistan. Full visuell webbläsargranskning, fysiska elevtester och GitHub Pages-publiceringsstatus är inte verifierade.
+
 ## Kapitel 4 – levande, fredlig stad och kokbokshändelse, 20 oktober 2026
 
 De tidigare ryska lägerplatserna har bytts till potatisodling (norr om Barnhuset) och botanisk äng (väster i staden). De behåller exakt samma vägnät och kollisionsregler. Linné, Celsius, Eva Ekeblad och bönderna från Dalarna har miljöanknutna samtal. Elisabet Nilsdotter berättar nära Kyrkan om gråkoltarnas konflikt med kyrkan. Samtalen är dramatiserade; Nilsdotters uppgift som soldathustru är inte bekräftad av skolans tillgängliga källor och framställs därför inte som fakta. Efterkrigstidens vanliga stadsbor återgår till vardagliga repliker.
@@ -10,7 +18,7 @@ Verifierad genom statiska syntaxtest av nya moduler och sidan, logiskt test av b
 
 ## Kapitel 4 – fristående pilot, 20 oktober 2026
 
-[Kapitel 4: Nya tider, nya tankar](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter4-pilot.html?v=2) vidareutvecklar [kapitel 3](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter3-pilot.html?v=4), utan att ändra den ordinarie Demo 3.21. Källanknutna fakta hämtas från `curriculum/classroom.mjs`, kapitel 4. 17 fakta återkommer i 47 frågor över 12 arbetsbesök (lärling/gesäll/mästare) och ett första introduktionsmöte hos Maja. Aktiva uppdragsplatser: Tryckeriet, Kyrkan, Vetenskapens hus och Byn. Repetitioner hos Rut kan blanda lärdomar från tidigare kapitel.
+[Kapitel 4: Nya tider, nya tankar](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter4-pilot.html?v=4) vidareutvecklar [kapitel 3](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter3-pilot.html?v=5), utan att ändra den ordinarie Demo 3.21. Källanknutna fakta hämtas från `curriculum/classroom.mjs`, kapitel 4. 17 fakta återkommer i 47 frågor över 12 arbetsbesök (lärling/gesäll/mästare) och ett första introduktionsmöte hos Maja. Aktiva uppdragsplatser: Tryckeriet, Kyrkan, Vetenskapens hus och Byn. Repetitioner hos Rut kan blanda lärdomar från tidigare kapitel.
 
 Pratbubblorna har fått sin synliga streckade dekorkant borttagen. Hundarna har sänkt fart, minimal gånganimation och vänder med kort paus vid hinder eller figurer. Koden i nya script och sidans inline-skript syntaxkontrollerades 20/10. Frågebankens samtliga nivåer, svarsalternativ samt programmatisk öppning av 12 arbetsbesök passerade. Inte visuellt provad i riktig webbläsare; länken kräver normal GitHub Pages-publicering.
 
