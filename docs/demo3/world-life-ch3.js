@@ -578,59 +578,66 @@
 
   function dogRoutes(region) {
     if (!routeCache.has(region)) routeCache.set(region, [
-      {route: roadRoute(region, ['cafe','print','square','archive']), speed: 86, phase: 1700, color: '#998268', patch: '#e0d2b3'},
-      {route: roadRoute(region, ['barn','work','homes']), speed: 75, phase: 9800, color: '#625a4c', patch: '#b4a18a'}
+      {route: roadRoute(region, ['cafe','print','square','archive']), speed: 25, phase: 1700, color: '#998268', patch: '#e0d2b3'},
+      {route: roadRoute(region, ['barn','work','homes']), speed: 22, phase: 9800, color: '#625a4c', patch: '#b4a18a'}
     ]);
     return routeCache.get(region);
   }
 
-  function dogPose(dog, time) {
-    const run = dog.route.length / dog.speed * 1000;
-    const wait = 1800;
-    const cycle = (time + dog.phase) % (2 * (run + wait));
-    const back = cycle >= run + wait;
-    const leg = back ? cycle - run - wait : cycle;
-    const moving = leg < run;
-    const travelled = Math.min(leg / run, 1) * dog.route.length;
-    const distance = back ? dog.route.length - travelled : travelled;
-    const segment = dog.route.segments.find(s => distance <= s.from + s.size) || dog.route.segments.at(-1);
-    const t = Math.max(0, Math.min(1, (distance - segment.from) / segment.size));
-    const dx = segment.b.x - segment.a.x, dy = segment.b.y - segment.a.y;
-    return {
-      x: segment.a.x + dx*t,
-      y: segment.a.y + dy*t,
-      facing: (Math.abs(dx)>1?Math.sign(dx):1)*(back?-1:1),
-      moving
-    };
+  // Short, quiet walks. Dogs meet another figure by stopping and turning;
+  // no sideways evasive bursts or frame-dependent jumping.
+  function dogPoint(dog, distance) {
+    const d=Math.max(0,Math.min(dog.route.length,distance));
+    const seg=dog.route.segments.find(s=>d<=s.from+s.size)||dog.route.segments.at(-1);
+    const t=Math.max(0,Math.min(1,(d-seg.from)/seg.size));
+    return {x:seg.a.x+(seg.b.x-seg.a.x)*t,
+      y:seg.a.y+(seg.b.y-seg.a.y)*t,
+      heading:Math.atan2(seg.b.y-seg.a.y,seg.b.x-seg.a.x)};
   }
-
-  function drawDog(ctx, dog, time, still, region, actors) {
-    if (!dog.route) return;
-    const pose = dogPose(dog, time);
-    const neighbors=[...people(region).map(p=>({...p,radius:28})),...(actors||[])];
-    // The dog changes lanes or slows to sniff rather than running through legs.
-    let awayX=0,awayY=0;
-    for(const other of neighbors){
-      const dx=pose.x-other.x,dy=pose.y-other.y,d=Math.hypot(dx,dy);
-      const radius=(other.radius||28)+24;
-      if(d>=radius)continue;
-      const safeD=Math.max(1,d),strength=Math.min(35,(radius-d)*.88);
-      if(safeD<7){awayY+=(dog.phase%2===0?1:-1)*strength;}
-      else{awayX+=dx/safeD*strength;awayY+=dy/safeD*strength;}
+  function dogPose(dog,time) {
+    if(!Number.isFinite(dog.distance)){
+      dog.distance=Math.min(dog.route.length*.18,80+(dog.phase%800)/20);
+      dog.direction=1;dog.lastTime=time;dog.pauseUntil=time+600;dog.lastTurn=-Infinity;
     }
-    const max=Math.hypot(awayX,awayY);
-    if(max>36){awayX=awayX/max*36;awayY=awayY/max*36;}
-    const smoothing=still?1:.16;
-    dog.avoidX=(dog.avoidX||0)*(1-smoothing)+awayX*smoothing;
-    dog.avoidY=(dog.avoidY||0)*(1-smoothing)+awayY*smoothing;
-    let factor=1;
-    while(factor>.0625&&!clearPoint(region,pose.x+dog.avoidX*factor,pose.y+dog.avoidY*factor,7))factor*=.5;
-    if(factor<=.0625)factor=0;
-    pose.x+=dog.avoidX*factor;pose.y+=dog.avoidY*factor;
-    dog.lastDrawnPose={x:pose.x,y:pose.y,moving:pose.moving,avoiding:Math.abs(dog.avoidX)+Math.abs(dog.avoidY)>2};
-    const stride = !still && pose.moving ? Math.sin(time/95) * 3.8 : 0;
-    const wag = !still ? Math.sin(time / (pose.moving ? 130 : 115)) * .22 : 0;
-    const sniff = !still&&!pose.moving ? Math.max(0,Math.sin(time/370))*.50 : 0;
+    const dt=Math.max(0,Math.min(.06,(time-dog.lastTime)/1000));
+    dog.lastTime=time;
+    const moving=!motion.matches&&time>=dog.pauseUntil;
+    if(moving){
+      dog.distance+=dog.direction*dog.speed*dt;
+      if(dog.distance>=dog.route.length||dog.distance<=0){
+        dog.distance=Math.max(0,Math.min(dog.route.length,dog.distance));
+        dog.direction*=-1;dog.pauseUntil=time+1500;dog.lastTurn=time;
+      }
+    }
+    const p=dogPoint(dog,dog.distance);
+    return {x:p.x,y:p.y,heading:p.heading,
+      facing:(Math.cos(p.heading)>=0?1:-1)*dog.direction,
+      moving:moving&&time>=dog.pauseUntil};
+  }
+  function drawDog(ctx,dog,time,still,region,actors) {
+    if(!dog.route) return;
+    const pose=dogPose(dog,time);
+    const neighbors=[...people(region).map(p=>({...p,radius:25})),...(actors||[])];
+    // The dog looks ahead on its road, pauses, then turns back on meeting
+    // a passerby, player or another obstacle. The change has a cooldown.
+    if(!still&&time-dog.lastTurn>2500){
+      const next=dogPoint(dog,dog.distance+dog.direction*40);
+      const blocked=neighbors.some(other=>{
+        const distance=Math.hypot(next.x-other.x,next.y-other.y);
+        const close=Math.hypot(pose.x-other.x,pose.y-other.y);
+        return distance<(other.radius||26)+16&&close<(other.radius||26)+58;
+      });
+      if(blocked){
+        dog.direction*=-1;dog.pauseUntil=time+900;dog.lastTurn=time;
+        const behind=dogPoint(dog,dog.distance+dog.direction*4);
+        pose.facing=(Math.cos(behind.heading)>=0?1:-1)*dog.direction;
+        pose.moving=false;
+      }
+    }
+    dog.lastDrawnPose={x:pose.x,y:pose.y,facing:pose.facing,moving:pose.moving};
+    const stride = !still && pose.moving ? Math.sin(time/210) * 1.05 : 0;
+    const wag = !still ? Math.sin(time / (pose.moving ? 360 : 600)) * .12 : 0;
+    const sniff = !still&&!pose.moving ? Math.max(0,Math.sin(time/700))*.22 : 0;
     ctx.save();
     ctx.translate(pose.x, pose.y);
     // Keep feet below the body in both directions; only local joints rotate.
