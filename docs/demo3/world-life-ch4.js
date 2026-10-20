@@ -369,9 +369,9 @@
 
   // Gentle, deterministic yielding. Never rewrite the graph route: civilians
   // step aside a little, ease back to their own lane, and remain on dry land.
-  // Only chapter 3 uses this fork; older chapters retain their normal walkers.
+  // Chapter four also uses this yielding to avoid the new active city residents.
   function yieldFor(region,states,delta){
-    const world=window.UPPDRAG_CH3_CITY_LIFE;
+    const world=window.UPPDRAG_CH4_CITY_LIFE || window.UPPDRAG_CH3_CITY_LIFE;
     const historical=world?.obstacles?.(region)||[];
     const bodies=states.map(state=>state.pose).filter(Boolean);
     const blend=motion.matches?1:Math.min(.32,Math.max(.08,delta/260));
