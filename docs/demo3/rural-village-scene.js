@@ -1,79 +1,117 @@
-/* The village is a destination, not a patch on top of the city map.
- * Reuses the existing farm doorway, meeting NPC and return button.
- * The scene is hand-layered paper; no new routes or task/score mechanics.
+/* Rural village: an inhabited outdoor stage inspired by harbour perspective.
+ * Shares room travel, NPC overlay and paper fibres; no second animation loop.
  */
-(function(){
-'use strict';
-const existing=window.UPPDRAG_ROOM_ART;
-if(!existing)return;
+(function(){'use strict';
+const base=window.UPPDRAG_ROOM_ART;if(!base)return;
 const chapter=Number((document.title.match(/Kapitel\s+(\d+)/i)||[])[1]||1);
 const later=chapter>=5;
-const f=()=>window.UPPDRAG_PAPER_FIBRES;
-function shape(g,pts,c){
+const fibres=()=>window.UPPDRAG_PAPER_FIBRES;
+function piece(g,pts,c,edge=true){
  g.save();g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();
- g.shadowColor='#3d2e2244';g.shadowOffsetY=3;g.shadowOffsetX=1;g.shadowBlur=2;
- g.fillStyle=f()?.material?.(g,c,'piece')||c;g.fill();g.shadowColor='transparent';
- g.strokeStyle='#e9d9bb';g.lineWidth=1.25;g.stroke();g.restore();
+ g.shadowColor='#3b2d2252';g.shadowOffsetY=3;g.shadowOffsetX=2;g.shadowBlur=2;
+ g.fillStyle=fibres()?.material?.(g,c,'piece')||c;g.fill();g.shadowColor='transparent';
+ if(edge){g.lineWidth=1.4;g.strokeStyle='#ece0c3';g.stroke();}
+ g.restore();
 }
-function hut(g,x,y,s,c){
+function ell(g,x,y,rx,ry,c){g.beginPath();g.ellipse(x,y,rx,ry,0,0,7);g.fillStyle=fibres()?.material?.(g,c,'piece')||c;g.fill();}
+function house(g,x,feet,s,c){
+ g.save();g.translate(x,feet);g.scale(s,s);
+ // Foot is on the same visual plane as the player; full facades, not map icons.
+ ell(g,0,3,103,15,'#766d5744');
+ piece(g,[[-96,-174],[80,-177],[91,-6],[-100,-5]],'#d8c5a5');
+ piece(g,[[82,-174],[121,-205],[120,-44],[91,-5]],'#b9a586');
+ piece(g,[[-120,-172],[-18,-273],[91,-229],[103,-182],[8,-195],[-96,-162]],c);
+ piece(g,[[91,-229],[138,-196],[121,-172],[103,-182]],'#755a4b');
+ piece(g,[[-20,-232],[-5,-233],[-5,-285],[-20,-285]],'#c9b293');
+ piece(g,[[-39,-102],[-3,-103],[0,-7],[-39,-6]],'#68543f');
+ for(const xx of [-77,33]){
+ piece(g,[[xx,-132],[xx+27,-133],[xx+27,-93],[xx,-91]],'#82745c');
+ piece(g,[[xx+5,-126],[xx+22,-126],[xx+22,-99],[xx+5,-99]],'#c8d0c0');}
+ g.restore();
+}
+function shed(g,x,feet,s){g.save();g.translate(x,feet);g.scale(s,s);
+ piece(g,[[-57,-77],[63,-81],[61,0],[-61,0]],'#af9577');
+ piece(g,[[-69,-77],[-11,-130],[76,-92],[63,-80]],'#806752');
+ piece(g,[[-27,-58],[12,-58],[12,0],[-28,0]],'#6c5a46');g.restore();}
+function tree(g,x,foot,s){g.save();g.translate(x,foot);g.scale(s,s);
+ piece(g,[[-7,-11],[5,-12],[9,-117],[-4,-121]],'#8c7153');
+ piece(g,[[-64,-104],[-48,-154],[-8,-179],[34,-171],[70,-129],[54,-83],[6,-72],[-44,-84]],'#7f8a68');
+ piece(g,[[-47,-124],[-7,-181],[39,-159],[56,-121],[18,-102]],'#97a17b',false);g.restore();}
+function field(g,x,y,w,h,k){
+ piece(g,[[x,y+3],[x+w-5,y-4],[x+w+11,y+h-4],[x-8,y+h+3]],
+   ['#b39e79','#a89974','#c1ae85','#9d9772'][k%4]);
+ g.save();g.strokeStyle='#7f755b';g.lineWidth=1.8;
+ for(let i=1;i<5;i++){let u=i/5;g.beginPath();g.moveTo(x+w*u,y+4);g.lineTo(x+w*u+9,y+h);g.stroke();}
+ g.restore();
+}
+function person(g,x,y,s,color){
  g.save();g.translate(x,y);g.scale(s,s);
- shape(g,[[-61,-12],[-22,-41],[36,-39],[69,-6],[61,15],[9,30],[-50,23]],c);
- shape(g,[[-57,5],[6,16],[7,65],[-57,52]],'#cdbb9b');
- shape(g,[[7,16],[60,0],[60,48],[7,65]],'#b4a181');
- shape(g,[[-14,43],[8,45],[8,64],[-13,59]],'#66513f');
- shape(g,[[35,30],[48,25],[49,41],[34,45]],'#eedcbd');
- shape(g,[[27,-35],[38,-35],[38,-55],[26,-55]],'#9b8c7a');
- g.restore();
-}
-function field(g,x,y,w,h,index){
- const c=['#a89b77','#b6a481','#9d9874','#bfb08c'][index%4];
- shape(g,[[x+3,y+9],[x+w-11,y-4],[x+w+2,y+h-12],[x+w-6,y+h+4],[x-8,y+h-2]],c);
- g.save();g.strokeStyle='#7f765a';g.lineWidth=1.5;
- for(let i=1;i<=5;i++){const px=x+i*w/6;g.beginPath();g.moveTo(px,y+12);g.lineTo(px+6,y+h-9);g.stroke();}
- g.restore();
-}
+ ell(g,0,4,21,5,'#66564244');
+ piece(g,[[-17,-51],[14,-49],[21,-11],[-20,-9]],color);
+ ell(g,0,-68,16,20,'#c7a985');
+ piece(g,[[-19,-87],[0,-105],[24,-88],[15,-82],[-18,-83]],'#6b5945');
+ piece(g,[[-14,-12],[-1,-13],[0,0],[-14,0]],'#584b3f');
+ piece(g,[[4,-13],[17,-14],[18,0],[4,0]],'#584b3f');
+ g.restore();}
 function render(canvas){
- const rect=canvas.getBoundingClientRect();if(!rect.width||!rect.height)return null;
- const d=Math.min(window.devicePixelRatio||1,2),W=Math.round(rect.width*d),H=Math.round(rect.height*d);
- if(canvas.width!==W)canvas.width=W;if(canvas.height!==H)canvas.height=H;
- const g=canvas.getContext('2d');g.setTransform(d,0,0,d,0,0);
- const w=rect.width,h=rect.height;g.clearRect(0,0,w,h);
- const scale=Math.min(w/1280,h/720),ox=(w-1280*scale)/2,oy=(h-720*scale)/2;
- g.save();g.fillStyle=f()?.material?.(g,'#e1d3b7','paper')||'#e1d3b7';g.fillRect(0,0,w,h);
- g.translate(ox,oy);g.scale(scale,scale);
- // Everything belongs to one irregular layered village ground.
- shape(g,[[20,160],[105,89],[325,57],[547,103],[780,50],[1118,95],[1248,214],[1200,502],[1125,650],[846,682],[567,646],[321,679],[70,600]],'#a7aa86');
- shape(g,[[62,345],[252,304],[459,359],[660,346],[890,329],[1118,348],[1207,390],[1153,439],[852,407],[584,422],[325,413],[91,447]],'#c9bd98');
+ const r=canvas.getBoundingClientRect();if(!r.width||!r.height)return null;
+ const d=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);
+ const g=canvas.getContext('2d'),s=Math.min(r.width/1280,r.height/720),ox=(r.width-1280*s)/2,oy=(r.height-720*s)/2;
+ g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,r.width,r.height);
+ // One continuous outdoor field of vision, not a mural in a brown room.
+ g.save();g.fillStyle=fibres()?.material?.(g,'#a4b2ae','sky')||'#a4b2ae';g.fillRect(0,0,r.width,r.height*.58);
+ g.fillStyle=fibres()?.material?.(g,'#bcb796','ground')||'#bcb796';g.fillRect(0,r.height*.45,r.width,r.height*.55);
+ g.translate(ox,oy);g.scale(s,s);
+ piece(g,[[0,0],[1280,0],[1280,290],[1090,257],[907,276],[751,239],[559,278],[386,245],[200,282],[0,256]],'#9faeab',false);
+ piece(g,[[0,275],[190,250],[360,263],[582,219],[783,247],[1030,232],[1280,267],[1280,480],[0,475]],'#8d987c');
+ piece(g,[[0,332],[224,293],[445,306],[603,284],[825,318],[1040,282],[1280,336],[1280,720],[0,720]],'#bdb18f',false);
+ // Fields behind the street and the buildings: their pattern changes with time.
  if(!later){
- // En sammanhållen by före skiftets förändringar: gårdar runt byvägen.
- for(let i=0;i<7;i++)field(g,70+i*157,525+(i%2)*13,135,85,i);
- hut(g,270,225,1.18,'#8c624b');hut(g,545,205,1.22,'#82644f');
- hut(g,840,218,1.09,'#8c6b4f');hut(g,660,477,.78,'#997557');
- shape(g,[[438,262],[507,235],[592,265],[568,295],[468,302]],'#8a886d');
+   for(let i=0;i<9;i++)field(g,18+i*142,329+(i%2)*8,135,96,i);
  }else{
- // The early process of reallocation has begun. Consolidated plots grow;
- // do not imply the nineteenth-century Laga skifte already happened.
- field(g,80,495,290,121,0);field(g,398,504,302,106,1);
- field(g,729,494,401,126,2);
- hut(g,217,241,1.11,'#8c624b');hut(g,611,195,1.2,'#82644f');
- hut(g,978,252,1.06,'#8c6b4f');
- // A former clustered farmstead, now a small garden and open courtyard.
- shape(g,[[411,258],[476,234],[530,258],[512,299],[439,305]],'#b9ad88');
+   for(const [i,x,w] of [[0,19,375],[1,424,394],[2,857,380]])field(g,x,316+(i%2)*8,w,116,i);
  }
- // Village life: haystacks, shared well and unfenced kitchen gardens.
- shape(g,[[482,400],[509,380],[542,405],[533,443],[494,439]],'#8a7454');
- shape(g,[[497,396],[509,388],[523,399],[521,422],[500,422]],'#e4d7b6');
- shape(g,[[1045,414],[1090,398],[1124,420],[1112,447],[1065,453]],'#b6a17c');
- for(let i=0;i<6;i++)shape(g,[[1059+i*9,420],[1064+i*9,408],[1070+i*9,421]],'#7e926e');
- // A distinct paper arrow/trodden track to the established exit hit.
- shape(g,[[38,467],[141,475],[198,496],[174,530],[68,521]],'#d7c8a7');
+ tree(g,102,340,.58);tree(g,1172,326,.52);
+ // Physical lane recedes into the village. Shared or fractured geometry.
+ piece(g,[[562,389],[698,390],[1098,720],[182,720]],'#d7c4a0',false);
+ piece(g,[[584,401],[662,404],[764,720],[517,720]],'#e4d2af',false);
+ if(!later){
+   house(g,310,467,.77,'#866452');
+   house(g,608,439,.66,'#83624e');
+   house(g,929,463,.73,'#916d51');
+   shed(g,1123,479,.58);
+   tree(g,760,464,.64);
+ }else{
+   house(g,190,480,.76,'#866452');
+   house(g,685,445,.71,'#83624e');
+   house(g,1132,480,.69,'#916d51');
+   // Empty plot where the closely-knit farmstead formerly stood.
+   piece(g,[[394,472],[484,458],[552,493],[525,513],[419,512]],'#a9a47c');
+   tree(g,795,454,.67);
+ }
+ // Village common: well, hay, fences, locals at eye level.
+ piece(g,[[410,551],[450,528],[492,552],[489,603],[409,601]],'#796e53');
+ ell(g,451,551,41,13,'#c1b18e');ell(g,451,546,25,8,'#60574c');
+ piece(g,[[435,528],[439,487],[449,489],[448,528]],'#836d53');
+ piece(g,[[478,530],[480,490],[489,490],[487,530]],'#836d53');
+ piece(g,[[427,490],[493,488],[490,499],[431,500]],'#715941');
+ for(let i=0;i<7;i++){
+  const x=930+i*29;piece(g,[[x,610],[x+9,605],[x+11,666],[x+1,667]],'#7d6850');
+ }
+ piece(g,[[912,622],[1170,617],[1166,628],[915,632]],'#a18663');
+ if(!later){person(g,746,564,.73,'#876a51');person(g,794,571,.64,'#61746b');person(g,830,572,.58,'#916e57');}
+ else{person(g,807,573,.66,'#796c61');}
+ // Foreground objects cross lower frame: the environment has near/mid/far depth.
+ tree(g,-20,760,1.28);tree(g,1268,755,1.38);
+ piece(g,[[0,679],[177,666],[243,720],[0,720]],'#a2a381',false);
+ piece(g,[[1090,681],[1280,660],[1280,720],[1038,720]],'#aaa783',false);
  g.restore();
- // The doorway hit matches the normal interior scene; leaveRoom also works.
- return {x:ox+60*scale,y:oy+170*scale,w:145*scale,h:345*scale};
+ // A visible return button already exists; align its conventional door hit in lower-left.
+ return {x:ox+20*s,y:oy+615*s,w:135*s,h:100*s};
 }
-window.UPPDRAG_ROOM_ART={...existing,
- names:{...existing.names,farm:'Byn · bygemenskap'},
- descriptions:{...existing.descriptions,farm:later?'Åkrar börjar läggas samman; gårdar och bygemenskap förändras.':'Gårdarna ligger tätt tillsammans, omgivna av oskiftade åkertegar.'},
- render(canvas,id){return id==='farm'?render(canvas):existing.render(canvas,id);}
+window.UPPDRAG_ROOM_ART={...base,
+ names:{...base.names,farm:'Byn'},
+ descriptions:{...base.descriptions,farm:later?'Gårdarna ligger längre ifrån varandra och åkerstyckena har börjat samlas.':'Flera gårdar är samlade längs byvägen mellan smala, oskiftade tegar.'},
+ render(canvas,id){return id==='farm'?render(canvas):base.render(canvas,id);}
 };
 })();
