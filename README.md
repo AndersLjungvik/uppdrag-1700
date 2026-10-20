@@ -1,5 +1,7 @@
 # Uppdrag 1700 · Pappersstaden
 
+**Status för elevåtkomst (20/10):** Kapitel 4 är fortfarande en fristående utvecklingspilot. Den kan öppnas via webbadressen även utan avklarade tidigare kapitel. Den ska alltså ännu inte delas som elevversion innan både kapitelframsteg och lärarstyrd upplåsning fungerar. Detta är en medvetet dokumenterad kvarstående spärr, inte en genomförd funktion. Bakåtåtkomst och repetition ska finnas kvar. Stadens gångtrafik har nu fått en korrigerad väjningskoppling och separata promenadstråk; den gemensamma kontrollen med 31 figurer och 451 simuleringstillfällen fann inga närpassager under testgränsen, men behöver fortfarande speltestas visuellt.
+
 ## Kapitel 4 – Nya tider, nya tankar (fristående pilot)
 
 **Uppdatering 20 oktober: kontinuitet, integritet och vardagsliv.**
