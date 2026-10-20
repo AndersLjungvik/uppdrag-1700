@@ -62,6 +62,7 @@ const style=document.createElement('style');style.textContent=[
 'body.ch1-open #world,body.ch1-open #interiorCanvas{pointer-events:none}',
 '@media(max-width:640px){#ch1Hud{left:6px;right:6px;max-width:none;top:5px}#ch1Modal{inset:5px;padding:14px}}'
 ].join('\n');document.head.append(style);
+style.textContent += '#ch1Modal .ch1NextChapter{display:block;margin:18px auto;padding:13px 16px;max-width:360px;background:#436b5c;color:#fff;text-align:center;text-decoration:none;font:600 16px/1.45 system-ui,sans-serif;border-radius:6px}#ch1Modal .ch1NextChapter:focus-visible{outline:3px solid #245b61;outline-offset:3px}';
 
 // The Slottet learner task is the reference implementation.
 // Room greeting happens first; the close-up takes over the entire stage only
