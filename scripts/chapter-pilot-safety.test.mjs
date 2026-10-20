@@ -96,3 +96,30 @@ test('the festival remains optional and chapter four imports only existing scrip
     }
   }
 });
+
+
+test('chapter four citizens and background population avoid bunching on the real city map',()=>{
+  const html=read('chapter4-pilot.html');
+  const mapCode=html.slice(html.indexOf('const N=(id,x,y)'),html.indexOf('function island('));
+  assert.ok(mapCode.startsWith('const N=')&&mapCode.includes('const MAIN='),'World geometry unavailable');
+  const main=vm.runInNewContext(mapCode+';MAIN');
+  main.map=new Map(main.nodes.map(node=>[node.id,node]));
+  let now=0;
+  const win={matchMedia:()=>({matches:false,addEventListener(){}}),addEventListener(){}};
+  const mk=(id='')=>({id,hidden:false,style:{},dataset:{},setAttribute(){},addEventListener(){},
+    focus(){},append(){},querySelector(k){return mk(k)}});
+  const doc={getElementById:()=>mk('stage'),createElement:mk,head:{append(){}}};
+  vm.runInNewContext(read('living-conversation-data.js'),{window:win});
+  const life=read('world-life-ch4.js'),streets=read('chapter4-street-life.js');
+  assert.match(life,/UPPDRAG_CH4_CITY_LIFE/,'Town civs must avoid the current chapter, not last chapter');
+  vm.runInNewContext(life,{window:win});
+  vm.runInNewContext(streets,{window:win,document:doc,performance:{now:()=>now}});
+  for(now=0;now<=180000;now+=400){
+    win.UPPDRAG_WORLD_LIFE.tick(now,{region:main,player:{x:1010,y:705}});
+    const all=[...win.UPPDRAG_WORLD_LIFE.people(main),...win.UPPDRAG_CH4_CITY_LIFE.people(main)];
+    for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++){
+      const gap=Math.hypot(all[i].x-all[j].x,all[i].y-all[j].y);
+      assert.ok(gap>=37,'Overlapping pedestrians at t='+now+'ms: '+all[i].id+'/'+all[j].id+' gap '+gap);
+    }
+  }
+});
