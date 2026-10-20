@@ -530,6 +530,7 @@ function drawModal(){
     +'<p>Du har hjälpt Maja, Brita, Olof, Sam och Sigrid att minnas.</p>'
     +'<p class="ch1DiplomaSmall">'+right+' rätta återkallningar på '+tries+' försök. '
       +'Detta är träning, inte ett betyg.</p>'
+    +'<a class="ch1NextChapter" href="chapter5-pilot.html?v=1">→ Fortsätt till kapitel 5 · Gustavianska tiden</a>'
     +'<button class="primary" data-action="restart">Börja om äventyret</button>'
     +'<button data-action="close">Tillbaka till staden</button></article>';
    return;
