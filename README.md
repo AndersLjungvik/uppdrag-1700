@@ -2,14 +2,20 @@
 
 ## Kapitel 4 – Nya tider, nya tankar (fristående pilot)
 
-[Spela kapitel 4 i den befintliga pappersstaden](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter4-pilot.html?v=1). Fortsättningen från [kapitel 3](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter3-pilot.html?v=4) har egna sparningar, men tar med daler och äpplen från avklarade tidigare kapitel. Spelet börjar hos Maja och går vidare via Brita i Tryckeriet, Olof i Kyrkan, Sam i Vetenskapens hus och Sigrid i Byn. Samma nivåer – lärling, gesäll, mästare – och återbesök hos Rut ger återkallning med stöd i kapitlets befintliga faktabank.
+[Spela kapitel 4 i den befintliga pappersstaden](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter4-pilot.html?v=2). Fortsättningen från [kapitel 3](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter3-pilot.html?v=4) har egna sparningar, men tar med daler och äpplen från avklarade tidigare kapitel. Spelet börjar hos Maja och går vidare via Brita i Tryckeriet, Olof i Kyrkan, Sam i Vetenskapens hus och Sigrid i Byn. Samma nivåer – lärling, gesäll, mästare – och återbesök hos Rut ger återkallning med stöd i kapitlets befintliga faktabank.
 
 Kapitel 4 har 17 kontrollerade kunskapsfakta i 47 återkallningar under 12 arbetsbesök. Teman: tryckfrihet, censur, offentlighetsprincip, läsundervisning, Linné, Celsius, Scheele, Eva Ekeblad och vetenskap. Godkända stadens geometri och interiörer är återanvända. Streckad dekorkant på pratbubblorna är borttagen och hundarna rör sig långsammare och vänder vid hinder. Fristående pilot: kodsyntax, svarsalternativ och programmatiskt öppnande av alla 12 arbetsbesök har kontrollerats; visuell bläddring i riktig webbläsare återstår.
 
 
-## Aktuell arbetsversion: Demo 3.20
+**Kapitel 4, lugna staden och kokboksfesten (20/10).** Efter kriget är de två ryska lägerplatserna nu en liten botanisk äng i väster och potatisodling norr om Barnhuset. Carl von Linné beskriver växter, Celsius undersöker temperatur, Eva Ekeblad talar med odlande bönder och Elisabet Nilsdotter berättar vid kyrkan om gråkoltarnas tro och förföljelse. Inget av samtalen är extra provfrågor. Nutida repliker är dramatiseringar, inte citat från historiska personer. Elisa(b)ets eventuella titel som soldathustru har inte belagts och finns inte i spelets faktatext.
 
-[Öppna Demo 3.20 – Kapitelarbeten och färdiga arbetsblad](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.20.0).
+**Frivillig sidohändelse:** Cajsa Warg besöker Barnhuset och nämner sin kokbok från 1755 (ett fiktivt besök, inte dokumenterad anställning). Brita har ett exemplar i Tryckeriet. Spelaren kan hämta det, lämna det till den unga hushållerskan Karin i Bostadskvarteren, gå ut och återvända. Då har Karin och grannarna ordnat fest med mat efter boken. Den fysiska boken syns som ett ärende i packningen. Sparningen är separat och uppdraget ger inga daler, inga stämplar och påverkar inte kapitelproven. Att uttryckligen börja om hela kapitel 4 nollställer även denna sidoberättelse.
+
+**Kontroll:** Nya skript passerar syntaxkontroll; kapitelarbetena och frågornas rätta alternativ kontrollerades tidigare. För kokboken har hämtning, omöjlig förtida leverans, överlämning, återbesök och sparning mellan omladdningar testats. Normalt hushåll och festversion kan renderas i canvastest. Fullt visuellt speltest i en riktig webbläsare och elevprovning återstår.
+
+## Tidigare huvudprojekt: Demo 3.21
+
+[Öppna Demo 3.21 – Sammanhängande kapiteluppdrag](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.21.0).
 
 **Nytt i 3.20: trettio namngivna kapitelarbeten.** Varje befintlig nivå har en beställning, ett arbetsblad och ett resultat som hör till just dess frågor. Uppdragsboken visar lärlings-, gesäll- och mästararbetet i det valda avsnittet. De 139 frågorna, deras svar, källhänvisningar och kapitelordning är bevarade; beskrivningarna av arbetena är spelberättelse.
 
