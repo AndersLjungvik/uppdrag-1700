@@ -1,5 +1,12 @@
 # Uppdrag 1700 · Pappersstaden
 
+## Kapitel 4 – Nya tider, nya tankar (fristående pilot)
+
+[Spela kapitel 4 i den befintliga pappersstaden](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter4-pilot.html?v=1). Fortsättningen från [kapitel 3](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter3-pilot.html?v=4) har egna sparningar, men tar med daler och äpplen från avklarade tidigare kapitel. Spelet börjar hos Maja och går vidare via Brita i Tryckeriet, Olof i Kyrkan, Sam i Vetenskapens hus och Sigrid i Byn. Samma nivåer – lärling, gesäll, mästare – och återbesök hos Rut ger återkallning med stöd i kapitlets befintliga faktabank.
+
+Kapitel 4 har 17 kontrollerade kunskapsfakta i 47 återkallningar under 12 arbetsbesök. Teman: tryckfrihet, censur, offentlighetsprincip, läsundervisning, Linné, Celsius, Scheele, Eva Ekeblad och vetenskap. Godkända stadens geometri och interiörer är återanvända. Streckad dekorkant på pratbubblorna är borttagen och hundarna rör sig långsammare och vänder vid hinder. Fristående pilot: kodsyntax, svarsalternativ och programmatiskt öppnande av alla 12 arbetsbesök har kontrollerats; visuell bläddring i riktig webbläsare återstår.
+
+
 ## Aktuell arbetsversion: Demo 3.20
 
 [Öppna Demo 3.20 – Kapitelarbeten och färdiga arbetsblad](https://andersljungvik.github.io/uppdrag-1700/demo3/living-world.html?v=3.20.0).
