@@ -45,6 +45,26 @@ Object.assign(CAST,{
   lines:[['Grannen','Har du hört om Cajsa Wargs kokbok?'],
   ['Du','Var hittar jag den?'],['Grannen','Brita i Tryckeriet har ett exemplar. Karin i Bostadskvarteren vill gärna ha den.']]}
 });
+// After the crisis, people travel between ordinary errands again.
+// These added walkers use the existing road motion and gentle conversations.
+Object.assign(CAST,{
+ baker:{id:'baker',name:'Bagaren',region:'main',x:444,y:705,r:32,role:'baker',color:'#a48468',heading:0,range:78,period:24500,
+   lines:[['Bagaren','Det är snart dags att sätta in nästa bröd.'],['Du','Luktar det alltid så gott här?'],['Bagaren','När ugnen är varm, ja! Jag får gå tillbaka till degen.']]},
+ flyer:{id:'flyer',name:'En ung lärling',region:'main',x:790,y:710,r:32,role:'printer',color:'#706e5b',heading:0,range:84,period:30200,
+   lines:[['Lärlingen','Jag bär färdiga blad mellan tryckeriet och torget.'],['Du','Blir inte armarna trötta?'],['Lärlingen','Jo, men jag tycker om att folk läser dem.']]},
+ child:{id:'child',name:'Ett barn',region:'main',x:1038,y:705,r:34,role:'child',color:'#789078',heading:0,range:54,period:13700,
+   lines:[['Barnet','Ska du också gå till torget?'],['Du','Ja, vad händer där?'],['Barnet','En dam läser högt ur en bok. Jag vill lyssna!']]},
+ carrier:{id:'carrier',name:'En lastbärare',region:'main',x:1430,y:708,r:35,role:'porter',color:'#8d7760',heading:0,range:112,period:33700,
+   lines:[['Lastbäraren','Jag ska lämna den här korgen innan det blir kväll.'],['Du','Vad ligger i den?'],['Lastbäraren','Tyger till en familj som väntat länge.']]},
+ sailor:{id:'sailor',name:'En sjöman',region:'main',x:1297,y:1047,r:34,role:'sailor',color:'#657b7b',heading:0,range:69,period:27900,
+   lines:[['Sjömannen','Vi har just burit iland flera lådor.'],['Du','Kom de långt bortifrån?'],['Sjömannen','En del av varorna har seglat över stora hav.']]},
+ washer:{id:'washer',name:'En tvätterska',region:'main',x:2375,y:705,r:35,role:'laundry',woman:true,color:'#958373',heading:0,range:48,period:18000,
+   lines:[['Tvätterskan','Jag ska lämna rent linne och sedan hämta mer ved.'],['Du','Har du mycket att göra?'],['Tvätterskan','Ja, men i dag hinner jag nog dricka en kopp kaffe också.']]},
+ smith:{id:'smith',name:'En hantverkare',region:'main',x:2725,y:705,r:34,role:'smith',color:'#736f65',heading:0,range:95,period:23000,
+   lines:[['Hantverkaren','Jag har lagat ett trasigt gångjärn.'],['Du','Var ska det sitta?'],['Hantverkaren','På en av dörrarna här i kvarteren.']]},
+ basket:{id:'basket',name:'En kvinna med korg',region:'main',x:2950,y:705,r:34,role:'basket',woman:true,color:'#8e755d',heading:0,range:112,period:31000,
+   lines:[['Kvinnan','Nu ska grönsakerna hem till köket.'],['Du','Vad blir det för mat?'],['Kvinnan','Vi får se. Någon har lånat en ny kokbok!']]}
+});
 const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
 // Visual camp sites are dramatized placements on this game's map, not claims
 // about documented barracks at these precise addresses.
@@ -153,6 +173,14 @@ function humanThought(a){
 function story(actor){
   if(actor.role==='civil')return [['Du','Hej!'],[actor.name,humanThought(actor)]];
   if(actor.role==='dog')return [['Hunden','Voff!']];
+  const prior=encounterCounts.get(actor.id)||0;
+  if(prior>0&&actor.lines?.length>2){
+    const responses=['Åh, hej igen! Jag ska just tillbaka till mitt arbete.',
+      'Så trevligt att ses igen. Staden är full av folk i dag.',
+      'Nu är jag tillbaka där jag började. Har du också hunnit runt?'];
+    return [[actor.lines[0][0],responses[prior%responses.length]],
+      [actor.lines.at(-1)[0],actor.lines.at(-1)[1]]];
+  }
   return actor.lines||[['En stadsbo','Det talas om nya tider och nya tankar.']];
 }
 // Same speaker-anchored, cut-white-paper speech approach as living-dialogues.js.
@@ -274,6 +302,7 @@ function close(){
    encounterCounts.set(speakerActor.sourceId,(encounterCounts.get(speakerActor.sourceId)||0)+1);
  }else if(CAST[speakerActor.id]){
    talkPaused[speakerActor.id]=(talkPaused[speakerActor.id]||0)+Math.max(0,now-openedAt);
+   encounterCounts.set(speakerActor.id,(encounterCounts.get(speakerActor.id)||0)+1);
  }
  active=null;lineIndex=0;arrivalCandidate=null;teaserHiddenUntil=now+1700;
  lastCall=now;spokenRecently.set(speakerActor.id,now);
