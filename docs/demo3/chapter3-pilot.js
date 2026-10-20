@@ -238,9 +238,9 @@ function languageTools(id,rank,archive=false){
    expanded=archive?!!s.archiveWordHelp:!!s.wordHelp,prefix=archive?'archive-':'';
  let h='<div class="ch1ReadingActions">';
  if(api?.canSpeak)h+='<button type="button" data-action="'+prefix+'listen">Lyssna</button>';
- if(entry)h+='<button type="button" data-action="'+prefix+'word">Förklara ord</button>';
+ // Word explanations during recall are suppressed: some were the exact answers.
  h+='</div>';
- if(expanded&&entry)h+='<p class="ch1WordHelp"><b>'+esc(entry[0])+'</b> – '+esc(entry[1])+'</p>';
+ // Explanations are only available after a response, in feedback.
  return h;
 }
 function listenCurrent(archive=false){
@@ -261,13 +261,13 @@ function hintButtons(archive=false){
  const prefix=archive?'archive-':'';
  let h='';
  if(s.daler>0)h+='<button class="quiet" data-action="'+prefix+'hint-daler">Ledtråd · 1 daler</button>';
- if(s.apples>0)h+='<button class="quiet" data-action="'+prefix+'hint-apple">Ledtråd · 1 äpple</button>';
+ // Apples are never spent on hints.
  if(!h)h='<span class="ch1NoHints">Inga daler eller äpplen kvar för en ledtråd.</span>';
  return h;
 }
 function buyHint(currency,archive=false){
- const wallet=currency==='apple'?'apples':'daler';
- if(s[wallet]<1)return false;
+ if(currency!=='daler'||s.daler<1)return false;
+ const wallet='daler';
  if(archive){
    if(!s.archiveActive||location()!=='archive'||s.archiveMode!=='question'||s.archiveHint)return false;
    s[wallet]--;s.archiveHint=true;
@@ -281,14 +281,14 @@ function buyHint(currency,archive=false){
 }
 function retryButtons(){
  let h='<div class="ch1Actions">';
- if(s.daler>0)h+='<button class="primary" data-action="retry-daler">Nytt prov · 1 daler</button>';
- if(s.apples>0)h+='<button class="primary" data-action="retry-apple">Nytt prov · 1 äpple</button>';
+ // Daler can only purchase a memory hook, not another attempt.
+ if(s.apples>0)h+='<button class="primary" data-action="retry-apple">Ny chans · 1 äpple</button>';
  return h+'<button data-action="archive-go">Träna hos Rut i Arkivet</button></div>';
 }
 function retryWith(kind){
  if(s.mode!=='failed'||!present())return false;
- const wallet=kind==='apple'?'apples':'daler';
- if(s[wallet]<1)return false;
+ if(kind!=='apple'||s.apples<1)return false;
+ const wallet='apples';
  s[wallet]--;s.trial++;s.index=0;s.mode='question';s.hint=false;s.wordHelp=false;s.draft='';
  persist();drawHud();drawMemory();return true;
 }
@@ -321,7 +321,7 @@ function drawMemory(){
    sheet+='<div class="ch1Result ch1ResultRight" role="status"><strong>RÄTT</strong>'
        +memoryAnswer(id,current().r)+'</div>';
    sheet+='<div class="ch1Actions"><button class="primary" data-action="next">'
-     +(s.index===current().f.length-1?'Lämna minnesprovet':'Nästa fråga')+'</button></div>';
+     +(s.index===current().f.length-1?'Avsluta arbetsbladet':'Nästa fråga')+'</button></div>';
  }
  modal.innerHTML='<div class="ch1MemorySetting" aria-hidden="true">'
     +'<div class="ch1LegacyFallback">'+fallback+'</div>'
@@ -553,7 +553,7 @@ function drawModal(){
  h+='</div>';
 }
  else if(s.mode==='feedback'){const r=s.record[s.record.length-1];h+='<div class="answer"><b>'+(r.ok?'Rätt!':'Inte riktigt än')+'</b><p>'+esc(f.a)+'</p></div><button class="primary" data-action="next">'+(r.ok?(s.index===current().f.length-1?'Färdig':'Nästa fråga'):'Försök igen')+'</button>';}
- h+='<small>Grundboken s. 70–74 · Elevernas arbetsbok '+esc(f.ab)+'. Frågor med alternativ registreras som stödda svar.</small>';
+
  }
  h+='<p><button data-action="close">Stäng och promenera</button></p>';
  modal.innerHTML=h;
@@ -579,22 +579,16 @@ modal.addEventListener('click',e=>{
  const act=e.target.closest('[data-action]')?.dataset.action;if(!act)return;
  if(act==='close'){closePanel();return}
  if(act==='listen'){listenCurrent(false);return}
- if(act==='word'){
-   if(!s.archiveActive){s.wordHelp=!s.wordHelp;persist();if(memoryVisible)drawMemory();}
-   return;
- }
+ if(act==='word')return;
  if(act==='archive-listen'){listenCurrent(true);return}
- if(act==='archive-word'){
-   if(s.archiveActive){s.archiveWordHelp=!s.archiveWordHelp;persist();drawArchive();}
-   return;
- }
- if(act==='retry-daler'){retryWith('daler');return}
+ if(act==='archive-word')return;
+ if(act==='retry-daler'){return}
  if(act==='retry-apple'){retryWith('apple');return}
  if(act==='archive-go'){goArchive();return}
  if(act==='archive-exit'){closePanel();return}
  if(act==='archive-again'){closePanel();enterArchive();return}
  if(act==='archive-hint-daler'){buyHint('daler',true);return}
- if(act==='archive-hint-apple'){buyHint('apple',true);return}
+ if(act==='archive-hint-apple'){return}
  if(act==='archive-short'){
    if(!s.archiveActive||s.archiveMode!=='question'||!s.archiveDraft.trim())return;
    archiveMark(correctShort(s.archiveDraft,factFor(archiveFact()).answers||[]));return;
@@ -613,7 +607,7 @@ modal.addEventListener('click',e=>{
  if(act==='restart'){resetChapter();return}
  if(act==='start'){if(s.step===0)advance();else{s.mode='question';persist();drawModal()}return}
  if(act==='hint-daler'){buyHint('daler');return}
- if(act==='hint-apple'){buyHint('apple');return}
+ if(act==='hint-apple'){return}
  if(act==='short'){if(!s.draft.trim())return;mark(correctShort(s.draft,item().answers));return}
  if(act==='skip'){s.draft='';mark(false);return}
  if(act==='choices'){
