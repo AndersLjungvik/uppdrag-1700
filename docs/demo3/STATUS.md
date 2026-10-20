@@ -1,5 +1,15 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
+## Kapitel 5 – Gustavianska tiden, 20 oktober 2026
+
+[Öppna lärarförhandsvisningen av kapitel 5](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter5-pilot.html?v=2&preview=1). 16 innehållsdelar och 49 återkallningar på 12 arbetsbesök fördelade på lärling, gesäll, mästare. Underlag: SOS Historia grundboken s. 81–85 och arbetsbokens uppgift 16–17. Elin, Amira, Brita och Olof är huvudpersoner. Maja ger den inledande beställningen och Rut repeterar från tidigare kapitel för att ge äpplen. Valutan ändras inte: daler för ledtråd och Rut-äpplen för ytterligare försök. Inga prov-/bedömningshänvisningar eller ordförklaringar som avslöjar svar i elevgränssnittet.
+
+Marstrand har två besöksvärldar: hamnen (frihamn efter 1775) med de verkliga familjemedlemmarna Moses och Bela Salomon (kom 1779) och ett straffarbetsområde nära Carlsten med fiktiv fånge, stenhuggare och vakt. David Hedenquist visas som tydligt märkt återblick till 1743, inte som samtida fånge. Den fiktive fångens brev är ett frivilligt sidospår som lämnas i hamnen och sparas separat; ingen påverkan på pengarna eller själva kunskapspassen. Bevis för någon särskild namngiven gustaviansk benådning till Carlsten har inte fastställts och spelet påstår därför inget sådant.
+
+**Kapitelspärr:** Sidorna kapitel 2–5 kräver att föregående kapitel är markerat som avklarat i lokalt sparad webbläsardata. Kapitel 3:s tidigare oskyddade framåtlänk i sidhuvudet är borttagen, och kapitel 4 länkar till 5 efter avslut. Backåt fungerar fritt. Parametern `?preview=1` är *öppen utvecklingsförhandsvisning*, inte säker lärarinloggning. En faktisk lärarstyrd klassupplåsning på olika enheter behöver en autentiserad delad tjänst och är fortfarande inte byggd.
+
+**Teknik:** Syntax och kopplingar i det nya kapitel 5-paketet kontrollerade. Varje kunskapsstation kunde öppnas i simulerad miljö. 16 frågefakta och svarsalternativ kontrollerade. Marstrands frivilliga brev har testad turordning och sparning efter omladdning. Gångtrafik simulering över 451 steg per stad/ö gav inga närpassager under 37 enheter bland 29 huvudstadsbor respektive nio Marstrandsfigurer. Dessa kontroller är inte ett komplett grafiskt webbläsartest och ger ingen garanti för alla rörelser.
+
 ## Återställd gångtrafik, återstående kapitelspärr – 20 oktober 2026
 
 **Gångtrafik:** Kapitel 4:s civila väjning refererade av misstag till kapitel 3:s gatufolk. Den referensen använder nu kapitel 4:s figurer, och personer som låg på samma koordinater har fått olika sammanhängande promenadstråk. Kontroll på den faktiska stadskartan med 20 kapitelpersoner och 11 bakgrundsvandrare gav noll centrumavstånd under 37 världskoordinatenheter vid 451 provpunkter över ett simulerat treminutersförlopp (tidigare många överlappningar). Avståndstestet är inte ett fullständigt visuellt webbläsartest och utlovar inte kollisionfrihet i alla situationer eller på alla skärmstorlekar. `scripts/chapter-pilot-safety.test.mjs` innehåller nu även ett automatiserat befolkningsprov.
