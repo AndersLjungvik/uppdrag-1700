@@ -56,58 +56,60 @@ function person(g,x,y,s,color){
 function render(canvas){
  const r=canvas.getBoundingClientRect();if(!r.width||!r.height)return null;
  const d=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);
- const g=canvas.getContext('2d'),s=Math.min(r.width/1280,r.height/720),ox=(r.width-1280*s)/2,oy=(r.height-720*s)/2;
- g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,r.width,r.height);
- // One continuous outdoor field of vision, not a mural in a brown room.
- g.save();g.fillStyle=fibres()?.material?.(g,'#a4b2ae','sky')||'#a4b2ae';g.fillRect(0,0,r.width,r.height*.58);
- g.fillStyle=fibres()?.material?.(g,'#bcb796','ground')||'#bcb796';g.fillRect(0,r.height*.45,r.width,r.height*.55);
+ const g=canvas.getContext('2d');
+ // Harbour-like stage composition: fixed scene horizon, ground line, buildings
+ // as full-height side views, people standing on the same playable street.
+ // The whole scene fills the viewport; no vignette or pasted image rectangle.
+ const s=Math.max(r.width/1280,r.height/720),ox=(r.width-1280*s)/2,oy=(r.height-720*s)/2;
+ g.setTransform(d,0,0,d,0,0);g.save();
+ g.fillStyle=fibres()?.material?.(g,'#a7b9be','sky')||'#a7b9be';g.fillRect(0,0,r.width,r.height);
  g.translate(ox,oy);g.scale(s,s);
- piece(g,[[0,0],[1280,0],[1280,290],[1090,257],[907,276],[751,239],[559,278],[386,245],[200,282],[0,256]],'#9faeab',false);
- piece(g,[[0,275],[190,250],[360,263],[582,219],[783,247],[1030,232],[1280,267],[1280,480],[0,475]],'#8d987c');
- piece(g,[[0,332],[224,293],[445,306],[603,284],[825,318],[1040,282],[1280,336],[1280,720],[0,720]],'#bdb18f',false);
- // Fields behind the street and the buildings: their pattern changes with time.
+ piece(g,[[0,0],[1280,0],[1280,357],[1085,353],[923,362],[746,348],[536,356],[318,350],[129,362],[0,352]],'#a7b9bb',false);
+ // One distant continuous landscape, NOT separate cut-out fields floating in space.
+ piece(g,[[0,353],[184,340],[372,350],[527,335],[714,349],[887,337],[1054,345],[1280,337],[1280,510],[0,510]],'#8b987a',false);
+ // Slender historic arable strips belong BEHIND the houses. Later plots consolidate.
  if(!later){
-   for(let i=0;i<9;i++)field(g,18+i*142,329+(i%2)*8,135,96,i);
+  for(let i=0;i<10;i++)field(g,i*128,364+(i%2)*5,130,112,i);
  }else{
-   for(const [i,x,w] of [[0,19,375],[1,424,394],[2,857,380]])field(g,x,316+(i%2)*8,w,116,i);
+  field(g,0,362,427,118,0);field(g,421,359,439,120,1);field(g,857,358,430,122,2);
  }
- tree(g,102,340,.58);tree(g,1172,326,.52);
- // Physical lane recedes into the village. Shared or fractured geometry.
- piece(g,[[562,389],[698,390],[1098,720],[182,720]],'#d7c4a0',false);
- piece(g,[[584,401],[662,404],[764,720],[517,720]],'#e4d2af',false);
+ // A single unbroken walkable ground plane like the quay: hard boundary at y=520.
+ piece(g,[[0,497],[1280,497],[1280,720],[0,720]],'#c7b99e',false);
+ piece(g,[[0,515],[1280,515],[1280,534],[0,534]],'#a18a6b',false);
+ piece(g,[[0,538],[1280,538],[1280,548],[0,548]],'#dfcdaa',false);
+ // Buildings rise from the common horizontal plane, not in a collage perspective.
  if(!later){
-   house(g,310,467,.77,'#866452');
-   house(g,608,439,.66,'#83624e');
-   house(g,929,463,.73,'#916d51');
-   shed(g,1123,479,.58);
-   tree(g,760,464,.64);
+  house(g,218,522,.91,'#87644e');
+  house(g,561,522,.92,'#82614b');
+  house(g,913,522,.88,'#916e51');
+  shed(g,1136,522,.72);
  }else{
-   house(g,190,480,.76,'#866452');
-   house(g,685,445,.71,'#83624e');
-   house(g,1132,480,.69,'#916d51');
-   // Empty plot where the closely-knit farmstead formerly stood.
-   piece(g,[[394,472],[484,458],[552,493],[525,513],[419,512]],'#a9a47c');
-   tree(g,795,454,.67);
+  house(g,181,522,.91,'#87644e');
+  house(g,670,522,.92,'#82614b');
+  house(g,1120,522,.88,'#916e51');
+  shed(g,400,522,.61);
  }
- // Village common: well, hay, fences, locals at eye level.
- piece(g,[[410,551],[450,528],[492,552],[489,603],[409,601]],'#796e53');
- ell(g,451,551,41,13,'#c1b18e');ell(g,451,546,25,8,'#60574c');
- piece(g,[[435,528],[439,487],[449,489],[448,528]],'#836d53');
- piece(g,[[478,530],[480,490],[489,490],[487,530]],'#836d53');
- piece(g,[[427,490],[493,488],[490,499],[431,500]],'#715941');
- for(let i=0;i<7;i++){
-  const x=930+i*29;piece(g,[[x,610],[x+9,605],[x+11,666],[x+1,667]],'#7d6850');
+ // The village well and neighbours occupy the SAME plane as the houses.
+ piece(g,[[437,528],[468,507],[503,528],[507,576],[433,576]],'#857459');
+ ell(g,470,527,36,10,'#d8c3a0');ell(g,470,524,24,6,'#615447');
+ piece(g,[[446,509],[448,477],[457,477],[456,509]],'#886f52');
+ piece(g,[[489,509],[490,477],[499,477],[497,509]],'#886f52');
+ piece(g,[[443,479],[500,478],[499,489],[442,489]],'#765b43');
+ if(!later){
+  person(g,733,525,.79,'#86644e');
+  person(g,784,525,.75,'#657568');
+  person(g,834,525,.71,'#947257');
+ }else{person(g,816,525,.75,'#79695a');}
+ // Fence across the front edge: near-ground rather than a decorative patch.
+ for(let i=0;i<9;i++){
+  let x=1010+i*30;piece(g,[[x,588],[x+10,586],[x+11,651],[x+1,651]],'#8a7151');
  }
- piece(g,[[912,622],[1170,617],[1166,628],[915,632]],'#a18663');
- if(!later){person(g,746,564,.73,'#876a51');person(g,794,571,.64,'#61746b');person(g,830,572,.58,'#916e57');}
- else{person(g,807,573,.66,'#796c61');}
- // Foreground objects cross lower frame: the environment has near/mid/far depth.
- tree(g,-20,760,1.28);tree(g,1268,755,1.38);
- piece(g,[[0,679],[177,666],[243,720],[0,720]],'#a2a381',false);
- piece(g,[[1090,681],[1280,660],[1280,720],[1038,720]],'#aaa783',false);
+ piece(g,[[997,607],[1280,607],[1280,616],[998,618]],'#b59a70');
+ tree(g,-38,565,.84);tree(g,1312,550,.82);
+ // Exit lies on left foreground; its existing real button also works.
+ piece(g,[[20,618],[94,616],[110,627],[22,629]],'#ecdfc5');
  g.restore();
- // A visible return button already exists; align its conventional door hit in lower-left.
- return {x:ox+20*s,y:oy+615*s,w:135*s,h:100*s};
+ return {x:ox+15*s,y:oy+570*s,w:108*s,h:117*s};
 }
 window.UPPDRAG_ROOM_ART={...base,
  names:{...base.names,farm:'Byn'},
