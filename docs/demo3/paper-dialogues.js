@@ -80,7 +80,7 @@
     :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice::before,
     :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice::after{content:none!important;display:none!important;}
     :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice:hover{text-decoration:underline;text-underline-offset:4px;}
-    :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice:focus-visible{outline:1.5px dashed #625545;outline-offset:0;}
+    :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice:focus-visible{outline:none;text-decoration:underline;text-underline-offset:4px;}
     :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room]:focus{outline:none;}
     :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room].speech{cursor:pointer;}
     #placeThoughts:has(#placeBubble.speech:focus-visible) #placeTail .worldSpeechPaper,
@@ -89,7 +89,7 @@
     #interiorView:has(#storyBubble.speech:focus-visible) #storyTail .worldSpeechPaper{
       stroke:#4c443a!important;stroke-width:1.6px!important;stroke-opacity:.9;
     }
-    :is(#placeTail,#rutTail,#meetingTail,#storyTail) .paperEdgeFibre{fill:none!important;stroke:#fff!important;stroke-width:2.1px!important;}
+    :is(#placeTail,#rutTail,#meetingTail,#storyTail)  .paperEdgeFibre{display:none!important;}
     @media(max-width:640px),(max-height:430px){
       :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room]{padding:23px 30px!important;}
       :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room] p{font-size:16px!important;line-height:1.4!important;}
