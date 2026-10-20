@@ -21,7 +21,8 @@
     science:{name:'Sam',color:'#5d776c',role:'sam',lines:[['Du','Hej Sam!'],['Sam','Välkommen till Vetenskapens hus. Vi arbetar med forskarnas anteckningar.']]},
     farm:{name:'Sigrid',color:'#967654',woman:true,role:'sigrid',lines:[['Du','Hej Sigrid!'],['Sigrid','Här på gården undersöker vi allt man kan göra med potatisen.']]},
     palace:{name:'Amira',color:'#846956',woman:true,role:'amira',lines:[['Du','Hej!'],['Amira','Välkommen till slottet.']]},
-    barnhus:{name:'Siri',color:'#937056',woman:true,role:'siri',lines:[['Du','Hej, Siri!'],['Siri','Välkommen till Barnhuset.']]},
+    barnhus:{name:'Cajsa Warg',color:'#92735c',woman:true,role:'cajsa',lines:[['Du','Hej!'],['Cajsa Warg','Jag visar kökspersonalen några råd, bara på besök.']]},
+    homes:{name:'Karin',color:'#876d5d',woman:true,role:'karin',lines:[['Du','Hej!'],['Karin','Välkommen in i vårt hushåll.']]},
     church:{name:'Olof',color:'#6f6956',role:'olof',lines:[['Du','Hej, Olof!'],['Olof','Välkommen till kyrkan. Jag är klockaren.']]},
     riksdag:{name:'Erik',color:'#665d54',role:'erik',lines:[['Du','Hej, Erik!'],['Erik','Jag skriver protokoll här på riksdagen.']]},
     archive:{name:'Rut',color:'#67695a',woman:true,role:'rut',lines:[
@@ -90,6 +91,18 @@
   document.head.append(styles);
   const layer=document.createElement('canvas');layer.id='meetingLayer';layer.setAttribute('aria-hidden','true');
   const person=document.createElement('button');person.id='meetingPerson';person.type='button';person.hidden=true;
+  // The cookbook is an optional printed object. Do not replace Brita's
+  // chapter-four learning dialogue; its own control is by the room's exit.
+  const bookButton=document.createElement('button');
+  bookButton.type='button';bookButton.id='ch4BookAction';bookButton.hidden=true;
+  bookButton.textContent='Cajsa Wargs kokbok';
+  roomFooter.append(bookButton);
+  function refreshBookButton(){
+    const place=interior&&!voyage?current()?.key:null;
+    bookButton.hidden=place!=='print'||window.UPPDRAG_CH4_SIDEQUEST?.phase!=='unfound'
+      ||!!window.UPPDRAG_CH4_PILOT?.memoryVisible;
+  }
+
   const panel=document.createElement('section');panel.id='meetingDialogue';panel.hidden=true;
   panel.setAttribute('role','button');panel.tabIndex=0;panel.className='speech';panel.dataset.mode='speech';
   panel.setAttribute('aria-keyshortcuts','Enter Space Escape');
@@ -99,7 +112,7 @@
   const placeLabel=document.createElement('span');placeLabel.id='ch1RoomIdentity';placeLabel.hidden=true;
   roomView.querySelector('.room-top')?.append(placeLabel);
   const roomLabels={cafe:'Majas kaffebord',riksdag:'Eriks protokoll',
-    quay:'Jos lastbok',print:'Britas tryckblad',archive:'Ruts bokhyllor',church:'Olofs läsböcker',science:'Sams forskarbord',farm:'Sigrids potatisprover'};
+    quay:'Jos lastbok',print:'Britas tryckblad',archive:'Ruts bokhyllor',church:'Olofs läsböcker',science:'Sams forskarbord',farm:'Sigrids potatisprover',barnhus:'Cajsas köksbesök',homes:'Karins hushåll'};
   function showRoomIdentity(key){
     const caption=roomLabels[key]||'';
     placeLabel.textContent=caption;
@@ -308,7 +321,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     for(const item of drawings){const [x,y,s]=item.pos;a.side(x,y,s,item.who,item.right,now,speaker===item.who.name,!!item.isNpc&&!!geometry.npc?.moving,!!item.isNpc&&!!geometry.npc?.working,item.isNpc?(geometry.npc?.turn||0):0);if(c.key==='archive'&&pilot&&item.who!==CAST.player)pilot.restoreDesk(g,geometry,roomCanvas);}
     g.restore();
     const chapterOneOnly=!!window.UPPDRAG_CH4_PILOT;
-    person.hidden=!c.cast||!!dialogue||!!controller(c.key)?.busy||(chapterOneOnly&&!['cafe','print','church','science','farm','archive'].includes(c.key));
+    person.hidden=!c.cast||!!dialogue||!!controller(c.key)?.busy||(chapterOneOnly&&!['cafe','print','church','science','farm','archive','barnhus','homes'].includes(c.key));
     if(c.cast){
       const [x,y,s]=poses[1],unit=p.scale*s;
       const width=Math.max(44,122*unit),height=Math.max(44,333*unit+26);
@@ -371,7 +384,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     panel.querySelector('.ch1MeetingChoices')?.remove();
     if(dialogue.special&&dialogue.index===dialogue.cast.lines.length-1){
       const container=document.createElement('div');container.className='ch1MeetingChoices';
-      for(const [action,label] of [['accept',dialogue.special==='thanks'?'Fortsätt äventyret':dialogue.special==='archive'?'Repetera hos Rut':dialogue.special==='giver'?'Jag hjälper till':'Jag hjälper dig att minnas'],['decline','Inte nu']]){
+      for(const [action,label] of [['accept',dialogue.special.startsWith('side:')?(dialogue.choiceLabel||'Ja, gärna'):dialogue.special==='thanks'?'Fortsätt äventyret':dialogue.special==='archive'?'Repetera hos Rut':dialogue.special==='giver'?'Jag hjälper till':'Jag hjälper dig att minnas'],['decline','Inte nu']]){
         const b=document.createElement('button');b.type='button';b.dataset.ch1Choice=action;b.textContent=label;container.append(b);
       }
       panel.append(container);panel.setAttribute('role','group');
@@ -400,6 +413,13 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   }
   function startTalk(){
     const c=current();if(!c?.cast||dialogue||voyage)return false;
+    // Blue-profile microstories never count as part of assessment.
+    if(c.key==='barnhus'||c.key==='homes'){
+      const side=window.UPPDRAG_CH4_SIDEQUEST?.dialogueFor(c.key);
+      dialogue={room:interior,cast:{...c.cast,lines:side?.lines||c.cast.lines},
+        index:0,special:side?.action?'side:'+side.action:null,choiceLabel:side?.label};
+      footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
+    }
     window.UPPDRAG_CH3_NPC_MOTION?.approach?.(performance.now());
     const pilot=window.UPPDRAG_CH4_PILOT;
     if(pilot?.wantsArchiveMeeting?.(c.key)){
@@ -459,6 +479,15 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
   }
   person.addEventListener('click',startTalk);
+  bookButton.addEventListener('click',()=>{
+    if(dialogue||voyage||!interior||current()?.key!=='print'
+      ||window.UPPDRAG_CH4_PILOT?.memoryVisible)return;
+    const side=window.UPPDRAG_CH4_SIDEQUEST?.dialogueFor('print');
+    if(!side)return;
+    dialogue={room:interior,cast:{...CAST.print,lines:side.lines},
+      index:0,special:side.action?'side:'+side.action:null,choiceLabel:side.label};
+    footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();
+  });
   panel.addEventListener('click',e=>{
     if(!dialogue)return;
     const button=e.target.closest('[data-ch1-choice]');
@@ -467,7 +496,8 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
       const type=dialogue.special,answer=button.dataset.ch1Choice;
       closeTalk(false);
       if(answer==='accept'){
-        if(type==='thanks')window.UPPDRAG_CH4_PILOT?.finishMemory();
+        if(type.startsWith('side:')){window.UPPDRAG_CH4_SIDEQUEST?.accept(type.slice(5));refreshBookButton();}
+        else if(type==='thanks')window.UPPDRAG_CH4_PILOT?.finishMemory();
         else if(type==='giver')window.UPPDRAG_CH4_PILOT?.acceptMajaMission();
         else if(type==='archive')window.UPPDRAG_CH4_PILOT?.enterArchive();
         else window.UPPDRAG_CH4_PILOT?.enterMemory();
@@ -508,6 +538,8 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     if(dialogue){e.preventDefault();e.stopImmediatePropagation();if(name==='click')closeTalk();}
   },true);
   function tick(now){
+    window.UPPDRAG_CH4_SIDEQUEST?.tick();
+    refreshBookButton();
     if(pilot){pilot.tick(now,interior&&!voyage?measure():null);if(pilotRevision!==pilot.revision){pilotRevision=pilot.revision;lastPaint=-Infinity;}}
     if(places){places.tick(now,interior&&!voyage?measure():null);if(placeRevision!==places.revision){placeRevision=places.revision;lastPaint=-Infinity;}}
     const living=window.UPPDRAG_LIVING_DIALOGUES;if(livingRevision!==living?.revision){livingRevision=living?.revision;lastPaint=-Infinity;}
