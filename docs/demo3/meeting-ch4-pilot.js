@@ -21,7 +21,8 @@
     science:{name:'Sam',color:'#5d776c',role:'sam',lines:[['Du','Hej Sam!'],['Sam','Välkommen till Vetenskapens hus. Vi arbetar med forskarnas anteckningar.']]},
     farm:{name:'Sigrid',color:'#967654',woman:true,role:'sigrid',lines:[['Du','Hej Sigrid!'],['Sigrid','Här på gården undersöker vi allt man kan göra med potatisen.']]},
     palace:{name:'Amira',color:'#846956',woman:true,role:'amira',lines:[['Du','Hej!'],['Amira','Välkommen till slottet.']]},
-    barnhus:{name:'Cajsa Warg',color:'#92735c',woman:true,role:'cajsa',lines:[['Du','Hej!'],['Cajsa Warg','Jag visar kökspersonalen några råd, bara på besök.']]},
+    barnhus:{name:'Siri',color:'#937056',woman:true,role:'siri',lines:[['Du','Hej, Siri!'],['Siri','Välkommen tillbaka. Vi arbetar med barnen här.']]},
+     cajsa:{name:'Cajsa Warg',color:'#92735c',woman:true,role:'cajsa',lines:[['Cajsa Warg','Jag visar kökspersonalen några råd, bara på besök.']]},
     homes:{name:'Karin',color:'#876d5d',woman:true,role:'karin',lines:[['Du','Hej!'],['Karin','Välkommen in i vårt hushåll.']]},
     church:{name:'Olof',color:'#6f6956',role:'olof',lines:[['Du','Hej, Olof!'],['Olof','Välkommen till kyrkan. Jag är klockaren.']]},
     riksdag:{name:'Elin',color:'#6b7461',woman:true,role:'elin',lines:[['Du','Hej, Elin!'],['Elin','Jag skriver protokoll här på riksdagen.']]},
@@ -44,6 +45,8 @@
     #meetingPerson{position:absolute;z-index:4;padding:0;border:0;border-radius:6px;background:transparent;color:#352d24;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px}
     #meetingPerson span{position:absolute;bottom:0;left:50%;transform:translateX(-50%);padding:3px 8px;border:1px solid #9e8965;background:#f1e4c9;font:600 14px/1.15 Georgia,serif;border-radius:4px;white-space:nowrap}
     #meetingPerson:hover span{background:#fff4dc}
+    #ch4CajsaVisitor{position:absolute;z-index:5;background:transparent;border:0;border-radius:10px;cursor:pointer;touch-action:manipulation;min-width:44px;min-height:44px}
+    #ch4CajsaVisitor:focus-visible{outline:2px solid #6e5e46;outline-offset:2px}
     #meetingPerson:focus-visible{outline:2px dashed #826f51;outline-offset:2px}
     #meetingPerson:focus:not(:focus-visible){outline:none}
     #meetingDialogue{position:absolute;z-index:8;left:50%;bottom:12px;transform:translateX(-50%);width:min(660px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;background:#f7ecd5;border:2px solid #a58d63;box-shadow:3px 5px 0 #41342230;border-radius:7px;padding:16px 20px;color:#352d24}
@@ -97,10 +100,14 @@
   bookButton.type='button';bookButton.id='ch4BookAction';bookButton.hidden=true;
   bookButton.textContent='Cajsa Wargs kokbok';
   roomFooter.append(bookButton);
+  const visitor=document.createElement('button');visitor.type='button';visitor.id='ch4CajsaVisitor';visitor.hidden=true;
+  visitor.setAttribute('aria-label','Prata med gästen Cajsa Warg');
+  roomView.append(visitor);
   function refreshBookButton(){
     const place=interior&&!voyage?current()?.key:null;
     bookButton.hidden=place!=='print'||window.UPPDRAG_CH4_SIDEQUEST?.phase!=='unfound'
       ||!!window.UPPDRAG_CH4_PILOT?.memoryVisible;
+    visitor.hidden=place!=='barnhus'||!!window.UPPDRAG_CH4_PILOT?.memoryVisible;
   }
 
   const panel=document.createElement('section');panel.id='meetingDialogue';panel.hidden=true;
@@ -112,7 +119,7 @@
   const placeLabel=document.createElement('span');placeLabel.id='ch1RoomIdentity';placeLabel.hidden=true;
   roomView.querySelector('.room-top')?.append(placeLabel);
   const roomLabels={cafe:'Majas kaffebord',riksdag:'Elins protokoll',
-    quay:'Jos lastbok',print:'Britas tryckblad',archive:'Ruts bokhyllor',church:'Olofs läsböcker',science:'Sams forskarbord',farm:'Sigrids potatisprover',barnhus:'Cajsas köksbesök',homes:'Karins hushåll'};
+    quay:'Jos lastbok',print:'Britas tryckblad',archive:'Ruts bokhyllor',church:'Olofs läsböcker',science:'Sams forskarbord',farm:'Sigrids potatisprover',barnhus:'Siris barnhus · Cajsa på besök',homes:'Karins hushåll'};
   function showRoomIdentity(key){
     const caption=roomLabels[key]||'';
     placeLabel.textContent=caption;
@@ -320,7 +327,9 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     poses=poses.map(pose=>[...pose]); // Never mutate static placement constants.
     const npc=window.UPPDRAG_CH3_NPC_MOTION?.pose(c.key,!interior.outdoor&&r.width/r.height<1.02,performance.now(),motion.matches);
     if(npc&&poses.length>1)poses[1]=[npc.x,npc.y,npc.size];
-    return {w:r.width,h:r.height,left:r.left-parent.left,top:r.top-parent.top,p,poses,c,npc};
+    const visitorPose=c.key==='barnhus'?
+      (r.width/r.height<1.02?[443,891,.53]:[598,690,.72]):null;
+    return {w:r.width,h:r.height,left:r.left-parent.left,top:r.top-parent.top,p,poses,c,npc,visitorPose};
   }
   function drawPeople(now){
     if(!interior||voyage){layer.hidden=true;person.hidden=true;return;}
@@ -337,11 +346,16 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     // Render farther people first, keeping feet anchored in the same floor plane.
     const drawings=[{pos:poses[0],who:CAST.player,right:true}];
     if(c.cast&&poses[1])drawings.push({pos:poses[1],who:c.cast,right:false,isNpc:true});
+    if(c.key==='barnhus'&&geometry.visitorPose)drawings.push({pos:geometry.visitorPose,who:CAST.cajsa,right:true,isNpc:true});
     drawings.sort((a,b)=>a.pos[1]-b.pos[1]);
     for(const item of drawings){const [x,y,s]=item.pos;a.side(x,y,s,item.who,item.right,now,speaker===item.who.name,!!item.isNpc&&!!geometry.npc?.moving,!!item.isNpc&&!!geometry.npc?.working,item.isNpc?(geometry.npc?.turn||0):0);if(c.key==='archive'&&pilot&&item.who!==CAST.player)pilot.restoreDesk(g,geometry,roomCanvas);}
     g.restore();
     const chapterOneOnly=!!window.UPPDRAG_CH4_PILOT;
     person.hidden=!c.cast||!!dialogue||!!controller(c.key)?.busy||(chapterOneOnly&&!['cafe','print','church','science','farm','archive','barnhus','homes'].includes(c.key));
+    visitor.hidden=c.key!=='barnhus'||!!dialogue||!!window.UPPDRAG_CH4_PILOT?.memoryVisible;
+    if(!visitor.hidden&&geometry.visitorPose){const [vx,vy,vs]=geometry.visitorPose,unit=p.scale*vs;
+      Object.assign(visitor.style,{left:(left+p.x+vx*p.scale-56*unit)+'px',top:(top+p.y+vy*p.scale-330*unit)+'px',width:Math.max(44,112*unit)+'px',height:Math.max(44,330*unit+20)+'px'});
+    }
     if(c.cast){
       const [x,y,s]=poses[1],unit=p.scale*s;
       const width=Math.max(44,122*unit),height=Math.max(44,333*unit+26);
@@ -361,7 +375,7 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     const wide=Math.min(geo.w-24,Math.max(325,Math.min(515,295+letters*1.52)));
     if(wide<140||maxHeight<85)return;
     const speaker=dialogue.cast.lines[dialogue.index][0];
-    const speakerIndex=speaker==='Du'?0:1,body=geo.poses[speakerIndex];
+    const speakerIndex=speaker==='Du'?0:1,body=(speakerIndex&&dialogue.isVisitor&&geo.visitorPose)?geo.visitorPose:geo.poses[speakerIndex];
     const p=geo.p,head={x:geo.left+p.x+body[0]*p.scale,
       y:geo.top+p.y+(body[1]-305*body[2])*p.scale};
     panel.dataset.paperRoom='speech';
@@ -434,7 +448,17 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   function startTalk(){
     const c=current();if(!c?.cast||dialogue||voyage)return false;
     // Blue-profile microstories never count as part of assessment.
-    if(c.key==='barnhus'||c.key==='homes'){
+    if(c.key==='barnhus'){
+      // Siri is the established chapter-two host; Cajsa is an additional guest.
+      dialogue={room:interior,cast:{...CAST.barnhus,lines:[
+        ['Du','Hej Siri, hur går det här?'],
+        ['Siri','Vi har mycket att göra, men det är lugnare i staden igen.'],
+        ['Du','Har ni fått besök?'],
+        ['Siri','Ja, Cajsa har kommit hit för att visa några saker om köket. Prata gärna med henne.']
+      ]},index:0};
+      footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
+    }
+    if(c.key==='homes'){
       const side=window.UPPDRAG_CH4_SIDEQUEST?.dialogueFor(c.key);
       dialogue={room:interior,cast:{...c.cast,lines:side?.lines||c.cast.lines},
         index:0,special:side?.action?'side:'+side.action:null,choiceLabel:side?.label};
@@ -499,6 +523,14 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();return true;
   }
   person.addEventListener('click',startTalk);
+  visitor.addEventListener('click',()=>{
+    if(!interior||voyage||current()?.key!=='barnhus'||dialogue
+      ||window.UPPDRAG_CH4_PILOT?.memoryVisible)return;
+    const side=window.UPPDRAG_CH4_SIDEQUEST?.dialogueFor('barnhus');
+    dialogue={room:interior,cast:{...CAST.cajsa,lines:side?.lines||CAST.cajsa.lines},
+      index:0,isVisitor:true};
+    footerInert=roomFooter.inert;roomFooter.inert=true;panel.hidden=false;showLine();
+  });
   bookButton.addEventListener('click',()=>{
     if(dialogue||voyage||!interior||current()?.key!=='print'
       ||window.UPPDRAG_CH4_PILOT?.memoryVisible)return;
