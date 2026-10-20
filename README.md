@@ -1,5 +1,17 @@
 # Uppdrag 1700 · Pappersstaden
 
+## Kapitel 5 – Gustavianska tiden (lärarförhandsvisning, 20 oktober 2026)
+
+[Provspela kapitel 5](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter5-pilot.html?v=2&preview=1). Den vanliga länken [kapitel 5](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter5-pilot.html?v=2) kräver att eleven har avslutat kapitel 4 i **samma webbläsare**. Kapitel 2–4 har nu också lokala spärrar som kräver föregående kapitel; repetitioner bakåt är tillåtna. `preview=1` är en utvecklingsgenväg och **inte säker lärarinloggning**. Använd inte fristående förhandsvisningslänkar som elevdistribution innan en autentiserad klassvis upplåsning finns.
+
+Kapitel 5 bygger på **SOS Historia 4–6 grundboken s. 81–85, arbetsboken uppgift 16–17**. 16 källanknutna fakta återkommer i 49 frågor i tre nivåer (lärling, gesäll, mästare) genom 12 arbetsbesök. Maja introducerar ett nytt kungligt besked. Elin granskar statsvälvningen och maktfördelningen i Riksdagshuset, Amira diskuterar kungliga reformer på Slottet, Brita rättar tryckblad, och Olof förklarar de begränsade förändringarna för människors rättigheter. Daler används endast till ledtrådar och Rut ger äpplen för en ny chans. Eleverna ser inga provhänvisningar eller ordförklaringar som kan avslöja svaret.
+
+**Marstrand:** Carlstens straffarbete visas med en fiktiv fånge, en fångvaktare och en stenhuggare. David Hedenquist finns som explicit dramatiserad *återblick till 1743*, inte som obelagd levande person under Gustav III:s regering. Under frihamnsperioden möter spelaren de dokumenterade invandrarna Moses och Bela Salomon, vars familj kom från Hamburg år 1779, och hamnarbetare och hantverkare. Källor: [Bohusläns museum om Marstrands judiska historia](https://www.bohuslansmuseum.se/kunskapsbanken_bohuslans_historia/hit-seglade-judarna/) och [Statens fastighetsverk om Carlsten](https://www.sfv.se/vara-fastigheter/sverige/vastra-gotalands-lan/carlstens-fastning-marstrand). Inget påhittat personnamn knyts till en obelagd benådning av Gustav III; Lasse-Maja hör till en senare tid.
+
+**Frivilligt sidoäventyr:** En uppdiktad dömd förfalskare lämnar ett brev som spelaren bär från Carlsten till hamnen. Leveransen sparas och syns därefter i miljön, men påverkar inte den egentliga kunskapsträningen, pengar eller låsning av kapitel. Den tidigare kokboksfesten bevaras vid fortsatt spel om den redan har genomförts.
+
+Teknisk kontroll: alla 12 kunskapsstationer har öppnats programmatiskt och de 16 faktasvarens distraktorer har kontrollerats. En simulerad 3-minuterspromenad på båda kartorna (451 mättillfällen per karta) fann inga överlappande personer under 37 världskoordinatenheters centrumavstånd. Det är ingen ersättning för visuell webbläsar- eller elevtestning. Nya kontroller finns i `scripts/chapter-pilot-safety.test.mjs`.
+
 **Status för elevåtkomst (20/10):** Kapitel 4 är fortfarande en fristående utvecklingspilot. Den kan öppnas via webbadressen även utan avklarade tidigare kapitel. Den ska alltså ännu inte delas som elevversion innan både kapitelframsteg och lärarstyrd upplåsning fungerar. Detta är en medvetet dokumenterad kvarstående spärr, inte en genomförd funktion. Bakåtåtkomst och repetition ska finnas kvar. Stadens gångtrafik har nu fått en korrigerad väjningskoppling och separata promenadstråk; den gemensamma kontrollen med 31 figurer och 451 simuleringstillfällen fann inga närpassager under testgränsen, men behöver fortfarande speltestas visuellt.
 
 ## Kapitel 4 – Nya tider, nya tankar (fristående pilot)
