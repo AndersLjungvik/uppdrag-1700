@@ -116,6 +116,20 @@ Object.assign(CAST,{
     ['Du','Måste du ha särskilt tillstånd?'],
     ['Hantverkaren','Just på den här ön gällde ovanliga regler. Därför har jag mer möjlighet att välja yrke.']]}
 });
+// 1772: samma människor återkommer, men staden talar om ett nytt maktläge.
+// Replikerna är dramatiserade, inte ordagranna källcitat.
+Object.assign(CAST,{
+ royalNotice:{id:'royalNotice',name:'En kunglig budbärare',region:'main',x:1000,y:715,r:37,role:'messenger',color:'#7a5145',heading:0,range:12,period:16000,
+ lines:[['Budbäraren','Hör upp! Kungen har tagit makten. En ny regeringsform har antagits!'],['Du','Betyder det att riksdagen inte bestämmer längre?'],['Budbäraren','Kungen har fått större makt. Det märks redan på vilka beslut som fattas.']]},
+ estateCritic:{id:'estateCritic',name:'En bekymrad riksdagsman',region:'main',x:1735,y:1092,r:37,role:'clerk',color:'#716459',heading:0,range:13,period:18100,
+ lines:[['Riksdagsmannen','Förr var det här fullt av folk som diskuterade politik. Nu lyssnar man noga innan man säger något.'],['Du','Tycker du att förändringen är bra?'],['Riksdagsmannen','Jag saknar att ständerna hade mer att säga till om. Men alla håller inte med mig.']]},
+ courtSupport:{id:'courtSupport',name:'En hovtjänare',region:'main',x:818,y:337,r:36,role:'courtier',color:'#8b6955',heading:0,range:10,period:19600,
+ lines:[['Hovtjänaren','Det är bråda dagar på slottet. Kungen vill sätta sin prägel på riket.'],['Du','Vad säger folk på torget?'],['Hovtjänaren','Några jublar åt förändringen. Andra oroar sig. Jag hoppas att det blir ordning och reda.']]}
+});
+CAST.book.lines=[['Bokhandlaren','Folk frågar efter den nya regeringsformen. Jag har knappt några blad kvar.'],['Du','Pratar alla om kungen?'],['Bokhandlaren','Ja, och Brita i tryckeriet är försiktig med vilka texter hon ger ut.']];
+CAST.journal.lines=[['Tidningsläsaren','Jag läser samma kungörelse om och om igen.'],['Du','Vad har hänt?'],['Tidningsläsaren','Kungen har tagit mer makt. En del tycker att det är bra. Jag vill veta vad det betyder för oss.']];
+CAST.flyer.lines=[['Lärlingen','Jag bär ut en kungörelse från tryckeriet till torget.'],['Du','Vad handlar den om?'],['Lärlingen','Om den nya regeringsformen. Folk stannar mig överallt för att få höra.']];
+
 const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
 // Visual camp sites are dramatized placements on this game's map, not claims
 // about documented barracks at these precise addresses.
