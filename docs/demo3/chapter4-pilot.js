@@ -565,6 +565,7 @@ function resetChapter(){
  if(!confirm('Börja om kapitel 4 från Maja på Kaffehuset?'))return;
  window.UPPDRAG_MEETINGS?.close?.(false);
  s=fresh();
+ window.UPPDRAG_CH4_SIDEQUEST?.reset?.();
  persist();closePanel();dismiss=-1;was='';drawHud();go();
 }
 hud.addEventListener('click',e=>{
