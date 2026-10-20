@@ -80,7 +80,7 @@
     :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice::before,
     :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice::after{content:none!important;display:none!important;}
     :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice:hover{text-decoration:underline;text-underline-offset:4px;}
-    :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice:focus-visible{outline:none;text-decoration:underline;text-underline-offset:4px;}
+    :is(#placeBubble,#rutPanel,#storyBubble)[data-paper-room] .thoughtChoice:focus-visible{outline:none;text-decoration:none;background:#eee6d68c!important;}
     :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room]:focus{outline:none;}
     :is(#placeBubble,#rutPanel,#meetingDialogue,#storyBubble)[data-paper-room].speech{cursor:pointer;}
     #placeThoughts:has(#placeBubble.speech:focus-visible) #placeTail .worldSpeechPaper,
