@@ -98,13 +98,17 @@ function tick(){
   }
   lastRoom=room;
 }
+function reset(){
+  save={version:1,phase:'unfound',leftHome:false};
+  lastRoom=null;persist();return true;
+}
 window.UPPDRAG_CH4_SIDEQUEST={
   get phase(){return save.phase;},
   get hasBook(){return save.phase==='carrying';},
   get party(){return save.phase==='feast';},
   get leftHome(){return save.leftHome;},
   get bookTitle(){return book;},
-  dialogueFor:lines,accept,tick,saveKey:KEY,
+  dialogueFor:lines,accept,tick,reset,saveKey:KEY,
   // Testing hook reads a snapshot, never a mutable reference.
   snapshot(){return {...save};}
 };
