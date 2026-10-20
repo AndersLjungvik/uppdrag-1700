@@ -14,10 +14,10 @@ function content(name,id){
   vm.runInNewContext(read(name),{window},{filename:name,timeout:3000});
   return window[id];
 }
-const names={cafe:'Maja',print:'Brita',riksdag:'Elin',barnhus:'Siri',church:'Olof',quay:'Jo',archive:'Rut',science:'Sam',farm:'Sigrid',homes:'Karin'};
+const names={cafe:'Maja',print:'Brita',riksdag:'Elin',palace:'Amira',barnhus:'Siri',church:'Olof',quay:'Jo',archive:'Rut',science:'Sam',farm:'Sigrid',homes:'Karin'};
 
 test('only daler buy memory hooks; only Rut apples buy another attempt',()=>{
-  for(let i=1;i<=4;i++){
+  for(let i=1;i<=5;i++){
     const source=read('chapter'+i+'-pilot.js');
     assert.match(source,/if\(currency!=='daler'\|\|s\.daler<1\)/,'Chapter '+i+' missing daler gate');
     assert.match(source,/if\(kind!=='apple'\|\|s\.apples<1\)/,'Chapter '+i+' missing apple gate');
@@ -28,7 +28,7 @@ test('only daler buy memory hooks; only Rut apples buy another attempt',()=>{
 });
 
 test('exam provenance and answer-giving word buttons never reach pupil UI',()=>{
-  for(let i=1;i<=4;i++){
+  for(let i=1;i<=5;i++){
     const source=read('chapter'+i+'-pilot.js');
     assert.doesNotMatch(source,/Förklara ord|Nytt prov|Lämna minnesprovet|Frågor med alternativ registreras|h\+='<small>(Grundboken|Källa:)/,'Chapter '+i+' leaks assessment material');
   }
@@ -45,7 +45,7 @@ test('exam provenance and answer-giving word buttons never reach pupil UI',()=>{
 });
 
 test('the original, gender-consistent people stay in their rooms',()=>{
-  for(let i=1;i<=4;i++){
+  for(let i=1;i<=5;i++){
     const source=read('meeting-ch'+i+'-pilot.js');
     for(const key of ['cafe','print','riksdag']){
       assert.ok(source.includes(key+":{name:'"+names[key]+"'"),'Chapter '+i+': '+key+' host has changed');
@@ -53,7 +53,7 @@ test('the original, gender-consistent people stay in their rooms',()=>{
     if(i>=2)assert.ok(source.includes("barnhus:{name:'Siri'"),'Chapter '+i+' replaced Siri');
     assert.doesNotMatch(source,/\b(?:Erik|Lars)\b/,'Chapter '+i+' introduced a conflicting room host');
   }
-  for(const n of [3,4]){
+  for(const n of [3,4,5]){
     const bank=content('chapter'+n+'-content.js','UPPDRAG_CH'+n+'_CONTENT');
     for(const run of bank.runs){
       assert.equal(run.who,names[run.p],'Chapter '+n+' host mismatch at '+run.p);
@@ -64,7 +64,7 @@ test('the original, gender-consistent people stay in their rooms',()=>{
 });
 
 test('spoken speech remains legible and never underlines on Space focus',()=>{
-  for(const n of [3,4]){
+  for(const n of [3,4,5]){
     const s=read('chapter'+n+'-street-life.js');
     assert.match(s,/#ch3StreetDialogue:focus-visible \.ch3Words\{text-decoration:none\}/);
     assert.doesNotMatch(s,/#ch3StreetDialogue:focus-visible \.ch3Words\{text-decoration:underline/);
@@ -81,7 +81,7 @@ test('the peaceful city restores full animals and independently moving neighbour
   for(const id of ['linne','celsius','ekeblad','dalarna','elisabet','cook','baker','flyer','child','carrier','sailor','washer','smith','basket']){
     assert.ok(street.includes(id+":{id:'"+id+"'"),'Missing resident '+id);
   }
-  assert.ok(read('chapter4-pilot.html').includes('world-life-ch4.js?v=1'));
+  assert.match(read('chapter4-pilot.html'),/world-life-ch4\.js\?v=\d+/);
 });
 
 test('the festival remains optional and chapter four imports only existing scripts',()=>{
@@ -89,7 +89,7 @@ test('the festival remains optional and chapter four imports only existing scrip
   assert.match(side,/phase='delivered'/);
   assert.match(side,/phase='feast'/);
   assert.doesNotMatch(side,/s\.apples\+\+|s\.daler\+\+|UPPDRAG_CH4_PILOT\.state\.[a-z]+\s*=/);
-  for(const chapter of [1,2,3,4]){
+  for(const chapter of [1,2,3,4,5]){
     const html=read('chapter'+chapter+'-pilot.html');
     for(const [,name] of html.matchAll(/<script[^>]+src="([^"]+)"/g)){
       assert.ok(existsSync(resolve(base,name.split('?')[0])),'Missing '+name+' in chapter '+chapter);
@@ -122,4 +122,71 @@ test('chapter four citizens and background population avoid bunching on the real
       assert.ok(gap>=37,'Overlapping pedestrians at t='+now+'ms: '+all[i].id+'/'+all[j].id+' gap '+gap);
     }
   }
+});
+
+
+test('chapter five stores separate three-rank work and respects earlier work',()=>{
+ const data=content('chapter5-content.js','UPPDRAG_CH5_CONTENT');
+ assert.equal(Object.keys(data.facts).length,16);
+ assert.equal(data.runs.length,13);
+ assert.ok(data.runs.some(r=>r.p==='riksdag'&&r.who==='Elin'));
+ assert.ok(data.runs.some(r=>r.p==='palace'&&r.who==='Amira'));
+ for(let rank=0;rank<3;rank++){
+  const jobs=data.runs.filter(r=>r.r===rank&&r.f.length);
+  assert.ok(jobs.length>=4,'Missing rank '+rank);
+  for(const job of jobs)for(const id of job.f)assert.ok(data.facts[id],id+' missing');
+ }
+ for(const [id,fact] of Object.entries(data.facts)){
+  assert.equal(fact.q.length,3,id);
+  for(const q of fact.q){
+   assert.equal(q.toLocaleLowerCase('sv-SE').includes(fact.a.toLocaleLowerCase('sv-SE')),false,id+' reveals answer');
+   assert.doesNotMatch(q,/\bprov(fr[åa]ga|underlag|ets)?\b/i,'No exam references allowed');
+  }
+  assert.doesNotMatch(data.explanations[id].join(' '),/bedömningsstöd|prov del|facit/i,id);
+ }
+ const page=read('chapter5-pilot.html');
+ assert.match(page,/chapter5Gate/);
+ assert.match(page,/chapter4-pilot.html/);
+ assert.match(page,/chapter5-marstrand-letter\.js/);
+ const unlock=read('chapter-access-pilot.js');
+ for(const id of [2,3,4])assert.ok(unlock.includes(id+":'uppdrag1700.ch"+(id-1)),'Chapter '+id+' needs prerequisite');
+ const c3=read('chapter3-pilot.html');
+ assert.doesNotMatch(c3,/<a class="chapterNext"[^>]*>/,'Forward link before completion');
+ assert.match(read('chapter4-pilot.js'),/chapter5-pilot\.html/);
+});
+
+test('Marstrand combines actual freeport settlers with fictional convicts and 1743 recollection',()=>{
+ const s=read('chapter5-street-life.js');
+ for(const id of ['david','warden','prisoner','mason','moses','bela','wharf','craft'])
+  assert.ok(s.includes(id+":{id:'"+id+"'"),'Missing Marstrand NPC '+id);
+ assert.match(s,/minnesbild från 1743/);
+ assert.match(s,/Vår familj kom från Hamburg år 1779/);
+ assert.doesNotMatch(s,/benådad av Gustav III/);
+ const side=read('chapter5-marstrand-letter.js');
+ for(const phase of ['waiting','carrying','delivered'])assert.ok(side.includes("'"+phase+"'"));
+ assert.doesNotMatch(side,/s\.daler\+\+|s\.apples\+\+|UPPDRAG_CH5_PILOT\.state\.[a-z]+\s*=/);
+});
+
+test('Gustavian townspeople and Marstrand citizens avoid crowding on the real map',()=>{
+ const html=read('chapter5-pilot.html');
+ const segment=html.slice(html.indexOf('const N=(id,x,y)'),html.indexOf('const REGIONS={'));
+ assert.ok(segment.startsWith('const N=')&&segment.includes('MARSTRAND'));
+ const regions=vm.runInNewContext(segment+';({MAIN,MARSTRAND})');
+ for(const r of Object.values(regions))r.map=new Map(r.nodes.map(n=>[n.id,n]));
+ let now=0;
+ const win={matchMedia:()=>({matches:false,addEventListener(){}}),addEventListener(){}};
+ const mk=(id='')=>({id,hidden:false,style:{},dataset:{},setAttribute(){},addEventListener(){},focus(){},
+  append(){},querySelector(k){return mk(k)}});
+ const doc={getElementById:()=>mk('stage'),createElement:mk,head:{append(){}}};
+ vm.runInNewContext(read('living-conversation-data.js'),{window:win});
+ vm.runInNewContext(read('world-life-ch5.js'),{window:win});
+ vm.runInNewContext(read('chapter5-street-life.js'),{window:win,document:doc,performance:{now:()=>now}});
+ for(const r of Object.values(regions))for(now=0;now<=180000;now+=400){
+  win.UPPDRAG_WORLD_LIFE.tick(now,{region:r,player:r.map.get(r.start)});
+  const all=[...win.UPPDRAG_WORLD_LIFE.people(r),...win.UPPDRAG_CH5_CITY_LIFE.people(r)];
+  for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++){
+   const gap=Math.hypot(all[i].x-all[j].x,all[i].y-all[j].y);
+   assert.ok(gap>=37,'Crowding at '+r.id+'/'+now+': '+all[i].id+'/'+all[j].id+' '+gap);
+  }
+ }
 });
