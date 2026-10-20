@@ -18,6 +18,33 @@ const CAST={
  grower:{id:'grower',name:'En odlare',region:'main',x:3295,y:905,r:35,role:'grower',color:'#967c60',heading:0,range:22,period:11000,
   lines:[['Odlaren','Potatisen kan användas till mer än vi först trodde.'],['Du','Vem har provat det?'],['Odlaren','Sigrid i Byn kan berätta vad hon läst om Eva Ekeblad.']]}
 };
+Object.assign(CAST,{
+ linne:{id:'linne',name:'Carl von Linné',region:'main',x:287,y:1053,r:39,role:'linnaeus',color:'#62765f',heading:0,range:21,period:17000,
+  lines:[['Linné','Här växer något intressant. Jag vill jämföra bladen med andra växter.'],
+  ['Du','Varför gör du det?'],['Linné','Jag ordnar växter och djur i grupper, med namn som forskare kan känna igen.'],
+  ['Du','Varför skriver du på latin?'],['Linné','Det hjälper forskare i olika länder att tala om samma växt.']]},
+ celsius:{id:'celsius',name:'Anders Celsius',region:'main',x:1140,y:328,r:37,role:'scientist',color:'#617984',heading:0,range:17,period:15500,
+  lines:[['Celsius','Är det kallt i dag? Det kan vi pröva att mäta.'],
+  ['Du','Varför är en temperaturskala bra?'],['Celsius','Då kan vi beskriva och jämföra våra mätningar i stället för att gissa.']]},
+ ekeblad:{id:'ekeblad',name:'Eva Ekeblad',region:'main',x:2531,y:300,r:38,role:'visitor',woman:true,color:'#89775e',heading:0,range:20,period:17500,
+  lines:[['Eva Ekeblad','Jag ville undersöka vad man kan göra av potatis.'],
+  ['Du','Mer än att äta den?'],['Eva Ekeblad','Jag visade bland annat hur potatis kunde användas till mjöl och brännvin.'],
+  ['Du','Hur fick andra veta?'],['Eva Ekeblad','Jag berättade om mina försök för Vetenskapsakademien.']]},
+ dalarna:{id:'dalarna',name:'Bönder från Dalarna',region:'main',x:2428,y:300,r:51,role:'potato-farmers',color:'#8d755b',heading:0,range:12,period:16500,
+  lines:[['En bonde','Nu har vi fått ett nytt potatisland att sköta.'],
+  ['Du','Var det ni som protesterade?'],['Bonden','I vårt äventyr har några återvänt till jordbruket, men minnet av upproret finns kvar.'],
+  ['Bonden','Nu ska potatisen växa. Vi gräver och bär korgar hela dagen.']]},
+ elisabet:{id:'elisabet',name:'Elisabet Nilsdotter',region:'main',x:1112,y:634,r:39,role:'greycoat',woman:true,color:'#86847e',heading:0,range:13,period:16500,
+  lines:[['Elisabet Nilsdotter','Se min enkla grå kolt. Vi kallas gråkoltarna.'],
+  ['Du','Varför står du utanför kyrkan?'],
+  ['Elisabet Nilsdotter','Vi läser Bibeln själva och tänker annorlunda om tro och arbete än prästerna.'],
+  ['Du','Vad säger de som bestämmer?'],
+  ['Elisabet Nilsdotter','Myndigheterna har ingripit mot oss. Några av oss har fängslats för vår övertygelse.'],
+  ['Elisabet Nilsdotter','Vem ska få bestämma över en människas tro?']]},
+ cook:{id:'cook',name:'En granne',region:'main',x:3050,y:706,r:34,role:'neighbor',woman:true,color:'#98785e',heading:0,range:19,period:12300,
+  lines:[['Grannen','Har du hört om Cajsa Wargs kokbok?'],
+  ['Du','Var hittar jag den?'],['Grannen','Brita i Tryckeriet har ett exemplar. Karin i Bostadskvarteren vill gärna ha den.']]}
+});
 const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
 // Visual camp sites are dramatized placements on this game's map, not claims
 // about documented barracks at these precise addresses.
@@ -113,16 +140,15 @@ function nearest(region,player,range=120){
  return talkingTargets(region).map(a=>({...a,distance:Math.hypot(a.x-player.x,a.y-player.y)}))
   .filter(a=>a.distance<=range).sort((a,b)=>a.distance-b.distance)[0]||null;
 }
-const ponderings=new Map((window.UPPDRAG_LIVING_CONTENT?.ponderings||[]).map(entry=>[entry.id,entry.text]));
+const everyday=['Jag ska hämta ved till kvällen.','Har du sett potatislandet vid Barnhuset?',
+  'Min granne har lärt sig läsa fler ord.','Vad är nytt hos tryckaren i dag?',
+  'Det doftar bröd från bostadskvarteren.','En naturforskare gick förbi med en korg blommor.',
+  'Vi hoppas kunna laga något gott i kväll.','Staden känns lite lugnare.',
+  'Hunden mötte mig i morse. Nu går den stilla.','Det finns mycket att upptäcka om man tittar noga.'];
 function humanThought(a){
- const options=(a.ponderings||[]).map(id=>{
-   // Two old-demo thoughts belong to Gustav III's later era, not the 1740s.
-   if(id==='tanke-kungen')return 'På torget bråkar folk om vem som ska bli nästa kung.';
-   if(id==='tanke-maskerad')return 'Det sägs att kriget med Ryssland slutade illa. Vad händer nu?';
-   return ponderings.get(id);
- }).filter(Boolean);
- const index=encounterCounts.get(a.sourceId)||0;
- return options.length?options[index%options.length]:a.introduction||'Det är oroligt i staden i dag.';
+  const key=String(a.sourceId||a.name||'stadsbo');
+  const seed=[...key].reduce((n,ch)=>(n*37+ch.charCodeAt(0))>>>0,29);
+  return everyday[(seed+(encounterCounts.get(a.sourceId)||0))%everyday.length];
 }
 function story(actor){
   if(actor.role==='civil')return [['Du','Hej!'],[actor.name,humanThought(actor)]];
@@ -196,8 +222,8 @@ function hold(actor){
 }
 function shortThought(actor){
  if(actor.role==='dog')return 'Voff!';
- if(actor.role==='farmer')return 'Ner med skatterna! Nog med krig!';
- if(actor.role==='soldier')return 'Jag vill inte skjuta mot bönderna!';
+ if(actor.role==='potato-farmers')return 'Vi ska sätta mer potatis!';
+ if(actor.role==='greycoat')return 'Jag vill få tänka fritt om min tro.';
  const raw=actor.role==='civil'?humanThought(actor):
    (story(actor).find(line=>line[0]!=='Du')||[])[1]||'';
  const first=raw.match(/^.{1,85}?(?:[.!?](?=\s|$)|$)/)?.[0]||raw.slice(0,85);
@@ -303,7 +329,7 @@ function cap(ctx,a){
 }
 function drawFigure(ctx,a,now,scale=1){
  ctx.save();ctx.translate(a.x,a.y);ctx.scale(scale,scale);ctx.translate(-a.x,-a.y);
- const who={color:a.color,woman:false};
+ const who={color:a.color,woman:!!a.woman,role:a.role};
  if(window.UPPDRAG_MEETINGS?.drawMapPerson){
   window.UPPDRAG_MEETINGS.drawMapPerson(ctx,{x:a.x,y:a.y,heading:a.heading,animationTime:now,moving:!!a.moving},who,now);
  }else{
@@ -313,6 +339,30 @@ function drawFigure(ctx,a,now,scale=1){
  cap(ctx,a);ctx.restore();
 }
 function drawGroup(ctx,a,now){
+  if(a.id==='dalarna'){
+    const bend=reduced?.matches?0:Math.sin(now/1400)*1.4;
+    for(const [i,dx] of [-31,31].entries()){
+      drawFigure(ctx,{...a,x:a.x+dx,y:a.y+(i?7:-9)+bend,
+        color:i?'#9a8162':'#716957',moving:false},now,.80);
+    }
+    paper(ctx,[[a.x+28,a.y+12],[a.x+50,a.y+11],[a.x+48,a.y+19],[a.x+29,a.y+19]],'#a78a69');
+    paper(ctx,[[a.x-42,a.y-23],[a.x-38,a.y-23],[a.x-29,a.y+19],[a.x-33,a.y+19]],'#7b634b');
+    drawFigure(ctx,a,now,.87);return;
+  }
+  if(a.id==='linne'){
+    drawFigure(ctx,a,now);paper(ctx,[[a.x-22,a.y-20],[a.x+5,a.y-23],[a.x+9,a.y-5],[a.x-16,a.y-4]],'#eee3cd');
+    paper(ctx,[[a.x-14,a.y-15],[a.x-2,a.y-14],[a.x-5,a.y-10]],'#758d63');return;
+  }
+  if(a.id==='elisabet'){
+    drawFigure(ctx,a,now);paper(ctx,[[a.x-10,a.y-3],[a.x+10,a.y-7],[a.x+23,a.y+19],[a.x-23,a.y+17]],'#898781');return;
+  }
+  if(a.id==='ekeblad'){
+    drawFigure(ctx,a,now);paper(ctx,[[a.x-25,a.y+5],[a.x+3,a.y+4],[a.x+7,a.y+20],[a.x-26,a.y+20]],'#d6c19a');return;
+  }
+  if(a.id==='celsius'){
+    drawFigure(ctx,a,now);paper(ctx,[[a.x+17,a.y-22],[a.x+23,a.y-22],[a.x+23,a.y+8],[a.x+17,a.y+8]],'#f2ead6');return;
+  }
+
  if(a.id==='farmers'){
   // Ragged marching order: shouting gestures and paper staffs, not a solid block.
   const elapsed=Math.max(0,now-enteredAt);
@@ -462,6 +512,12 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
  // People introduce a theme, but retrieval stays at the chapter workstations.
 }
 window.UPPDRAG_CH4_CITY_LIFE={people,find,hit,nearest,open,close,suspend,next,draw,phase,stationedCamps,hold,releaseHold,
- obstacles,get active(){return !!active},get teaser(){return teaser?.id||null},get actor(){return active?.id||null},
+ obstacles,portraitReferences:{
+    linne:'Arbetsboken s. 29, uppgift 13–14; grundboken s. 75–80',
+    celsius:'Arbetsboken s. 29, uppgift 13; grundboken s. 75–80',
+    ekeblad:'Arbetsboken s. 30, uppgift 15; grundboken s. 75–80',
+    elisabet:'Gråkoltarna 1730-talets Stockholm, dramatiserad replik, ej facit',
+    dalarna:'Fiktiv fortsättning efter kapitel 3'
+  },get active(){return !!active},get teaser(){return teaser?.id||null},get actor(){return active?.id||null},
  get lines(){return active?.lines||[]},get talkers(){return viewport?.region?talkingTargets(viewport.region):[]}};
 })();
