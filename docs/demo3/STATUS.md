@@ -1,5 +1,12 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
+## Kapitel 4 – fristående pilot, 20 oktober 2026
+
+[Kapitel 4: Nya tider, nya tankar](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter4-pilot.html?v=1) vidareutvecklar [kapitel 3](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter3-pilot.html?v=4), utan att ändra den ordinarie Demo 3.21. Källanknutna fakta hämtas från `curriculum/classroom.mjs`, kapitel 4. 17 fakta återkommer i 47 frågor över 12 arbetsbesök (lärling/gesäll/mästare) och ett första introduktionsmöte hos Maja. Aktiva uppdragsplatser: Tryckeriet, Kyrkan, Vetenskapens hus och Byn. Repetitioner hos Rut kan blanda lärdomar från tidigare kapitel.
+
+Pratbubblorna har fått sin synliga streckade dekorkant borttagen. Hundarna har sänkt fart, minimal gånganimation och vänder med kort paus vid hinder eller figurer. Koden i nya script och sidans inline-skript syntaxkontrollerades 20/10. Frågebankens samtliga nivåer, svarsalternativ samt programmatisk öppning av 12 arbetsbesök passerade. Inte visuellt provad i riktig webbläsare; länken kräver normal GitHub Pages-publicering.
+
+
 Uppdaterad 19 oktober 2026. Aktuell arbetsversion är **Demo 3.21 – En tydlig väg genom kapitlets uppdrag**.
 
 ## Börja här
