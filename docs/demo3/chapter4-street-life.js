@@ -5,13 +5,13 @@
 'use strict';
 const stage=document.getElementById('stage');if(!stage)return;
 const CAST={
- book:{id:'book',name:'En bokhandlare',region:'main',x:590,y:710,r:35,role:'bookseller',color:'#837058',heading:0,range:27,period:8200,
+ book:{id:'book',name:'En bokhandlare',region:'main',x:508,y:710,r:35,role:'bookseller',color:'#837058',heading:0,range:25,period:8200,
   lines:[['Bokhandlaren','I tryckeriet har de fått nya blad!'],['Du','Vad handlar de om?'],['Bokhandlaren','Om vem som får sprida tryckta texter. Gå till Brita och fråga!']]},
  teacher:{id:'teacher',name:'En lärare',region:'main',x:1110,y:588,r:35,role:'teacher',color:'#726c56',heading:0,range:17,period:9600,
   lines:[['Läraren','Det är fler som kan läsa nu.'],['Du','Vem såg till att barnen lärde sig?'],['Läraren','Olof i Kyrkan kan berätta om de gamla läsböckerna.']]},
  botanist:{id:'botanist',name:'En naturforskare',region:'main',x:1380,y:310,r:35,role:'botanist',color:'#6d7d68',heading:0,range:24,period:12100,
   lines:[['Naturforskaren','Titta så många växter som går att ordna och jämföra!'],['Du','Var finns anteckningarna?'],['Naturforskaren','Sam i Vetenskapens hus sorterar forskarnas fynd.']]},
- journal:{id:'journal',name:'En tidningsläsare',region:'main',x:1270,y:710,r:35,role:'reader',color:'#94806b',heading:0,range:29,period:10600,
+ journal:{id:'journal',name:'En tidningsläsare',region:'main',x:1187,y:710,r:35,role:'reader',color:'#94806b',heading:0,range:25,period:10600,
   lines:[['Tidningsläsaren','Jag tycker om att kunna läsa hur de styrande har beslutat.'],['Du','Varför är det viktigt?'],['Tidningsläsaren','Då kan vi upptäcka vad som faktiskt står i papperen.']]},
  chemist:{id:'chemist',name:'En apotekarlärling',region:'main',x:2710,y:705,r:35,role:'chemist',color:'#6b776f',heading:0,range:27,period:8700,
   lines:[['Apotekarlärlingen','På mitt bord finns flaskor, glas och många frågor om luften.'],['Du','Är det forskarnas arbete?'],['Apotekarlärlingen','Det stämmer! Sam i Vetenskapens hus kan mer om Scheele.']]},
@@ -48,21 +48,21 @@ Object.assign(CAST,{
 // After the crisis, people travel between ordinary errands again.
 // These added walkers use the existing road motion and gentle conversations.
 Object.assign(CAST,{
- baker:{id:'baker',name:'Bagaren',region:'main',x:444,y:705,r:32,role:'baker',color:'#a48468',heading:0,range:78,period:24500,
+ baker:{id:'baker',name:'Bagaren',region:'main',x:172,y:705,r:32,role:'baker',color:'#a48468',heading:0,range:42,period:24500,
    lines:[['Bagaren','Det är snart dags att sätta in nästa bröd.'],['Du','Luktar det alltid så gott här?'],['Bagaren','När ugnen är varm, ja! Jag får gå tillbaka till degen.']]},
- flyer:{id:'flyer',name:'En ung lärling',region:'main',x:790,y:710,r:32,role:'printer',color:'#706e5b',heading:0,range:84,period:30200,
+ flyer:{id:'flyer',name:'En ung lärling',region:'main',x:1723,y:710,r:32,role:'printer',color:'#706e5b',heading:0,range:74,period:30200,
    lines:[['Lärlingen','Jag bär färdiga blad mellan tryckeriet och torget.'],['Du','Blir inte armarna trötta?'],['Lärlingen','Jo, men jag tycker om att folk läser dem.']]},
- child:{id:'child',name:'Ett barn',region:'main',x:1038,y:705,r:34,role:'child',color:'#789078',heading:0,range:54,period:13700,
+ child:{id:'child',name:'Ett barn',region:'main',x:916,y:705,r:34,role:'child',color:'#789078',heading:0,range:42,period:13700,
    lines:[['Barnet','Ska du också gå till torget?'],['Du','Ja, vad händer där?'],['Barnet','En dam läser högt ur en bok. Jag vill lyssna!']]},
  carrier:{id:'carrier',name:'En lastbärare',region:'main',x:1465,y:708,r:35,role:'porter',color:'#8d7760',heading:0,range:68,period:33700,
    lines:[['Lastbäraren','Jag ska lämna den här korgen innan det blir kväll.'],['Du','Vad ligger i den?'],['Lastbäraren','Tyger till en familj som väntat länge.']]},
  sailor:{id:'sailor',name:'En sjöman',region:'main',x:1297,y:1047,r:34,role:'sailor',color:'#657b7b',heading:0,range:69,period:27900,
    lines:[['Sjömannen','Vi har just burit iland flera lådor.'],['Du','Kom de långt bortifrån?'],['Sjömannen','En del av varorna har seglat över stora hav.']]},
- washer:{id:'washer',name:'En tvätterska',region:'main',x:2375,y:705,r:35,role:'laundry',woman:true,color:'#958373',heading:0,range:48,period:18000,
+ washer:{id:'washer',name:'En tvätterska',region:'main',x:2240,y:705,r:35,role:'laundry',woman:true,color:'#958373',heading:0,range:28,period:18000,
    lines:[['Tvätterskan','Jag ska lämna rent linne och sedan hämta mer ved.'],['Du','Har du mycket att göra?'],['Tvätterskan','Ja, men i dag hinner jag nog dricka en kopp kaffe också.']]},
  smith:{id:'smith',name:'En hantverkare',region:'main',x:2870,y:705,r:34,role:'smith',color:'#736f65',heading:0,range:50,period:23000,
    lines:[['Hantverkaren','Jag har lagat ett trasigt gångjärn.'],['Du','Var ska det sitta?'],['Hantverkaren','På en av dörrarna här i kvarteren.']]},
- basket:{id:'basket',name:'En kvinna med korg',region:'main',x:3190,y:705,r:34,role:'basket',woman:true,color:'#8e755d',heading:0,range:38,period:31000,
+ basket:{id:'basket',name:'En kvinna med korg',region:'main',x:3425,y:705,r:34,role:'basket',woman:true,color:'#8e755d',heading:0,range:46,period:31000,
    lines:[['Kvinnan','Nu ska grönsakerna hem till köket.'],['Du','Vad blir det för mat?'],['Kvinnan','Vi får se. Någon har lånat en ny kokbok!']]}
 });
 const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
