@@ -17,11 +17,11 @@
       ['Du','Vad sitter på anslagstavlan?'],
       ['Maja','Där samlar vi sådant som är värt att läsa och prata om.']
     ]},
-    print:{name:'Lars',color:'#7b6752',role:'lars',lines:[['Du','Hej, Lars!'],['Lars','Jag läser om Stora daldansen.']]},
+    print:{name:'Brita',color:'#6e6b5b',woman:true,apron:true,role:'brita',lines:[['Du','Hej, Brita!'],['Brita','Jag läser om Stora daldansen.']]},
     palace:{name:'Amira',color:'#846956',woman:true,role:'amira',lines:[['Du','Hej!'],['Amira','Välkommen till slottet.']]},
     barnhus:{name:'Siri',color:'#937056',woman:true,role:'siri',lines:[['Du','Hej, Siri!'],['Siri','Välkommen till Barnhuset.']]},
     church:{name:'Olof',color:'#6f6956',role:'olof',lines:[['Du','Hej, Olof!'],['Olof','Välkommen till kyrkan. Jag är klockaren.']]},
-    riksdag:{name:'Erik',color:'#665d54',role:'erik',lines:[['Du','Hej, Erik!'],['Erik','Jag skriver protokoll här på riksdagen.']]},
+    riksdag:{name:'Elin',color:'#6b7461',woman:true,role:'elin',lines:[['Du','Hej, Elin!'],['Elin','Jag skriver protokoll här på riksdagen.']]},
     archive:{name:'Rut',color:'#67695a',woman:true,role:'rut',lines:[
       ['Du','Hej! Jag letar efter Rut.'],
       ['Rut','Då har du kommit rätt. Jag är läromästaren Rut. Här undersöker vi vad handlingarna faktiskt berättar.'],
@@ -96,8 +96,8 @@
   roomView.append(layer,person,dialogueTail,panel);
   const placeLabel=document.createElement('span');placeLabel.id='ch1RoomIdentity';placeLabel.hidden=true;
   roomView.querySelector('.room-top')?.append(placeLabel);
-  const roomLabels={cafe:'Majas kaffebord',riksdag:'Eriks protokoll',
-    quay:'Jos krigsbrev',print:'Lars tryckblad',archive:'Ruts bokhyllor'};
+  const roomLabels={cafe:'Majas kaffebord',riksdag:'Elins protokoll',
+    quay:'Jos krigsbrev',print:'Brita tryckblad',archive:'Ruts bokhyllor'};
   function showRoomIdentity(key){
     const caption=roomLabels[key]||'';
     placeLabel.textContent=caption;
@@ -382,24 +382,24 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
   // The player notices the trouble before the NPC asks for recall.
   function memoryPrelude(place,step){
     if(place==='riksdag')return step===1
-      ?[['Du','Erik! Maja sa att dina papper är en enda röra.'],['Erik','Hattar och mössor ... nu blandar jag ihop dem!']]
+      ?[['Du','Elin! Maja sa att dina papper är en enda röra.'],['Elin','Hattar och mössor ... nu blandar jag ihop dem!']]
       :step===4
-      ?[['Du','Har du fått ordning på protokollen?'],['Erik','Nästan! Men minns jag det utan att kika?']]
-      :[['Du','Är allt klart med hattarna och mössorna?'],['Erik','Någon har skrivit tvärtom här. Det kan inte stämma!']];
+      ?[['Du','Har du fått ordning på protokollen?'],['Elin','Nästan! Men minns jag det utan att kika?']]
+      :[['Du','Är allt klart med hattarna och mössorna?'],['Elin','Någon har skrivit tvärtom här. Det kan inte stämma!']];
     if(place==='quay')return step===2
       ?[['Du','Jo! Har nyheterna från kriget nått kajen?'],['Jo','Ett fartyg kom med ett brev. Men vad var det nu där stod?']]
       :step===5
       ?[['Du','Hur gick det med brevet, Jo?'],['Jo','Kan jag berätta vad som hände utan att kika?']]
       :[['Du','Jo, är det något konstigt i brevet?'],['Jo','Ja, något är galet. Jag behöver ditt minne igen.']];
     if(place==='print')return step===3
-      ?[['Du','Hej Lars! Vad står i tryckbladet?'],['Lars','Det handlar om bönderna från Dalarna. Jag får inte ihop allt.']]
+      ?[['Du','Hej Brita! Vad står i tryckbladet?'],['Brita','Det handlar om bönderna från Dalarna. Jag får inte ihop allt.']]
       :step===6
-      ?[['Du','Har du lagt undan bladet nu?'],['Lars','Ja ... Stora daldansen. Jag har det nästan på tungan!']]
-      :[['Du','Är det fel i berättelsen, Lars?'],['Lars','Ja. Vi får rätta den innan någon tar den för sann.']];
+      ?[['Du','Har du lagt undan bladet nu?'],['Brita','Ja ... Stora daldansen. Jag har det nästan på tungan!']]
+      :[['Du','Är det fel i berättelsen, Brita?'],['Brita','Ja. Vi får rätta den innan någon tar den för sann.']];
     return [['Du','Hej!']];
   }
   function memoryAfter(place){
-    const who=place==='riksdag'?'Erik':place==='quay'?'Jo':'Lars';
+    const who=place==='riksdag'?'Elin':place==='quay'?'Jo':'Brita';
     const reply=place==='riksdag'?'Nu vet jag! Så skönt att minnas igen.'
       :place==='quay'?'Där satt det! Nu kan jag berätta för skepparna.'
       :'Tack! Nu minns jag Stora daldansen igen.';
