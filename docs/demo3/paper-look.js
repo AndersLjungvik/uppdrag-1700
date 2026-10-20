@@ -130,12 +130,14 @@ window.UPPDRAG_PAPER = (() => {
     g.fillStyle=material(g,r.island?'water':'ground');g.fillRect(0,0,r.w,r.h);
     if(r.island)piece(g,r.island,r.id==='colony'?'sand':'ground',{edge:true});
     else for(const p of r.water)piece(g,p,'water',{edge:true});
+    window.UPPDRAG_WORLD_GROWTH?.paintFields?.(g,r);
     for(const e of r.edges)road(g,r.map.get(e.a),r.map.get(e.b),e.w);
     for(const p of r.plazas){g.beginPath();g.arc(p.x,p.y,p.r,0,Math.PI*2);g.fillStyle=material(g,'paper');g.fill();}
     for(const b of r.bridges){box(g,b.x,b.y,b.w,b.h,'olive',{shadow:true});
       for(let x=b.x+6;x<b.x+b.w-7;x+=19)box(g,x,b.y+6,12,b.h-12,'ochre');
       box(g,b.x,b.y,b.w,5,'slate');box(g,b.x,b.y+b.h-5,b.w,5,'slate');}
     for(const b of r.buildings)drawBuilding(g,b,r);
+    window.UPPDRAG_WORLD_GROWTH?.paintBuildings?.(g,r);
     // No prop is put over a graph edge or a building entrance.
     for(let i=0;i<(r.id==='main'?65:26);i++){
       const x=70+(i*173)%(r.w-140),y=70+(i*229)%(r.h-140);
