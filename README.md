@@ -2,7 +2,19 @@
 
 ## Kapitel 4 – Nya tider, nya tankar (fristående pilot)
 
-[Spela kapitel 4 i den befintliga pappersstaden](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter4-pilot.html?v=2). Fortsättningen från [kapitel 3](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter3-pilot.html?v=4) har egna sparningar, men tar med daler och äpplen från avklarade tidigare kapitel. Spelet börjar hos Maja och går vidare via Brita i Tryckeriet, Olof i Kyrkan, Sam i Vetenskapens hus och Sigrid i Byn. Samma nivåer – lärling, gesäll, mästare – och återbesök hos Rut ger återkallning med stöd i kapitlets befintliga faktabank.
+**Uppdatering 20 oktober: kontinuitet, integritet och vardagsliv.**
+Samma fasta rollista i hela kedjan: Maja (kaffehuset), Brita (tryckeriet), Elin (riksdagen), Jo (kajen), Olof (kyrkan), Siri (Barnhuset), Rut (arkivet), Amira (slottet). Kapitel 3:s tillfälliga namn Lars och Erik har korrigerats i repliker, uppdragskedja, rörelsekod och figurer. I kapitel 4 är Cajsa Warg en separat gäst hos Siri och har en egen figur.
+
+**Eleverna ska aldrig se provunderlagets ursprung.** Inga referenser till provfrågor, uppgiftsnummer, bedömningsstöd eller facit visas på arbetsbladen eller i ”Läs mer”. Metadata behålls enbart i koden för lärarens källgranskning. ”Förklara ord” i pågående återkallning är borttaget eftersom det i vissa fall visade det rätta svaret; högläsning finns kvar. Två formuleringar som nämnde det sökta begreppet och frågor som nämnde klassens prov har rättats.
+
+**Valutor har nu skilda funktioner i kapitel 1–4.** Daler används enbart till ledtrådar. Äpplen används enbart för en ny chans efter misslyckad arbetsomgång och tjänas bara genom repetition hos Rut. Ingen gammal knapp kan längre växla valutan på fel sätt. Sparnycklar och äldre framsteg är oförändrade.
+
+**Mer liv ute:** Kapitel 4 har hela det ursprungliga djurlivet (båda hundarna, alla höns och betesdjuren), tretton återkommande stadsbor och tjugo ytterligare interaktiva personer med skilda promenadrytmer och samtal. Talbubblorna får ingen understrykning vid mellanslag; tangentbordsfokus på ett tankealternativ syns som en diskret pappersmarkering.
+
+**Kvalitetskontroll:** Simulerade kunskapspass har verifierat dalerledtråd, misslyckat svar, stoppad daleromgång och nytt försök mot ett äpple. Tre genomförda återkallningar hos Rut gav ett äpple. Samtliga sjutton kapitel 4-fakta gav återkoppling utan läckande källhänvisningar. De tjugo tillagda personerna klarade rit- och dialogkontroller. Nytt regressionstest `scripts/chapter-pilot-safety.test.mjs` ingår i `npm test`. Dessa kontroller är programbaserade; full visuell kontroll i elevens webbläsare återstår.
+
+
+[Spela kapitel 4 i den befintliga pappersstaden](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter4-pilot.html?v=4). Fortsättningen från [kapitel 3](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter3-pilot.html?v=5) har egna sparningar, men tar med daler och äpplen från avklarade tidigare kapitel. Spelet börjar hos Maja och går vidare via Brita i Tryckeriet, Olof i Kyrkan, Sam i Vetenskapens hus och Sigrid i Byn. Samma nivåer – lärling, gesäll, mästare – och återbesök hos Rut ger återkallning med stöd i kapitlets befintliga faktabank.
 
 Kapitel 4 har 17 kontrollerade kunskapsfakta i 47 återkallningar under 12 arbetsbesök. Teman: tryckfrihet, censur, offentlighetsprincip, läsundervisning, Linné, Celsius, Scheele, Eva Ekeblad och vetenskap. Godkända stadens geometri och interiörer är återanvända. Streckad dekorkant på pratbubblorna är borttagen och hundarna rör sig långsammare och vänder vid hinder. Fristående pilot: kodsyntax, svarsalternativ och programmatiskt öppnande av alla 12 arbetsbesök har kontrollerats; visuell bläddring i riktig webbläsare återstår.
 
