@@ -1,8 +1,16 @@
 # Aktuell utvecklingsstatus – Uppdrag 1700
 
+## Kapitel 4 – levande, fredlig stad och kokbokshändelse, 20 oktober 2026
+
+De tidigare ryska lägerplatserna har bytts till potatisodling (norr om Barnhuset) och botanisk äng (väster i staden). De behåller exakt samma vägnät och kollisionsregler. Linné, Celsius, Eva Ekeblad och bönderna från Dalarna har miljöanknutna samtal. Elisabet Nilsdotter berättar nära Kyrkan om gråkoltarnas konflikt med kyrkan. Samtalen är dramatiserade; Nilsdotters uppgift som soldathustru är inte bekräftad av skolans tillgängliga källor och framställs därför inte som fakta. Efterkrigstidens vanliga stadsbor återgår till vardagliga repliker.
+
+Cajsa Warg gästar Barnhusets kök i en uttryckligt påhittad situation och talar om sin verkliga kokbok från 1755. I Tryckeriet finns en valfri bok att hämta. Karin i Bostadskvarteren tar emot den och lagar middag; när spelaren har gått ut och återvänder har rummet fått pappersdekorationer, mat och gäster. Händelsen ligger i egen lokal sparnyckel och påverkar inte kunskapsuppdrag, pengar, stämplar eller upplåsning. Bok i packningen visas medan den bärs, och bekräftad kapitelnystart återställer även den frivilliga historien.
+
+Verifierad genom statiska syntaxtest av nya moduler och sidan, logiskt test av bokhämtning/leverans/återbesök/sparning, mockad canvastest av festscenen och mockad rendering av gatans nya personer. Visuell granskning i riktig webbläsare, elevtest och produktionspublicering har inte kunnat bekräftas i detta sammanhang.
+
 ## Kapitel 4 – fristående pilot, 20 oktober 2026
 
-[Kapitel 4: Nya tider, nya tankar](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter4-pilot.html?v=1) vidareutvecklar [kapitel 3](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter3-pilot.html?v=4), utan att ändra den ordinarie Demo 3.21. Källanknutna fakta hämtas från `curriculum/classroom.mjs`, kapitel 4. 17 fakta återkommer i 47 frågor över 12 arbetsbesök (lärling/gesäll/mästare) och ett första introduktionsmöte hos Maja. Aktiva uppdragsplatser: Tryckeriet, Kyrkan, Vetenskapens hus och Byn. Repetitioner hos Rut kan blanda lärdomar från tidigare kapitel.
+[Kapitel 4: Nya tider, nya tankar](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter4-pilot.html?v=2) vidareutvecklar [kapitel 3](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter3-pilot.html?v=4), utan att ändra den ordinarie Demo 3.21. Källanknutna fakta hämtas från `curriculum/classroom.mjs`, kapitel 4. 17 fakta återkommer i 47 frågor över 12 arbetsbesök (lärling/gesäll/mästare) och ett första introduktionsmöte hos Maja. Aktiva uppdragsplatser: Tryckeriet, Kyrkan, Vetenskapens hus och Byn. Repetitioner hos Rut kan blanda lärdomar från tidigare kapitel.
 
 Pratbubblorna har fått sin synliga streckade dekorkant borttagen. Hundarna har sänkt fart, minimal gånganimation och vänder med kort paus vid hinder eller figurer. Koden i nya script och sidans inline-skript syntaxkontrollerades 20/10. Frågebankens samtliga nivåer, svarsalternativ samt programmatisk öppning av 12 arbetsbesök passerade. Inte visuellt provad i riktig webbläsare; länken kräver normal GitHub Pages-publicering.
 
