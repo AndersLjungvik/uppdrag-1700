@@ -577,11 +577,21 @@ function draw(ctx,{region,now=performance.now(),camera,layout,player}={}){
  viewport={region,camera:{x:camera.x,y:camera.y},layout:{w:layout.w,h:layout.h,scale:layout.scale},player};
  if(active&&active.region!==region.id)close();
  window.UPPDRAG_CH5_LANDSCAPE?.draw(ctx,{region,now});
+ if(region.id==='marstrand'){
+   // A few pieces of the heavy stone work by Carlsten's outer approach.
+   // This is static set dressing, never an impassable obstacle or quiz object.
+   paper(ctx,[[1029,482],[1119,477],[1127,506],[1022,507]],'#807b72');
+   for(let i=0;i<9;i++){
+     const xx=1034+i%4*19,yy=473+Math.floor(i/4)*12;
+     paper(ctx,[[xx-3,yy+5],[xx+11,yy],[xx+17,yy+8],[xx+7,yy+15]],i%2?'#aa9e89':'#908778');
+   }
+ }
+
  for(const camp of stationedCamps(region))campCanvas(ctx,camp,now);
  for(const a of people(region)){
   drawGroup(ctx,a,now);
   if(a.id==='david'&&player&&Math.hypot(player.x-a.x,player.y-a.y)<165)
-   paperTag(ctx,'DAVID HEDENQUIST',a.x,a.y+31);
+   paperTag(ctx,'ÅTERBLICK · 1743',a.x,a.y+31);
  }
  if(active){
    // As in the earliest demo, the player's little "Hej!" is only a brief beat,
