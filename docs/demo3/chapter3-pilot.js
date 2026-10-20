@@ -529,7 +529,7 @@ function drawModal(){
     +'<p class="ch1DiplomaSmall">'+right+' rätta återkallningar på '+tries+' försök. '
       +'Detta är träning, inte ett betyg.</p>'
     +'<button class="primary" data-action="restart">Börja om äventyret</button>'
-    +'<a class="ch1NextChapter" href="chapter4-pilot.html?v=4">→ Fortsätt till kapitel 4 · Nya tider, nya tankar</a>'
+    +'<a class="ch1NextChapter" href="chapter4-pilot.html?v=5">→ Fortsätt till kapitel 4 · Nya tider, nya tankar</a>'
      +'<button data-action="close">Tillbaka till staden</button></article>';
    return;
  }
