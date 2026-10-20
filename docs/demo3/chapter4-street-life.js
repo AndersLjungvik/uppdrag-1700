@@ -7,7 +7,7 @@ const stage=document.getElementById('stage');if(!stage)return;
 const CAST={
  book:{id:'book',name:'En bokhandlare',region:'main',x:590,y:710,r:35,role:'bookseller',color:'#837058',heading:0,range:27,period:8200,
   lines:[['Bokhandlaren','I tryckeriet har de fått nya blad!'],['Du','Vad handlar de om?'],['Bokhandlaren','Om vem som får sprida tryckta texter. Gå till Brita och fråga!']]},
- teacher:{id:'teacher',name:'En lärare',region:'main',x:1110,y:690,r:35,role:'teacher',color:'#726c56',heading:0,range:17,period:9600,
+ teacher:{id:'teacher',name:'En lärare',region:'main',x:1110,y:588,r:35,role:'teacher',color:'#726c56',heading:0,range:17,period:9600,
   lines:[['Läraren','Det är fler som kan läsa nu.'],['Du','Vem såg till att barnen lärde sig?'],['Läraren','Olof i Kyrkan kan berätta om de gamla läsböckerna.']]},
  botanist:{id:'botanist',name:'En naturforskare',region:'main',x:1380,y:310,r:35,role:'botanist',color:'#6d7d68',heading:0,range:24,period:12100,
   lines:[['Naturforskaren','Titta så många växter som går att ordna och jämföra!'],['Du','Var finns anteckningarna?'],['Naturforskaren','Sam i Vetenskapens hus sorterar forskarnas fynd.']]},
