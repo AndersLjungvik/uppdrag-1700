@@ -6,6 +6,7 @@
 'use strict';
 (() => {
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const crisisChapter=/Kapitel\s+3\b/i.test(document.title);
   const routeCache = new WeakMap();
   const populations = new WeakMap();
   const activeRooms = new WeakMap();
@@ -371,7 +372,7 @@
   // step aside a little, ease back to their own lane, and remain on dry land.
   // Chapter four also uses this yielding to avoid the new active city residents.
   function yieldFor(region,states,delta){
-    const world=window.UPPDRAG_CH5_CITY_LIFE || window.UPPDRAG_CH3_CITY_LIFE;
+    const world=window.UPPDRAG_CH5_CITY_LIFE || window.UPPDRAG_CH4_CITY_LIFE || window.UPPDRAG_CH3_CITY_LIFE;
     const historical=world?.obstacles?.(region)||[];
     const bodies=states.map(state=>state.pose).filter(Boolean);
     const blend=motion.matches?1:Math.min(.32,Math.max(.08,delta/260));
@@ -419,7 +420,7 @@
       if(person.region!==region.id)continue;
       let state=states.get(person.id);
       if(!state){
-        const edge=walkingEdge(region,WALKS[person.id]);
+        const edge=walkingEdge(region,window.UPPDRAG_TOWN_LAYOUT?.walkFor(region,person.id,WALKS[person.id])||WALKS[person.id]);
         if(!edge)continue;
         const profile=WALK_PROFILES[person.id];
         state={person,region,edge,profile,laneScale:safeLaneScale(region,edge,profile),time:edge.phase,frozen:false,pose:null,escort:null};
@@ -578,8 +579,8 @@
 
   function dogRoutes(region) {
     if (!routeCache.has(region)) routeCache.set(region, [
-      {route: roadRoute(region, ['cafe','print','square','archive']), speed: 25, phase: 1700, color: '#998268', patch: '#e0d2b3'},
-      {route: roadRoute(region, ['barn','work','homes']), speed: 22, phase: 9800, color: '#625a4c', patch: '#b4a18a'}
+      {route: roadRoute(region, window.UPPDRAG_TOWN_LAYOUT?.dogWalk(region,0,['cafe','print','square','archive'])||['cafe','print','square','archive']), speed: 25, phase: 1700, color: '#998268', patch: '#e0d2b3'},
+      {route: roadRoute(region, window.UPPDRAG_TOWN_LAYOUT?.dogWalk(region,1,['barn','work','homes'])||['barn','work','homes']), speed: 22, phase: 9800, color: '#625a4c', patch: '#b4a18a'}
     ]);
     return routeCache.get(region);
   }
@@ -806,9 +807,9 @@
     ctx.save();
     if (region.id === 'main') {
       drawPaddock(ctx,elapsed,still);
-      for (const hen of HENS)drawHen(ctx,hen,elapsed,still);
-      const bodies=window.UPPDRAG_CH5_CITY_LIFE?.obstacles?.(region)||window.UPPDRAG_CH3_CITY_LIFE?.obstacles?.(region)||[];
-      for (const dog of dogRoutes(region))
+      for (const [i,hen] of HENS.entries())if(!crisisChapter||i%3===0)drawHen(ctx,hen,elapsed,still);
+      const bodies=window.UPPDRAG_CH5_CITY_LIFE?.obstacles?.(region)||window.UPPDRAG_CH4_CITY_LIFE?.obstacles?.(region)||window.UPPDRAG_CH3_CITY_LIFE?.obstacles?.(region)||[];
+      for (const [i,dog] of dogRoutes(region).entries())if(!crisisChapter||i%2===0)
         drawDog(ctx,dog,elapsed,still,region,bodies);
     }
     for (const person of people(region).sort((a,b) => a.y-b.y)) {
@@ -821,6 +822,6 @@
   }
 
   window.UPPDRAG_WORLD_LIFE = {tick,draw,people,hit,freeze,release,
-    quietPeople:people,quietDogs:region=>dogRoutes(region).map(d=>d.lastDrawnPose||dogPose(d,elapsed)),
+    quietPeople:people,quietDogs:region=>dogRoutes(region).filter((d,i)=>!crisisChapter||i%2===0).map(d=>d.lastDrawnPose||dogPose(d,elapsed)),
     beginEscort,cancelEscort,endEscort:cancelEscort,escortState};
 })();

@@ -25,12 +25,14 @@ window.UPPDRAG_STORY_WORLD=(()=>{
   let journey=null,navigating=0;
 
   function navigationPoint(r,id){
+    if(r?.roadPlanVersion)return r.map.get(id)||null;
     const p=overrides[r?.id]?.[id],original=r?.map?.get(id);
     return p&&original?{...original,x:p[0],y:p[1]}:null;
   }
   const point=(r,id)=>navigationPoint(r,id)||r.map.get(id);
   function entryFor(r,building){
     if(!r||!building)return null;
+    if(r.roadPlanVersion)return building.entry;
     if(r.id==='main'&&building.name==='Byn')return 'village';
     if(r.id==='main'&&building.name==='Verkstäderna')return 'work';
     if(r.id==='marstrand'&&building.name==='Fästningen')return 'up';
@@ -60,7 +62,7 @@ window.UPPDRAG_STORY_WORLD=(()=>{
     let middle=[];
     // The old diagonal grazes the coffeehouse. Two safe straight segments
     // keep the same road endpoints and leave the rendered road untouched.
-    if(r.id==='main'&&[edge.a,edge.b].includes('cafe')&&[edge.a,edge.b].includes('scienceJ'))middle=[{x:500,y:604}];
+    if(!r.roadPlanVersion&&r.id==='main'&&[edge.a,edge.b].includes('cafe')&&[edge.a,edge.b].includes('scienceJ'))middle=[{x:500,y:604}];
     const nodes=[a,...middle.map((p,i)=>({...p,id:'@story-road:'+edge.a+':'+edge.b+':'+i})),b];
     return nodes.every((p,i)=>!i||clearSegment(r,nodes[i-1],p))?nodes:null;
   }

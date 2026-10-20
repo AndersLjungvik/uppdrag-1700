@@ -41,203 +41,17 @@ body[data-room^="waterfront-"] #roomReturnText{display:none}
 <script src="chapter-access-pilot.js?v=1" data-chapter="3"></script>
 <script src="paper-fibres.js?v=3.19.0"></script>
 <script src="world-growth.js?v=6"></script>
-<script src="paper-look.js?v=3.3-growth2"></script>
+<script src="paper-look.js?v=roads-1"></script>
 <script src="interior-ch1-pilot.js?v=16"></script>
 <script src="more-room-ch3-pilot.js?v=2"></script>
 <script src="harbour-fibre-art.js?v=3.19.0"></script>
 <script src="harbour-chapters.js?v=3.19.0"></script>
 <script src="living-conversation-data.js?v=3.19.0"></script>
-<script>
-'use strict';
-const canvas=document.querySelector('#world'),ctx=canvas.getContext('2d'),stage=document.querySelector('#stage'),message=document.querySelector('#message'),status=document.querySelector('#status');
-const grain=document.createElement('canvas');grain.width=grain.height=96;const gx=grain.getContext('2d');let seed=1700;
-for(let i=0;i<1050;i++){seed=(seed*1664525+1013904223)>>>0;const x=seed%96;seed=(seed*1664525+1013904223)>>>0;const y=seed%96;gx.globalAlpha=i%4?.12:.07;gx.fillStyle=i%3?'#fff8e1':'#47392c';gx.fillRect(x,y,1+i%2,1+i%2)}gx.globalAlpha=1;
-const N=(id,x,y)=>({id,x,y}),E=(a,b,w=66)=>({a,b,w});
-const MAIN={id:'main',name:'Huvudstaden',w:3600,h:1500,land:'#cbc3b1',start:'square',harbor:'quay',
- water:[[[0,1275],[650,1290],[1150,1268],[1700,1300],[2300,1280],[2900,1305],[3600,1260],[3600,1500],[0,1500]],[[2030,0],[2130,0],[2120,230],[2085,430],[2125,630],[2130,820],[2090,1010],[2110,1270],[2010,1280],[2035,1060],[2020,850],[2040,650],[2008,450]]],
- bridges:[{x:1960,y:640,w:230,h:130},{x:2000,y:350,w:150,h:50}],plazas:[{x:1010,y:705,r:145},{x:1700,y:705,r:120},{x:2480,y:705,r:115}],
- nodes:[N('campWest',287,1050),N('campNorthVia',2720,234),N('campNorth',2435,299),N('church',1110,628),N('riksdag',1705,1115),N('west',100,720),N('cafe',420,705),N('print',720,710),N('square',1010,705),N('archive',1260,710),N('operaJ',1455,705),N('bridgeW',1960,705),N('bridgeE',2190,705),N('barn',2350,705),N('work',2700,705),N('homes',3100,705),N('village',3290,705),N('east',3520,705),N('scienceJ',520,470),N('castle',825,340),N('science',1120,325),N('operaDoor',1375,535),N('operaTop',1650,300),N('quayJ1',880,970),N('quayJ2',1120,1030),N('quayJ3',1390,1010),N('quay',1480,1120),N('workSouth',2670,1000),N('villageSouth',3220,890),N('countrySouth',3470,930),N('ruralJ1',2840,500),N('ruralJ2',3080,340),N('manor',3390,330)],
- edges:[E('west','campWest',56),E('work','campNorthVia',54),E('campNorthVia','campNorth',52),E('west','cafe',92),E('cafe','print',92),E('print','square',92),E('square','archive',92),E('square','church',76),E('archive','operaJ',92),E('operaJ','bridgeW',92),E('bridgeW','bridgeE',92),E('bridgeE','barn',92),E('barn','work',92),E('work','homes',92),E('homes','village',92),E('village','east',92),E('cafe','scienceJ',64),E('scienceJ','castle',64),E('castle','science',64),E('science','operaTop',58),E('operaTop','operaDoor',58),E('operaDoor','operaJ',58),E('square','quayJ1',62),E('quayJ1','quayJ2',62),E('quayJ2','quayJ3',62),E('quayJ3','quay',62),E('quayJ3','riksdag',66),E('barn','workSouth',56),E('workSouth','work',56),E('homes','villageSouth',55),E('villageSouth','countrySouth',55),E('countrySouth','village',55),E('work','ruralJ1',58),E('ruralJ1','ruralJ2',58),E('ruralJ2','manor',58),E('manor','east',52)],
- buildings:[
- {x:1005,y:363,w:230,h:172,name:'Kyrkan',entry:'church',roof:'#746b58',wall:'#d8c9ab'},
- {x:1600,y:850,w:250,h:170,name:'Riksdagshuset',entry:'riksdag',roof:'#776e62',wall:'#d7c7a7'},
- {x:250,y:420,w:220,h:155,name:'Kaffehuset',entry:'cafe',roof:'#9a5545',wall:'#c7b79d'},{x:500,y:870,w:245,h:170,name:'Tryckeriet',entry:'print',roof:'#625c55',wall:'#c5b69e'},{x:1130,y:870,w:220,h:160,name:'Arkivet',entry:'archive',roof:'#705f55',wall:'#c7b99f'},{x:1240,y:335,w:255,h:165,name:'Operan',entry:'operaDoor',roof:'#8e6657',wall:'#c6b69b'},{x:660,y:115,w:300,h:190,name:'Slottet',entry:'castle',roof:'#655e56',wall:'#c9baa0'},{x:980,y:160,w:210,h:135,name:'Vetenskapens hus',entry:'science',roof:'#796c5d',wall:'#c5b79c'},{x:2240,y:370,w:320,h:195,name:'Barnhuset',entry:'barn',roof:'#9a5b4c',wall:'#c8b79c'},{x:2580,y:890,w:330,h:185,name:'Verkstäderna',entry:'workSouth',roof:'#5d5953',wall:'#bfae95'},{x:2980,y:360,w:220,h:150,name:'Bostadskvarteren',entry:'homes',roof:'#91654f',wall:'#c8b99d'},{x:3160,y:875,w:220,h:155,name:'Byn',entry:'villageSouth',roof:'#855f4e',wall:'#c7b89c'},{x:3280,y:145,w:240,h:150,name:'Herrgården',entry:'manor',roof:'#745d4d',wall:'#c9bc9e'}],
- labels:[{t:'Torget',node:'square'},{t:'Kajen',node:'quay'},{t:'Barnhuskvarteren',node:'barn'},{t:'Landsbygden',node:'village'}]};
-function island(id,name,land,shape,buildings){return{id,name,w:2200,h:1200,land,start:'port',harbor:'port',island:shape,water:[[[0,0],[2200,0],[2200,1200],[0,1200]]],bridges:[],plazas:[{x:1050,y:680,r:120}],nodes:[N('port',620,820),N('a',800,760),N('square',1050,680),N('b',1300,690),N('town',1510,800),N('up',1050,450),N('fort',1240,320)],edges:[E('port','a',78),E('a','square',78),E('square','b',78),E('b','town',78),E('square','up',58),E('up','fort',58)],buildings,labels:[{t:name.toUpperCase(),node:'square'}]}}
-const MARSTRAND=island('marstrand','Marstrand','#b7b6a3',[[300,220],[720,90],[1390,125],[1850,360],[1950,800],[1600,1080],[880,1110],[350,880],[190,520]],[{x:880,y:230,w:350,h:180,name:'Fästningen',entry:'fort',roof:'#66605a',wall:'#bdb39f'},{x:520,y:665,w:220,h:150,name:'Hamnen',entry:'port',roof:'#8c5f4e',wall:'#c5b79e'},{x:1340,y:620,w:240,h:160,name:'Stadens hus',entry:'town',roof:'#9c5b4b',wall:'#c9b99e'}]);
-const COLONY=island('colony','Saint Barthélemy','#d1bf96',[[260,250],[700,100],[1390,120],[1920,360],[2020,780],[1680,1080],[930,1120],[390,900],[160,560]],[{x:900,y:310,w:270,h:165,name:'Gustavia',entry:'up',roof:'#a75d48',wall:'#d2bd95'},{x:470,y:730,w:235,h:150,name:'Hamnen',entry:'port',roof:'#9b5e49',wall:'#d4c09a'},{x:1410,y:650,w:260,h:165,name:'Handelsplatsen',entry:'town',roof:'#9d684e',wall:'#d4c09b'}]);
-const REGIONS={main:MAIN,marstrand:MARSTRAND,colony:COLONY};
-function nodeMap(r){return new Map(r.nodes.map(n=>[n.id,n]))}function graph(r){const g=new Map(r.nodes.map(n=>[n.id,[]]));for(const e of r.edges){g.get(e.a).push(e.b);g.get(e.b).push(e.a)}return g}
-for(const r of Object.values(REGIONS)){r.map=nodeMap(r);r.graph=graph(r)}
-function pointInPoly(x,y,p){let hit=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const a=p[i],b=p[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])hit=!hit}return hit}
-function inRect(x,y,r,p=0){return x>=r.x-p&&x<=r.x+r.w+p&&y>=r.y-p&&y<=r.y+r.h+p}function waterAt(r,x,y){if(r.island)return!pointInPoly(x,y,r.island);return r.water.some(p=>pointInPoly(x,y,p))&&!r.bridges.some(b=>inRect(x,y,b))}
-function setMessage(t,x){message.innerHTML='<strong>'+t+'</strong>'+x}function pat(t){return t.createPattern(grain,'repeat')}
-function paperRect(t,x,y,w,h,c){t.save();t.shadowColor='#3f342825';t.shadowOffsetX=2;t.shadowOffsetY=3;t.fillStyle=c;t.fillRect(x,y,w,h);t.shadowColor='transparent';t.globalAlpha=.16;t.fillStyle=pat(t);t.fillRect(x,y,w,h);t.restore()}
-function polygon(t,p,c){t.save();t.beginPath();p.forEach(([x,y],i)=>i?t.lineTo(x,y):t.moveTo(x,y));t.closePath();t.fillStyle=c;t.fill();t.clip();t.globalAlpha=.18;t.fillStyle=pat(t);const xs=p.map(v=>v[0]),ys=p.map(v=>v[1]);t.fillRect(Math.min(...xs),Math.min(...ys),Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys));t.restore()}
-function road(t,a,b,w){t.save();t.lineCap='round';t.beginPath();t.moveTo(a.x,a.y);t.lineTo(b.x,b.y);t.strokeStyle='#aa9d86';t.lineWidth=w+12;t.stroke();t.strokeStyle='#eee0c5';t.lineWidth=w;t.stroke();t.restore()}
-function building(t,b,r){paperRect(t,b.x+8,b.y+10,b.w,b.h,'#6c5a4430');paperRect(t,b.x,b.y,b.w,b.h,b.wall);polygon(t,[[b.x-8,b.y+3],[b.x+b.w*.48,b.y-18],[b.x+b.w+8,b.y+3],[b.x+b.w+4,b.y+b.h],[b.x-4,b.y+b.h]],b.roof);const e=r.map.get(b.entry),doorX=b.x+b.w/2,doorY=b.y+b.h;t.strokeStyle='#d7c49e';t.lineWidth=18;t.beginPath();t.moveTo(doorX,doorY);t.lineTo(e.x,e.y);t.stroke();paperRect(t,doorX-12,doorY-25,24,25,'#705b45')}
-function label(t,text,x,y){t.font='bold 21px Georgia';const w=t.measureText(text).width+26;paperRect(t,x-w/2,y-34,w,38,'#f1e3c6');t.strokeStyle='#a68f68';t.strokeRect(x-w/2,y-34,w,38);t.fillStyle='#42382d';t.textAlign='center';t.fillText(text,x,y-8)}
-function drawRegion(r){return window.UPPDRAG_PAPER.drawRegion(r);}
-let region=MAIN,layers=new Map(),pendingPerson=null,hoverPersonId=null,pendingStreetChat=null;const layer=r=>{if(!layers.has(r.id))layers.set(r.id,drawRegion(r));return layers.get(r.id)};
-function validate(r){const start=r.start,seen=new Set([start]),q=[start];for(let i=0;i<q.length;i++)for(const n of r.graph.get(q[i]))if(!seen.has(n)){seen.add(n);q.push(n)}for(const b of r.buildings)if(!seen.has(b.entry))throw Error(r.id+': '+b.name+' saknar väg');if(r.harbor&&!seen.has(r.harbor))throw Error(r.id+': kajen saknar väg')}
-Object.values(REGIONS).forEach(validate);
-let player={...MAIN.map.get(MAIN.start)},camera={...MAIN.map.get(MAIN.start)},path=[],follow=true,drag=null,sailing=null,pending=null,returnPending=false,last=performance.now(),layout={w:1,h:1,d:1,scale:.8};
-function bfs(r,start,goal){if(start===goal)return[start];const prev=new Map([[start,null]]),q=[start];for(let i=0;i<q.length;i++){const id=q[i];for(const n of r.graph.get(id))if(!prev.has(n)){prev.set(n,id);q.push(n);if(n===goal){const out=[n];let k=id;while(k){out.push(k);k=prev.get(k)}return out.reverse()}}}return[]}
-function nearestNode(r,x,y){let best=r.nodes[0],d=Infinity;for(const n of r.nodes){const z=(n.x-x)**2+(n.y-y)**2;if(z<d){d=z;best=n}}return best}
-function cancelPersonArrival(){if(pendingPerson)window.UPPDRAG_WORLD_LIFE?.release(pendingPerson.id);pendingPerson=null;delete document.body.dataset.livingApproach;}
-// The painted map stays the same. These two walking corners give people room
-// to pass below the archive instead of clipping its lower wall on the quay road.
-function navigationPoint(r,id){
-  const chapterPoint=window.UPPDRAG_STORY_WORLD?.navigationPoint(r,id);
-  if(chapterPoint)return chapterPoint;
-  const point=r.map.get(id);
-  if(r.id==='main'&&id==='quayJ2')return {...point,x:1100,y:1062};
-  if(r.id==='main'&&id==='quayJ3')return {...point,x:1390,y:1062};
-  return point;
-}
-function roadProjection(point,edge){
-  const a=navigationPoint(region,edge.a),b=navigationPoint(region,edge.b),dx=b.x-a.x,dy=b.y-a.y;
-  const t=Math.max(0,Math.min(1,((point.x-a.x)*dx+(point.y-a.y)*dy)/(dx*dx+dy*dy)));
-  return {x:a.x+dx*t,y:a.y+dy*t,t,edge};
-}
-// Insert temporary meeting points into the existing road graph. The map itself
-// never changes, and clicking again mid-walk cannot leave an invalid node ID.
-function routeAlongRoads(target,targetEdge=null){
-  if(!target)return null;
-  if(window.UPPDRAG_STORY_WORLD?.route)return window.UPPDRAG_STORY_WORLD.route(region,player,target,targetEdge);
-  const start=region.edges.map(edge=>roadProjection(player,edge)).sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y))[0];
-  if(!start)return null;
-  const points=new Map(region.nodes.map(node=>[node.id,navigationPoint(region,node.id)])),links=new Map(region.nodes.map(node=>[node.id,[]]));
-  const connect=(a,b)=>{const pa=points.get(a),pb=points.get(b),cost=Math.hypot(pa.x-pb.x,pa.y-pb.y);links.get(a).push({id:b,cost});links.get(b).push({id:a,cost});};
-  for(const edge of region.edges)connect(edge.a,edge.b);
-  points.set('@start',{x:start.x,y:start.y});links.set('@start',[]);connect('@start',start.edge.a);connect('@start',start.edge.b);
-  const goal=targetEdge?'@meeting':target.id;
-  if(targetEdge){
-    points.set(goal,{x:target.x,y:target.y});links.set(goal,[]);connect(goal,targetEdge.a);connect(goal,targetEdge.b);
-    if([start.edge.a,start.edge.b].every(id=>id===targetEdge.a||id===targetEdge.b))connect('@start',goal);
-  }
-  if(!points.has(goal))return null;
-  const costs=new Map([['@start',0]]),previous=new Map(),unseen=new Set(points.keys());
-  while(unseen.size){
-    let current=null,best=Infinity;for(const id of unseen)if((costs.get(id)??Infinity)<best){current=id;best=costs.get(id);}
-    if(current===null)break;unseen.delete(current);if(current===goal)break;
-    for(const next of links.get(current)){const cost=best+next.cost;if(cost<(costs.get(next.id)??Infinity)){costs.set(next.id,cost);previous.set(next.id,current);}}
-  }
-  if(!costs.has(goal))return null;
-  const ids=[goal];while(ids[0]!=='@start'){const before=previous.get(ids[0]);if(!before)return null;ids.unshift(before);}
-  const result=[];let cursor=player;
-  for(const id of ids){const point={...points.get(id),id};if(Math.hypot(point.x-cursor.x,point.y-cursor.y)>1){result.push(point);cursor=point;}}
-  return result;
-}
-function go(id,title=''){
-  if(interior||sailing||(window.UPPDRAG_LIVING_DIALOGUES?.busy||window.UPPDRAG_STORY_WORK?.busy))return false;
-  window.UPPDRAG_LIVING_DIALOGUES?.close(false);
-  cancelPersonArrival();pendingRoom=null;const next=routeAlongRoads(region.map.get(id));
-  if(!next){setMessage('Stopp','Ingen sammanhängande väg hittades.');return false;}
-  path=next;follow=true;if(title)setMessage(title,'Du följer vägen hela vägen fram.');return true;
-}
-function switchRegion(id,arrival=null){cancelPersonArrival();hoverPersonId=null;window.UPPDRAG_LIVING_DIALOGUES?.close(false);pendingRoom=null;region=REGIONS[id];path=[];sailing=null;pending=null;returnPending=false;const startId=arrival||region.start;player={...navigationPoint(region,startId)};camera={...player};follow=true;document.querySelector('#return').hidden=id==='main';document.querySelector('#sailM').hidden=true;document.querySelector('#sailS').hidden=true;document.querySelectorAll('[data-go]').forEach(b=>b.hidden=id!=='main');layers.delete(id);setMessage(region.name,id==='main'?'Fartyget har lagt till vid kajen. Du går i land där du reste ifrån.':'Du har kommit fram. Alla byggnader har en ansluten ingång.');syncHarbourUI();requestHarbour();}
-function sail(id){if(interior||sailing||region!==MAIN)return;pendingRoom=null;pending=id;if(Math.hypot(player.x-navigationPoint(MAIN,'quay').x,player.y-navigationPoint(MAIN,'quay').y)<55){sailing={to:id,at:performance.now()};path=[];return}if(go('quay','Till kajen'))setMessage('Till kajen','Vägen går hela vägen fram till fartyget.')}
-function returnByBoat(){if(interior||sailing||region===MAIN)return;pendingRoom=null;returnPending=true;const port=navigationPoint(region,region.harbor);if(Math.hypot(player.x-port.x,player.y-port.y)<55){returnPending=false;sailing={to:'main',at:performance.now(),returning:true};path=[];setMessage('Ombord','Fartyget lämnar hamnen och seglar tillbaka mot kajen.');return}if(go(region.harbor,'Till hamnen'))setMessage('Till hamnen','Du går tillbaka till båten innan hemresan börjar.')}
-function resize(){const r=stage.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);layout={w:r.width,h:r.height,d,scale:Math.min(1.08,Math.max(.62,Math.min(r.width/620,r.height/620)))};clamp()}
-function clamp(){const hw=layout.w/(2*layout.scale),hh=layout.h/(2*layout.scale);camera.x=Math.max(hw,Math.min(region.w-hw,camera.x));camera.y=Math.max(hh,Math.min(region.h-hh,camera.y))}
-function screen(e){const r=canvas.getBoundingClientRect();return{x:camera.x+(e.clientX-r.left-r.width/2)/layout.scale,y:camera.y+(e.clientY-r.top-r.height/2)/layout.scale}}
-function draw(){if(interior)return;const{w,h,d,scale}=layout;ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);ctx.translate(w/2-camera.x*scale,h/2-camera.y*scale);ctx.scale(scale,scale);ctx.drawImage(layer(region),0,0);ctx.save();ctx.globalAlpha=.77;
- window.UPPDRAG_WORLD_LIFE?.draw(ctx,{region,now:performance.now()});ctx.restore();
- window.UPPDRAG_CH3_CITY_LIFE?.draw(ctx,{region,now:performance.now(),camera,layout,player});if(window.UPPDRAG_MEETINGS){UPPDRAG_MEETINGS.drawMapPlayer(ctx,player,window.UPPDRAG_WORLD_KEYBOARD?.motionPath||path,performance.now());}else{ctx.fillStyle='#476d75';ctx.beginPath();ctx.arc(player.x,player.y+8,14,0,Math.PI*2);ctx.fill();ctx.fillStyle='#e0c09b';ctx.beginPath();ctx.arc(player.x,player.y-9,10,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#f4e5c7';ctx.lineWidth=3;ctx.beginPath();ctx.arc(player.x,player.y,22,0,Math.PI*2);ctx.stroke();}if(sailing){window.UPPDRAG_CH3_CITY_LIFE?.suspend?.();ctx.fillStyle='#213d4b99';ctx.fillRect(camera.x-w/(2*scale),camera.y-h/(2*scale),w/scale,h/scale);ctx.fillStyle='#f2e5c7';ctx.font='bold 42px Georgia';ctx.textAlign='center';ctx.fillText(sailing.to==='main'?'Tillbaka mot kajen':sailing.to==='marstrand'?'Mot Marstrand':'Över Atlanten',camera.x,camera.y)}status.textContent=region.name}
-canvas.addEventListener('pointerdown',e=>{if(interior||sailing||(window.UPPDRAG_LIVING_DIALOGUES?.busy||window.UPPDRAG_STORY_WORK?.busy))return;canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,cx:camera.x,cy:camera.y,moved:false}});canvas.addEventListener('pointermove',e=>{if(!drag){hoverPersonId=window.UPPDRAG_CH3_CITY_LIFE?.hit(region,screen(e))?.id||null;canvas.style.cursor=hoverPersonId?'pointer':'default';return;}const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>8)drag.moved=true;if(drag.moved){follow=false;camera.x=drag.cx-dx/layout.scale;camera.y=drag.cy-dy/layout.scale;clamp()}});canvas.addEventListener('pointerup',e=>{if(!drag)return;const moved=drag.moved;drag=null;if(moved||interior||sailing||(window.UPPDRAG_LIVING_DIALOGUES?.busy||window.UPPDRAG_STORY_WORK?.busy))return;cancelPersonArrival();pending=null;returnPending=false;pendingRoom=null;pendingStreetChat=null;
- const p=screen(e),city=window.UPPDRAG_CH3_CITY_LIFE;
- if(city?.active)return;
- city?.releaseHold?.();
- const actor=city?.hit(region,p);
- if(actor){requestStreetChat(actor);return;}
- if(harbourMapHit(p)){requestHarbour();return;}const b=region.buildings.find(b=>inRect(p.x,p.y,b,15));if(b){if(roomKind(b))requestInterior(b);else go(b.entry,b.name);return}const n=nearestNode(region,p.x,p.y);go(n.id)});canvas.addEventListener('wheel',e=>{e.preventDefault();if((window.UPPDRAG_LIVING_DIALOGUES?.busy||window.UPPDRAG_STORY_WORK?.busy))return;follow=false;camera.x+=e.deltaX/layout.scale;camera.y+=e.deltaY/layout.scale;clamp()},{passive:false});
-document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{pending=null;returnPending=false;return go(b.dataset.go,b.textContent);});document.querySelector('#visitHarbour').onclick=()=>requestHarbour();document.querySelector('#sailM').onclick=()=>requestHarbour('marstrand');document.querySelector('#sailS').onclick=()=>requestHarbour('colony');document.querySelector('#return').onclick=()=>requestHarbour('main');document.querySelector('#follow').onclick=()=>{follow=true};
-function animate(now){const dt=Math.max(0,Math.min(.05,(now-last)/1000));last=now;const activeRoom=interior?.outdoor?(interior.regionId==='main'?'quay':null):interior?.kind||null;window.UPPDRAG_WORLD_LIFE?.tick(now,{region,player,activeRoom});window.UPPDRAG_LIVING_DIALOGUES?.tick(now);window.UPPDRAG_MEETINGS?.tick(now);window.UPPDRAG_WORLD_KEYBOARD?.tick(dt);window.UPPDRAG_STORY_WORLD?.tick(now);window.UPPDRAG_CH3_PILOT?.tick();if(interior){window.UPPDRAG_CH3_CITY_LIFE?.suspend?.();tickHarbourVoyage(now);requestAnimationFrame(animate);return}if(sailing&&now-sailing.at>1300){const trip=sailing;switchRegion(trip.to,trip.to==='main'?'quay':null)}if(path.length&&!sailing&&!window.UPPDRAG_STORY_WORK?.busy){const n=path[0],dx=n.x-player.x,dy=n.y-player.y,d=Math.hypot(dx,dy),step=180*dt;if(d<=step){player.x=n.x;player.y=n.y;path.shift()}else{player.x+=dx/d*step;player.y+=dy/d*step}if(!path.length&&pending&&region===MAIN&&Math.hypot(player.x-navigationPoint(MAIN,'quay').x,player.y-navigationPoint(MAIN,'quay').y)<60){const to=pending;pending=null;sailing={to,at:now}}if(!path.length&&returnPending&&region!==MAIN){const port=navigationPoint(region,region.harbor);if(Math.hypot(player.x-port.x,player.y-port.y)<60){returnPending=false;sailing={to:'main',at:now,returning:true};setMessage('Ombord','Fartyget lämnar hamnen och seglar tillbaka mot kajen.')}}}finishDoorArrival();finishPersonArrival();
- if(pendingStreetChat&&!path.length&&!interior&&!sailing&&!voyage){
-   const actor=window.UPPDRAG_CH3_CITY_LIFE?.find(region,pendingStreetChat);
-   if(actor&&Math.hypot(player.x-actor.x,player.y-actor.y)<=118)
-     window.UPPDRAG_CH3_CITY_LIFE.open(actor);
-   else window.UPPDRAG_CH3_CITY_LIFE?.releaseHold?.();
-   pendingStreetChat=null;
- }
- if(follow&&!drag&&!interior){camera.x+=(player.x-camera.x)*.12;camera.y+=(player.y-camera.y)*.12;clamp()}draw();requestAnimationFrame(animate)}
-// Original demo behaviour: click a person, walk to the nearest valid stretch
-// of road, and only begin talking when both are actually close together.
-function requestStreetChat(actor){
- const city=window.UPPDRAG_CH3_CITY_LIFE;
- if(!actor||!city||interior||sailing||voyage)return false;
- const found=city.find(region,actor.id);
- if(!found)return false;
- cancelPersonArrival();pending=null;returnPending=false;pendingRoom=null;
- if(Math.hypot(player.x-found.x,player.y-found.y)<=78){
-   path=[];follow=true;pendingStreetChat=null;
-   return city.open(found);
- }
- city.hold?.(found);
- const edgePoints=region.edges.map(edge=>roadProjection(found,edge))
-  .sort((a,b)=>Math.hypot(a.x-found.x,a.y-found.y)-Math.hypot(b.x-found.x,b.y-found.y));
- // A geometrically close segment may run behind a house or fortress wall.
- // Try valid connected roads, and approach on the player's side of the speaker.
- for(const projected of edgePoints){
-   const {edge}=projected,a=navigationPoint(region,edge.a),b=navigationPoint(region,edge.b);
-   if(!a||!b)continue;
-   const total=Math.max(1,Math.hypot(b.x-a.x,b.y-a.y));
-   const from=roadProjection(player,edge),side=from.t<=projected.t?-1:1;
-   const fraction=Math.max(.02,Math.min(.98,projected.t+side*42/total));
-   const goal={x:a.x+(b.x-a.x)*fraction,y:a.y+(b.y-a.y)*fraction};
-   if(Math.hypot(goal.x-found.x,goal.y-found.y)>113)continue;
-   const next=routeAlongRoads(goal,edge);
-   if(!next)continue;
-   path=next;follow=true;pendingStreetChat=found.id;
-   window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
-   return true;
- }
- city.releaseHold?.();return false;
-}
-// A selected passerby waits at the clicked road position while the player
-// approaches. Both remain on that road, about one figure's width apart.
-function requestPerson(person){
-  if(interior||sailing||voyage||!person||person.region!==region.id||(window.UPPDRAG_LIVING_DIALOGUES?.busy||window.UPPDRAG_STORY_WORK?.busy))return false;
-  if(window.UPPDRAG_LIVING_DIALOGUES?.personId===person.id){window.UPPDRAG_LIVING_DIALOGUES.close();return true;}
-  window.UPPDRAG_LIVING_DIALOGUES?.close(false);
-  cancelPersonArrival();
-  const stopped=window.UPPDRAG_WORLD_LIFE?.freeze(person.id);
-  if(!stopped?.routeEdge)return false;
-  pending=null;returnPending=false;pendingRoom=null;
-  if(Math.hypot(player.x-stopped.x,player.y-stopped.y)<=80&&(!window.UPPDRAG_WORLD_KEYBOARD||UPPDRAG_WORLD_KEYBOARD.clearSegment(region,player,stopped))){
-    path=[];follow=true;
-    if(window.UPPDRAG_LIVING_DIALOGUES?.openWorld(stopped))return true;
-    window.UPPDRAG_WORLD_LIFE.release(person.id);return false;
-  }
-  const edge=stopped.routeEdge,a=navigationPoint(region,edge.a),b=navigationPoint(region,edge.b),length=Math.hypot(b.x-a.x,b.y-a.y);
-  const from=roadProjection(player,edge),side=from.t<=stopped.routeT?-1:1;
-  const t=Math.max(.025,Math.min(.975,roadProjection(stopped,edge).t+side*54/length));
-  const goal={x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};
-  const next=routeAlongRoads(goal,edge);
-  if(!next){window.UPPDRAG_WORLD_LIFE.release(person.id);return false;}
-  path=next;follow=true;pendingPerson={...stopped,regionId:region.id};
-  document.body.dataset.livingApproach=person.id;
-  finishPersonArrival();return true;
-}
-function finishPersonArrival(){
-  if(!pendingPerson||path.length||interior||sailing||window.UPPDRAG_STORY_WORK?.busy)return;
-  const person=pendingPerson;
-  if(person.regionId!==region.id){cancelPersonArrival();return;}
-  if(Math.hypot(player.x-person.x,player.y-person.y)>80){cancelPersonArrival();return;}
-  pendingPerson=null;
-  delete document.body.dataset.livingApproach;
-  if(!window.UPPDRAG_LIVING_DIALOGUES?.openWorld(person))window.UPPDRAG_WORLD_LIFE?.release(person.id);
-}
-canvas.addEventListener('pointercancel',()=>{drag=null;});
-canvas.addEventListener('pointerleave',()=>{hoverPersonId=null;canvas.style.cursor='default';});
-window.addEventListener('resize',resize);resize();draw();syncHarbourUI();document.documentElement.dataset.ready='true';requestAnimationFrame(animate);
-window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElement.dataset.paper=ok?'original':'fallback';if(!ok)console.warn('Originalmaterialet saknas. Grundgrafiken visas.');});
-</script>
+<script src="world-street-pilot.js?v=roads-1"></script>
 <script src="npc-motion-ch3.js?v=2"></script>
 <script src="meeting-ch3-pilot.js?v=3"></script>
-<script src="world-life-ch3.js?v=4"></script>
-<script src="story-world.js?v=3.19.0"></script>
+<script src="world-life-ch3.js?v=roads-1"></script>
+<script src="story-world.js?v=roads-1"></script>
 <script src="paper-dialogues.js?v=5"></script>
 <script src="world-keyboard-ch3.js?v=2"></script>
 
@@ -265,7 +79,7 @@ if(window.UPPDRAG_WORLD_LIFE){
 <script src="chapter3-closeups.js?v=1"></script>
 <script src="chapter3-reading.js?v=1"></script>
 <script src="chapter3-pilot.js?v=5"></script>
-<script src="chapter3-street-life.js?v=12"></script>
+<script src="chapter3-street-life.js?v=roads-1"></script>
 </body>
 </html>
 

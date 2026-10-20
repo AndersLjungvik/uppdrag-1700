@@ -376,7 +376,7 @@
       if(person.region!==region.id)continue;
       let state=states.get(person.id);
       if(!state){
-        const edge=walkingEdge(region,WALKS[person.id]);
+        const edge=walkingEdge(region,window.UPPDRAG_TOWN_LAYOUT?.walkFor(region,person.id,WALKS[person.id])||WALKS[person.id]);
         if(!edge)continue;
         const profile=WALK_PROFILES[person.id];
         state={person,region,edge,profile,laneScale:safeLaneScale(region,edge,profile),time:edge.phase,frozen:false,pose:null,escort:null};
@@ -533,8 +533,8 @@
 
   function dogRoutes(region) {
     if (!routeCache.has(region)) routeCache.set(region, [
-      {route: roadRoute(region, ['cafe','print','square','archive']), speed: 86, phase: 1700, color: '#998268', patch: '#e0d2b3'},
-      {route: roadRoute(region, ['barn','work','homes']), speed: 75, phase: 9800, color: '#625a4c', patch: '#b4a18a'}
+      {route: roadRoute(region, window.UPPDRAG_TOWN_LAYOUT?.dogWalk(region,0,['cafe','print','square','archive'])||['cafe','print','square','archive']), speed: 86, phase: 1700, color: '#998268', patch: '#e0d2b3'},
+      {route: roadRoute(region, window.UPPDRAG_TOWN_LAYOUT?.dogWalk(region,1,['barn','work','homes'])||['barn','work','homes']), speed: 75, phase: 9800, color: '#625a4c', patch: '#b4a18a'}
     ]);
     return routeCache.get(region);
   }
@@ -578,7 +578,7 @@
     ctx.restore();
     piece(ctx, [[-15,-5],[-8,-10],[7,-8],[13,-3],[10,7],[-11,7]], dog.color);
     piece(ctx, [[-2,-9],[6,-8],[8,-1],[1,2],[-3,-2]], dog.patch);
-    cut(ctx, -10 - stride, 5, 4, 10, dog.color);
+    cut(ctx, -10 - stride, 5, 4, 11, dog.color);
     cut(ctx, 6 + stride, 4, 4, 11, dog.color);
     ctx.save();ctx.translate(9,-3);ctx.rotate(sniff);ctx.translate(-9,3);
     piece(ctx, [[8,-10],[15,-12],[20,-7],[26,-5],[25,1],[17,4],[10,0]], dog.color);

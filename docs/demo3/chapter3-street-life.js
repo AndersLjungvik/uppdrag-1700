@@ -102,7 +102,7 @@ function position(actor,now=performance.now()){
  }
  if(actor.id==='noble')return {...actor,...patrol(3368,3440,354,t,11000,2900)};
  if(actor.id==='rusBeach')return {...actor,...patrol(274,307,1062,t,7300,600)};
- if(actor.id==='rusNorth')return {...actor,...patrol(2415,2456,314,t,7800,2000)};
+ if(actor.id==='rusNorth')return {...actor,...patrol(2415,2456,REGIONS.main.roadPlanVersion?288:314,t,7800,2000)};
  if(actor.id==='david')return {...actor,x:actor.x,y:actor.y,moving:false};
  return {...actor,y:actor.y,moving:false};
 }

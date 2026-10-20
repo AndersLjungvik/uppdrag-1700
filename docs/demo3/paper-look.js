@@ -37,6 +37,57 @@ window.UPPDRAG_TOWN_LAYOUT=(()=>{
   const dx=x-p.cx,dy=y-p.cy,c=Math.cos(p.a),s=Math.sin(p.a);
   return Math.abs(dx*c+dy*s)<=p.w/2+pad&&Math.abs(-dx*s+dy*c)<=p.h/2+pad;
  }
+ // The named doors stay stable. Street junctions are separate from doors:
+ // moving a destination must never pull a through-road through the building.
+ const WALK_EDGES={
+  maja:['west','cafeStreet'],brita:['northGate','printStreet'],
+  rut:['archiveStreet','operaJ'],jo:['quayJ1','quayBend'],
+  klara:['square','churchStreet'],otto:['printStreet','square'],
+  linnea:['castle','science'],lovisa:['scienceJ','northWest'],
+  noor:['courtNorth','workStreet'],karin:['homesDoor','urbanCourt'],
+  liv:['operaTop','operaJ']
+ };
+ const STREET_ANCHORS={
+  book:['cafeStreet','northGate',.60,0],teacher:['church','churchyard',.28,0],
+  botanist:['science','academyEast',.50,0],journal:['operaJ','riverJ',.70,-7],
+  chemist:['courtNorth','workStreet',.60,0],grower:['ruralJ1','countrySouth',.75,0],
+  linne:['westLane','campWest',.84,0],celsius:['castle','science',.88,0],
+  ekeblad:['campNorth','campNorthVia',.34,0],dalarna:['campNorth','campNorthVia',.06,0],
+  elisabet:['church','churchyard',.94,0],cook:['homesDoor','urbanCourt',.74,0],
+  baker:['west','cafeStreet',.30,0],flyer:['archiveStreet','operaJ',.55,-11],
+  child:['square','churchStreet',.30,-18],carrier:['operaJ','riverJ',.20,10],
+  sailor:['quayJ2','quayJ3',.30,0],washer:['bridgeE','barnStreet',.36,10],
+  smith:['workStreet','ruralJ1',.54,0],basket:['urbanCross','homesDoor',.51,0],
+  royalNotice:['square','churchStreet',.63,18],
+  estateCritic:['quayJ3','riksdag',.82,-4],courtSupport:['castle','science',.07,0]
+ };
+ function walkFor(r,id,original){
+  const pair=r.roadPlanVersion&&WALK_EDGES[id];
+  return pair?{...original,a:pair[0],b:pair[1]}:original;
+ }
+ function dogWalk(r,index,original){
+  if(!r.roadPlanVersion)return original;
+  return index===0?['cafeStreet','northGate','printStreet','square','churchStreet','archiveStreet']
+   :['urbanCross','homesDoor','urbanCourt','homes','courtNorth','workStreet'];
+ }
+ // Authored street conversations retain their own text and triggers. Their
+ // physical patrol reads the same edge as the renderer and click navigator.
+ function streetPose(r,actor,elapsed,still=false){
+  if(!r?.roadPlanVersion||actor.region!=='main')return null;
+  const anchor=STREET_ANCHORS[actor.id];if(!anchor)return null;
+  const [ai,bi,at,lane]=anchor,a=r.map.get(ai),b=r.map.get(bi);
+  if(!a||!b)return null;
+  const length=Math.hypot(b.x-a.x,b.y-a.y),ux=(b.x-a.x)/length,uy=(b.y-a.y)/length;
+  const center=at*length,span=Math.min(actor.range||12,Math.max(0,center-6),Math.max(0,length-center-6));
+  const duration=actor.period||16000,rest=1450,cycle=2*(duration+rest);
+  const time=((still?0:elapsed)+actor.x*7)%cycle,back=time>=duration+rest;
+  const leg=back?time-duration-rest:time,f=Math.min(1,leg/duration);
+  const eased=(1-Math.cos(Math.PI*f))/2;
+  const distance=center-span+2*span*(back?1-eased:eased),t=distance/length;
+  return {x:a.x+ux*distance-uy*lane,y:a.y+uy*distance+ux*lane,
+   heading:Math.atan2(uy,ux)+(back?Math.PI:0),moving:!still&&leg<duration&&Math.sin(Math.PI*f)>.08,
+   routeEdge:{a:ai,b:bi},routeT:t};
+ }
  function apply(r){
   if(done.has(r))return;
   done.add(r);
@@ -44,41 +95,75 @@ window.UPPDRAG_TOWN_LAYOUT=(()=>{
   const homes=r.buildings.find(b=>b.name==='Bostadskvarteren');
   const opera=r.buildings.find(b=>b.name==='Operan');
   if(!homes||!opera)return;
+  const hasCamps=r.nodes.some(n=>n.id==='campWest');
+  // Keep the accepted urban building move and original paper artwork.
   Object.assign(homes,{x:2260,y:850,w:220,h:150,entry:'homesDoor'});
   Object.assign(opera,{x:1400,y:70,w:255,h:165});
-  // Existing pedestrian/dog route names remain valid. The actual new home
-  // entrance has its own node rather than dragging a through-road into a roof.
-  node(r,'homes',2530,805);node(r,'homesDoor',2370,1048);
-  node(r,'urbanNorth',2200,780);node(r,'urbanCross',2200,1048);
-  node(r,'urbanCourt',2530,1048);node(r,'urbanTurn',2558,1115);
-  node(r,'urbanSouth',2200,1230);node(r,'urbanEast',2700,1230);
-  edge(r,'barn','urbanNorth');edge(r,'urbanNorth','urbanCross');
-  edge(r,'urbanCross','homesDoor');edge(r,'homesDoor','urbanCourt');
-  edge(r,'urbanCourt','urbanTurn',50);edge(r,'urbanTurn','urbanEast',50);
-  edge(r,'urbanCross','urbanSouth',50);edge(r,'urbanSouth','urbanEast',50);
-  node(r,'workBack',2960,1160);edge(r,'urbanEast','workBack',50);
-  edge(r,'workBack','countrySouth',50);
-  node(r,'operaDoor',1530,285);node(r,'operaTop',1710,350);
-  const oldOpera=new Set(['operaDoor','operaTop']);
-  r.edges=r.edges.filter(e=>!oldOpera.has(e.a)&&!oldOpera.has(e.b));
-  edge(r,'science','operaDoor');edge(r,'operaDoor','operaTop');edge(r,'operaTop','operaJ');edge(r,'operaJ','operaDoor');
-  // Open churchyard: reserved for the later, larger church artwork.
-  node(r,'churchyard',1380,565);edge(r,'church','churchyard');edge(r,'churchyard','operaJ');
-  r.plazas.push({x:1380,y:565,r:66});
   r.buildings.push(
    {x:2240,y:1110,w:135,h:82,name:'Bostadshus',entry:'homesDoor',scenery:true,roof:'#91654f',wall:'#c8b99d'},
    {x:2395,y:1110,w:118,h:77,name:'Bostadshus',entry:'homesDoor',scenery:true,roof:'#91654f',wall:'#c8b99d'}
   );
   r.buildings.find(b=>b.name==='Verkstäderna').entry='work';
   r.buildings.find(b=>b.name==='Byn').entry='village';
+  // REPLACE the former graph, rather than appending more connectors to it.
+  r.nodes=[];r.edges=[];
+  const points={
+   west:[100,705],cafeStreet:[360,705],northGate:[540,705],printStreet:[623,705],
+   square:[1010,705],churchStreet:[1110,705],archiveStreet:[1240,705],
+   operaJ:[1710,705],riverJ:[1900,705],bridgeW:[1960,705],bridgeE:[2190,705],
+   barnStreet:[2400,705],courtNorth:[2540,705],workStreet:[2745,705],ruralJ1:[2900,705],
+   cafe:[360,628],print:[623,808],archive:[1240,808],barn:[2400,633],work:[2745,828],
+   scienceJ:[540,510],northWest:[540,333],castle:[825,333],science:[1120,333],
+   academyEast:[1530,333],operaDoor:[1530,290],operaTop:[1710,333],
+   church:[1110,606],churchyard:[1240,606],
+   quayJ1:[1010,835],quayBend:[1010,1092],quayJ2:[1240,1092],quayJ3:[1480,1092],
+   quay:[1480,1120],riksdag:[1725,1092],riverCorner:[1900,1092],
+   urbanNorth:[2200,810],urbanCross:[2200,1048],homesDoor:[2370,1048],
+   urbanCourt:[2540,1048],homes:[2540,820],
+   countrySouth:[3270,745],village:[3270,810],ruralJ2:[2745,355],farmLane:[3100,355],manor:[3400,355]
+  };
+  for(const [id,[x,y]] of Object.entries(points))node(r,id,x,y);
+  const chain=(ids,w,kind)=>{for(let i=1;i<ids.length;i++){edge(r,ids[i-1],ids[i],w);r.edges.at(-1).kind=kind;}};
+  // One legible main street from the old town, across the bridge, to the country.
+  chain(['west','cafeStreet','northGate','printStreet','square','churchStreet','archiveStreet',
+   'operaJ','riverJ','bridgeW','bridgeE','barnStreet','courtNorth','workStreet','ruralJ1'],82,'main');
+  chain(['ruralJ1','countrySouth'],52,'country');
+  // Two purposeful old-town loops, around buildings rather than through them.
+  chain(['northGate','scienceJ','northWest','castle','science','academyEast','operaTop','operaJ'],54,'street');
+  chain(['square','quayJ1','quayBend','quayJ2','quayJ3','riksdag','riverCorner','riverJ'],58,'street');
+  // One shared residential court. No outer ring or diagonal to the countryside.
+  chain(['bridgeE','urbanNorth','urbanCross','homesDoor','urbanCourt','homes','courtNorth'],44,'lane');
+  // One country road serves the estate. The village has a short approach.
+  chain(['workStreet','ruralJ2','farmLane','manor'],48,'country');
+  for(const [a,b] of [['cafeStreet','cafe'],['printStreet','print'],['archiveStreet','archive'],
+   ['barnStreet','barn'],['workStreet','work'],['academyEast','operaDoor'],
+   ['churchStreet','church'],['church','churchyard'],['countrySouth','village'],['quayJ3','quay']]){
+   chain([a,b],a==='quayJ3'?40:32,'path');
+  }
+  if(hasCamps){
+   node(r,'westLane',100,1050);node(r,'campWest',287,1050);
+   node(r,'campNorthVia',2745,288);node(r,'campNorth',2435,288);
+   chain(['west','westLane','campWest'],36,'path');
+   chain(['ruralJ2','campNorthVia','campNorth'],40,'lane');
+  }
+  // Remove the disconnected ornamental bridge, not the bridge used for travel.
+  r.bridges=r.bridges.filter(b=>b.y>600);
+  r.plazas=[{x:1010,y:705,r:99},
+   {x:1175,y:606,r:55,polygon:[[1067,578],[1235,574],[1282,585],[1284,633],[1080,641],[1060,622]]},
+   {x:2390,y:1048,r:44,polygon:[[2255,1026],[2475,1022],[2515,1035],[2518,1076],[2290,1078],[2250,1064]]},
+   {x:3270,y:810,r:35,polygon:[[3202,789],[3336,785],[3350,813],[3338,841],[3200,840],[3188,813]]}
+  ];
+  r.labels=r.labels.map(l=>l.t==='Landsbygden'?{...l,node:'countrySouth'}:l);
   rebuild(r);
   const angles={'Kaffehuset':-3,'Tryckeriet':0,'Arkivet':-3,'Operan':-5,
    'Vetenskapens hus':-4,'Bostadskvarteren':-8,'Bostadshus':-8,'Byn':-4,'Herrgården':-5};
   for(const b of r.buildings)rotated(b,angles[b.name]||0);
   if(typeof inRect==='function')inRect=contains;
-  document.documentElement.dataset.townLayout='urban-1';
+  r.roadPlanVersion='roads-1';
+  // Old navigation overrides must not move points away from the painted roads.
+  document.documentElement.dataset.townLayout='roads-1';
  }
- return {apply,door,contains,version:'urban-1'};
+ return {apply,door,contains,walkFor,dogWalk,streetPose,version:'roads-1'};
 })();
 
 /* Original paper materials with a shared, one-time chapter layout preparation.
@@ -227,7 +312,7 @@ window.UPPDRAG_PAPER = (() => {
     else for(const p of r.water)piece(g,p,'water',{edge:true});
     window.UPPDRAG_WORLD_GROWTH?.paintFields?.(g,r);
     for(const e of r.edges)road(g,r.map.get(e.a),r.map.get(e.b),e.w);
-    for(const p of r.plazas){g.beginPath();g.arc(p.x,p.y,p.r,0,Math.PI*2);g.fillStyle=material(g,'paper');g.fill();}
+    for(const p of r.plazas){if(p.polygon){piece(g,p.polygon,'paper');continue;}g.beginPath();g.arc(p.x,p.y,p.r,0,Math.PI*2);g.fillStyle=material(g,'paper');g.fill();}
     for(const b of r.bridges){box(g,b.x,b.y,b.w,b.h,'olive',{shadow:true});
       for(let x=b.x+6;x<b.x+b.w-7;x+=19)box(g,x,b.y+6,12,b.h-12,'ochre');
       box(g,b.x,b.y,b.w,5,'slate');box(g,b.x,b.y+b.h-5,b.w,5,'slate');}

@@ -188,6 +188,8 @@ function position(actor,now=performance.now()){
   if(teaser?.id===actor.id)return {...actor,x:teaser.x,y:teaser.y,moving:false};
   if(pendingHold?.id===actor.id)return {...actor,x:pendingHold.x,y:pendingHold.y,moving:false};
   const clock=Math.max(0,now-enteredAt-(talkPaused[actor.id]||0));
+  const street=window.UPPDRAG_TOWN_LAYOUT?.streetPose(REGIONS[actor.region],actor,clock,reduced?.matches);
+  if(street)return {...actor,...street};
   const r=patrol(actor.x-actor.range,actor.x+actor.range,actor.y,clock,actor.period,actor.x*7);
   const rest=(clock+actor.x*5)%12500>10900;
   return {...actor,...r,moving:r.moving&&!rest};
