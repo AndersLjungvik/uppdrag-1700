@@ -331,7 +331,8 @@ const facts={},explanations={},vocabulary={};
 for(const row of DATA){
   facts[row.id]={ab:row.ab,a:row.a,hint:row.hint,q:row.q,
     variants:row.q.map(()=>[row.a,...row.distractors]),page:row.page};
-  explanations[row.id]=[row.a+'. '+row.extra,'Källa i klassens underlag: '+row.page+'.'];
+  // Evidence is teacher-only metadata; feedback never reveals assessment sources.
+  explanations[row.id]=[row.a+'. '+row.extra];
   vocabulary[row.id]=row.q.map(()=>[row.term,row.meaning]);
 }
 const runs=[
