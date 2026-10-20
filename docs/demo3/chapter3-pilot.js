@@ -528,7 +528,8 @@ function drawModal(){
     +'<p class="ch1DiplomaSmall">'+right+' rätta återkallningar på '+tries+' försök. '
       +'Detta är träning, inte ett betyg.</p>'
     +'<button class="primary" data-action="restart">Börja om äventyret</button>'
-    +'<button data-action="close">Tillbaka till staden</button></article>';
+    +'<a class="ch1NextChapter" href="chapter4-pilot.html?v=1">→ Fortsätt till kapitel 4 · Nya tider, nya tankar</a>'
+     +'<button data-action="close">Tillbaka till staden</button></article>';
    return;
  }
  let h='<div style="font:600 12px system-ui;color:#685b45;letter-spacing:.1em">'+(s.step?rank():'Kapitel 3')+' · '+paths[current().p]+'</div>';
