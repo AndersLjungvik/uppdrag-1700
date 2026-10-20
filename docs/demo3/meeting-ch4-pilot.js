@@ -228,6 +228,26 @@ function puppet(x,foot,color,faceRight,t,talking=false,walk=false,woman=false,ap
     poly([[-37,-290],[-18,-319],[19,-315],[37,-293],[13,-300],[-17,-301]],'#ddd2b8',false);
     poly([[8,-308],[24,-297],[31,-273],[8,-286]],'#dad0b5',false);
     ctx.save();ctx.translate(-62,-136);ctx.rotate(.08);cut(0,0,73,21,'#eaddbf');ctx.restore();
+  }else if(role==='cajsa'){
+    // A visiting household expert: bound recipe book, kerchief and apron.
+    poly([[-42,-225],[28,-223],[43,-112],[-35,-108]],'#836550',false);
+    poly([[-35,-113],[29,-113],[48,-25],[-43,-25]],'#93795f',false);
+    poly([[-22,-174],[17,-174],[30,-31],[-30,-31]],'#ecdfc3',false);
+    cut(-22,-167,38,7,'#b69c76');
+    poly([[-34,-296],[-17,-322],[18,-321],[35,-298],[16,-292],[-18,-288]],'#eee2ce',false);
+    ctx.save();ctx.translate(-62,-152);ctx.rotate(.08);
+    cut(0,0,78,84,'#806344');
+    cut(7,7,65,70,'#f5e6c8');
+    for(let n=0;n<4;n++)cut(14,17+n*13,47,2,'#a28b6e',false);
+    ctx.restore();
+  }else if(role==='karin'){
+    // A young woman learning household management, with a ladle and apron.
+    poly([[-40,-229],[24,-228],[39,-116],[-34,-114]],'#796e59',false);
+    poly([[-29,-116],[26,-117],[43,-24],[-43,-24]],'#8d7d67',false);
+    poly([[-23,-190],[18,-190],[31,-29],[-29,-29]],'#e5d6b9',false);
+    poly([[-34,-296],[-18,-313],[22,-313],[38,-297],[9,-290]],'#d9cab1',false);
+    cut(-62,-146,66,7,'#847156');
+    oval(-60,-141,13,11,'#c4b28c');
   }else if(role==='erik'){
     poly([[-46,-230],[26,-230],[40,-114],[-35,-111]],'#5c6255',false);
     poly([[-30,-112],[20,-113],[33,-23],[-42,-23]],'#6d7365',false);
