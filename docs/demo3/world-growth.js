@@ -10,38 +10,29 @@ function cut(g,points,color){
  g.fillStyle=window.UPPDRAG_PAPER_FIBRES?.material?.(g,color,'piece')||color;
  g.fill();g.shadowColor='transparent';g.strokeStyle='#e5d8bd';g.lineWidth=1.2;g.stroke();g.restore();
 }
-function torp(g,x,y,k=.43,roof='#89634d',animals='hens'){
- g.save();g.translate(x,y);g.scale(k,k);
- // Small house: about one quarter of the main farm house's outer dimensions.
- // A small kitchen garden and a few animals belong to THIS household.
- cut(g,[[-80,42],[-62,27],[24,23],[77,37],[91,83],[-83,89]],'#9eaa80');
- for(let i=0;i<4;i++){
-   const xx=15+i*14;
-   cut(g,[[xx,54],[xx+8,52],[xx+10,76],[xx+1,77]],i%2?'#7b9467':'#a1b078');
- }
- // Low paper fence with separate wooden posts.
- for(const xx of [-81,-59,-37,72,89]){
-   cut(g,[[xx,46],[xx+6,46],[xx+6,83],[xx,83]],'#a48a66');
- }
- cut(g,[[-80,52],[-38,52],[-39,58],[-80,59]],'#927a59');
- cut(g,[[72,52],[91,52],[90,58],[72,59]],'#927a59');
- // Cottage with pitched roof and door.
- cut(g,[[-55,-1],[50,-4],[51,39],[-55,40]],'#c7b397');
- cut(g,[[-66,0],[-18,-35],[40,-36],[63,-2],[31,11],[-53,10]],roof);
- cut(g,[[-12,18],[6,17],[7,40],[-12,41]],'#594c3b');
- cut(g,[[27,17],[39,17],[39,28],[26,28]],'#e5d4b5');
- cut(g,[[25,-34],[37,-35],[36,-49],[26,-48]],'#ac9679');
+function torp(g,x,y,roof='#855f4e',animals='hens'){
+ // Exactly the same top-down roof language as paper-look.drawBuilding:
+ // four roof edges, a ridge, material texture, shadow and no front facade.
+ // Main village building: 220 x 155. Torp: 57 x 39 (~10% area,
+ // ~26% width and height), deliberately subordinate on the town map.
+ const w=57,h=39;
+ cut(g,[[x-3,y+2],[x+w+2,y+2],[x+w+2,y+h+4],[x-2,y+h+4]],'#b4a183');
+ cut(g,[[x,y+1],[x+w*.48,y-2],[x+w+1,y+2],[x+w,y+h],[x+w*.46,y+h+1],[x-1,y+h]],roof);
+ cut(g,[[x+4,y+3],[x+w*.49,y],[x+w*.49,y+h-3],[x+3,y+h-2]],'#896a52');
+ cut(g,[[x+w*.51,y],[x+w-3,y+3],[x+w-3,y+h-3],[x+w*.51,y+h-3]],'#795c49');
+ g.save();g.strokeStyle='#d7bc94';g.lineWidth=1.5;g.beginPath();g.moveTo(x+w*.5,y+1);g.lineTo(x+w*.5,y+h-2);g.stroke();g.restore();
+ // Outside details are very small and in the same top-down paper style.
+ const gx=x+w+8,gy=y+h*.66;
+ cut(g,[[gx,gy-2],[gx+31,gy-5],[gx+33,gy+21],[gx-1,gy+24]],'#9c9875');
+ for(let i=0;i<3;i++)cut(g,[[gx+5+i*9,gy+1],[gx+9+i*9,gy],[gx+11+i*9,gy+17],[gx+6+i*9,gy+19]],'#78865c');
  if(animals==='cow'){
-   cut(g,[[-73,64],[-40,60],[-35,76],[-71,81]],'#e1d7c2');
-   cut(g,[[-42,62],[-29,59],[-23,69],[-38,73]],'#d7c8ae');
-   for(const xx of [-66,-45])cut(g,[[xx,75],[xx+4,75],[xx+4,92],[xx,92]],'#82705b');
+  cut(g,[[gx+3,gy+28],[gx+18,gy+26],[gx+21,gy+33],[gx+5,gy+36]],'#e1d7c1');
+  cut(g,[[gx+17,gy+27],[gx+23,gy+29],[gx+23,gy+34],[gx+17,gy+34]],'#9a8a77');
  }else{
-   for(const [hx,hy] of [[-65,72],[-45,67]]){
-     cut(g,[[hx-7,hy],[hx-2,hy-10],[hx+8,hy-5],[hx+10,hy+4],[hx-6,hy+5]],'#eee2ce');
-     cut(g,[[hx+9,hy-5],[hx+17,hy-2],[hx+9,hy+1]],'#b97e59');
-   }
+  for(const [dx,dy] of [[5,29],[17,37]]){
+   cut(g,[[gx+dx,gy+dy],[gx+dx+5,gy+dy-2],[gx+dx+8,gy+dy+3],[gx+dx+2,gy+dy+6]],'#f0e5d0');
+  }
  }
- g.restore();
 }
 function fields(g){
  // Field geometry follows the *manor* land, not the village.
@@ -70,11 +61,11 @@ function paintBuildings(g,r){
  // The village's original large house stays untouched. Two small cottages
  // move outward once field holdings begin consolidating (stylised time steps).
  if(!late){
-   torp(g,3084,1033,.43,'#8e6c55','hens'); // soldier
-   torp(g,3430,1021,.43,'#86654d','cow'); // day labourer
+   torp(g,3070,1041,'#8e6c55','hens'); // soldier // soldier
+   torp(g,3438,1016,'#86654d','cow'); // day labourer // day labourer
  }else{
-   torp(g,2924,266,.43,'#8e6c55','hens');
-   torp(g,3126,270,.43,'#86654d','cow');
+   torp(g,2900,247,'#8e6c55','hens');
+   torp(g,3120,243,'#86654d','cow');
  }
 }
 window.UPPDRAG_WORLD_GROWTH={chapter,paintFields,paintBuildings};
