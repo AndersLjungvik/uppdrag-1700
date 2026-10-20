@@ -44,6 +44,7 @@ body[data-room^="waterfront-"] #roomReturnText{display:none}
 <script src="more-room-ch4-pilot.js?v=1"></script>
 <script src="harbour-fibre-art.js?v=3.19.0"></script>
 <script src="harbour-chapters.js?v=3.19.0"></script>
+<script src="chapter4-sidequest.js?v=1"></script>
 <script src="living-conversation-data.js?v=3.19.0"></script>
 <script>
 'use strict';
@@ -233,7 +234,7 @@ window.addEventListener('resize',resize);resize();draw();syncHarbourUI();documen
 window.UPPDRAG_PAPER.ready.then(ok=>{layers.clear();draw();document.documentElement.dataset.paper=ok?'original':'fallback';if(!ok)console.warn('Originalmaterialet saknas. Grundgrafiken visas.');});
 </script>
 <script src="npc-motion-ch3.js?v=1"></script>
-<script src="meeting-ch4-pilot.js?v=1"></script>
+<script src="meeting-ch4-pilot.js?v=2"></script>
 <script src="world-life-ch3.js?v=4"></script>
 <script src="story-world.js?v=3.19.0"></script>
 <script src="paper-dialogues.js?v=4"></script>
@@ -267,7 +268,8 @@ if(window.UPPDRAG_WORLD_LIFE){
 <script src="chapter4-closeups.js?v=1"></script>
 <script src="chapter4-reading.js?v=1"></script>
 <script src="chapter4-pilot.js?v=1"></script>
-<script src="chapter4-street-life.js?v=1"></script>
+<script src="chapter4-landscape.js?v=1"></script>
+<script src="chapter4-street-life.js?v=2"></script>
 </body>
 </html>
 
