@@ -31,6 +31,21 @@ function flowers(g,x,y,i){
 function draw(g,{region,now=0}={}){
   if(region?.id!=='main')return;
   g.save();
+  // 1772 arrives as visible changes, not an assessment screen.
+  // All notices use the existing cut-paper material and are beside roads.
+  // Town-square proclamations: older sheets partly covered by new royal ones.
+  shape(g,[[1092,761],[1146,759],[1150,817],[1089,820]],'#897457');
+  shape(g,[[1099,767],[1140,763],[1145,810],[1097,814]],'#ede0c5');
+  shape(g,[[1108,775],[1132,777],[1137,783],[1106,785]],'#a7855d');
+  for(let i=0;i<3;i++)shape(g,[[1107,794+i*6],[1134,792+i*6],[1131,796+i*6],[1109,798+i*6]],'#9f8a6e');
+  // A ribbon beside the parliament marks a quieter assembly entrance.
+  shape(g,[[1770,1032],[1793,1029],[1789,1051],[1772,1054]],'#786753');
+  shape(g,[[1776,1032],[1790,1030],[1788,1045],[1774,1046]],'#ded0ae');
+  // A royal proclamation at the palace garden, without obstructing its door.
+  shape(g,[[925,342],[955,340],[955,368],[923,369]],'#715643');
+  shape(g,[[929,343],[951,343],[951,363],[928,364]],'#ead9bb');
+  shape(g,[[935,350],[944,349],[947,353],[933,354]],'#a28b67');
+
   // Former western Russian camp: botany meadow. Entirely to the east of
   // the road to campWest, with no invisible fence or building.
   shape(g,[[335,1025],[476,1033],[481,1151],[324,1157]],'#a6a58a');
