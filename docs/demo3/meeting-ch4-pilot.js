@@ -17,14 +17,14 @@
       ['Du','Vad sitter på anslagstavlan?'],
       ['Maja','Där samlar vi sådant som är värt att läsa och prata om.']
     ]},
-    print:{name:'Brita',color:'#78684f',woman:true,role:'brita',lines:[['Du','Hej Brita!'],['Brita','Jag lägger ett nytt tryckblad i ordning.']]},
+    print:{name:'Brita',color:'#6e6b5b',woman:true,apron:true,role:'brita',lines:[['Du','Hej Brita!'],['Brita','Jag lägger ett nytt tryckblad i ordning.']]},
     science:{name:'Sam',color:'#5d776c',role:'sam',lines:[['Du','Hej Sam!'],['Sam','Välkommen till Vetenskapens hus. Vi arbetar med forskarnas anteckningar.']]},
     farm:{name:'Sigrid',color:'#967654',woman:true,role:'sigrid',lines:[['Du','Hej Sigrid!'],['Sigrid','Här på gården undersöker vi allt man kan göra med potatisen.']]},
     palace:{name:'Amira',color:'#846956',woman:true,role:'amira',lines:[['Du','Hej!'],['Amira','Välkommen till slottet.']]},
     barnhus:{name:'Cajsa Warg',color:'#92735c',woman:true,role:'cajsa',lines:[['Du','Hej!'],['Cajsa Warg','Jag visar kökspersonalen några råd, bara på besök.']]},
     homes:{name:'Karin',color:'#876d5d',woman:true,role:'karin',lines:[['Du','Hej!'],['Karin','Välkommen in i vårt hushåll.']]},
     church:{name:'Olof',color:'#6f6956',role:'olof',lines:[['Du','Hej, Olof!'],['Olof','Välkommen till kyrkan. Jag är klockaren.']]},
-    riksdag:{name:'Erik',color:'#665d54',role:'erik',lines:[['Du','Hej, Erik!'],['Erik','Jag skriver protokoll här på riksdagen.']]},
+    riksdag:{name:'Elin',color:'#6b7461',woman:true,role:'elin',lines:[['Du','Hej, Elin!'],['Elin','Jag skriver protokoll här på riksdagen.']]},
     archive:{name:'Rut',color:'#67695a',woman:true,role:'rut',lines:[
       ['Du','Hej! Jag letar efter Rut.'],
       ['Rut','Då har du kommit rätt. Jag är läromästaren Rut. Här undersöker vi vad handlingarna faktiskt berättar.'],
@@ -111,7 +111,7 @@
   roomView.append(layer,person,dialogueTail,panel);
   const placeLabel=document.createElement('span');placeLabel.id='ch1RoomIdentity';placeLabel.hidden=true;
   roomView.querySelector('.room-top')?.append(placeLabel);
-  const roomLabels={cafe:'Majas kaffebord',riksdag:'Eriks protokoll',
+  const roomLabels={cafe:'Majas kaffebord',riksdag:'Elins protokoll',
     quay:'Jos lastbok',print:'Britas tryckblad',archive:'Ruts bokhyllor',church:'Olofs läsböcker',science:'Sams forskarbord',farm:'Sigrids potatisprover',barnhus:'Cajsas köksbesök',homes:'Karins hushåll'};
   function showRoomIdentity(key){
     const caption=roomLabels[key]||'';
