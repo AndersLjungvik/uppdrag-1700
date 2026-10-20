@@ -83,7 +83,7 @@ Object.assign(CAST,{
     ['Du','Har den nya kungen ändrat straffen?'],
     ['Fästningsvakten','Vissa dödsstraff togs bort ur lagen och tortyr förbjöds. Men människor döms fortfarande till hårda straff.']]},
  prisoner:{id:'prisoner',name:'En dömd förfalskare · fiktiv',region:'marstrand',
-   x:1162,y:455,r:36,role:'prisoner',color:'#8a755d',heading:0,range:9,period:17300,
+   x:1118,y:563,r:36,role:'prisoner',color:'#8a755d',heading:0,range:9,period:17300,
    lines:[['Fången','Stenen är tung, och arbetet tar aldrig slut.'],
     ['Du','Varför sitter du här?'],
     ['Fången','I vår påhittade berättelse dömdes jag för förfalskning. Jag är ingen känd historisk fånge.'],
