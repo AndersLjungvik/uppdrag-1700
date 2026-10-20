@@ -11,7 +11,7 @@ const DATA=[
   "q": [
    "Vad heter friheten att skriva och sprida tryckta texter?",
    "Vilket ord använder vi för rätten att sprida tryckta texter?",
-   "En notis blandar ihop tryckfrihet och censur. Vad kallas friheten att trycka texter?"
+   "En tryckare vill publicera en ny text utan förhandsgranskning. Vilken frihet handlar det om?"
   ],
   "distractors": [
    "Censur",
@@ -30,7 +30,7 @@ const DATA=[
   "q": [
    "Vad kallas det när de styrande granskar och stoppar texter före tryckning?",
    "Vilket begrepp handlar om kontroll av texter innan de sprids?",
-   "Någon påstår att förhandscensur betyder att vem som helst får trycka vad som helst. Vad heter själva kontrollen?"
+   "En myndighet granskar och stoppar texter innan de får tryckas. Vad kallas den kontrollen?"
   ],
   "distractors": [
    "Tryckfrihet",
@@ -311,11 +311,11 @@ const DATA=[
   "id": "swedenFirst",
   "ab": "12",
   "a": "Sverige",
-  "hint": "Frågan bygger på vad som anges i klassens provunderlag.",
+  "hint": "Tänk på en viktig lag från år 1766 och var den infördes.",
   "q": [
-   "Vilket land pekas ut som först med tryckfrihet i provunderlaget?",
-   "Vilket land förknippas i provets fråga med den första tryckfrihetslagstiftningen?",
-   "En elev skriver att Frankrike var först enligt klassens prov. Vilket land anges där?"
+   "Vilket land införde en banbrytande tryckfrihetsförordning år 1766?",
+   "I vilket land antogs tryckfrihetsförordningen år 1766?",
+   "En tryckare påstår att lagen från 1766 infördes i Frankrike. Vilket land ska det stå?"
   ],
   "distractors": [
    "Frankrike",
@@ -323,7 +323,7 @@ const DATA=[
   ],
   "page": "Prov del 1 uppgift 1 a",
   "term": "Sverige",
-  "meaning": "landet som klassens prov anger som först med tryckfrihet",
+  "meaning": "landet där en tidig tryckfrihetsförordning antogs år 1766",
   "extra": "Tryckfriheten infördes med historiska begränsningar och utökades senare."
  }
 ];
