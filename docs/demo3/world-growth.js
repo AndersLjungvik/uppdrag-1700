@@ -1,6 +1,5 @@
-/* Chapter-aware rural life. Preserve the original buildings and entrances.
- * Draw only NEW separate paper pieces onto unused rural landscape.
- * Do not paint over existing roofs or the main roads. */
+/* Chapter-aware rural life. Preserve the original village and its 45% cottages.
+ * Render cottage roofs from the original house artwork, not rotated bounds. */
 (function(){'use strict';
 const chapter=Number((document.title.match(/Kapitel\s+(\d+)/i)||[])[1]||1);
 const late=chapter>=5;
@@ -12,9 +11,7 @@ function cut(g,points,color){
 }
 const COTTAGE_SCALE=.45;
 function villageHouseSprite(g,building){
- // paintBuildings runs after paper-look has drawn the ordinary buildings.
- // Reuse that actual house artwork instead of approximating it with polygons.
- // Copy only the roof/building: labels and surrounding roads are not included.
+ if(window.UPPDRAG_PAPER?.buildingSprite)return window.UPPDRAG_PAPER.buildingSprite(building);
  const sprite=document.createElement('canvas');
  sprite.width=building.w;sprite.height=building.h;
  sprite.getContext('2d').drawImage(g.canvas,building.x,building.y,
@@ -22,9 +19,7 @@ function villageHouseSprite(g,building){
  return sprite;
 }
 function torp(g,x,y,sprite,animals='hens'){
- // Exactly 45% of the village house's width AND height, not 45% of its area.
  const w=sprite.width*COTTAGE_SCALE,h=sprite.height*COTTAGE_SCALE;
- // The base and doorstep follow the same scaled footprint as the source house.
  g.save();
  g.shadowColor='#382e2145';g.shadowBlur=4*COTTAGE_SCALE;
  g.shadowOffsetX=2*COTTAGE_SCALE;g.shadowOffsetY=5*COTTAGE_SCALE;
@@ -39,7 +34,6 @@ function torp(g,x,y,sprite,animals='hens'){
  g.fillRect(x+w/2-12*COTTAGE_SCALE,y+h-2*COTTAGE_SCALE,
    24*COTTAGE_SCALE,9*COTTAGE_SCALE);
  g.restore();
- // Keep the garden and livestock small: only the HOUSE has been enlarged.
  const gx=x+w+8,gy=y+h*.66;
  cut(g,[[gx,gy-2],[gx+31,gy-5],[gx+33,gy+21],[gx-1,gy+24]],'#9c9875');
  for(let i=0;i<3;i++)cut(g,[[gx+5+i*9,gy+1],[gx+9+i*9,gy],
@@ -55,8 +49,6 @@ function torp(g,x,y,sprite,animals='hens'){
  }
 }
 function fields(g){
- // Field geometry follows the *manor* land, not the village.
- // They sit north/southwest of the manor, clear of its road and buildings.
  const patches=late?[
    [[2830,129],[3010,103],[3038,201],[2860,233]],
    [[3055,88],[3242,76],[3252,205],[3082,228]],
@@ -69,7 +61,6 @@ function fields(g){
    [[3151,83],[3239,77],[3250,203],[3168,205]]
  ];
  patches.forEach((pts,i)=>cut(g,pts,['#b09e79','#a79970','#b9a984','#a79674'][i%4]));
- // Small grazing animals just outside the manor, not in the village.
  for(const [x,y] of [[2996,281],[3023,286],[3071,274]]){
    cut(g,[[x-11,y],[x+11,y-2],[x+15,y+6],[x-12,y+9]],'#eee0c6');
    cut(g,[[x+8,y-5],[x+14,y-7],[x+18,y-1],[x+10,y+3]],'#e4d6bd');
@@ -81,8 +72,6 @@ function paintBuildings(g,r){
  const village=r.buildings.find(b=>b.name==='Byn');
  if(!village)return;
  const sprite=villageHouseSprite(g,village);
- // Keep the existing chapter placement; leave room for the larger roofs,
- // gardens and the road to the manor in the later landscape.
  if(!late){
    torp(g,3000,1041,sprite,'hens');
    torp(g,3438,1016,sprite,'cow');

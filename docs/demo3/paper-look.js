@@ -1,6 +1,88 @@
-/* Demo 3.3 visual layer. Reads, but never changes, the Demo 3.2.1 region data.
- * Source of material samples: ../world/assets/town.webp (the original demo).
- * No replacement map, no iframe, no new navigation or voyage logic.
+/* Shared town plan. Applied exactly once, before the first scene is cached and
+ * before the chapter's navigation/life controllers are constructed.
+ * Coordinates, hit footprints and painted geometry move together. No save data. */
+'use strict';
+window.UPPDRAG_TOWN_LAYOUT=(()=>{
+ const done=new WeakSet();
+ const RAD=Math.PI/180;
+ function rebuild(r){
+  r.map=new Map(r.nodes.map(n=>[n.id,n]));
+  r.graph=new Map(r.nodes.map(n=>[n.id,[]]));
+  for(const e of r.edges){
+   if(!r.map.has(e.a)||!r.map.has(e.b))throw Error('Unknown road endpoint '+e.a+' / '+e.b);
+   r.graph.get(e.a).push(e.b);r.graph.get(e.b).push(e.a);
+  }
+ }
+ function node(r,id,x,y){const n=r.nodes.find(n=>n.id===id);if(n)Object.assign(n,{x,y});else r.nodes.push({id,x,y});}
+ function edge(r,a,b,w=58){r.edges.push({a,b,w});}
+ function rotated(b,degrees){
+  const p={x:b.x,y:b.y,w:b.w,h:b.h,a:degrees*RAD};
+  p.cx=p.x+p.w/2;p.cy=p.y+p.h/2;
+  b.paperPose=p;
+  const ww=Math.abs(Math.cos(p.a))*p.w+Math.abs(Math.sin(p.a))*p.h;
+  const hh=Math.abs(Math.sin(p.a))*p.w+Math.abs(Math.cos(p.a))*p.h;
+  Object.assign(b,{x:p.cx-ww/2,y:p.cy-hh/2,w:ww,h:hh});
+ }
+ function door(b,entry){
+  const p=b.paperPose||{x:b.x,y:b.y,w:b.w,h:b.h,a:0,cx:b.x+b.w/2,cy:b.y+b.h/2};
+  const c=Math.cos(p.a),s=Math.sin(p.a),dx=(entry?.x??p.cx)-p.cx,dy=(entry?.y??(p.cy+p.h))-p.cy;
+  const ex=dx*c+dy*s,ey=-dx*s+dy*c;
+  let x=0,y=0,nx=0;
+  if(Math.abs(ex)/(p.w/2)>Math.abs(ey)/(p.h/2)){x=(ex<0?-1:1)*p.w/2;nx=ex<0?-1:1;}
+  else y=(ey<0?-1:1)*p.h/2;
+  return{x:p.cx+x*c-y*s,y:p.cy+x*s+y*c,angle:p.a+(nx?Math.PI/2:0)};
+ }
+ function contains(x,y,b,pad=0){
+  const p=b.paperPose;if(!p)return x>=b.x-pad&&x<=b.x+b.w+pad&&y>=b.y-pad&&y<=b.y+b.h+pad;
+  const dx=x-p.cx,dy=y-p.cy,c=Math.cos(p.a),s=Math.sin(p.a);
+  return Math.abs(dx*c+dy*s)<=p.w/2+pad&&Math.abs(-dx*s+dy*c)<=p.h/2+pad;
+ }
+ function apply(r){
+  if(done.has(r))return;
+  done.add(r);
+  if(r.id!=='main'||!document.title.match(/Kapitel\s+[1-5]\b/i))return;
+  const homes=r.buildings.find(b=>b.name==='Bostadskvarteren');
+  const opera=r.buildings.find(b=>b.name==='Operan');
+  if(!homes||!opera)return;
+  Object.assign(homes,{x:2260,y:850,w:220,h:150,entry:'homesDoor'});
+  Object.assign(opera,{x:1400,y:70,w:255,h:165});
+  // Existing pedestrian/dog route names remain valid. The actual new home
+  // entrance has its own node rather than dragging a through-road into a roof.
+  node(r,'homes',2530,805);node(r,'homesDoor',2370,1048);
+  node(r,'urbanNorth',2200,780);node(r,'urbanCross',2200,1048);
+  node(r,'urbanCourt',2530,1048);node(r,'urbanTurn',2558,1115);
+  node(r,'urbanSouth',2200,1230);node(r,'urbanEast',2700,1230);
+  edge(r,'barn','urbanNorth');edge(r,'urbanNorth','urbanCross');
+  edge(r,'urbanCross','homesDoor');edge(r,'homesDoor','urbanCourt');
+  edge(r,'urbanCourt','urbanTurn',50);edge(r,'urbanTurn','urbanEast',50);
+  edge(r,'urbanCross','urbanSouth',50);edge(r,'urbanSouth','urbanEast',50);
+  node(r,'workBack',2960,1160);edge(r,'urbanEast','workBack',50);
+  edge(r,'workBack','countrySouth',50);
+  node(r,'operaDoor',1530,285);node(r,'operaTop',1710,350);
+  const oldOpera=new Set(['operaDoor','operaTop']);
+  r.edges=r.edges.filter(e=>!oldOpera.has(e.a)&&!oldOpera.has(e.b));
+  edge(r,'science','operaDoor');edge(r,'operaDoor','operaTop');edge(r,'operaTop','operaJ');edge(r,'operaJ','operaDoor');
+  // Open churchyard: reserved for the later, larger church artwork.
+  node(r,'churchyard',1380,565);edge(r,'church','churchyard');edge(r,'churchyard','operaJ');
+  r.plazas.push({x:1380,y:565,r:66});
+  r.buildings.push(
+   {x:2240,y:1110,w:135,h:82,name:'Bostadshus',entry:'homesDoor',scenery:true,roof:'#91654f',wall:'#c8b99d'},
+   {x:2395,y:1110,w:118,h:77,name:'Bostadshus',entry:'homesDoor',scenery:true,roof:'#91654f',wall:'#c8b99d'}
+  );
+  r.buildings.find(b=>b.name==='Verkstäderna').entry='work';
+  r.buildings.find(b=>b.name==='Byn').entry='village';
+  rebuild(r);
+  const angles={'Kaffehuset':-3,'Tryckeriet':0,'Arkivet':-3,'Operan':-5,
+   'Vetenskapens hus':-4,'Bostadskvarteren':-8,'Bostadshus':-8,'Byn':-4,'Herrgården':-5};
+  for(const b of r.buildings)rotated(b,angles[b.name]||0);
+  if(typeof inRect==='function')inRect=contains;
+  document.documentElement.dataset.townLayout='urban-1';
+ }
+ return {apply,door,contains,version:'urban-1'};
+})();
+
+/* Original paper materials with a shared, one-time chapter layout preparation.
+ * No new image overlays, iframe, learning state or voyage logic.
  */
 'use strict';
 window.UPPDRAG_PAPER = (() => {
@@ -61,18 +143,17 @@ window.UPPDRAG_PAPER = (() => {
     g.strokeStyle=material(g,'paper');g.lineWidth=w;g.stroke();g.restore();
   }
   function roofType(b){return /Tryck|Verk|Slott|Fäst|Oper|Vetenskap/.test(b.name)?(/Vetenskap/.test(b.name)?'olive':'slate'):/Herrgård/.test(b.name)?'olive':'red';}
-  function drawBuilding(g,b,r){
+  function drawBuildingOriginal(g,b,r){
     const type=roofType(b),e=r.map.get(b.entry),door={x:b.x+b.w/2,y:b.y+b.h};
-    // The existing entrance and building dimensions are NOT moved.
-    road(g,door,e,25);
+    if(!b.scenery&&!b.layoutCore)road(g,door,e,25);
     box(g,b.x+4,b.y+7,b.w,b.h+5,'ochre',{shadow:true});
     const p=rough([[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]],Math.round(b.x+b.y),2.4);
     g.save();path(g,p);g.clip();
     if(loaded){const crop=roofCrops[type];g.drawImage(source,...crop,b.x,b.y,b.w,b.h);}
     else{g.fillStyle=material(g,type);g.fillRect(b.x,b.y,b.w,b.h);g.fillStyle=material(g,'ochre');g.fillRect(b.x+b.w*.76,b.y,b.w*.24,b.h);}
     g.restore();g.save();path(g,p);g.strokeStyle='#f0e3c8';g.lineWidth=2;g.stroke();g.restore();
-    box(g,door.x-12,door.y-2,24,9,'slate');
-    // Small roof-mounted paper plaques identify the place without inventing tasks.
+    if(!b.layoutCore&&!b.scenery)box(g,door.x-12,door.y-2,24,9,'slate');
+    if(b.scenery)return;
     const onRoof=e.x>=b.x&&e.x<=b.x+b.w&&e.y>=b.y&&e.y<=b.y+b.h;
     const cx=onRoof?b.x+37:b.x+b.w*.38,cy=onRoof?b.y+36:b.y+b.h*.48;
     box(g,cx-27,cy-23,54,46,'paper',{shadow:true});
@@ -93,6 +174,22 @@ window.UPPDRAG_PAPER = (() => {
       g.strokeRect(-13,-17,26,34);for(let y=-9;y<=9;y+=6){g.beginPath();g.moveTo(-7,y);g.lineTo(8,y);g.stroke();}
     }g.restore();
   }
+  function drawBuilding(g,b,r){
+    const p=b.paperPose;
+    if(!p)return drawBuildingOriginal(g,b,r);
+    const door=window.UPPDRAG_TOWN_LAYOUT.door(b,r.map.get(b.entry));
+    if(!b.scenery)road(g,door,r.map.get(b.entry),25);
+    g.save();g.translate(p.cx,p.cy);g.rotate(p.a);g.translate(-p.cx,-p.cy);
+    drawBuildingOriginal(g,{...b,x:p.x,y:p.y,w:p.w,h:p.h,layoutCore:true},r);
+    g.restore();
+    if(!b.scenery){g.save();g.translate(door.x,door.y);g.rotate(door.angle);box(g,-12,-4,24,9,'slate');g.restore();}
+  }
+  function buildingSprite(b){
+    const p=b.paperPose||b,c=make(Math.round(p.w),Math.round(p.h)),g=c.getContext('2d');
+    const fake={...b,x:0,y:0,w:p.w,h:p.h,layoutCore:true,paperPose:null};
+    drawBuildingOriginal(g,fake,{map:new Map([[b.entry,{x:p.w/2,y:p.h+30}]])});
+    return c;
+  }
   function label(g,text,x,y){
     g.save();g.font='500 21px Georgia';const w=g.measureText(text).width+24;
     box(g,x-w/2,y-33,w,36,'paper',{shadow:true});g.fillStyle='#433a2d';g.textAlign='center';g.fillText(text,x,y-9);g.restore();
@@ -104,7 +201,6 @@ window.UPPDRAG_PAPER = (() => {
   }
   function boat(g,x,y,s=1){
     g.save();g.translate(x,y);g.scale(s,s);
-    // A top-down hull and paper deck, not a new isometric ship illustration.
     piece(g,[[0,-62],[18,-36],[23,18],[13,48],[0,62],[-13,48],[-23,18],[-18,-36]],'slate',{shadow:true,edge:true});
     piece(g,[[0,-49],[13,-27],[16,19],[8,42],[0,50],[-8,42],[-16,19],[-13,-27]],'olive');
     for(let y=-22;y<30;y+=23)box(g,-15,y,30,6,'ochre');g.restore();
@@ -112,7 +208,6 @@ window.UPPDRAG_PAPER = (() => {
   function harbor(g,r){
     const q=r.map.get(r.harbor);
     if(r.id==='main'){
-      // Retain the existing endpoint. The planks make its link to the old pier visible.
       box(g,q.x-29,q.y-8,58,104,'olive',{shadow:true});
       box(g,1375,1190,235,42,'olive',{shadow:true});
       for(let x=1382;x<1605;x+=18)box(g,x,1193,12,35,'ochre');
@@ -121,11 +216,11 @@ window.UPPDRAG_PAPER = (() => {
     }else{
       box(g,q.x-24,q.y+8,48,100,'olive',{shadow:true});
       for(let y=q.y+15;y<q.y+95;y+=16)box(g,q.x-20,y,40,8,'ochre');
-      // A berth marker; no island terrain or travel node is changed.
       box(g,q.x-40,q.y+100,80,16,'olive',{shadow:true});
     }
   }
   function drawRegion(r){
+    window.UPPDRAG_TOWN_LAYOUT?.apply(r);
     const c=make(r.w,r.h),g=c.getContext('2d');
     g.fillStyle=material(g,r.island?'water':'ground');g.fillRect(0,0,r.w,r.h);
     if(r.island)piece(g,r.island,r.id==='colony'?'sand':'ground',{edge:true});
@@ -138,7 +233,6 @@ window.UPPDRAG_PAPER = (() => {
       box(g,b.x,b.y,b.w,5,'slate');box(g,b.x,b.y+b.h-5,b.w,5,'slate');}
     for(const b of r.buildings)drawBuilding(g,b,r);
     window.UPPDRAG_WORLD_GROWTH?.paintBuildings?.(g,r);
-    // No prop is put over a graph edge or a building entrance.
     for(let i=0;i<(r.id==='main'?65:26);i++){
       const x=70+(i*173)%(r.w-140),y=70+(i*229)%(r.h-140);
       if(clearDecoration(r,x,y,46))tree(g,x,y,r.id==='colony');
@@ -146,7 +240,7 @@ window.UPPDRAG_PAPER = (() => {
     harbor(g,r);
     const buildingNodes=new Set(r.buildings.map(b=>b.entry));
     for(const l of r.labels)if(!buildingNodes.has(l.node)){const n=r.map.get(l.node);label(g,l.t,n.x,n.y-45);}
-    for(const b of r.buildings){const n=r.map.get(b.entry);label(g,b.name,n.x,n.y-22);}
+    for(const b of r.buildings){if(b.scenery)continue;const n=r.map.get(b.entry);label(g,b.name,n.x,n.y-22);}
     return c;
   }
   let finish;
@@ -157,5 +251,5 @@ window.UPPDRAG_PAPER = (() => {
   image.onerror=()=>complete(false);
   image.src=new URL('../world/assets/town.webp',document.baseURI).href;
   setTimeout(()=>complete(loaded),8000);
-  return {drawRegion,ready,get originalLoaded(){return loaded;},sourcePath:'../world/assets/town.webp'};
+  return {drawRegion,buildingSprite,ready,get originalLoaded(){return loaded;},sourcePath:'../world/assets/town.webp'};
 })();
