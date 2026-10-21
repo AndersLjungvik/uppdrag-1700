@@ -76,6 +76,15 @@ add(meetings,'    const c=current();if(!c?.cast||dialogue||voyage)return false;'
 add(meetings,'closeTalk(false);activeRoom=interior;wasTravelling=travelling;lastPaint=-Infinity;','closeTalk(false);activeRoom=interior;wasTravelling=travelling;lastPaint=-Infinity;\n      window.UPPDRAG_ROOM_STAGING?.enter(interior&&!travelling?current()?.key:null,now);');
 add(meetings,'    if(!interior||travelling)return;\n    const animating=',"    if(!interior||travelling)return;\n    const task=document.getElementById('ch1Modal');\n    if(!dialogue&&(!task||task.hidden)&&window.UPPDRAG_ROOM_STAGING?.greetingDue(now,motion.matches))startTalk();\n    const animating=");
 add(meetings,'outline:2px dashed #826f51','outline:2px solid #826f51');
+// The indoor HUD changes the canvas's CSS size after the first scene paint.
+// Synchronise the base painting before projecting people/foreground furniture.
+// This also covers orientation changes and HUD wrapping, without a second loop.
+add(meetings,'    geometry=measure();if(!geometry)return;',`    const bounds=roomCanvas.getBoundingClientRect(),ratio=Math.min(devicePixelRatio||1,2);
+    if(bounds.width>0&&bounds.height>0&&
+       (roomCanvas.width!==Math.round(bounds.width*ratio)||roomCanvas.height!==Math.round(bounds.height*ratio))){
+      renderInterior();
+    }
+    geometry=measure();if(!geometry)return;`);
 window.patchRoomStagingSource=function(name,source){
  for(const e of edits){if(!e.files.includes(name))continue;
   const i=source.indexOf(e.old);if(i<0||source.indexOf(e.old,i+1)>=0)throw new Error('Rumsändringen matchar inte grundfilen '+name+'. Ingen halvändrad scen visas.');
