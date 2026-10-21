@@ -3,7 +3,7 @@
 'use strict';
 const PLANS={
  cafe:{wait:550,duration:2900,auto:true,wide:[[1115,489,.74],[935,537,.78],[690,620,.86]],tall:[[600,686,.70],[576,745,.75],[442,902,.83]],player:{wide:[285,694,.84],tall:[114,982,.80]}},
- palace:{wait:600,duration:2350,auto:true,wide:[[885,522,.73],[737,534,.76],[550,583,.79]],tall:[[539,696,.68],[504,780,.73],[450,907,.80]],player:{wide:[790,696,.81],tall:[135,982,.76]}},
+ palace:{wait:600,duration:2350,auto:true,wide:[[885,522,.73],[737,534,.76],[550,583,.79]],tall:[[539,696,.68],[504,780,.73],[450,907,.80]],player:{wide:[260,690,.81],tall:[135,982,.76]}},
  archive:{wait:0,duration:0,auto:false,wide:[[705,592,.82]],tall:[[449,900,.80]],player:{wide:[374,690,.81],tall:[136,995,.78]}}
 };
 let visit=null;
