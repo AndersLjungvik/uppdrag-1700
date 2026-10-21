@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Uppdrag 1700 · Rumsprov</title><style>
+*{box-sizing:border-box}body{margin:0;height:100dvh;display:flex;flex-direction:column;font:14px/1.4 system-ui;background:#eee2c9;color:#3d352a}header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px;border-bottom:1px solid #aa9674}header strong{font:600 18px Georgia}select,button{font:inherit;background:#fff8e9;color:inherit;border:1px solid #ad9876;border-radius:5px;padding:6px 10px}button:focus-visible,select:focus-visible{outline:3px solid #355e68}#game{width:100%;flex:1;min-height:0;border:0;background:#d6cdbb}[hidden]{display:none!important}#status{margin-left:auto;font-size:12px}#error{padding:18px;color:#763b2c;background:#fff3e1}details{font-size:12px}details p{max-width:700px;margin:6px 0}@media(max-width:550px){header{gap:6px;padding:6px}header strong{font-size:15px}#status{display:none}button,select{padding:6px;font-size:12px}}
+</style><script src="room-staging-edits.js?v=1"></script></head><body>
+<header><strong>Rumsprov · lärarversion</strong><label>Kapitel <select id="chapter"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></label><button data-room="cafe">Maja</button><button data-room="palace">Amira</button><button data-room="archive">Rut</button><button data-room="town">Staden</button><details><summary>Om provet</summary><p>Det befintliga äventyret med ändrade placeringar och rörelser i tre rum. Frågorna är från den publicerade grundversionen, inte den lokala återkallningsprototypen. Separata testsparningar; elevspelets framsteg påverkas inte.</p></details><span id="status" role="status">Laddar spelet …</span></header>
+<div id="error" hidden role="alert"></div><iframe id="game" title="Uppdrag 1700 – rumsförhandsvisning" allow="autoplay"></iframe>
+<script>
+'use strict';
+const frame=document.getElementById('game'),status=document.getElementById('status'),error=document.getElementById('error'),select=document.getElementById('chapter');
+const base=new URL('./',location.href),prefix='uppdrag1700.room-staging-preview1.',memory=new Map(),cache=new Map();
+let serial=0,current=1,desired='cafe';
+window.sceneTestStore={getItem(k){try{return localStorage.getItem(prefix+k)??memory.get(k)??null;}catch{return memory.get(k)??null;}},setItem(k,v){memory.set(k,String(v));try{localStorage.setItem(prefix+k,String(v));}catch{}},removeItem(k){memory.delete(k);try{localStorage.removeItem(prefix+k);}catch{}}};
+function fail(message){error.hidden=false;error.textContent=message;status.textContent='Kunde inte öppna provet';}
+window.sceneTestError=message=>fail('Spelet rapporterade: '+message);
+async function text(name){if(!cache.has(name)){cache.set(name,fetch(new URL(name,base),{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error(name+': '+r.status);return r.text();}));}return cache.get(name);}
+function safeScript(code){return code.replace(/<\/script/gi,'<\\/script');}
+function query(code){return code.replace(/new URLSearchParams\(location\.search\)/g,"new URLSearchParams(window.__UPPDRAG_QUERY||location.search)");}
+const bridge=`window.__UPPDRAG_QUERY='?preview=1';
+Object.defineProperty(window,'localStorage',{value:parent.sceneTestStore,configurable:true});
+window.addEventListener('error',e=>parent.sceneTestError(String(e.message||'Okänt fel')));
+window.addEventListener('unhandledrejection',e=>parent.sceneTestError(String(e.reason?.message||e.reason)));
+document.addEventListener('click',e=>{const a=e.target.closest?.('a[href]');const m=a?.getAttribute('href').match(/chapter(\\d+)-pilot\\.html/);if(m){e.preventDefault();e.stopPropagation();parent.launchRoomChapter(Number(m[1]));}},true);`;
+const testControls=`window.visitStagingRoom=function(key){
+ const control=window['UPPDRAG_CH'+Number((document.title.match(/Kapitel\\s+(\\d+)/i)||[])[1])+'_PILOT'];
+ control?.close?.();window.UPPDRAG_MEETINGS?.close(false);if(interior)leaveInterior();
+ if(key==='town')return true;
+ if(region.id!=='main')return false;
+ const building=MAIN.buildings.find(b=>ROOM_BY_REGION.main[b.name]===key);if(!building)return false;
+ const entry=window.UPPDRAG_STORY_WORLD?.entryFor(MAIN,building)||building.entry;
+ player={...navigationPoint(MAIN,entry)};path=[];return requestInterior(building);
+};`;
+window.roomPreviewReady=function(id){if(id!==serial)return;status.textContent='Separat rumsprov';frame.contentWindow.visitStagingRoom(desired);};
+window.launchRoomChapter=async function(ch){
+ if(!Number.isInteger(ch)||ch<1||ch>5)return;
+ const id=++serial;current=ch;select.value=String(ch);error.hidden=true;status.textContent='Laddar kapitel '+ch+' …';
+ try{
+  let page=await text('chapter'+ch+'-pilot.html');
+  const pattern=/<script\b([^>]*?)\bsrc="([^"]+)"([^>]*)>\s*<\/script>/gi;
+  const found=[...page.matchAll(pattern)];
+  const scripts=await Promise.all(found.map(async m=>{
+   const name=m[2].split('?')[0];let code=await text(name);code=window.patchRoomStagingSource(name,code);
+   return '<script'+m[1]+m[3]+'>'+safeScript(query(code))+'\n</scr'+'ipt>';
+  }));
+  let index=0;page=page.replace(pattern,()=>scripts[index++]);page=query(page);
+  const staging=await text('room-staging.js');
+  page=page.replace('<head>','<head><base href="'+base.href+'"><script>'+safeScript(bridge+'\n'+staging)+'</scr'+'ipt>');
+  page=page.replace('</body>','<script>'+safeScript(testControls)+'\nrequestAnimationFrame(()=>parent.roomPreviewReady('+id+'));\n</scr'+'ipt></body>');
+  if(id===serial)frame.srcdoc=page;
+ }catch(e){if(id===serial)fail('Rumsprovet kunde inte laddas: '+e.message);}
+};
+select.addEventListener('change',()=>launchRoomChapter(Number(select.value)));
+for(const button of document.querySelectorAll('[data-room]'))button.onclick=()=>{desired=button.dataset.room;try{if(!frame.contentWindow.visitStagingRoom(desired))launchRoomChapter(current);}catch{launchRoomChapter(current);}};
+const params=new URLSearchParams(location.search);desired=['cafe','palace','archive','town'].includes(params.get('room'))?params.get('room'):'cafe';
+launchRoomChapter(Math.max(1,Math.min(5,Number(params.get('chapter'))||1)));
+</script></body></html>
