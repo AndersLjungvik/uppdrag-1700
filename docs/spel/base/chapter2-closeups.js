@@ -1,0 +1,14 @@
+/* Local fallback paintings when original paper canvas cannot render. */
+(function(){
+'use strict';
+const images={church:"<svg class=\"ch2-paper-scene\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 470\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\"><rect width=\"1000\" height=\"470\" fill=\"#d1c1a7\"/><path d=\"M0 250H1000V470H0Z\" fill=\"#b49d7c\"/><path d=\"M130 42L322 47L315 248L130 250Z\" fill=\"#786f62\"/><path d=\"M146 56H302V236H146Z\" fill=\"#b6bcb4\"/><path d=\"M221 56V236M146 150H302\" stroke=\"#715f49\" stroke-width=\"13\"/><path d=\"M700 80H856V360H700Z\" fill=\"#65513f\"/><path d=\"M90 284H911V339H90Z\" fill=\"#806247\"/><path d=\"M374 233L649 204L701 395L357 416Z\" fill=\"#fbefd7\" stroke=\"#ae9672\" stroke-width=\"3\"/><g stroke=\"#b2a487\" stroke-width=\"3\" opacity=\".45\"><path d=\"M401 274H631M392 307H640M390 335H622M380 363H633\"/></g></svg>",barnhus:"<svg class=\"ch2-paper-scene\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 470\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\"><rect width=\"1000\" height=\"470\" fill=\"#d1c1a7\"/><path d=\"M0 250H1000V470H0Z\" fill=\"#b49d7c\"/><path d=\"M74 60H314V270H74Z\" fill=\"#71806e\"/><path d=\"M76 266H903V323H76Z\" fill=\"#80684e\"/><path d=\"M97 339L312 324L354 433L108 436Z\" fill=\"#e1d6b9\"/><path d=\"M680 88H922V282H680Z\" fill=\"#665849\"/><path d=\"M374 233L649 204L701 395L357 416Z\" fill=\"#fbefd7\" stroke=\"#ae9672\" stroke-width=\"3\"/><g stroke=\"#b2a487\" stroke-width=\"3\" opacity=\".45\"><path d=\"M401 274H631M392 307H640M390 335H622M380 363H633\"/></g></svg>",cafe:window.UPPDRAG_CH1_CLOSEUPS?.images?.cafe||"<svg class=\"ch2-paper-scene\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 470\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\"><rect width=\"1000\" height=\"470\" fill=\"#d1c1a7\"/><path d=\"M0 250H1000V470H0Z\" fill=\"#b49d7c\"/><path d=\"M130 42L322 47L315 248L130 250Z\" fill=\"#786f62\"/><path d=\"M146 56H302V236H146Z\" fill=\"#b6bcb4\"/><path d=\"M221 56V236M146 150H302\" stroke=\"#715f49\" stroke-width=\"13\"/><path d=\"M700 80H856V360H700Z\" fill=\"#65513f\"/><path d=\"M90 284H911V339H90Z\" fill=\"#806247\"/><path d=\"M374 233L649 204L701 395L357 416Z\" fill=\"#fbefd7\" stroke=\"#ae9672\" stroke-width=\"3\"/><g stroke=\"#b2a487\" stroke-width=\"3\" opacity=\".45\"><path d=\"M401 274H631M392 307H640M390 335H622M380 363H633\"/></g></svg>"};
+function decorate(modal,run,state){
+ if(!modal)return;
+ const scene=document.createElement('div');scene.className='ch2FallbackPaper';
+ scene.innerHTML=images[run.p]||images.cafe;
+ const content=document.createElement('div');content.className='ch2FallbackText';
+ while(modal.firstChild)content.append(modal.firstChild);
+ modal.append(scene,content);
+}
+window.UPPDRAG_CH2_CLOSEUPS={images,decorate};
+})();

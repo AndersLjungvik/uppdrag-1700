@@ -1,0 +1,105 @@
+/* Integration 1.0: exact room v5 deltas + question scope 3.1.
+ * Original game storage and assets are not modified. Source deltas are checked
+ * against SHA-256 before application; offsets count Unicode code points.
+ */
+'use strict';
+const $=id=>document.getElementById(id),VERSION='1.0.0',ROOT='uppdrag1700.integrated.20261023.v1.';
+const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
+const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1'];
+const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
+let frame=$('game');
+let teacher=params.get('teacher')==='1',chapter=1,serial=0,ready=false,durable=true,payload;
+const prefix=()=>ROOT+(teacher?'teacher.':'play.');
+try{localStorage.setItem(ROOT+'probe','1');localStorage.removeItem(ROOT+'probe');}catch{durable=false;}
+function warning(){ $('storageWarning').hidden=durable; }
+function read(k,scope=prefix()){const full=scope+k;try{return durable?(localStorage.getItem(full)??memory.get(full)??null):(memory.get(full)??null);}catch{durable=false;warning();return memory.get(full)??null;}}
+function write(k,v,scope=prefix()){const full=scope+k;memory.set(full,String(v));try{if(durable)localStorage.setItem(full,String(v));}catch{durable=false;warning();}updateMenu();}
+function bindStore(){const frameScope=prefix();window.integratedStore={getItem:k=>read(k,frameScope),setItem:(k,v)=>write(k,v,frameScope),removeItem(k){memory.delete(frameScope+k);try{if(durable)localStorage.removeItem(frameScope+k);}catch{durable=false;warning();}updateMenu();}};}bindStore();
+function saved(ch){try{return JSON.parse(read(KEYS[ch])||'null');}catch{return null;}}
+function available(ch){return ch>=1&&ch<=5&&(teacher||ch===1||saved(ch-1)?.complete===true);}
+function showError(message){$('error').hidden=false;$('error').textContent=message;$('status').textContent='Äventyret behöver uppmärksamhet';}
+window.integratedError=message=>showError('Spelet rapporterade: '+message);
+async function get(name){if(!cache.has(name))cache.set(name,(async()=>{const r=await fetch(name,{signal:AbortSignal.timeout(30000)});if(!r.ok)throw Error('Kunde inte hämta '+name+' ('+r.status+').');return r.text();})());try{return await cache.get(name);}catch(e){cache.delete(name);throw e;}}
+async function unzip(name){
+ if(name==='deltas.json.gz'){
+  const chunks=await Promise.all([1,2,3,4].map(async i=>{const r=await fetch('delta-'+i+'.bin',{signal:AbortSignal.timeout(30000)});if(!r.ok)throw Error('Miljöpaket '+i+' kunde inte hämtas.');return new Uint8Array(await r.arrayBuffer());}));
+  const bytes=new Uint8Array(chunks.reduce((n,c)=>n+c.length,0));let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length;}if(bytes.length!==13197)throw Error('Miljöpaketet är ofullständigt.');
+  return new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).json();
+ }
+ const r=await fetch(name,{signal:AbortSignal.timeout(30000)});if(!r.ok)throw Error('Kunde inte hämta '+name+' ('+r.status+').');return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json();
+}
+async function hash(text){const bytes=new TextEncoder().encode(text),digest=await crypto.subtle.digest('SHA-256',bytes);return Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');}
+async function source(name){
+ if(payload.extra[name]!==undefined)return payload.extra[name];
+ if(payload.questions[name]!==undefined)return payload.questions[name];
+ let text=await get('base/'+name),patch=payload.patches[name];
+ if(patch){
+  if(await hash(text)!==patch.before)throw Error('Fel grundversion för '+name+'. Inget har skrivits över.');
+  const chars=Array.from(text);for(const [start,end,insert] of [...patch.edits].reverse())chars.splice(start,end-start,insert);text=chars.join('');
+  if(await hash(text)!==patch.after)throw Error('Kontrollsumman stämmer inte efter sammanfogning av '+name+'.');
+ }
+ return text;
+}
+const safe=s=>s.replace(/<\/script/gi,'<\\/script');
+const query=s=>s.replace(/new URLSearchParams\(location\.search\)/g,'new URLSearchParams(window.__UPPDRAG_QUERY||location.search)');
+function script(code,attrs=''){return '<script'+attrs+'>'+safe(code)+'\n</scr'+'ipt>';}
+function bridge(id){return `window.__ROOM_BOOTING=true;window.__UPPDRAG_QUERY=${JSON.stringify(teacher?'?preview=1':'?')};
+Object.defineProperty(window,'localStorage',{value:parent.integratedStore,configurable:true});
+window.addEventListener('error',e=>parent.integratedError(String(e.message||'Okänt fel')));
+window.addEventListener('unhandledrejection',e=>parent.integratedError(String(e.reason?.message||e.reason)));
+document.addEventListener('click',e=>{const a=e.target.closest?.('a[href]'),m=a?.getAttribute('href')?.match(/chapter(\\d+)-pilot\\.html/);if(m){e.preventDefault();e.stopPropagation();parent.openIntegratedChapter(Number(m[1]));}},true);
+window.__INTEGRATED_VERSION=${JSON.stringify(VERSION)};window.__INTEGRATED_SERIAL=${id};`;}
+async function makePage(ch,id){
+ let page=await source('chapter'+ch+'-pilot.html');page=page.replace(/(<h1[^>]*>)([\s\S]*?)(<\/h1>)/i,(_,a,b,c)=>a+b.replace(/\s*[·–-]\s*PILOT/gi,'')+c);
+ const pattern=/<script\b([^>]*?)\bsrc="([^"]+)"([^>]*)>\s*<\/script>/gi,found=[...page.matchAll(pattern)];
+ const scripts=await Promise.all(found.map(async m=>{
+  const name=m[2].split('?')[0];let code=query(await source(name));
+  if(name==='recall-assessment.js')code+='\n'+payload.fixes+'\n'+payload.alignment;
+  if(name==='recall-flow.js')code=`{const s=document.createElement('script');s.textContent=UPPDRAG_PROMPT_ALIGNMENT.flow(${JSON.stringify(code)}).replaceAll('maxlength="120"','maxlength="240"').replaceAll('maxlength="600"','maxlength="4000"');document.head.append(s);}`;
+  return script(code,m[1]+m[3]);
+ }));
+ let index=0;page=page.replace(pattern,()=>scripts[index++]);page=query(page);
+ const staging=(await source('room-staging.js'))+'\n'+(await source('room-life.js'));
+ const styles=`<style>header small,header .chapterBack{display:none}header h1{font-size:clamp(13px,2.6vw,20px)}#ch1Modal textarea{min-height:100px}#ch1Modal .rc-tools button{min-height:44px}#ch1Modal .rc-own{overflow-wrap:anywhere}#ch1Modal .ch1Sheet{overscroll-behavior:contain}</style>`;
+ page=page.replace('<head>','<head><base href="'+new URL('../demo3/',document.baseURI).href+'">'+script(bridge(id)+'\n'+staging)+styles);
+ const end=`window.__ROOM_BOOTING=false;window.UPPDRAG_ROOM_LIFE?.cacheFurniture();requestAnimationFrame(()=>parent.integratedReady(${id},${ch}));`;
+ page=page.replace('</body>',script((teacher?payload.inspector+'\n':'')+end)+'</body>');return page;
+}
+window.openIntegratedChapter=async function(ch){
+ if(!Number.isInteger(ch)||ch<1||ch>5){showError('Kapitel 6–10 är ännu inte spelbara. De byggs vidare från samma äventyr.');return false;}
+ if(!available(ch)){showError('Avsluta först kapitel '+(ch-1)+'. Tidigare kapitel går att besöka igen.');return false;}
+ if(ready&&durable){const url=new URL(document.baseURI);url.searchParams.set('chapter',ch);teacher?url.searchParams.set('teacher','1'):url.searchParams.delete('teacher');if(window.__INTEGRATION_TEST_NAVIGATE)window.__INTEGRATION_TEST_NAVIGATE(url.href);else location.assign(url.href);return true;}
+ bindStore();const id=++serial;ready=false;chapter=ch;$('error').hidden=true;$('status').textContent='Laddar kapitel '+ch+' …';if(!frame.srcdoc)$('intro').hidden=false;
+ try{
+  const page=await makePage(ch,id);if(id!==serial)return false;const next=document.createElement('iframe');next.id='game';next.title='Uppdrag 1700 – staden och uppdragen';next.allow='autoplay';frame.replaceWith(next);frame=next;frame.srcdoc=page;return true;
+ }catch(e){if(id===serial)showError(e.message);return false;}
+};
+window.integratedReady=(id,ch)=>{
+ if(id!==serial)return;const w=frame.contentWindow,p=w['UPPDRAG_CH'+ch+'_PILOT'];
+ if(!p?.recall||w.UPPDRAG_FRAGTEST_VERSION!=='3.1.0'){showError('Den nya frågedelen kunde inte kopplas till kapitlet.');return;}
+ ready=true;frame.hidden=false;$('intro').hidden=true;write('lastChapter',ch);
+ const url=new URL(document.baseURI);url.searchParams.set('chapter',ch);teacher?url.searchParams.set('teacher','1'):url.searchParams.delete('teacher');try{history.replaceState(null,'',url);}catch{}
+ $('status').textContent='Kapitel '+ch+' av 10'+(teacher?' · Lärarvy':'');
+ if(teacher){const rooms=w.listStagingRooms();$('roomChoice').replaceChildren();for(const item of [{key:'town',region:'main',label:'Staden · översikt'},...rooms]){const opt=document.createElement('option');opt.value=item.region+':'+item.key;opt.textContent=(item.group?item.group+' · ':'')+item.label;$('roomChoice').append(opt);}}
+ updateMenu();frame.focus();
+};
+function updateMenu(){
+ $('teacherTools').hidden=!teacher;$('toggleTeacher').textContent=teacher?'Till vanlig spelgång':'Öppna lärarvy';
+ const list=$('chapterList');list.replaceChildren();TITLES.forEach((title,i)=>{const ch=i+1,button=document.createElement('button'),label=document.createElement('span'),state=document.createElement('small');label.textContent=ch+'. '+title;button.append(label,state);button.disabled=ch>5||!available(ch);state.textContent=ch>5?'Återstår':saved(ch)?.complete?'Avklarat':ch===chapter?'Här är du':available(ch)?'Öppna':'Låst';button.onclick=()=>{$('menu').close();openIntegratedChapter(ch);};list.append(button);});
+}
+$('menuButton').onclick=()=>{updateMenu();$('menu').showModal();};$('closeMenu').onclick=()=>$('menu').close();
+$('toggleTeacher').onclick=()=>{teacher=!teacher;updateMenu();$('menu').close();const last=Number(read('lastChapter'))||1;openIntegratedChapter(available(last)?last:1);};
+$('visitRoom').onclick=()=>{if(!teacher||!ready)return;const [region,key]=$('roomChoice').value.split(':');$('menu').close();if(!frame.contentWindow.visitStagingRoom(key,region))showError('Miljön kunde inte öppnas.');};
+function entries(){const result={};for(const [k,v] of memory)if(k.startsWith(prefix()))result[k.slice(prefix().length)]=v;try{if(durable)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith(prefix()))result[k.slice(prefix().length)]=localStorage.getItem(k);}}catch{durable=false;warning();}return result;}
+$('exportSave').onclick=()=>{const data={format:'uppdrag1700-integrated-save',version:1,teacher,created:new Date().toISOString(),entries:entries()},url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='uppdrag1700-'+(teacher?'lararvy':'aventyr')+'-sparning.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+$('importSave').onclick=()=>$('saveFile').click();$('saveFile').onchange=async()=>{
+ try{const f=$('saveFile').files[0];if(!f)return;if(f.size>5000000)throw Error('Sparfilen är för stor.');const data=JSON.parse(await f.text());if(data.format!=='uppdrag1700-integrated-save'||data.version!==1||data.teacher!==teacher||!data.entries||Array.isArray(data.entries))throw Error('Sparfilen hör inte till denna spelvy.');for(const [k,v]of Object.entries(data.entries)){if((k!=='lastChapter'&&!k.startsWith('uppdrag1700.'))||typeof v!=='string')throw Error('Ogiltig sparfil.');}if(!confirm('Läsa in kopian i denna spelvy? Nuvarande svar i kopian ersätts. Äldre spel påverkas inte.'))return;for(const[k,v]of Object.entries(data.entries))write(k,v);$('menu').close();openIntegratedChapter(Number(read('lastChapter'))||1);
+ }catch(e){showError(e.message);}finally{$('saveFile').value='';}
+};
+async function boot(){
+ warning();updateMenu();if(!window.DecompressionStream||!crypto.subtle)throw Error('Öppna äventyret i en uppdaterad webbläsare via HTTPS.');
+ const [delta,q,fixes,alignment,inspector]=await Promise.all([unzip('deltas.json.gz'),unzip('questions/snapshot.json.gz'),get('questions/fixes.js'),get('questions/alignment.js'),get('inspector.js')]);
+ payload={...delta,questions:q.scripts,fixes,alignment,inspector};
+ let requested=Number(params.get('chapter')||read('lastChapter'))||1;if(!available(requested))requested=1;await openIntegratedChapter(requested);
+}
+window.addEventListener('unhandledrejection',e=>showError(e.reason?.message||String(e.reason)));boot().catch(e=>showError(e.message));
