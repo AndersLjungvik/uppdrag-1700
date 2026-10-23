@@ -1,0 +1,40 @@
+/* Run after decode_sources.py; no browser or external packages required. */
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert');
+const root=path.resolve(__dirname,'..');global.window=global;
+for(const f of ['_decoded/recall-bank.js','_decoded/recall-assessment.js','questions/fixes.js','questions/alignment.js','chapter6-content.js','_decoded/recall-flow.js'])vm.runInThisContext(fs.readFileSync(path.join(root,f),'utf8'),{filename:f});
+const A=UPPDRAG_RECALL_ASSESS,E=UPPDRAG_RECALL_ENGINE,results=[];
+function check(id,answer,expected=true){const t=E.byId.get(id),drafts=Array.isArray(answer)?answer:[answer];const r=A.assess(t,drafts,E.checkField);results.push({id,answer,expected,status:r.status});assert.equal(r.status==='sufficient',expected,JSON.stringify(results.at(-1)));}
+for(const t of UPPDRAG_RECALL_BANK){check(t.id,t.fields.map(f=>f.sample));check(t.id,t.fields.map(()=>'.'),false);}
+check('rc1-law-2','Grundlagen reglerade maktfördelningen. Endast enig riksdag kunde ändra grundlagarna.');
+check('rc1-trade-1',['Kina','the, siden och porslin']);
+check('rc6-jobs-2',['handlare','köpman'],false);
+check('rc6-jobs-2',['smed','smed'],false);
+check('rc6-jobs-2',['handelsman','latrintömmerska']);
+check('rc6-jobs-2',['hantverkare','snickare'],false);
+check('rc6-jobs-2',['telefonist','fabriksarbetare'],false);
+check('rc6-city-2',['trångboddhet','trängsel'],false);
+check('rc6-city-2',['fattigdom','smuts']);
+check('rc6-children-2','Barnen fick mindre lön.');
+check('rc6-children-2','Det var billig arbetskraft.');
+check('rc6-children-2','Barnen fick högre lön.',false);
+check('rc6-children-2','Barnen var inte billig arbetskraft.',false);
+check('rc6-fields-2','Små åkrar slogs ihop.');
+check('rc6-fields-2','Stora åkrar delades till små tegar.',false);
+check('rc6-homes-2','Gården flyttades till de samlade åkrarna.');
+check('rc6-homes-2','Gården flyttades inte till de samlade åkrarna.',false);
+check('rc6-songs-2','krogar');
+check('rc6-bellman-2','Bellman');
+check('rc6-writer-2','Ahlgren');
+check('rc6-reading-2','läsa och utbilda sig');
+check('rc6-reading-2','Kvinnor fick inte läsa böcker.',false);
+check('rc6-institutions-2',['Operan','Dramaten','Svenska Akademien']);
+check('rc6-institutions-2',['Operan','Dramaten','Riksdagen'],false);
+check('rc6-patronage-2',['konstnärer, författare och poeter','De stödde kungen.']);
+check('rc6-children-2','De behövde inte betala barnen lika mycket.');
+check('rc6-jobs-2',['handelsmän','latrintömmerskor']);
+const runs=UPPDRAG_CH6_CONTENT.runs;E.prepare(6,UPPDRAG_CH6_CONTENT.facts,runs);
+assert.equal(UPPDRAG_CH6_TASKS.length,36);assert.equal(runs.length,13);
+assert.equal(new Set(runs.slice(1).flatMap(r=>r.f)).size,36);
+for(const r of runs.slice(1))assert.equal(r.f.length,3);
+console.log('PASS',results.length,'answer cases;',runs.length-1,'work visits;',UPPDRAG_CH6_TASKS.length,'new questions.');
+fs.writeFileSync(path.join(root,'tests/chapter6-results.json'),JSON.stringify({count:results.length,results},null,2));

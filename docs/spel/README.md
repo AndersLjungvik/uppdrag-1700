@@ -1,33 +1,29 @@
-# Uppdrag 1700 – sammanfogning 1.0.0
+# Uppdrag 1700 – version 1.1.0
 
-23 oktober 2026. Gemensam ingång: `/uppdrag-1700/spel/`. Lärarvy: `?teacher=1`.
+23 oktober 2026. Gemensam ingång: `/uppdrag-1700/spel/`.
+Direkt lärarförhandsvisning av kapitel 6: `?teacher=1&chapter=6&v=1.1.0`.
 
-## Det som är sammanfogat
+## Spelbart innehåll
 
-Kapitel 1–5 använder uppdragskedjorna i spelvärlden, samtliga 78 uppgifter i frågeversion 3.1 och miljöarbetet från `uppdrag1700_rumsprov_v5.html`. Rumsgenvägarna visar 22 miljöer: 13 stadsinteriörer, 6 ö-interiörer och 3 kajer. Animationerna, personerna, befintliga sidoäventyren och pappersgrafiken är kvar. Detta är inte en sammanfogning av enbart menyer eller separata frågesidor: kapitelkontrollerna anropar den nya frågemotorn på sina arbetsplatser, och godkända uppdrag driver den befintliga berättelsen vidare.
+Kapitel 1–6 använder samma värld, 22 miljöer och den omarbetade frågemotorn. Kapitel 6 tillför 36 uppgifter och 12 arbetsbesök till de tidigare 78 uppgifterna. Brevet kommer fram genom jämförelse av bykartor; en färdigtryckt sida behöver sedan lämnas till Maja. Kapitel 7–10 återstår. Läs `CHAPTER6.md` för källunderlag och genomförda kontroller samt `ROADMAP.md` för fortsättningen.
 
-Vanlig spelgång låser kapitel 2–5 tills föregående kapitel är klart och tillåter återbesök. I lärarvyn är de fem kapitlen öppna och miljöer kan väljas direkt. Detta är INTE en säker lärarinloggning. Kapitel 6–10 visas som återstående, inte som färdiga kapitel.
+Normal spelgång kräver avslutat föregående kapitel och tillåter återbesök. Lärarvyn ger fria kapitel- och rumsgenvägar med egen sparning. Den är inte en säker lärarinloggning.
 
 ## Sparning
 
-Eget prefix `uppdrag1700.integrated.20261023.v1.` med skilda `play.` och `teacher.`. Äldre spel och det separata frågetestet ändras inte och deras resultat importeras inte automatiskt. En ny spelomgång börjar därför från början. Kapitelbyten bevarar samma sammanfogade sparning. Menyn kan exportera/importera en kopia för den aktuella vyn. Blockerad lagring ger en varning och använder minne tills sidan stängs. Inga elevsvar skickas till en server.
+Samma prefix som version 1.0: `uppdrag1700.integrated.20261023.v1.` med skilda `play.` och `teacher.`. Kapitel 6 får en egen nyckel; daler och äpplen förs vidare från avslutat kapitel 5. Tidigare kapitel, äldre separata spel och frågetestets sparningar nollställs inte. Menyn kan exportera/importera en kopia. Vid blockerad lagring används minne tills sidan stängs. Inga elevsvar skickas till servern.
 
-## Källkod och reproducerbarhet
+## Återanvända källfiler
 
-`base/` är en fryst kopia av Git-trädet `f81cf7fd17174b293f54f68598c07d78c1b61ea4` (tidigare docs/demo3). Originalgrafiken hämtas från projektets befintliga `docs/world/assets/` via samma relativa basadress som tidigare. De inbäddade bildversionerna i rumsprovet motsvarar dessa originalfiler; de dupliceras inte här.
+`base/` är det frysta trädet `f81cf7fd17174b293f54f68598c07d78c1b61ea4`. De fyra delta-filerna, originalgrafiken och frågesnapshoten från sammanfogningen 1.0 är oförändrade. `decode_sources.py` skriver ut granskningsbara källfiler. Frågerättning 3.1 behålls för kapitel 1–5; kapitel 6 lägger till egna fältvisa kriterier. `chapter6-build.js` återanvänder befintliga kontroller och stoppar om dess källkodsankare inte matchar.
 
-`delta-1.bin` till `delta-4.bin` fogas i nummerordning till ett gzip-paket (13 197 byte). SHA-256 för det sammanfogade paketet: `ad272c757bf30bd6b8abc9b6f4270deb162d99ddf22bf55c5a0c611b5f0761c9`. Det innehåller 24 textändringslistor och den nya `room-life.js`. Varje ändrad fil kontrolleras mot SHA-256 både före och efter ändring. Positionerna i ändringslistan räknar Unicode-kodpunkter.
+## Kontroller
 
-Frågesnapshoten, `fixes.js` och `alignment.js` återanvänder EXAKT samma Git-blobbar som det fungerande separata frågetestet 3.1. Flödesanpassningen och större svarsrutor kopplas på vid laddning. `decode_sources.py` kan användas för att skriva ut granskningsbara källfiler lokalt; de genererade filerna ersätter inte denna startmekanism.
+Se `CHAPTER6.md`. Kör rättningstester lokalt med:
 
-## Genomförda kontroller
+```sh
+python decode_sources.py
+node tests/chapter6.cjs
+```
 
-En lokal Chromium-genomspelning fyllde i uppgifternas exempelsvar genom formulären och fortsatte genom avslutningsdialogerna: 78 frågor, 48 arbetsbesök och 5 avslutade kapitel. Daler följde med genom kapitlen: 3 → 12 → 18 → 27 → 39 → 51. Omladdning återupptog avslutat kapitel 5 med bevarade svar. Inga JavaScript-fel registrerades i den körningen.
-
-Separata kontroller verifierade öppning av alla 22 miljöer, framåtlåsning, skilda lärar-/spelsparningar, orörd äldre sparning, byte med blockerad lagring samt tidigare grundlags- och varusvar. Dessa logikkontroller ersatte canvas, bilder och animering med testdubblar. Mobilkontroll med riktig canvas vid 390 × 844 px godkände `Kina` och `the, siden och porslin` inne i kajmiljön utan horisontellt överflöde.
-
-Webbläsartesterna använde lokal, simulerad filhämtning, lagring och navigering. De är inte nätverkstest på den publicerade adressen eller test på fysisk iPhone/Safari. Samtliga gångvägar, sidouppdrag och möjliga elevformuleringar är inte uttömmande kontrollerade. Exempelsvarens godkännande innebär inte att alla andra rimliga formuleringar fungerar. Den regelbaserade rättningen är fortfarande en begränsning och ska inte användas för betyg.
-
-## Fortsättningen
-
-Kapitel 6–10 byggs vidare här, inte som ett separat spel. Se `ROADMAP.md`. Ingen ny historisk frågebank för dessa kapitel har hittats på eller publicerats i denna sammanfogning.
+Testerna är inte en garanti för varje elevformulering. Webbläsarkontroller har gjorts lokalt med simulerad filhämtning, sparning och navigering, inte på fysisk mobil eller genom den publicerade webbadressen. Regelbaserad rättning kan fortfarande behöva lärargranskning. Spelet är träning, inte ett betygsunderlag.
