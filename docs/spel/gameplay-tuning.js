@@ -9,23 +9,23 @@ function once(name,source,before,after){
  return source.slice(0,i)+after+source.slice(i+before.length);
 }
 function patchRoom(name,source){
- if(name!=='interior-fibre-art.js')return source;
+ if(!['interior-ch1-pilot.js','interior-fibre-art.js'].includes(name))return source;
  source=once(name,source,
 `        const pressScale=.94,feet=floor+90;
         groundShadow(g,492,feet+3,151);
         place(g,335,feet-510*pressScale,pressScale,press);`,
 `        // Pressen står längre bak mot väggen och är mindre än arbetsbordet i förgrunden.
-        const pressScale=.70,feet=floor+24;
-        groundShadow(g,524,feet+3,112);
-        place(g,410,feet-510*pressScale,pressScale,press);`);
+        const pressScale=.45,feet=floor+5;
+        groundShadow(g,515,feet+3,72);
+        place(g,440,feet-510*pressScale,pressScale,press);`);
  source=once(name,source,
 `        const pressScale=1.04,feet=floor+143;
         groundShadow(g,935,feet+3,171);
         place(g,775,feet-510*pressScale,pressScale,press);`,
 `        // Samma perspektiv i bred vy: mindre skala och fötterna nära bakväggens golvlinje.
-        const pressScale=.78,feet=floor+35;
-        groundShadow(g,986,feet+3,130);
-        place(g,860,feet-510*pressScale,pressScale,press);`);
+        const pressScale=.46,feet=floor+5;
+        groundShadow(g,944,feet+3,75);
+        place(g,869,feet-510*pressScale,pressScale,press);`);
  return source;
 }
 function patchChapterSix(name,source){
@@ -45,7 +45,10 @@ function patchRecall(name,source){
 `return h+'<div class="rc-actions">'+btn('revise','Bearbeta mitt svar',true)+btn('save-review',t.chapter===6?'Spara svaret och gå vidare':'Spara för lärargranskning')+btn('go-rut','Öva hos Rut')+'</div>';`);
  source=once(name,source,
 `  return s.record.some(x=>x.version===VERSION&&x.step===s.step&&x.id===id&&x.ok&&x.assessment!=='self-review'&&(t?.rank!==2||x.independent));`,
-`  return s.record.some(x=>x.version===VERSION&&x.step===s.step&&x.id===id&&x.ok&&(x.assessment==='pending-review'||(x.assessment!=='self-review'&&(t?.rank!==2||x.independent))));`);
+`  return s.record.some(x=>x.version===VERSION&&x.step===s.step&&x.id===id&&x.ok&&(x.assessment==='pending-review'||(x.assessment!=='self-review'&&(t?.rank!==2||x.independent||t.chapter===6))));`);
+ source=once(name,source,
+`   const title=result.status==='right'?(isDrill()?'Du mindes det här':t.fields.some(f=>!f.answers)?'Innehållskraven känns igen':'Kortsvar kontrollerat'):'Det här behöver övas';`,
+`   const title=result.status==='pending-review'?'Svaret sparat för granskning':result.status==='right'?(isDrill()?'Du mindes det här':t.fields.some(f=>!f.answers)?'Innehållskraven känns igen':'Kortsvar kontrollerat'):'Det här behöver övas';`);
  source=once(name,source,
 `  }else if(name==='save-review'&&u.phase==='review'){
    u.error='Svaret är sparat för lärargranskning. Det har inte gett mästarstatus.';
@@ -65,5 +68,5 @@ function patchRecall(name,source){
  return source;
 }
 function source(name,text){return patchRecall(name,patchChapterSix(name,patchRoom(name,text)));}
-window.UPPDRAG_GAMEPLAY_TUNING={source,version:'1.2.0'};
+window.UPPDRAG_GAMEPLAY_TUNING={source,version:'1.2.2'};
 })();

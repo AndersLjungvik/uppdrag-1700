@@ -34,3 +34,12 @@ Testerna är inte en garanti för varje elevformulering. Webbläsarkontroller ha
 Tryckpressen i Tryckeriet är nedskalad och står längre bak mot väggen i både smal och bred vy. Kapitel 6 har två sparade gatuhändelser som kan inträffa under verklig förflyttning: en ficktjuv/äppeltjuv försöker ta högst en resurs och spelaren kan välja att jaga. Jakten använder en enda kort repetitionsfråga från redan spelade kapitel; den räknas inte som mastery och fel svar blockerar aldrig progressionen. I lärarvyn triggas händelserna inte automatiskt, men kan testas via ”Brevet & stadens bok”.
 
 Mästarfrågorna om skiftet accepterar fler rimliga beskrivningar. Om den regelbaserade kontrollen ändå inte känner igen ett rimligt kapitel-6-svar kan eleven välja ”Spara svaret och gå vidare”. Svaret markeras då som väntande lärargranskning och ger inte självständig mästarstatus, men eleven fastnar inte i en loop.
+
+
+## Korrigering 1.2.2 · 26 oktober 2026
+
+Den faktiska rumsrenderaren `interior-ch1-pilot.js` får nu pressjusteringen (föregående 1.2 riktade sig mot en annan grafikfil). Handpressen har mindre skala och står med fötterna nära väggens golvlinje i både bred och smal vy.
+
+En tidigare korrekt men stödd mästarförklaring kan inte längre hålla kvar kapitel 6 i en upprepningsloop. Svaret förblir markerat `independent:false` och ger alltså inte självständig mästarprestation. Osäkra egna formuleringar kan fortsatt sparas för granskning och ge progression utan att överbedömas. Svar och kapitelöppningar för 1–5 ändras inte.
+
+Test: `node tests/room-master-regression.cjs` efter `python decode_sources.py`. Dessutom kontrollerades Byn i Chromium med korrekt stödd mästartext och återgång till nästa arbetsbesök, samt pressens placering i 1280 px och 390 px vyer lokalt. Publicerad iPhone/Safari måste fortfarande användarprovas.
