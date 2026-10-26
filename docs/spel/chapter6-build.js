@@ -11,8 +11,8 @@ async function build(source,get){
   html=html.replaceAll(name+'.js',target+'.js');
   if(name!=='chapter5-pilot')extra[target+'.js']=(await source(name+'.js')).replaceAll('UPPDRAG_CH5_PILOT','UPPDRAG_CH6_PILOT').replaceAll('UPPDRAG_CH5_CITY_LIFE','UPPDRAG_CH6_CITY_LIFE');
  }
- html=replace(html,'<script src="recall-flow.js', '<script src="chapter6-content.js?v=1.2.0"></script>\n<script src="recall-flow.js');
- html=replace(html,'</body>','<script src="chapter6-world.js?v=1.2.0"></script>\n<script src="chapter6-street-events.js?v=1.2.0"></script>\n</body>');
+ html=replace(html,'<script src="recall-flow.js', '<script src="chapter6-content.js?v=1.2.1"></script>\n<script src="recall-flow.js');
+ html=replace(html,'</body>','<script src="chapter6-world.js?v=1.2.1"></script>\n<script src="chapter6-street-events.js?v=1.2.1"></script>\n</body>');
  extra['chapter6-pilot.html']=html;
  let pilot=await source('chapter5-pilot.js');
  pilot=pilot.replaceAll('UPPDRAG_CH5_PILOT','UPPDRAG_CH6_PILOT').replace('const CONTENT=window.UPPDRAG_CH5_CONTENT','const CONTENT=window.UPPDRAG_CH6_CONTENT').replace("const storage='uppdrag1700.ch5-real-world.20261020.v1'","const storage='uppdrag1700.ch6-real-world.20261023.v1'");
@@ -61,9 +61,10 @@ async function build(source,get){
  street=replace(street,'function story(actor){',`function story(actor){
  if(actor.id==='grower'&&window.UPPDRAG_CH6_PILOT?.state.ch6MapSolved)return [['Bonden','Tack, brevet kom fram till Sigrid.'],['Bonden',window.UPPDRAG_CH6_STORY?.direction()||'Maja samlar berättelserna i stadens bok.']];`);
  extra['chapter6-street-life.js']=street;
- extra['chapter6-content.js']=await get('chapter6-content.js?v=1.2.0');
- extra['chapter6-world.js']=await get('chapter6-world.js?v=1.2.0');\n extra['chapter6-street-events.js']=await get('chapter6-street-events.js?v=1.2.0');
+ extra['chapter6-content.js']=await get('chapter6-content.js?v=1.2.1');
+ extra['chapter6-world.js']=await get('chapter6-world.js?v=1.2.1');
+ extra['chapter6-street-events.js']=await get('chapter6-street-events.js?v=1.2.1');
  return extra;
 }
-window.UPPDRAG_CH6_BUILD={build,version:'1.2.0'};
+window.UPPDRAG_CH6_BUILD={build,version:'1.2.1'};
 })();

@@ -3,7 +3,7 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='1.2.0',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='1.2.1',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -53,7 +53,10 @@ window.addEventListener('unhandledrejection',e=>parent.integratedError(String(e.
 document.addEventListener('click',e=>{const a=e.target.closest?.('a[href]'),m=a?.getAttribute('href')?.match(/chapter(\\d+)-pilot\\.html/);if(m){e.preventDefault();e.stopPropagation();parent.openIntegratedChapter(Number(m[1]));}},true);
 window.__INTEGRATED_VERSION=${JSON.stringify(VERSION)};window.__INTEGRATED_SERIAL=${id};`;}
 async function makePage(ch,id){
- if(ch===6&&!payload.extra['chapter6-pilot.html'])Object.assign(payload.extra,await window.UPPDRAG_CH6_BUILD.build(source,get));
+ if(ch===6&&!payload.extra['chapter6-pilot.html']){
+  if(!window.UPPDRAG_CH6_BUILD?.build)throw Error('Kapitel 6-byggaren kunde inte laddas. Ladda om sidan för version 1.2.1.');
+  Object.assign(payload.extra,await window.UPPDRAG_CH6_BUILD.build(source,get));
+}
  let page=await source('chapter'+ch+'-pilot.html');page=page.replace(/(<h1[^>]*>)([\s\S]*?)(<\/h1>)/i,(_,a,b,c)=>a+b.replace(/\s*[·–-]\s*PILOT/gi,'')+c);
  const pattern=/<script\b([^>]*?)\bsrc="([^"]+)"([^>]*)>\s*<\/script>/gi,found=[...page.matchAll(pattern)];
  const scripts=await Promise.all(found.map(async m=>{
