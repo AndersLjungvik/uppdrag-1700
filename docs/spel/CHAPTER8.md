@@ -44,3 +44,8 @@ Samma integrerade lagringsprefix `uppdrag1700.integrated.20261023.v1.` används;
 Källkoden finns okomprimerad i det lokalt genererade testpaketet och komprimerad som `chapter8-sourcepack.json.gz` i GitHub. `decode_chapter8_sources.py` återskapar redigerbara skript. Källorna laddas med SHA-256-kontroll.
 
 Utförda automatiska kontroller: 135 positiva, tomma, negativa och regressionsfall i frågemotorn (inklusive 78+36 tidigare uppgifter); 45 skript i det sammanfogade kapitlet bygger och syntaxkontrolleras; sex samtalshändelser och deras olika svar, sparning och senare återkoppling kontrolleras i isolerad JavaScript-testning. **Ingen fullständig spelgenomgång på fysisk mobil eller slutkontroll av det publicerade spelet har genomförts.** Kapitlet är fortsatt en lärarprototyp och rättningsmotorn är inte validerad för betyg.
+
+
+## Dialoguppdatering 1.4.2
+
+Personerna minns spelarens tidigare repliker och reagerar på dem i senare samtal. Brita ändrar sin hållning till snabbtryckta nyheter, Liv skiljer vittnesmål från rykten, Jo bidrar med daterade besked, Elin skiljer politisk opposition från brottsligt ansvar och Maja knyter ihop spelerfarenheten när den färdiga notisen överlämnas. Vid återbesök använder figurerna personliga och tidsberoende repliker. Inledningen avslöjar inte händelsen i förväg. De sex dialogsituationerna och minnet av spelarval testas separat från de 18 historiska frågorna. Lokal automatisk validering och källkodsbygge har passerat, men publicerad iPhone/Safari är inte sluttestad.

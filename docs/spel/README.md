@@ -65,3 +65,7 @@ Rättningstester: `python decode_sources.py && python decode_chapter7_sources.py
 
 ## Kapitel 8 · 1.4.0 (26 oktober 2026)
 Kapitel 8 Skottet på maskeraden är en fortsatt del av det integrerade spelet. Sex utvecklande, minnesbaserade samtal och nio arbetsbesök med två frågor vardera (18 frågor totalt) leder spelaren från operaprogrammet via varningsbrevet och skottet 16 mars till Jo:s dödsbesked 29 mars, tidningens korrigering och slutleveransen till Maja. Historiska fakta och dramatiserade repliker skiljs åt. Kapitel 1–7, sparnycklar, rumsplacering, betande djur och rättningsfixen 1.3.1 berörs inte. Se CHAPTER8.md. Källkodspaketet extraheras med decode_chapter8_sources.py. Det är ännu inte testat på en riktig iPhone.
+
+## Dialogerna i kapitel 8 · version 1.4.2
+
+Samtalen fortsätter genom kapitlet och figurerna minns tidigare spelarval. Se CHAPTER8.md för exempel och källkritisk avgränsning. Kapitel 1–7 och deras sparningar är oförändrade.
