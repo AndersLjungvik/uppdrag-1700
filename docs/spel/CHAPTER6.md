@@ -40,3 +40,8 @@ Webbläsartesterna simulerade nätverk, lagring och adressbyte med verkliga proj
 Tryckpressens skala och djupplacering är korrigerade i den gemensamma rumsrenderingen. Under kapitel 6 kan två gatuhändelser triggas när spelaren faktiskt går mellan platser. De använder högst en daler eller, om spelaren har fler än ett äpple, ett äpple som insats. En kort repetitionsfråga från tidigare kapitel kan rädda resursen. Händelserna är bonusrepetition, inte bedömning, och kan alltid lämnas utan att kapitlet blockeras.
 
 Rättningen för skiftesförklaringarna har fått bredare språkigenkänning. Om ett rimligt svar fortfarande hamnar i osäker granskning kan eleven spara svaret och fortsätta. Det sparas som `pending-review`: progressionen fortsätter, men svaret räknas inte som självständig mästarprestation. Därmed ska en okänd formulering inte skapa den tidigare oändliga mästarloopen.
+
+
+## Layoutkorrigering 1.2.3
+
+Stadsplanen från kapitel 1–5 gäller åter även i kapitel 6. Bostadskvarteren återfår den gemensamma placeringen. Hagen med de fem betande djuren ligger nu mellan Byn och Herrgården. Det rör inte frågor, uppdragssteg eller sparfiler. Gångvägar och animationer är kontrollerade i lokal Chromium.

@@ -43,3 +43,12 @@ Den faktiska rumsrenderaren `interior-ch1-pilot.js` får nu pressjusteringen (f�
 En tidigare korrekt men stödd mästarförklaring kan inte längre hålla kvar kapitel 6 i en upprepningsloop. Svaret förblir markerat `independent:false` och ger alltså inte självständig mästarprestation. Osäkra egna formuleringar kan fortsatt sparas för granskning och ge progression utan att överbedömas. Svar och kapitelöppningar för 1–5 ändras inte.
 
 Test: `node tests/room-master-regression.cjs` efter `python decode_sources.py`. Dessutom kontrollerades Byn i Chromium med korrekt stödd mästartext och återgång till nästa arbetsbesök, samt pressens placering i 1280 px och 390 px vyer lokalt. Publicerad iPhone/Safari måste fortfarande användarprovas.
+
+
+## Återställd stadsvärld 1.2.3 · 26 oktober 2026
+
+Kapitel 6 använder nu exakt samma godkända bostadskvarter och vägnät som kapitel 1–5. I den tidigare källan hade den gemensamma kartläggningen ett kapitelvillkor för bara 1–5, så kapitel 6 visade äldre huskoordinater.
+
+Hagen med tre får och två kor ligger nu mellan Byn och Herrgården (världskoordinater ungefär x=3160–3430, y=440–610), mellan herrgårdsvägen y=355 och byvägen y=705. Samma betesrörelser används, liksom samma pappersgrafik. Den gemensamma placeringen används i kapitel 1–6. Frågor, uppdragslogik, tryckpress och sparnycklar är oförändrade.
+
+Lokal Chromium-kontroll av kapitel 5 och 6: samma koordinater för Bostadskvarteren, identiskt vägnät (roads-1), nåbara vägar till bostadskvarter, by och herrgård samt synliga och rörliga betesdjur i bred- och mobilvy. Automatisk regressionskontroll: `node docs/spel/tests/world-layout.cjs` efter `python docs/spel/decode_sources.py`. Den publicerade Safari-versionen har inte testats på en fysisk mobil.
