@@ -46,3 +46,11 @@ De nya filerna är `chapter7-build.js`, `chapter7-content.js`, `chapter7-world.j
 - Mobilvy **390 × 844** hade ingen horisontell överrullning i dialogen för Marstrand. Vanligt spelläge startade med bevarade 51 daler och 2 äpplen från en simulerad avklarad kapitel-6-sparning.
 
 Webbläsarkörningarna använde lokala, simulerade filhämtningar och inmatning; de är **inte** fullständig verifiering av det publicerade spelet på en fysisk iPhone. Inte heller samtliga gångvägar, sidouppdrag eller möjliga elevformuleringar är uttömmande testade. Kända brister ska kunna korrigeras utan att hela spelet görs om.
+
+## Korrigering 1.3.1 – krigsreglerna
+
+Frågan `rc7-warStart-1` (Jo/Elin/Maja beroende på nivå, gesällens öppna fråga) avvisade felaktigt både den grammatiskt riktiga formuleringen ”Han kunde inte starta krig utan riksdagens godkännande” och stavfelet ”kring” i stället för ”krig”. Det gamla uttrycksmönstret behandlade `utan riksdagens` som ett fel oavsett föregående negation.
+
+Separat, tydligt läsbar rättningspatch `chapter7-war-rule-fix.js` laddas direkt efter kapitel 7:s frågebank. Den lägger bara om bedömningen av denna enskilda frågas fria textfält och förändrar inte övriga frågor, spelmiljöer eller elevsparningar. Korrekt krav på riksdagens godkännande känns igen, inklusive användarens exakta stavning. Historiskt felaktiga påståenden om att kungen kunde starta anfallskrig utan godkännande får inte godkänt.
+
+Testkommandot `node docs/spel/tests/chapter7-war-rule.cjs` kör ett representativt urval positiva, negativa och ofullständiga svar samt kontrollerar att de övriga 35 exempelsvaren i kapitel 7 förblir godkända. Detta är en avgränsad regressionstestning, inte validerad bedömning av alla elevformuleringar.
