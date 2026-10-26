@@ -52,3 +52,12 @@ Kapitel 6 använder nu exakt samma godkända bostadskvarter och vägnät som kap
 Hagen med tre får och två kor ligger nu mellan Byn och Herrgården (världskoordinater ungefär x=3160–3430, y=440–610), mellan herrgårdsvägen y=355 och byvägen y=705. Samma betesrörelser används, liksom samma pappersgrafik. Den gemensamma placeringen används i kapitel 1–6. Frågor, uppdragslogik, tryckpress och sparnycklar är oförändrade.
 
 Lokal Chromium-kontroll av kapitel 5 och 6: samma koordinater för Bostadskvarteren, identiskt vägnät (roads-1), nåbara vägar till bostadskvarter, by och herrgård samt synliga och rörliga betesdjur i bred- och mobilvy. Automatisk regressionskontroll: `node docs/spel/tests/world-layout.cjs` efter `python docs/spel/decode_sources.py`. Den publicerade Safari-versionen har inte testats på en fysisk mobil.
+
+
+## Kapitel 7 · 1.3.0 (26 oktober 2026)
+
+Kapitel 7 är inbyggt i samma spel och använder samma stadsplan, miljöer, sparprefix och kapitel-6-övergång. Det har 36 frågor i 12 arbetsbesök, tre återkallningsnivåer och fyra särskilda källgranskningshändelser med hamnresor till Marstrand och Gustavia. Avslutningen kräver att den färdiga sidan lämnas till Maja. Det historiska innehållet är granskat mot grundboken s. 90–96 och arbetsboken s. 34–35.
+
+Implementationen ligger i det versionskontrollerade komprimerade paketet `chapter7-sourcepack.json.gz`, vars läsbara originalskript kan återskapas med `python decode_chapter7_sources.py`. `chapter7-runtime.js` läser och checksummekontrollerar paketet innan det aktiveras. Ingen automatisk överföring av sparningar och ingen ändring av kapitel 1–6 görs. Läs `CHAPTER7.md` för genomspelning och källkritiska avgränsningar.
+
+Rättningstester: `python decode_sources.py && python decode_chapter7_sources.py && node tests/chapter7.cjs`. I lokalt webbläsartest med simulerade hämtningar startade kapitel 7 och visade spelvärlden utan JavaScript-fel. Publicerad GitHub Pages och Safari behöver separat slutkontroll.
