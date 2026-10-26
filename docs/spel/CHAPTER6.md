@@ -1,6 +1,6 @@
 # Kapitel 6: Livet på landet och i staden
 
-Version 1.1.0, 23 oktober 2026. Byggt vidare i det sammanfogade äventyret, inte en fristående frågesida.
+Version 1.2.0, 26 oktober 2026. Byggt vidare i det sammanfogade äventyret, inte en fristående frågesida.
 
 ## Spelgång
 
@@ -33,3 +33,10 @@ Lokal Chromium-kontroll gick igenom alla 36 nya frågor via formulären, alla 12
 Dessutom kontrollerades alla 22 rumsgenvägar med riktig canvas i tre separata körningar, kartval utan förtida stämpel, mobilvyer 390 och 320 px, bevarad kapitel-5-sparning, överföring av 51 daler och 2 äpplen, spärr utan avklarat kapitel 5 och fortsatt start av kapitel 5 med länk till kapitel 6. Inga JavaScript-fel registrerades i genomspelningens respektive rumskontrollernas loggar.
 
 Webbläsartesterna simulerade nätverk, lagring och adressbyte med verkliga projektfiler och bilder. Detta är inte en kontroll av publicerad webbtrafik eller en fysisk iPhone. Alla tänkbara formuleringar, gångvägar och sidouppdrag är inte validerade. Rättningen är fortfarande regelbaserad: okända rimliga svar kan behöva lärargranskning. Spelet är träning, inte betygsunderlag.
+
+
+## Justering 1.2 – rörelse och mästarloop
+
+Tryckpressens skala och djupplacering är korrigerade i den gemensamma rumsrenderingen. Under kapitel 6 kan två gatuhändelser triggas när spelaren faktiskt går mellan platser. De använder högst en daler eller, om spelaren har fler än ett äpple, ett äpple som insats. En kort repetitionsfråga från tidigare kapitel kan rädda resursen. Händelserna är bonusrepetition, inte bedömning, och kan alltid lämnas utan att kapitlet blockeras.
+
+Rättningen för skiftesförklaringarna har fått bredare språkigenkänning. Om ett rimligt svar fortfarande hamnar i osäker granskning kan eleven spara svaret och fortsätta. Det sparas som `pending-review`: progressionen fortsätter, men svaret räknas inte som självständig mästarprestation. Därmed ska en okänd formulering inte skapa den tidigare oändliga mästarloopen.

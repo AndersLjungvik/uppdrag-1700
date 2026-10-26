@@ -1,9 +1,9 @@
-/* Integration 1.1 (chapter 6): exact room v5 deltas + question scope 3.1.
+/* Integration 1.2 (street tension + progression safety): exact room v5 deltas + question scope 3.1.
  * Original game storage and assets are not modified. Source deltas are checked
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='1.1.0',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='1.2.0',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -30,15 +30,18 @@ async function unzip(name){
 }
 async function hash(text){const bytes=new TextEncoder().encode(text),digest=await crypto.subtle.digest('SHA-256',bytes);return Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');}
 async function source(name){
- if(payload.extra[name]!==undefined)return payload.extra[name];
- if(payload.questions[name]!==undefined)return payload.questions[name];
- let text=await get('base/'+name),patch=payload.patches[name];
- if(patch){
-  if(await hash(text)!==patch.before)throw Error('Fel grundversion för '+name+'. Inget har skrivits över.');
-  const chars=Array.from(text);for(const [start,end,insert] of [...patch.edits].reverse())chars.splice(start,end-start,insert);text=chars.join('');
-  if(await hash(text)!==patch.after)throw Error('Kontrollsumman stämmer inte efter sammanfogning av '+name+'.');
+ let text;
+ if(payload.extra[name]!==undefined)text=payload.extra[name];
+ else if(payload.questions[name]!==undefined)text=payload.questions[name];
+ else{
+  text=await get('base/'+name);const patch=payload.patches[name];
+  if(patch){
+   if(await hash(text)!==patch.before)throw Error('Fel grundversion för '+name+'. Inget har skrivits över.');
+   const chars=Array.from(text);for(const [start,end,insert] of [...patch.edits].reverse())chars.splice(start,end-start,insert);text=chars.join('');
+   if(await hash(text)!==patch.after)throw Error('Kontrollsumman stämmer inte efter sammanfogning av '+name+'.');
+  }
  }
- return text;
+ return window.UPPDRAG_GAMEPLAY_TUNING?.source(name,text)??text;
 }
 const safe=s=>s.replace(/<\/script/gi,'<\\/script');
 const query=s=>s.replace(/new URLSearchParams\(location\.search\)/g,'new URLSearchParams(window.__UPPDRAG_QUERY||location.search)');

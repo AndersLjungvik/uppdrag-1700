@@ -1,6 +1,6 @@
 # Uppdrag 1700 – version 1.1.0
 
-23 oktober 2026. Gemensam ingång: `/uppdrag-1700/spel/`.
+26 oktober 2026. Gemensam ingång: `/uppdrag-1700/spel/`.
 Direkt lärarförhandsvisning av kapitel 6: `?teacher=1&chapter=6&v=1.1.0`.
 
 ## Spelbart innehåll
@@ -27,3 +27,10 @@ node tests/chapter6.cjs
 ```
 
 Testerna är inte en garanti för varje elevformulering. Webbläsarkontroller har gjorts lokalt med simulerad filhämtning, sparning och navigering, inte på fysisk mobil eller genom den publicerade webbadressen. Regelbaserad rättning kan fortfarande behöva lärargranskning. Spelet är träning, inte ett betygsunderlag.
+
+
+## Speljustering 1.2
+
+Tryckpressen i Tryckeriet är nedskalad och står längre bak mot väggen i både smal och bred vy. Kapitel 6 har två sparade gatuhändelser som kan inträffa under verklig förflyttning: en ficktjuv/äppeltjuv försöker ta högst en resurs och spelaren kan välja att jaga. Jakten använder en enda kort repetitionsfråga från redan spelade kapitel; den räknas inte som mastery och fel svar blockerar aldrig progressionen. I lärarvyn triggas händelserna inte automatiskt, men kan testas via ”Brevet & stadens bok”.
+
+Mästarfrågorna om skiftet accepterar fler rimliga beskrivningar. Om den regelbaserade kontrollen ändå inte känner igen ett rimligt kapitel-6-svar kan eleven välja ”Spara svaret och gå vidare”. Svaret markeras då som väntande lärargranskning och ger inte självständig mästarstatus, men eleven fastnar inte i en loop.
