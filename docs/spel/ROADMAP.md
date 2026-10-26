@@ -17,3 +17,7 @@ Separat kvarstående: verklig klassvis upplåsning med autentisering, slutkontro
 
 
 **Status 26 oktober 2026:** Kapitel 6 är publicerat i version 1.2.3 och kapitel 7 i version 1.3.0. Detaljer för kapitel 7 finns i `CHAPTER7.md`. Nästa byggetapp är kapitel 8, *Skottet på maskeraden*. Kapitlen 8–10 är fortfarande inte spelbara.
+
+
+### Uppdatering: kapitel 8
+Kapitel 8 Skottet på maskeraden är nu byggt i version 1.4.0 med utvecklande dialoger och daterat nyhetsblad. Kapitel 9–10 återstår. Kapitel 8 behöver fortfarande praktisk elevgenomspelning i Safari innan undervisningsbruk.

@@ -61,3 +61,7 @@ Kapitel 7 är inbyggt i samma spel och använder samma stadsplan, miljöer, spar
 Implementationen ligger i det versionskontrollerade komprimerade paketet `chapter7-sourcepack.json.gz`, vars läsbara originalskript kan återskapas med `python decode_chapter7_sources.py`. `chapter7-runtime.js` läser och checksummekontrollerar paketet innan det aktiveras. Ingen automatisk överföring av sparningar och ingen ändring av kapitel 1–6 görs. Läs `CHAPTER7.md` för genomspelning och källkritiska avgränsningar.
 
 Rättningstester: `python decode_sources.py && python decode_chapter7_sources.py && node tests/chapter7.cjs`. I lokalt webbläsartest med simulerade hämtningar startade kapitel 7 och visade spelvärlden utan JavaScript-fel. Publicerad GitHub Pages och Safari behöver separat slutkontroll.
+
+
+## Kapitel 8 · 1.4.0 (26 oktober 2026)
+Kapitel 8 Skottet på maskeraden är en fortsatt del av det integrerade spelet. Sex utvecklande, minnesbaserade samtal och nio arbetsbesök med två frågor vardera (18 frågor totalt) leder spelaren från operaprogrammet via varningsbrevet och skottet 16 mars till Jo:s dödsbesked 29 mars, tidningens korrigering och slutleveransen till Maja. Historiska fakta och dramatiserade repliker skiljs åt. Kapitel 1–7, sparnycklar, rumsplacering, betande djur och rättningsfixen 1.3.1 berörs inte. Se CHAPTER8.md. Källkodspaketet extraheras med decode_chapter8_sources.py. Det är ännu inte testat på en riktig iPhone.
