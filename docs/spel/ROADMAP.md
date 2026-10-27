@@ -26,3 +26,10 @@ Kapitel 8 Skottet på maskeraden är nu byggt i version 1.4.0 med utvecklande di
 ### Gemensamma händelser · 1.5.0
 
 Kapitel 1–8 har nu stöd för valfria sidoäventyr (vagn, smed, ficktjuv och senare vittne) i den gemensamma stadsvärlden. Dataformat och berättelseidéer för 9–10 är förberedda, men dessa kapitel är fortfarande inte byggda. `EVENT_SYSTEM.md` beskriver spelregler, sparning, begränsningar och testning. Nästa utvecklingssteg är att knyta fler personer och kapitelunika händelsebågar till motorn, inte att göra varje kapitel till samma lista av överraskningar.
+
+
+## Status 27 oktober 2026 · 1.6.0
+
+Kapitel 9 och 10 är nu byggda som spelbara lärarprototyper i samma värld. Alla tio kapitel finns i menyn. Läs `CHAPTER9_10.md` för innehåll, källor, sparning, öppna resonemang och testbegränsningar. Äldre statusrader ovan är historik, inte aktuell lista över obygda kapitel.
+
+Nästa arbete är praktisk genomspelning och avgränsade rättelser, därefter kapitelvis utveckling av huvuddialogerna i 1–7 enligt berättelsebibeln. Fler unika sidoäventyr och skyddad lärarinloggning återstår.

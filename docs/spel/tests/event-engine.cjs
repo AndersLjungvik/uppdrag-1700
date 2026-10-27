@@ -31,5 +31,5 @@ assert(engine.includes('maximumLoss:1'),'one-daler upper bound');
 assert(engine.includes("const wagonAt={x:3040,y:367"),'wagon is placed along manor road');
 assert(engine.includes('lastRegion'),'map hit context');
 assert(read('chapter6-street-events.js').includes('!window.UPPDRAG_EVENT_ENGINE?.busy'),'legacy event respects open event');
-assert(read('index.html').includes('integration.js?v=1.5.2'),'browser cache refresh');
-console.log('PASS: registered events, map movement pause, saved quest and witness, no duplicate thieves, chapter 1–8 bootstrap');
+assert(read('index.html').includes('integration.js?v=1.6.0'),'browser cache refresh');
+console.log('PASS: registered events, map movement pause, saved quest and witness, no duplicate thieves, chapter 1–10 bootstrap');
