@@ -1,4 +1,4 @@
-# Händelsesystem för Uppdrag 1700 · 1.5.0
+# Händelsesystem för Uppdrag 1700 · 1.5.2
 
 ## Varför
 
@@ -31,3 +31,12 @@ Regler för minnesfrågor är oförändrade: sidohändelser ger inga provpoäng,
 ## Testning
 
 Kör `node --check event-engine.js`, `node tests/event-engine.cjs` och de vanliga fråge-/miljötesterna. Ett lokalt Chromium-test med simulerad dokumentmiljö spelade igenom vagn → smed → återbesök, en misslyckad ficktjuvsjakt med en daler i avdrag samt laddning av kapitel 6 utan dubbel ficktjuv. Fullständig kapitelgenomspelning av integrerade GitHub Pages i Safari eller riktig klassmiljö återstår och är inte verifierad här.
+
+
+## Dialoger och överraskningar · 1.5.2
+
+Kusken, smeden, tjuven och barnet talar nu i **samma papperspratbubblor** som de andra invånarna, förankrade till figuren i stadsvärlden. En replik visas åt gången med **Fortsätt**, och först därefter kommer aktuella samtalsval eller repetitionsfrågor. Även elevens egen replik får en bubbla. Knappen **Händelser** behåller en separat översiktsmeny för att kontrollera vad som är gjort och för lärartest.
+
+Ficktjuvens förflyttningsgräns slumpas fram individuellt och sparas direkt; en omladdning kan därför inte slumpa om händelsen. Tjuven dyker fortfarande högst en gång per tillåtet kapitel; den kostar högst en daler och är aldrig obligatorisk. Kapitel 6 har fortfarande en enda äldre tjuvhändelse, och kapitel 3 och 8 får ingen extra ficktjuv. Vagnens samma grundsidoäventyr finns i kapitel 1–8 med kapitelspecifik inledning. **Det är alltså ännu inte en katalog av unika sidoäventyr per kapitel.** Kapitel 9–10 förbereds i katalogen men är inte spelbara.
+
+Mobilvy 390 px och bred vy 900 px har testats i Chromium: en replik i taget, vagnens två val, smedens uppdrag, tjuvens repetitionsalternativ och barnets följddialog. Den sammanfogade sidans öppning och sparning ska dessutom kontrolleras inför publicering. Riktigt iOS/Safari och variationen av elevsvar återstår att elevtesta.

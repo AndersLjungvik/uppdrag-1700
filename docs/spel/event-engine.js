@@ -1,4 +1,4 @@
-/* Uppdrag 1700 – side-adventure engine v1.5.0.
+/* Uppdrag 1700 – side-adventure engine v1.5.2.
  * Single world-loop integration. Optional scenes, not knowledge assessment.
  * The per-chapter save is separate from the original pilot and recall saves.
  * The definitions below also reserve hooks for future chapters 9 and 10.
@@ -33,12 +33,15 @@ if(!['unseen','inspected','need-smith','advice','cleared','deferred'].includes(s
 if(!['unseen','won','lost','ignored'].includes(state.thief))state.thief='unseen';
 if(!Array.isArray(state.history))state.history=[];
 state.distance=Math.max(0,Math.min(100000,Number(state.distance)||0));
+ // A per-chapter encounter window, saved so reloading cannot reroll the thief.
+ if(!Number.isFinite(Number(state.thiefDistance))||Number(state.thiefDistance)<580||Number(state.thiefDistance)>1800)state.thiefDistance=620+Math.floor(Math.random()*950);
 state.wagonSeen=!!state.wagonSeen;
 state.thiefSeen=!!state.thiefSeen;
 state.wagonShoulder=!!state.wagonShoulder;
 if(!['unseen','cold','recovered','heard'].includes(state.witness))state.witness='unseen';
 store.chapters[chapter]=state;
 let scene=null,blocking=false,last=null,spawnedAt=0,thiefPoint=null,matrix=null,lastRegion=null,atRoom=false;
+ let speaker='wagon',lineSpeaker='',lastSpeechSignature='',turns=[],turnIndex=0,turnChoices=[],activeChallenge=null;
 const allowed=(kind)=>{
   if(kind==='wagon')return chapter>=1&&chapter<=10;
   if(kind==='thief')return chapter!==6&&![3,8].includes(chapter); // ch6 has a pre-existing thief; no double penalties.
@@ -74,7 +77,19 @@ function question(seed){const all=candidates();if(!all.length)return null;
 const style=document.createElement('style');style.textContent=`
 #adventureJournal{position:absolute;left:10px;top:10px;z-index:27;min-height:42px;border:1px solid #826e52;border-radius:7px;background:#fff7e7ed;color:#3c2e25;font:600 13px system-ui;padding:8px 11px;cursor:pointer}
 #adventureDialog{box-sizing:border-box;width:min(620px,calc(100% - 24px));max-height:85dvh;overflow:auto;padding:21px;border:2px solid #8f7752;border-radius:12px;background:#fbf3e4;color:#352a20;font:17px/1.5 Georgia,serif}
-#adventureDialog::backdrop{background:#211b14a8}
+ #adventureDialog::backdrop{background:#211b14a8}
+ #adventureTail{position:absolute;inset:0;width:100%;height:100%;z-index:38;pointer-events:none;overflow:visible}
+ #adventureDialog.ad-event-speech{position:absolute;z-index:39;left:8px;top:8px;margin:0;max-width:calc(100% - 16px);max-height:calc(100% - 16px);width:350px;overflow:auto;box-sizing:border-box;padding:19px 23px 21px;border:0;border-radius:0;background:transparent;box-shadow:none;color:#332b23;font:16px/1.38 Georgia,serif}
+ #adventureDialog.ad-event-speech h2{font:600 18px/1.2 Georgia,serif;margin:0 0 8px}
+ #adventureDialog.ad-event-speech .ad-speaker{font:600 13px/1.3 system-ui;color:#60513b;letter-spacing:.02em;margin-bottom:3px}
+ #adventureDialog.ad-event-speech p{margin:8px 0}
+ #adventureDialog.ad-event-speech .ad-actions{margin:12px 0 0;gap:6px}
+ #adventureDialog.ad-event-speech .ad-actions button{flex:1 1 120px;font-size:14px;padding:8px 9px;min-height:42px}
+ #adventureDialog.ad-event-speech .ad-choices button{font-size:14px;padding:7px 9px}
+ #adventureDialog.ad-event-speech .ad-illustration{display:none}
+ #adventureDialog.ad-event-speech .ad-note{font-size:12px;padding:3px 0}
+ @media(max-width:480px){#adventureDialog.ad-event-speech{padding:16px 20px 19px;font-size:15px}#adventureDialog.ad-event-speech h2{font-size:17px}}
+ @media(forced-colors:active){#adventureDialog.ad-event-speech{background:Canvas;border:1px solid CanvasText}#adventureTail{display:none}}
 #adventureDialog h2{font:600 28px/1.15 Georgia,serif;margin:0 0 13px}
 #adventureDialog p{margin:10px 0}
 #adventureDialog .ad-actions{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 5px}
@@ -93,17 +108,108 @@ body.ch1-open #adventureJournal,body[data-conversation] #adventureJournal{displa
 @media(max-width:480px){#adventureJournal{top:6px;left:6px;padding:7px 9px;font-size:12px}#adventureDialog{padding:15px;font-size:16px}#adventureDialog h2{font-size:23px}}
 `;document.head.append(style);
 const journal=document.createElement('button');journal.type='button';journal.id='adventureJournal';journal.setAttribute('aria-label','Öppna sidoäventyr och händelser');stage.append(journal);
-const dialog=document.createElement('dialog');dialog.id='adventureDialog';dialog.setAttribute('aria-label','Sidoäventyr');document.body.append(dialog);
+const dialog=document.createElement('dialog');dialog.id='adventureDialog';dialog.setAttribute('aria-label','Sidoäventyr');stage.append(dialog);
+ const tail=document.createElementNS('http://www.w3.org/2000/svg','svg');tail.id='adventureTail';tail.setAttribute('aria-hidden','true');tail.hidden=true;stage.append(tail);
+ function worldAnchor(){
+   const self=/^Du$/i.test(lineSpeaker);
+   const p=self?(last||wagonAt):speaker==='smith'?smithAt:speaker==='witness'?witnessAt:speaker==='thief'?(thiefPoint||last||{x:1200,y:710}):wagonAt;
+   const ox=self?0:speaker==='wagon'?65:0,oy=self?-45:speaker==='wagon'?-53:speaker==='thief'?-25:-43;
+   return {x:p.x+ox,y:p.y+oy};
+ }
+ function positionSpeech(){
+   if(!dialog.open||!dialog.classList.contains('ad-event-speech'))return;
+   const sr=stage.getBoundingClientRect(),cr=canvas?.getBoundingClientRect();
+   if(!sr.width||!sr.height)return;
+   const p=worldAnchor();let anchor={x:sr.width*.52,y:sr.height*.52};
+   if(cr?.width&&cr?.height&&canvas.width&&canvas.height&&matrix){
+     const px=matrix.a*p.x+matrix.c*p.y+matrix.e,py=matrix.b*p.x+matrix.d*p.y+matrix.f;
+     anchor={x:cr.left-sr.left+px*cr.width/canvas.width,y:cr.top-sr.top+py*cr.height/canvas.height};
+   }
+   // In the teacher's manual demo the character may be off screen. Use the
+   // visible player as fallback rather than drawing a tail across the whole town.
+   if(anchor.x<20||anchor.y<20||anchor.x>sr.width-20||anchor.y>sr.height-20){
+     const fallback=last||{x:1200,y:700};
+     if(cr?.width&&cr?.height&&canvas.width&&canvas.height&&matrix){
+       const x=matrix.a*fallback.x+matrix.c*fallback.y+matrix.e,y=matrix.b*fallback.x+matrix.d*fallback.y+matrix.f;
+       anchor={x:cr.left-sr.left+x*cr.width/canvas.width,y:cr.top-sr.top+y*cr.height/canvas.height};
+     }
+     if(anchor.x<20||anchor.y<20||anchor.x>sr.width-20||anchor.y>sr.height-20)anchor={x:sr.width*.55,y:sr.height*.57};
+   }
+   const width=Math.min(sr.width-16,Math.max(230,Math.min(365,sr.width*.85)));
+   dialog.style.width=width+'px';dialog.style.maxHeight=Math.max(90,sr.height-16)+'px';
+   const height=Math.min(sr.height-16,dialog.getBoundingClientRect().height),minX=8,minY=8;
+   const clamp=(v,lo,hi)=>Math.max(lo,Math.min(Math.max(lo,hi),v));
+   const options=[
+     {x:anchor.x-width/2,y:anchor.y-height-30},
+     {x:anchor.x+30,y:anchor.y-height/2},
+     {x:anchor.x-width-30,y:anchor.y-height/2},
+     {x:anchor.x-width/2,y:anchor.y+30}
+   ].map(o=>({x:clamp(o.x,minX,sr.width-width-8),y:clamp(o.y,minY,sr.height-height-8),w:width,h:height}));
+   options.sort((a,b)=>Math.hypot(a.x+a.w/2-anchor.x,a.y+a.h/2-anchor.y)-Math.hypot(b.x+b.w/2-anchor.x,b.y+b.h/2-anchor.y));
+   const box=options[0],signature=[box.x,box.y,box.w,box.h,anchor.x,anchor.y].map(x=>Math.round(x)).join(':');
+   if(signature===lastSpeechSignature)return;
+   lastSpeechSignature=signature;
+   dialog.style.left=box.x+'px';dialog.style.top=box.y+'px';tail.hidden=false;
+   if(!window.UPPDRAG_PAPER_DIALOGUES?.drawSpeech?.(tail,{box,tip:anchor})){
+     dialog.style.background='#fff9ec';dialog.style.border='1px solid #8f7752';
+   }
+ }
+ new ResizeObserver(()=>{lastSpeechSignature='';positionSpeech();}).observe(stage);
+ 
 const actions=(items)=>'<div class="ad-actions">'+items.map(([code,label,second])=>`<button type="button" data-adventure="${code}"${second?' class="secondary"':''}>${esc(label)}</button>`).join('')+'</div>';
-function display(title,html,items=[]){
- scene=title;blocking=true;dialog.innerHTML='<h2>'+esc(title)+'</h2>'+html+actions(items);
- if(!dialog.open)dialog.showModal();
- window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
- dialog.querySelector('button')?.focus();
-}
-function close(){if(dialog.open)dialog.close();if(state.wagonSeen&&state.wagon!=='cleared'){state.wagonShoulder=true;save();}scene=null;blocking=false;window.UPPDRAG_WORLD_KEYBOARD?.clear?.();}
-function finishWagon(method){state.wagon='cleared';state.wagonSeen=true;record('wagon',method);display('Vägen är fri','<p><b>Kusken:</b> ”Nu lossnade hjulet! Jag minns att du hjälpte mig. Nästa gång ska jag lasta lättare.”</p><p class="ad-note">Du får ingen gratis mästarstämpel av sidoäventyret. Vägen är fri och huvuduppdraget fortsätter.</p>',[['close','Fortsätt genom staden']]);}
-function showWagon(){if(!allowed('wagon'))return;
+ // A speech bubble shows just one utterance at a time. Supplementary notes and
+ // answer alternatives stay attached to their preceding utterance.
+ function splitSpeech(html){
+   const container=document.createElement('div');container.innerHTML=html;
+   const lines=[];
+   for(const element of Array.from(container.children)){
+     if(element.classList.contains('ad-illustration'))continue; // Wagon is already visible in the world.
+     if(element.classList.contains('ad-note')||element.classList.contains('ad-choices')){
+       if(lines.length)lines[lines.length-1]+=element.outerHTML;
+       else lines.push(element.outerHTML);
+     }else lines.push(element.outerHTML);
+   }
+   return lines.length?lines:['<p>Vi får tala om saken igen.</p>'];
+ }
+ function renderTurn(){
+   const html=turns[turnIndex]||'';
+   const label=({wagon:'Kusken',smith:'Smeden',thief:'Ficktjuven',witness:'Barnet vid torget'}[speaker]||'En invånare');
+   const first=html.match(/<p[^>]*>\s*<b>([^<>]+):<\/b>/i);
+   const who=first?first[1]:label;lineSpeaker=who;
+   const text=first?html.replace(/(<p[^>]*>)\s*<b>[^<>]+:<\/b>\s*/, '$1'):html;
+   const controls=turnIndex<turns.length-1?[['next','Fortsätt']]:turnChoices;
+   dialog.innerHTML='<div class="ad-speaker">'+esc(who)+'</div><div class="ad-utterance">'+text+'</div>'+actions(controls);
+   lastSpeechSignature='';positionSpeech();
+   dialog.querySelector('button')?.focus({preventScroll:true});
+ }
+ function display(title,html,items=[]){
+   const isJournal=title.startsWith('Sidoäventyr ·');scene=title;blocking=true;
+   activeChallenge=null;
+   if(isJournal){
+     dialog.classList.remove('ad-event-speech');tail.hidden=true;tail.replaceChildren();lastSpeechSignature='';
+     dialog.innerHTML='<h2>'+esc(title)+'</h2>'+html+actions(items);
+     if(!dialog.open)dialog.showModal();
+     dialog.querySelector('button')?.focus({preventScroll:true});
+   }else{
+     turns=splitSpeech(html);turnIndex=0;turnChoices=items;
+     dialog.classList.add('ad-event-speech');
+     if(!dialog.open)dialog.show();
+     dialog.style.background='transparent';dialog.style.border='0';
+     renderTurn();
+   }
+   journal.hidden=!isJournal;
+   window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
+ }
+ function close(){
+   const wasJournal=scene?.startsWith('Sidoäventyr ·');
+   if(dialog.open)dialog.close();tail.hidden=true;tail.replaceChildren();
+   dialog.classList.remove('ad-event-speech');lastSpeechSignature='';turns=[];turnIndex=0;turnChoices=[];activeChallenge=null;
+   if(!wasJournal&&state.wagonSeen&&state.wagon!=='cleared'){state.wagonShoulder=true;save();}
+   scene=null;blocking=false;journal.hidden=atRoom;
+   window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
+ }
+function finishWagon(method){speaker='wagon';state.wagon='cleared';state.wagonSeen=true;record('wagon',method);display('Vägen är fri','<p><b>Kusken:</b> ”Nu lossnade hjulet! Jag minns att du hjälpte mig. Nästa gång ska jag lasta lättare.”</p><p class="ad-note">Du får ingen gratis mästarstämpel av sidoäventyret. Vägen är fri och huvuduppdraget fortsätter.</p>',[['close','Fortsätt genom staden']]);}
+function showWagon(){speaker='wagon';if(!allowed('wagon'))return;
  if(!state.wagonSeen){state.wagonSeen=true;record('wagon','discovered');}
  if(state.wagon==='cleared'){display('Kusken minns dig','<p><b>Kusken:</b> ”Här var det stopp förut! Tack vare dig kom jag fram med lasten. Hästarna är utvilade och vagnen står åt sidan.”</p>',[['close','Fortsätt']]);return;}
  if(state.wagon==='need-smith'){
@@ -117,26 +223,20 @@ function showWagon(){if(!allowed('wagon'))return;
  if(next)display('Vagnen på herrgårdsvägen',intro+'<p>Du ser att bakhjulet sjunkit ned och att lasten ligger tungt över axeln. Kusken behöver ett beslut.</p>',[['think','Minns ett råd och prova en lösning'],['smith','Gå till smeden i Verkstäderna'],['later','Låt den stå så länge',true]]);
  else display('Vagnsblockad!',intro+'<p>Vägen är trång, men du kan hjälpa kusken eller välja att gå vidare. Du kan komma tillbaka senare.</p>',[['inspect','Undersök vagnen'],['later','Ta dig förbi och återkom',true]]);
 }
-function showSmith(){if(state.wagon!=='need-smith')return;
+function showSmith(){speaker='smith';if(state.wagon!=='need-smith')return;
  display('Smeden i Verkstäderna','<p><b>Smeden:</b> ”Ska kusken försöka dra loss hela lasten på en gång? Det förstör hjulet. Lägg ned några säckar, kila under axeln och låt hästarna dra försiktigt.”</p><p><b>Du:</b> ”Då får jag gå tillbaka. Han väntar fortfarande på vägen.”</p>',[['advice','Tack! Jag går tillbaka']]);}
-function challenge(type){const q=question((state.history.length||0)+2);
+function challenge(type){speaker=type==='wagon'?'wagon':'thief';const q=question((state.history.length||0)+2);
  if(!q){if(type==='wagon')return display('Tänk igenom lösningen','<p>Kusken pekar på det tunga flaket och den sneda axeln. Du kan lossa delar av lasten eller be smeden om hjälp.</p>',[['fix','Lossa lasten och stötta axeln'],['smith','Be smeden om råd',true]]);
   return finishThief(false,'Tjuven försvann innan du hann fram. Ingen daler drogs när ingen repetitionsfråga kunde visas.',false);}
  const label=type==='wagon'?'Minneskrok vid vagnen':'Minnesduell!';
  display(label,'<p>'+(type==='wagon'?'Kusken vill höra hur du tänker. En fråga från något du tidigare arbetat med blir en minneskrok.':'Tjuven springer mot gränden. Du kan använda en minneskrok för att hinna ikapp!')+'</p><p><b>'+esc(q.prompt)+'</b></p><div class="ad-choices">'+q.choices.map((o,i)=>`<button type="button" data-option="${i}">${esc(o)}</button>`).join('')+'</div><p class="ad-note">Det här är en bonusrepetition, inte ett mästarprov.</p>',[]);
- dialog.querySelectorAll('[data-option]').forEach(b=>b.addEventListener('click',()=>{
-  const success=q.choices[Number(b.dataset.option)]===q.answer;
-  if(type==='wagon'){
-   if(success)finishWagon('solved-with-knowledge');
-   else display('Vagnen står kvar','<p>Inte den här gången. Kusken vill inte skada hästen eller hjulet. Du får gärna prova ett annat sätt.</p>',[['smith','Be smeden om hjälp'],['fix','Flytta den tyngsta lasten'],['later','Gå vidare så länge',true]]);
-  }else finishThief(success,success?'Du hann före tjuven och fick behålla din daler.':'Tjuven hann undan med en daler. Du kan ändå fortsätta äventyret.');
- }));
+ activeChallenge={type,question:q}; // The choices appear after the first spoken line.
 }
-function showThief(){if(!allowed('thief')||state.thief!=='unseen'||(!teacher&&wallet()<1))return;
- state.thiefSeen=true;save();thiefPoint=null;
+function showThief(){speaker='thief';if(!allowed('thief')||state.thief!=='unseen'||(!teacher&&wallet()<1))return;
+ state.thiefSeen=true;save();if(!thiefPoint)thiefPoint={x:(last?.x||1200)+38,y:(last?.y||710)+8};
  display('En ficktjuv!','<p>'+esc(scenery[chapter]?.thief||scenery[5].thief)+'</p><p>En figur rycker åt sig en daler och börjar springa. Du får själv välja om du vill försöka hinna ifatt.</p><p class="ad-note">Du riskerar högst en daler. Ingen viktig kunskap eller något kapitel låses av detta möte.</p>',[['chase','Jaga efter!'],['ignore','Låt tjuven springa',true]]);
 }
-function showWitness(){if(!allowed('thief')||state.thief==='unseen')return;
+function showWitness(){speaker='witness';if(!allowed('thief')||state.thief==='unseen')return;
  if(state.witness==='recovered'||state.witness==='heard'){
   display('Barnet vid torget','<p><b>Barnet:</b> ”Vi har ju pratat förut. Jag minns att du lyssnade. Det är lugnare på torget i dag.”</p>',[['close','Fortsätt']]);return;
  }
@@ -146,26 +246,43 @@ function showWitness(){if(!allowed('thief')||state.thief==='unseen')return;
  }
  display('En iakttagelse på torget',intro+'<p class="ad-note">Det här är en frivillig fortsättning på tjuvhändelsen, inte en kunskapsfråga.</p>',[['kind','Fråga lugnt vad barnet såg'],['harsh','Kräv att få veta',true]]);
 }
-function witnessAnswer(kind){
+function witnessAnswer(kind){speaker='witness';
  if(kind==='harsh'){state.witness='cold';record('witness','unfriendly');display('Barnet drar sig undan','<p><b>Barnet:</b> ”Jag gjorde ingenting! Jag vill inte prata när du skriker.”</p><p>Ni kan mötas igen vid torget. Ett samtal behöver inte sluta så här.</p>',[['close','Fortsätt']]);return;}
  const found=state.thief==='lost'&&returnDaler();state.witness=found?'recovered':'heard';record('witness',found?'recovered-coin':'heard-witness');
  display('Vad barnet såg','<p><b>Du:</b> ”Förlåt om jag gjorde dig rädd. Jag vill förstå vad som hände.”</p><p><b>Barnet:</b> ”Tjuven sprang mot en låda bakom torget.”</p>'+(found?'<p>Barnet visar en daler som tappats vid lådan. Du får tillbaka det du förlorade.</p>':'<p>Ni hjälps åt att reda ut vad som hände, utan att någon får mer straff eller några kunskapsstämplar.</p>'),[['close','Tacka barnet och fortsätt']]);
 }
-function finishThief(won,message,charge=true){const loss=!won&&charge&&loseDaler();state.thief=won?'won':loss?'lost':'ignored';record('thief',state.thief);
+function finishThief(won,message,charge=true){speaker='thief';thiefPoint=null;const loss=!won&&charge&&loseDaler();state.thief=won?'won':loss?'lost':'ignored';record('thief',state.thief);
  display(won?'Du hann ikapp!':'Tjuven försvann','<p>'+esc(message)+'</p><p class="ad-note">Sidohändelsen är avslutad. Ditt huvuduppdrag fortsätter som tidigare.</p>',[['close','Fortsätt']]);
 }
 function journalStatus(){return '<p><b>Vagnen vid herrgårdsvägen:</b> '+({unseen:'Inte upptäckt',inspected:'Undersökt – återvänd om du vill',deferred:'Du kan återvända', 'need-smith':'Sök smeden vid Verkstäderna',advice:'Återvänd till kusken',cleared:'Hjälpt, vägen är fri'}[state.wagon])+'</p>'+
  (allowed('thief')?'<p><b>Ficktjuven:</b> '+({unseen:'Har inte visat sig',won:'Du hann ikapp',lost:'Försvann med en daler',ignored:'Avslutat'}[state.thief])+'</p>'+(state.thief!=='unseen'?'<p><b>Vittnet vid torget:</b> '+({unseen:'Går att prata med',cold:'Vill bli bemött lugnare',recovered:'Du fick tillbaka dalern',heard:'Ni har pratat'}[state.witness])+'</p>':''):'');}
-function showJournal(){const buttons=[['close','Tillbaka till spelet']];if(teacher){buttons.unshift(['demo-wagon','Testa vagnsblockad'],...(allowed('thief')?[['demo-thief','Testa ficktjuven']]:[]));}
+function showJournal(){speaker='journal';const buttons=[['close','Tillbaka till spelet']];if(teacher){buttons.unshift(['demo-wagon','Testa vagnsblockad'],...(allowed('thief')?[['demo-thief','Testa ficktjuven']]:[]));}
  display('Sidoäventyr · kapitel '+chapter,'<p>De här händelserna är frivilliga. De kan lösas över flera möten och sparas separat från huvuduppdraget.</p><div class="ad-history">'+journalStatus()+'</div><p class="ad-note">Vagnen finns på landsvägen mellan Verkstäderna och Herrgården. Om smeden behövs ligger Verkstäderna längre västerut. Resor och huvuduppdrag fortsätter som vanligt.</p>',buttons);
 }
 function updateJournalLabel(){journal.textContent='Händelser'+(state.wagon!=='unseen'||state.thief!=='unseen'?' · ':'')+(state.wagon==='cleared'?'✓':state.wagon==='need-smith'?'!':'');}
 journal.addEventListener('click',showJournal);
 dialog.addEventListener('cancel',e=>{e.preventDefault();close();});
-dialog.addEventListener('keydown',e=>e.stopPropagation());
+dialog.addEventListener('keydown',e=>{
+   e.stopPropagation();
+   if(e.key==='Escape'&&dialog.classList.contains('ad-event-speech')){e.preventDefault();close();}
+ });
 dialog.addEventListener('click',e=>{
+ const option=e.target.closest('[data-option]');
+ if(option&&activeChallenge){
+   const {type,question:q}=activeChallenge;
+   const selected=Number(option.dataset.option);
+   if(!Number.isInteger(selected)||selected<0||selected>=q.choices.length)return;
+   const success=q.choices[selected]===q.answer;
+   activeChallenge=null;
+   if(type==='wagon'){
+     if(success)finishWagon('solved-with-knowledge');
+     else display('Vagnen står kvar','<p>Inte den här gången. Kusken vill inte skada hästen eller hjulet. Du får gärna prova ett annat sätt.</p>',[['smith','Be smeden om hjälp'],['fix','Flytta den tyngsta lasten'],['later','Gå vidare så länge',true]]);
+   }else finishThief(success,success?'Du hann före tjuven och fick behålla din daler.':'Tjuven hann undan med en daler. Du kan ändå fortsätta äventyret.');
+   return;
+ }
  const b=e.target.closest('[data-adventure]');if(!b)return;
  const code=b.dataset.adventure;
+ if(code==='next'){if(turnIndex<turns.length-1){turnIndex++;renderTurn();}return;}
  if(code==='close'||code==='later'){if(code==='later'&&state.wagon==='unseen'){state.wagon='deferred';record('wagon','deferred');}close();}
  else if(code==='demo-wagon'){close();showWagon();}
  else if(code==='demo-thief'){close();if(state.thief==='unseen')showThief();else display('Händelsen har redan hänt','<p>Ficktjuvens händelse är redan avslutad i den här spelvyn. Sparade framsteg behålls.</p>',[['close','Fortsätt']]);}
@@ -182,6 +299,7 @@ dialog.addEventListener('click',e=>{
 const hasOtherDialogue=()=>!!document.querySelector('dialog[open]:not(#adventureDialog),#ch1Modal:not([hidden]),#meetingDialogue:not([hidden])')||document.body.classList.contains('ch1-open')||!!document.body.dataset.conversation||!!window.UPPDRAG_STORY_WORK?.busy||!!window.UPPDRAG_LIVING_DIALOGUES?.busy;
 function tick(now,{region,player,activeRoom=null}={}){
  if(!region?.id||!player||!Number.isFinite(player.x)||!Number.isFinite(player.y))return;
+ if(scene&&!scene.startsWith('Sidoäventyr ·'))positionSpeech();
  lastRegion=region.id;atRoom=activeRoom!==null;journal.hidden=atRoom;
  const was=last;last={x:player.x,y:player.y,region:region.id};
  if(activeRoom!==null||region.id!=='main'||scene||dialog.open||hasOtherDialogue())return;
@@ -191,7 +309,7 @@ function tick(now,{region,player,activeRoom=null}={}){
  if(state.wagon==='unseen'&&allowed('wagon')&&moved>1&&Math.hypot(player.x-wagonAt.x,player.y-wagonAt.y)<87){showWagon();return;}
  if(state.wagon==='need-smith'&&moved>1&&Math.hypot(player.x-smithAt.x,player.y-smithAt.y)<95){showSmith();return;}
  if(allowed('thief')&&state.thief!=='unseen'&&state.witness==='unseen'&&moved>1&&Math.hypot(player.x-witnessAt.x,player.y-witnessAt.y)<95){showWitness();return;}
- if(!allowed('thief')||state.thief!=='unseen'||wallet()<1||state.distance<780)return;
+ if(!allowed('thief')||state.thief!=='unseen'||wallet()<1||state.distance<state.thiefDistance)return;
  if(!spawnedAt){spawnedAt=now;thiefPoint={x:player.x+36,y:player.y+10};}
  if(now-spawnedAt>1100&&moved>1)showThief();
 }
@@ -230,7 +348,7 @@ function mapClick(e){if(lastRegion!=='main'||atRoom||scene||dialog.open||hasOthe
  if(allowed('thief')&&state.thief!=='unseen'&&Math.hypot(p.x-witnessAt.x,p.y-witnessAt.y)<75){showWitness();return true;}
  if(thiefPoint&&Math.hypot(p.x-thiefPoint.x,p.y-thiefPoint.y)<55){showThief();return true;}
  return false;}
-if(canvas){canvas.addEventListener('pointerdown',e=>{if(mapClick(e)){e.preventDefault();e.stopImmediatePropagation();}},true);}
+if(canvas){canvas.addEventListener('pointerdown',e=>{if(scene){e.preventDefault();e.stopImmediatePropagation();return;}if(mapClick(e)){e.preventDefault();e.stopImmediatePropagation();}},true);}
 function install(){const life=window.UPPDRAG_WORLD_LIFE;
  if(!life||typeof life.tick!=='function'||typeof life.draw!=='function')throw Error('Händelserna behöver spelvärldens gemensamma rörelsemotor.');
  const oldTick=life.tick,oldDraw=life.draw;
@@ -239,10 +357,10 @@ function install(){const life=window.UPPDRAG_WORLD_LIFE;
  const keyboard=window.UPPDRAG_WORLD_KEYBOARD;
  if(keyboard&&typeof keyboard.tick==='function'){const old=keyboard.tick;keyboard.tick=function(){if(blocking)return;return old.apply(this,arguments);};}
 }
-const api={get blocking(){return blocking;},get busy(){return !!scene;},get chapter(){return chapter;},get state(){return JSON.parse(JSON.stringify(state));},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.witness='unseen';state.distance=0;state.history=[];spawnedAt=0;thiefPoint=null;save();},version:'1.5.0'};
+const api={get blocking(){return blocking;},get busy(){return !!scene;},get chapter(){return chapter;},get state(){return JSON.parse(JSON.stringify(state));},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.witness='unseen';state.distance=0;state.history=[];spawnedAt=0;thiefPoint=null;save();},version:'1.5.2'};
 window.UPPDRAG_EVENT_ENGINE=api;
 api.register({id:'wagon-blockade',type:'sidequest',region:'main',chapters:[1,2,3,4,5,6,7,8,9,10],multiStop:true,nonBlocking:true});
 api.register({id:'pickpocket',type:'surprise',region:'main',chapters:[1,2,4,5,7,9,10],usesRetrieval:true,maximumLoss:1});
 api.register({id:'street-witness',type:'follow-up',region:'main',chapters:[1,2,4,5,7,9,10],dependsOn:'pickpocket',remembersChoice:true});
-install();updateJournalLabel();
+install();save(); // Keep the encounter window stable across browser reloads.
 })();

@@ -78,3 +78,8 @@ De redan spelbara kapitlen 1–8 har nu ett gemensamt, **valfritt** händelsesys
 Motorn använder spelvärldens befintliga rörelse- och ritloop, och vagnen flyttas åt sidan om spelaren vill passera. Kartor, byggnader, djur, tryckpress, frågor och dialogerna i kapitel 8 lämnas orörda. Ett nytt UI **Händelser** visar sidouppdragens status och ger lärarvyn manuella testknappar. Kapitel 9–10 har innehållsskisser i katalogen men är fortfarande inte byggda. Läs `EVENT_SYSTEM.md` och kör `node tests/event-engine.cjs`.
 
 Automatiska/regressionstester (255 kapitel-6-fall, 135 kapitel-8-fall, världslayout och dialoger) samt lokala Chromium-test med simulerat dokument och filhämtning för kapitel 1–8 har genomförts utan JavaScript-fel. Dessa är **inte** en verifiering av den publicerade sidan på fysisk iPhone; använd lärarvyn för fortsatt speltest.
+
+
+## Kapitelsidoäventyr och pratbubblor · 1.5.2
+
+Sidoäventyrens aktörer använder nu samma papperspratbubblor som övriga stadsbor i stället för en fristående dialogruta; en replik i taget och konkreta svarsalternativ när samtalet kräver det. Händelser-menyn används fortsatt som uppdragslogg och testgenväg. Slumpad och separat sparad inträffandesträcka för tjuven gör att den inte alltid kommer på samma antal steg. Befintlig sparnyckel och högst en daler i risk behålls. Kapitel 3 och 8 har ingen automatisk ficktjuv, kapitel 6 behåller sin tidigare separata. Vagnsblockaden är ännu samma grundsidoäventyr i flera kapitel, inte åtta olika manus. Se `EVENT_SYSTEM.md`.
