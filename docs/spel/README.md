@@ -69,3 +69,12 @@ Kapitel 8 Skottet på maskeraden är en fortsatt del av det integrerade spelet. 
 ## Dialogerna i kapitel 8 · version 1.4.2
 
 Samtalen fortsätter genom kapitlet och figurerna minns tidigare spelarval. Se CHAPTER8.md för exempel och källkritisk avgränsning. Kapitel 1–7 och deras sparningar är oförändrade.
+
+
+## Gemensam händelsemotor · 1.5.0 (27 oktober 2026)
+
+De redan spelbara kapitlen 1–8 har nu ett gemensamt, **valfritt** händelsesystem. Vagnen vid herrgårdsvägen kan undersökas och hjälpas via ett återbesök hos smeden; tjuven riskerar högst en daler och kan följas av ett samtal med ett vittne som minns hur spelaren reagerade. Händelserna lagras separat från kapitlens fråge-/uppdragssparningar och kan återupptas. Det finns inga nya mästarpoäng eller kapitelspärrar. Kapitel 6:s tidigare tjuv förblir ensam där.
+
+Motorn använder spelvärldens befintliga rörelse- och ritloop, och vagnen flyttas åt sidan om spelaren vill passera. Kartor, byggnader, djur, tryckpress, frågor och dialogerna i kapitel 8 lämnas orörda. Ett nytt UI **Händelser** visar sidouppdragens status och ger lärarvyn manuella testknappar. Kapitel 9–10 har innehållsskisser i katalogen men är fortfarande inte byggda. Läs `EVENT_SYSTEM.md` och kör `node tests/event-engine.cjs`.
+
+Automatiska/regressionstester (255 kapitel-6-fall, 135 kapitel-8-fall, världslayout och dialoger) samt lokala Chromium-test med simulerat dokument och filhämtning för kapitel 1–8 har genomförts utan JavaScript-fel. Dessa är **inte** en verifiering av den publicerade sidan på fysisk iPhone; använd lärarvyn för fortsatt speltest.

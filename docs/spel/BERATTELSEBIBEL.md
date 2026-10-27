@@ -52,3 +52,7 @@ Listorna är ett utvecklarinventarium, **inte** ett påstående om att varje rol
 - Kontrollera att maskeradens skeenden inte läcker in i äldre kapitel och att senare gestalter inte dyker upp i tidiga århundraden.
 
 **Nästa faktiska speländring:** Börja med **kapitel 1:s** figurer (Maja, Brita, Elin, Amira, Olof) och låt deras dialog utvecklas från missförstånd → belagd konflikt → rättat anslag. Använd samma testmodell för återstående kapitel. Denna designfil ändrar ännu ingen dialog i det publicerade spelet.
+
+## Sidoäventyr som utvecklas över möten · version 1.5.0
+
+Den gemensamma spelmotorn tillför valfria, platsbundna händelser till de spelbara kapitlen 1–8. En fastnad vagn leder till ett återbesök hos smeden och därefter kusken; en ficktjuv kan följas av ett vittne som minns spelarens ton och vars förtroende kan återupprättas. Personer och konsekvenser är knutna till aktuellt kapitel, inte bara till Jo, Brita och Maja. Händelserna är sparade separat från huvuduppdrag och kunskapsbedömning och blockerar inte kapitelprogression. Kapitel 6:s äldre tjuv återanvänds utan en andra tjuv, och kapitel 9–10 förblir obygga. Tekniska regler och begränsningar finns i `EVENT_SYSTEM.md`.

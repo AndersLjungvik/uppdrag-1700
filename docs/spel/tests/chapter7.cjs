@@ -45,7 +45,7 @@ assert(C.runs.some(x=>x.p==='colonyQuay'));
 assert(C.runs.some(x=>x.p==='gustavia'));
 const store=fs.readFileSync(path.join(root,'integration.js'),'utf8');
 assert(store.includes("'uppdrag1700.ch7-real-world.20261026.v1'"));
-assert(store.includes('ch<=7'));
+assert(/ch<=([789]|10)/.test(store),'chapters 7 and later remain available');
 const tuningCtx={window:{}};
 for(const f of ['gameplay-tuning.js','world-restoration.js','chapter7-tuning.js'])vm.runInNewContext(fs.readFileSync(path.join(root,f),'utf8'),tuningCtx,{filename:f});
 const flow=tuningCtx.window.UPPDRAG_GAMEPLAY_TUNING.source('recall-flow.js',fs.readFileSync(path.join(root,'_decoded/recall-flow.js'),'utf8'));

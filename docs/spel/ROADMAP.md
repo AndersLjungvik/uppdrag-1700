@@ -21,3 +21,8 @@ Separat kvarstående: verklig klassvis upplåsning med autentisering, slutkontro
 
 ### Uppdatering: kapitel 8
 Kapitel 8 Skottet på maskeraden är nu byggt i version 1.4.0 med utvecklande dialoger och daterat nyhetsblad. Kapitel 9–10 återstår. Kapitel 8 behöver fortfarande praktisk elevgenomspelning i Safari innan undervisningsbruk.
+
+
+### Gemensamma händelser · 1.5.0
+
+Kapitel 1–8 har nu stöd för valfria sidoäventyr (vagn, smed, ficktjuv och senare vittne) i den gemensamma stadsvärlden. Dataformat och berättelseidéer för 9–10 är förberedda, men dessa kapitel är fortfarande inte byggda. `EVENT_SYSTEM.md` beskriver spelregler, sparning, begränsningar och testning. Nästa utvecklingssteg är att knyta fler personer och kapitelunika händelsebågar till motorn, inte att göra varje kapitel till samma lista av överraskningar.

@@ -3,7 +3,7 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='1.4.2',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='1.5.0',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -47,7 +47,14 @@ async function source(name){
    if(await hash(text)!==patch.after)throw Error('Kontrollsumman stämmer inte efter sammanfogning av '+name+'.');
   }
  }
- return window.UPPDRAG_GAMEPLAY_TUNING?.source(name,text)??text;
+ text=window.UPPDRAG_GAMEPLAY_TUNING?.source(name,text)??text;
+ // Optional encounters pause the actual map movement; never rewrite the map.
+ if(name==='world-street-pilot.js'||name==='world-classic-pilot.js'){
+  const marker='if(path.length&&!sailing&&!window.UPPDRAG_STORY_WORK?.busy)';
+  if(text.split(marker).length!==2)throw Error('Händelsemotor: spelvärldens rörelseankare matchar inte '+name);
+  text=text.replace(marker,'if(path.length&&!sailing&&!window.UPPDRAG_STORY_WORK?.busy&&!window.UPPDRAG_EVENT_ENGINE?.blocking)');
+ }
+ return text;
 }
 const safe=s=>s.replace(/<\/script/gi,'<\\/script');
 const query=s=>s.replace(/new URLSearchParams\(location\.search\)/g,'new URLSearchParams(window.__UPPDRAG_QUERY||location.search)');
@@ -57,7 +64,7 @@ Object.defineProperty(window,'localStorage',{value:parent.integratedStore,config
 window.addEventListener('error',e=>parent.integratedError(String(e.message||'Okänt fel')));
 window.addEventListener('unhandledrejection',e=>parent.integratedError(String(e.reason?.message||e.reason)));
 document.addEventListener('click',e=>{const a=e.target.closest?.('a[href]'),m=a?.getAttribute('href')?.match(/chapter(\\d+)-pilot\\.html/);if(m){e.preventDefault();e.stopPropagation();parent.openIntegratedChapter(Number(m[1]));}},true);
-window.__INTEGRATED_VERSION=${JSON.stringify(VERSION)};window.__INTEGRATED_SERIAL=${id};`;}
+window.__INTEGRATED_CHAPTER=${chapter};window.__INTEGRATED_VERSION=${JSON.stringify(VERSION)};window.__INTEGRATED_SERIAL=${id};`;}
 async function makePage(ch,id){
  if(ch===6&&!payload.extra['chapter6-pilot.html']){
   if(!window.UPPDRAG_CH6_BUILD?.build)throw Error('Kapitel 6-byggaren kunde inte laddas. Ladda om sidan för version 1.2.1.');
@@ -91,8 +98,10 @@ async function makePage(ch,id){
  const staging=(await source('room-staging.js'))+'\n'+(await source('room-life.js'));
  const styles=`<style>header small,header .chapterBack{display:none}header h1{font-size:clamp(13px,2.6vw,20px)}#ch1Modal textarea{min-height:100px}#ch1Modal .rc-tools button{min-height:44px}#ch1Modal .rc-own{overflow-wrap:anywhere}#ch1Modal .ch1Sheet{overscroll-behavior:contain}</style>`;
  page=page.replace('<head>','<head><base href="'+new URL('../demo3/',document.baseURI).href+'">'+script(bridge(id)+'\n'+staging)+styles);
+ // Optional, save-compatible side adventures are installed after existing scripts.
+ const eventModule=ch<=8?await get('event-engine.js?v=1.5.0'):'';
  const end=`window.__ROOM_BOOTING=false;window.UPPDRAG_ROOM_LIFE?.cacheFurniture();requestAnimationFrame(()=>parent.integratedReady(${id},${ch}));`;
- page=page.replace('</body>',script((teacher?payload.inspector+'\n':'')+end)+'</body>');return page;
+ page=page.replace('</body>',script(eventModule+'\n'+(teacher?payload.inspector+'\n':'')+end)+'</body>');return page;
 }
 window.openIntegratedChapter=async function(ch){
  if(!Number.isInteger(ch)||ch<1||ch>8){showError('Kapitel 9–10 är ännu inte spelbara. De byggs vidare från samma äventyr.');return false;}
