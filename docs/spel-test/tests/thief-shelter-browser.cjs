@@ -26,13 +26,15 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
    });
   }
   let start=await setup();assert.equal(start.motion.phase,'approaching');
-  const conversation=await f.evaluate(()=>{
+  const personHit=await f.evaluate(()=>{
    const person=UPPDRAG_WORLD_LIFE.people(region).filter(p=>p.ponderings?.length&&Math.hypot(player.x-p.x,player.y-p.y)<=80).sort((a,b)=>Math.hypot(player.x-a.x,player.y-a.y)-Math.hypot(player.x-b.x,player.y-b.y))[0];
    if(!person)throw Error('no nearby conversational person');
-   const opened=requestPerson(person);qaTick();draw();
-   return {opened,id:person.id,gap:Math.hypot(player.x-person.x,player.y-person.y),motion:UPPDRAG_EVENT_ENGINE.approach,money:UPPDRAG_CH1_PILOT.state.daler};
+   draw();const m=ctx.getTransform(),r=canvas.getBoundingClientRect();
+   return {x:(m.a*person.x+m.c*person.y+m.e)*r.width/canvas.width,y:(m.b*person.x+m.d*person.y+m.f)*r.height/canvas.height};
   });
-  assert.equal(conversation.opened,true);assert.equal(conversation.motion.phase,'retreating');assert.equal(conversation.motion.reason,'conversation');assert.equal(conversation.money,start.money);
+  await f.locator('#world').click({position:personHit});
+  const conversation=await f.evaluate(()=>{qaTick();draw();return {motion:UPPDRAG_EVENT_ENGINE.approach,money:UPPDRAG_CH1_PILOT.state.daler};});
+  assert.equal(await f.locator('#adventureDialog').isVisible(),true);assert.equal(conversation.motion.phase,'retreating');assert.equal(conversation.motion.reason,'conversation');assert.equal(conversation.money,start.money);
   await p.screenshot({path:path.join(root,'qa/thief-conversation.png')});
   assert.equal(await f.evaluate(()=>{for(let i=0;i<300;i++)qaTick();return UPPDRAG_EVENT_ENGINE.approach.phase;}),'evaded');
   assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),start.money);

@@ -1,4 +1,4 @@
-/* Uppdrag 1700 – side-adventure engine v1.7.0.
+/* Uppdrag 1700 – side-adventure engine v1.8.0.
  * Single world-loop integration. Optional scenes, not knowledge assessment.
  * The per-chapter save is separate from the original pilot and recall saves.
  * The definitions below also reserve hooks for future chapters 9 and 10.
@@ -32,7 +32,8 @@ const state=store.chapters[chapter]&&typeof store.chapters[chapter]==='object'?s
 if(!['unseen','inspected','need-smith','advice','cleared','deferred'].includes(state.wagon))state.wagon='unseen';
 if(!['unseen','chasing','won','lost','ignored'].includes(state.thief))state.thief='unseen';
 // A reload ends a chase without taking another coin; the witness remains available.
-if(state.thief==='chasing')state.thief=state.stolenDaler?'lost':'ignored';
+const interruptedChase=state.thief==='chasing';
+if(interruptedChase)state.thief=state.stolenDaler?'lost':'ignored';
 state.stolenDaler=!!state.stolenDaler;
 if(!Array.isArray(state.history))state.history=[];
 state.distance=Math.max(0,Math.min(100000,Number(state.distance)||0));
@@ -75,14 +76,21 @@ const record=(kind,value)=>{state.history.push({kind,value,at:new Date().toISOSt
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const getPilot=()=>window['UPPDRAG_CH'+chapter+'_PILOT'];
 function wallet(){const p=getPilot();return Number.isFinite(Number(p?.state?.daler))?Math.max(0,Number(p.state.daler)):0;}
+const recurrence=window.UPPDRAG_EVENT_RECURRENCE.create(state,wallet());
+if(interruptedChase)recurrence.finish(false,state.distance);
+function observeWallet(){if(!teacher&&recurrence.observe(wallet()))save();}
 function loseDaler(){if(teacher)return false;const p=getPilot();if(!p?.state||wallet()<1)return false;
+ observeWallet();
  p.state.daler=wallet()-1;
+ recurrence.ownWallet(wallet());
  try{if(typeof p.persist==='function')p.persist();else if(p.saveKey)localStorage.setItem(p.saveKey,JSON.stringify(p.state));p.refresh?.();}catch{}
  const label=document.querySelector('#ch1Hud .ch1Wallet');if(label&&label.textContent.includes('daler'))label.textContent=label.textContent.replace(/\d+(?=\s*daler)/,String(p.state.daler));
  return true;
 }
 function returnDaler(){if(teacher)return false;const p=getPilot();if(!p?.state)return false;
+ observeWallet();
  p.state.daler=wallet()+1;
+ recurrence.ownWallet(wallet());
  try{if(typeof p.persist==='function')p.persist();else if(p.saveKey)localStorage.setItem(p.saveKey,JSON.stringify(p.state));p.refresh?.();}catch{}
  const label=document.querySelector('#ch1Hud .ch1Wallet');if(label&&label.textContent.includes('daler'))label.textContent=label.textContent.replace(/\d+(?=\s*daler)/,String(p.state.daler));
  return true;
@@ -329,30 +337,30 @@ function showThiefQuestion(){
 }
 function showThief(){
  if(!allowed('thief')||state.thief!=='unseen'||!activeWorld||(!teacher&&wallet()<1))return false;
- chaseQuestion=question((state.history.length||0)+2);if(!chaseQuestion)return false;
+ chaseQuestion=question((state.history.length||0)+recurrence.encounters+2);if(!chaseQuestion)return false;
  if(!thiefPoint){thiefPoint={x:(last?.x||1200)+38,y:last?.y||710};approach.place(thiefPoint);}
  const clear=(a,b)=>clearPath(activeWorld,a,b);
  const escape=window.UPPDRAG_EVENT_APPROACH.escapeRoute(activeWorld,thiefPoint,last,id=>navigationPoint(activeWorld,id),clear,coversFor(activeWorld));
  if(!escape){approach.deter('blocked');state.nextAmbushDistance=state.distance+280;record('thief','evaded-blocked');return false;}
  if(!approach.flee(escape))return false;
- state.stolenDaler=loseDaler();state.thief='chasing';state.thiefSeen=true;record('thief','chase-started');
+ state.stolenDaler=loseDaler();recurrence.start();state.thief='chasing';state.thiefSeen=true;record('thief','chase-started');
  chaseFollowing=false;chaseButton.hidden=false;document.body.dataset.adventureChase='true';
  shout('Mina pengar!');return true;
 }
 function showWitness(){
- if(!allowed('thief')||['unseen','chasing'].includes(state.thief))return false;
+ if(!witnessAvailable())return false;
  if(!nearActor('witness'))return walkToEvent('witness');speaker='witness';
- if(['recovered','heard'].includes(state.witness)){display('Barnet vid torget','<p><b>Barnet:</b> ”Hej igen!”</p>');return true;}
+ if(!recurrence.unclaimed&&['recovered','heard'].includes(state.witness)){display('Barnet vid torget','<p><b>Barnet:</b> ”Hej igen!”</p>');return true;}
  if(state.witness==='cold'){
   display('Barnet','<p><b>Barnet:</b> ”Du lät så arg förut. Jag blev rädd.”</p>',[['kind','Förlåt. Jag ska prata lugnt.'],['cold','Jag går vidare.',true]]);return true;
  }
- const lost=state.thief==='lost';
+ const lost=recurrence.unclaimed>0;
  display('Barnet','<p><b>Barnet:</b> ”'+(lost?'Letar du efter en daler? Jag hittade en här på marken.':'Du hann ifatt! Fick du tillbaka din daler?')+'”</p>',[['kind',lost?'Ja, tack! Var hittade du den?':'Ja, tack för att du frågar.'],['harsh',lost?'Ge hit den!':'Låt mig vara.',true]]);return true;
 }
 function witnessAnswer(kind){
  if(!nearActor('witness'))return;speaker='witness';
  if(kind==='harsh'){state.witness='cold';record('witness','unfriendly');display('Barnet','<p><b>Barnet:</b> ”Du behöver inte vara arg på mig.”</p>');return;}
- const found=state.thief==='lost'&&returnDaler();if(found)state.stolenDaler=false;
+ const found=recurrence.unclaimed>0&&returnDaler();if(found)recurrence.claim();
  state.witness=found?'recovered':'heard';record('witness',found?'recovered-coin':'heard-witness');
  display('Barnet',found?'<p><b>Barnet:</b> ”Varsågod! Den låg här när personen sprang förbi.”</p><p><b>Du:</b> ”Tack!”</p>':'<p><b>Barnet:</b> ”Vad skönt!”</p>');
 }
@@ -360,15 +368,20 @@ function finishThief(caught,announce=true){
  calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');
  if(state.thief!=='chasing')return;
  if(caught&&state.stolenDaler){returnDaler();state.stolenDaler=false;}
- state.thief=caught?'won':state.stolenDaler?'lost':'ignored';record('thief',state.thief);
+ const lost=!caught&&state.stolenDaler;
+ state.thief=caught?'won':lost?'lost':'ignored';state.stolenDaler=false;
+ recurrence.finish(lost,state.distance);
+ if(lost&&state.witness!=='cold')state.witness='unseen';
+ record('thief',state.thief);
  if(chaseFollowing)path=[];chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;
  if(caught||['caught','fleeing'].includes(approach.snapshot().phase))approach.depart();
  if(announce)shout(caught?'Där är min daler!':'Vart tog tjuven vägen?');
 }
+function witnessAvailable(){return allowed('thief')&&state.thief!=='chasing'&&(state.thief!=='unseen'||recurrence.unclaimed>0);}
 function journalStatus(){return '<p><b>Vagnen vid herrgårdsvägen:</b> '+({unseen:'Inte upptäckt',inspected:'Undersökt – återvänd om du vill',deferred:'Du kan återvända', 'need-smith':'Sök smeden vid Verkstäderna',advice:'Återvänd till kusken',cleared:'Hjälpt, vägen är fri'}[state.wagon])+'</p>'+
- (allowed('thief')?'<p><b>Ficktjuven:</b> '+({unseen:'Har inte visat sig',chasing:'Springer iväg med din daler',won:'Du hann ikapp',lost:'Försvann med en daler',ignored:'Avslutat'}[state.thief])+'</p>'+(!['unseen','chasing'].includes(state.thief)?'<p><b>Vittnet vid torget:</b> '+({unseen:'Går att prata med',cold:'Vill bli bemött lugnare',recovered:'Du fick tillbaka dalern',heard:'Ni har pratat'}[state.witness])+'</p>':''):'');}
+ (allowed('thief')?'<p><b>Ficktjuven:</b> '+({unseen:state.thiefSeen?'Kan dyka upp igen':'Har inte visat sig',chasing:'Springer iväg med din daler',won:'Du hann ikapp',lost:'Försvann med en daler',ignored:'Avslutat'}[state.thief])+'</p>'+(witnessAvailable()?'<p><b>Vittnet vid torget:</b> '+(recurrence.unclaimed?'Har hittat en daler':{unseen:'Går att prata med',cold:'Vill bli bemött lugnare',recovered:'Du fick tillbaka dalern',heard:'Ni har pratat'}[state.witness])+'</p>':''):'');}
 function showJournal(){speaker='journal';const buttons=[['close','Tillbaka till spelet']];if(teacher){buttons.unshift(['demo-wagon','Testa vagnsblockad'],...(allowed('thief')?[['demo-thief','Testa ficktjuven']]:[]));}
- display('Sidoäventyr · kapitel '+chapter,'<p>De här händelserna är frivilliga. De kan lösas över flera möten och sparas separat från huvuduppdraget.</p><div class="ad-history">'+journalStatus()+'</div><p class="ad-note">Vagnen finns på landsvägen mellan Verkstäderna och Herrgården. Om smeden behövs ligger Verkstäderna längre västerut. Resor och huvuduppdrag fortsätter som vanligt.</p>',buttons);
+ display('Sidoäventyr · kapitel '+chapter,'<p>De här händelserna är frivilliga. De kan lösas över flera möten och sparas separat från huvuduppdraget.</p><div class="ad-history">'+journalStatus()+'</div>'+(allowed('thief')?'<p>Ficktjuven kan återkomma när du har tjänat nya daler och gått vidare i staden. Samtal, hus och gömställen kan hjälpa dig undan.</p>':'')+'<p class="ad-note">Vagnen finns på landsvägen mellan Verkstäderna och Herrgården. Om smeden behövs ligger Verkstäderna längre västerut. Resor och huvuduppdrag fortsätter som vanligt.</p>',buttons);
 }
 function updateJournalLabel(){journal.textContent='Händelser'+(state.wagon!=='unseen'||state.thief!=='unseen'?' · ':'')+(state.wagon==='cleared'?'✓':state.wagon==='need-smith'?'!':'');}
 journal.addEventListener('click',showJournal);
@@ -407,6 +420,7 @@ function tick(now,{region,player,activeRoom=null}={}){
  if(!region?.id||!player||!Number.isFinite(player.x)||!Number.isFinite(player.y))return;
  if(scene&&!scene.startsWith('Sidoäventyr ·'))positionSpeech();
  activeWorld=region;lastRegion=region.id;atRoom=activeRoom!==null;journal.hidden=atRoom||!!scene;
+ observeWallet();
  const was=last;last={x:player.x,y:player.y,region:region.id};
  if(region.id!=='main'){if(state.thief==='chasing')finishThief(false,false);approach.reset();thiefPoint=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');return;}
  const shelter=atRoom?'house':socialShelter()?'conversation':'';
@@ -418,6 +432,13 @@ function tick(now,{region,player,activeRoom=null}={}){
  callout.hidden=calloutLeft<=0||occupied;calloutTail.toggleAttribute('hidden',callout.hidden);
  const moved=was?.region===region.id?Math.hypot(was.x-player.x,was.y-player.y):0;
  if(!occupied&&moved>1&&moved<45){state.distance=Math.min(100000,state.distance+moved);if(Math.floor(state.distance/200)!==Math.floor((state.distance-moved)/200))save();}
+ if(!teacher&&!document.hidden&&recurrence.advance(elapsed))save();
+ if(!teacher&&!occupied){
+  if(!thiefPoint&&recurrence.ready(state.distance,wallet())){
+   state.thief='unseen';state.nextAmbushDistance=state.distance;
+   approach.reset();record('thief','return-after-earnings');
+  }
+ }
  const before=approach.snapshot().phase;
  const motion=approach.tick(now,player,{
    enabled:!teacher&&now>=2400&&allowed('thief')&&state.thief==='unseen'&&wallet()>0&&state.distance>=state.thiefDistance&&state.distance>=state.nextAmbushDistance&&candidates().length>0,
@@ -440,7 +461,7 @@ function tick(now,{region,player,activeRoom=null}={}){
  if(teacher||now<2400)return;
  if(state.wagon==='unseen'&&allowed('wagon')&&moved>1&&Math.hypot(player.x-wagonAt.x,player.y-wagonAt.y)<87){showWagon();return;}
  if(state.wagon==='need-smith'&&moved>1&&Math.hypot(player.x-smithAt.x,player.y-smithAt.y)<95){showSmith();return;}
- if(allowed('thief')&&!['unseen','chasing'].includes(state.thief)&&state.witness==='unseen'&&moved>1&&Math.hypot(player.x-witnessAt.x,player.y-witnessAt.y)<95){showWitness();return;}
+ if(witnessAvailable()&&state.witness==='unseen'&&moved>1&&Math.hypot(player.x-witnessAt.x,player.y-witnessAt.y)<95){showWitness();return;}
  if(motion.phase==='contact'&&state.thief==='unseen')showThief();
 }
 const people={
@@ -479,7 +500,7 @@ function draw(ctx,{region,now=0}={}){if(!ctx||region?.id!=='main')return;
  matrix=ctx.getTransform();if(scene)positionSpeech();
  if(allowed('wagon'))drawWagon(ctx,now);
  if(state.wagon==='need-smith')drawPerson(ctx,'smith',smithAt,now);
- if(allowed('thief')&&!['unseen','chasing'].includes(state.thief))drawPerson(ctx,'witness',witnessAt,now,.78);
+ if(witnessAvailable())drawPerson(ctx,'witness',witnessAt,now,.78);
  if(thiefPoint){drawPerson(ctx,'thief',thiefPoint,now);if(state.thief==='chasing'){ctx.save();ctx.translate(thiefPoint.x,thiefPoint.y);ctx.rotate(thiefPoint.heading||0);ctx.fillStyle='#b59355';ctx.strokeStyle='#5a4430';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(1,18,6,7,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();}}
  positionCallout();
 }
@@ -499,9 +520,13 @@ function mapClick(e){if(lastRegion!=='main'||atRoom||scene||dialog.open||hasOthe
  const p=inWorld(e);if(!p)return false;
  if(allowed('wagon')&&(Math.hypot(p.x-wagonPosition().x,p.y-wagonPosition().y)<75||Math.hypot(p.x-driverPosition().x,p.y-driverPosition().y)<30)){showWagon();return true;}
  if(state.wagon==='need-smith'&&Math.hypot(p.x-smithAt.x,p.y-smithAt.y)<75){showSmith();return true;}
- if(allowed('thief')&&!['unseen','chasing'].includes(state.thief)&&Math.hypot(p.x-witnessAt.x,p.y-witnessAt.y)<75){showWitness();return true;}
+ if(witnessAvailable()&&Math.hypot(p.x-witnessAt.x,p.y-witnessAt.y)<75){showWitness();return true;}
  if(thiefPoint&&state.thief==='chasing'&&Math.hypot(p.x-thiefPoint.x,p.y-thiefPoint.y)<60){chaseFollowing=true;followThief(performance.now(),true);return true;}
  if(thiefPoint&&state.thief==='unseen'&&['approaching','searching'].includes(approach.snapshot().phase)&&Math.hypot(p.x-thiefPoint.x,p.y-thiefPoint.y)<42)return noticeThief();
+ if(!window.UPPDRAG_LIVING_DIALOGUES&&!window['UPPDRAG_CH'+chapter+'_CITY_LIFE']){
+  const person=window.UPPDRAG_WORLD_LIFE.people(activeWorld).filter(a=>Math.hypot(p.x-a.x,p.y-a.y)<30).sort((a,b)=>Math.hypot(p.x-a.x,p.y-a.y)-Math.hypot(p.x-b.x,p.y-b.y))[0];
+  if(person)return requestPerson(person);
+ }
  chaseFollowing=false;pendingEvent=null;
  return false;}
 if(canvas){canvas.addEventListener('pointerdown',e=>{if(scene){e.preventDefault();e.stopImmediatePropagation();return;}if(mapClick(e)){e.preventDefault();e.stopImmediatePropagation();}},true);}
@@ -518,10 +543,10 @@ function install(){const life=window.UPPDRAG_WORLD_LIFE;
  const keyboard=window.UPPDRAG_WORLD_KEYBOARD;
  if(keyboard&&typeof keyboard.tick==='function'){const old=keyboard.tick;keyboard.tick=function(){if(blocking)return;return old.apply(this,arguments);};}
 }
-const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,drawCover,get covers(){return coversFor(activeWorld).map(c=>({...c}));},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){state.nextAmbushDistance=0;pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.7.0'};
+const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,drawCover,get covers(){return coversFor(activeWorld).map(c=>({...c}));},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){recurrence.reset(wallet());state.nextAmbushDistance=0;pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.8.0'};
 window.UPPDRAG_EVENT_ENGINE=api;
 api.register({id:'wagon-blockade',type:'sidequest',region:'main',chapters:[1,2,3,4,5,6,7,8,9,10],multiStop:true,nonBlocking:true});
-api.register({id:'pickpocket',type:'surprise',region:'main',chapters:[1,2,4,5,7,9,10],physicalChase:true,usesRetrieval:true,maximumLoss:1});
+api.register({id:'pickpocket',type:'surprise',region:'main',chapters:[1,2,4,5,7,9,10],physicalChase:true,usesRetrieval:true,maximumLoss:1,repeatAfterEarnings:true});
 api.register({id:'street-witness',type:'follow-up',region:'main',chapters:[1,2,4,5,7,9,10],dependsOn:'pickpocket',remembersChoice:true});
 install();save(); // Keep the encounter window stable across browser reloads.
 })();

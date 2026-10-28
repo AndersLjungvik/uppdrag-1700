@@ -1,4 +1,4 @@
-# Scener och sidoäventyr – 2.0.8
+# Scener och sidoäventyr – 2.0.9
 
 Amira, Elin och Jo talar i första person. Maja får svaret ”Självklart!”. ”Se brevet”, ”Se protokollet” och ”Se handelslistan” öppnar de befintliga arbetsnärbilderna. Samma närbild används genom svar, återkoppling och nytt försök; Arkivet använder Ruts befintliga skrivbord. Minnesboken är fortfarande en separat översikt. Kajens gemensamma kameraprojektion fyller hela bildytan utan sidofält och används även av figurer och klickytor.
 
@@ -22,12 +22,16 @@ Ett träd ger skydd när kronan faktiskt bryter sikten mellan tjuven och spelare
 
 Efter stölden springer tjuven i 125 punkter per sekund längs framkomlig mark och vägar till ett annat träd. Vägberäkningen ansluter även punkter långt från vägen; att stanna ute på marken får inte längre tjuven att försvinna. Spelaren kan styra själv, klicka på tjuven eller välja ”Spring efter tjuven”. Inom 36 punkter efter att jakten startat öppnas en minnesfråga. Rätt svar ger tillbaka samma daler en gång; fel svar eller stängning låter tjuven komma undan. Frågan visas på ett separat frågekort och läses inte som tjuvens replik. I kapitel 1 väljs bara redan mötta lärlingsfrågor; tjuven väntar tills det finns en sådan fråga.
 
+Tjuven kan återkomma i samma kapitelomgång när spelaren har tjänat minst en ny daler efter den senaste stölden. En återkomst kräver dessutom 30–50 sekunders synlig speltid efter den avslutade jakten och 450–749 gångpunkter efter den nya inkomsten. Tiden och sträckan varierar mellan möten och sparas, så att omladdning inte hoppar över vilan. Vilan räknas även medan spelaren arbetar i ett rum eller samtalar; tjuven kan bara visa sig ute i staden när arbetsytan och samtalet är stängda. En dold flik räknar inte ned vilan. Flera nya daler laddar ett nytt tillfälle; de köar inte ett angrepp per daler. Före stölden gäller fortfarande den kortare pausen efter att spelaren lyckats undkomma.
+
+Återbetalning från jakten eller barnet räknas inte som ny inkomst. Varje möte tar högst en daler. Förlorade daler bokförs var för sig och kan återfås en gång hos barnet, även om tjuven hunnit återkomma under tiden. Barnets tidigare bemötande finns kvar. Äldre sparningar får den nya regeln utan att huvuduppdraget, vagnen, minnesboken eller valutan återställs. Ett avbrutet, omladdat tjuvmöte lämnar högst en förlorad daler och startar samma paus som ett avslutat möte.
+
 Den som låter tjuven komma undan kan fortfarande tala med barnet vid torget. Minnesboken, andra översikter och en dold flik pausar rörelsen. Att söka skydd efter stölden avslutar jakten utan återbetalning: tjuven fortsätter fysiskt till sitt gömställe, och barnet finns kvar. Att lämna området eller ladda om avslutar jakten utan ytterligare avdrag. Elevsvar och provstämplar påverkas inte. Lärarvyns demonstration ändrar ingen valuta. Kapitel 6 behåller sin äldre, separata tjuvhändelse för att undvika dubbla möten.
 
 ## Kontroller
 
 - `npm run test:scenes`: riktiga samtalsknappar, målade närbilder, frågeåterkoppling, mobil, kajutsnitt och återgång till rummet.
-- `npm run test:events`: befintliga träd, sikt och sökande, skydd genom verkliga samtal och dörrar, skydd efter stöld utan extra valuta, ansmygning utanför vägen, väghörn, paus, verklig jakt, minnesfråga, flykt, återbetalning, bubblornas avslut, vagn/smed/vittne, verklig gång mellan vagn och smed, tangentstyrning och omladdning.
+- `npm run test:events`: befintliga träd, sikt och sökande, skydd genom verkliga samtal och dörrar, skydd efter stöld utan extra valuta, två verkliga uppdragsbelöningar och återkommande stölder i samma kapitel, återbetalningar utan nytt angrepp, vilans sparning och äldre sparning, ansmygning utanför vägen, väghörn, paus, verklig jakt, minnesfråga, flykt, återbetalning, bubblornas avslut, vagn/smed/vittne, verklig gång mellan vagn och smed, tangentstyrning och omladdning.
 - `npm run test:mastery`: kapitel 1:s frågor, nivåer och sparning.
 
 Webbläsartester använder Playwright och kan få sökvägen till Chromium via `CHROMIUM_PATH`. `event-engine.cjs` använder avkodade originalkällor; kör `python docs/spel/decode_sources.py` först.
