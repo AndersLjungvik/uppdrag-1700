@@ -55,6 +55,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await p.evaluate(({key,sideKey})=>localStorage.setItem(key+sideKey,JSON.stringify({v:1,chapters:{1:{wagon:'cleared',thief:'won',thiefSeen:true,stolenDaler:false,witness:'heard',distance:2000,thiefDistance:620,history:[{kind:'thief',value:'won'}]}}})),{key,sideKey});
   await p.reload();await freeze();
   const initial=await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler);
+  const firstLoss=Math.ceil((initial+1)/2),secondLoss=Math.ceil((initial+2)/2);
   await waitAndWalk();
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'won');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.approach.point),null);
   // A real new reward in the existing quay workspace unlocks another encounter.
@@ -65,14 +66,14 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await outside();assert.equal((await ambush()).phase,'approaching');
   await f.evaluate(()=>{for(let i=0;i<180&&UPPDRAG_EVENT_ENGINE.state.thief!=='chasing';i++)qaTick();draw();});
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'chasing');
-  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),initial);
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),initial+1-firstLoss);
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.encounters),2);
   fs.mkdirSync(path.join(root,'qa'),{recursive:true});await p.screenshot({path:path.join(root,'qa/thief-returns-after-reward.png')});
-  // Reload closes the live chase, preserving one lost coin and the new rest.
+  // Reload closes the live chase, preserving the exact lost purse and the new rest.
   await p.reload();await freeze();
-  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),initial);
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),initial+1-firstLoss);
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'lost');
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.unclaimed),1);
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.unclaimed),firstLoss);
   assert(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.rest>=29000));
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.earned),false);
   assert.equal(await f.evaluate(()=>UPPDRAG_MASTERY.snapshot().state.areas.trade.learner.status),'clear');
@@ -81,13 +82,13 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),initial+1);
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.unclaimed),0);
   await waitAndWalk();
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'lost','the child refund does not invite another theft');
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'lost','the purse refund does not invite another theft');
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.approach.point),null);
   // A second actual reward permits a third encounter in the same chapter.
   await earn('law');await outside();assert.equal((await ambush()).phase,'approaching');
   await f.evaluate(()=>{for(let i=0;i<180&&UPPDRAG_EVENT_ENGINE.state.thief!=='chasing';i++)qaTick();});
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.encounters),3);
-  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),initial+1);
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),initial+2-secondLoss);
   await f.locator('#adventureChase').click();
   await f.evaluate(()=>{
    for(let i=0;i<1000&&UPPDRAG_EVENT_ENGINE.approach.phase!=='caught';i++){

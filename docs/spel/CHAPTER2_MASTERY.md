@@ -20,7 +20,7 @@ Det frivilliga uppdraget **Sängen vid fönstret** följer Barnhuset → Karin i
 
 Det lagade täcket kan lämnas direkt, även om kunskapsområden återstår. Barnet väljer segel eller ränder när spelaren visar en dekorlapp. Sängen får samma lagning och mönster vid återladdning. Korta återbesök ersätter nya beställningar. Barnets, Karins och Siris repliker visas en åt gången i deras personanknutna pratbubblor; spelarens val finns utanför bubblan. Sidoäventyret ger inga kunskapsstämplar, daler eller äpplen och påverkar inte kapitlets spärrar. Det är en fiktiv lokal händelse och ändrar inte uppgifternas historiska beskrivning av barnhusens villkor.
 
-Den gemensamma tjuven använder samma gömställen, sikt, samtalsskydd, husbesök, fysiska jakt och återkomst efter nya intäkter som i ettan. Minnesfrågan hämtas endast från redan mötta ämnen, även kända ämnen från ettan. En stöld kostar högst en daler. Återbetalningar ger inte en ny återkomst. Sidohändelser ger inga kunskapsstämplar. Omprov rör inte täcket, äldre vagnsstatus, tjuvhistoriken eller personernas bemötande.
+Den gemensamma tjuven använder samma gömställen, sikt, samtalsskydd, husbesök, fysiska jakt och återkomst efter nya intäkter som i ettan. Minnesfrågan hämtas endast från redan mötta ämnen, även kända ämnen från ettan. Från version 2.3.0 tar en stöld halva plånboken, avrundat uppåt, när spelaren har minst 3 daler. Hela summan kan återfås exakt en gång. Återbetalningar ger inte en ny återkomst. Sidohändelser ger inga kunskapsstämplar. Omprov rör inte täcket, äldre vagnsstatus, tjuvhistoriken eller personernas bemötande.
 
 ## Sparning och migration
 
