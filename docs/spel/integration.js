@@ -16,7 +16,10 @@ function read(k,scope=prefix()){const full=scope+k;try{return durable?(localStor
 function write(k,v,scope=prefix()){const full=scope+k;memory.set(full,String(v));try{if(durable)localStorage.setItem(full,String(v));}catch{durable=false;warning();}updateMenu();}
 function bindStore(){const frameScope=prefix();window.integratedStore={getItem:k=>read(k,frameScope),setItem:(k,v)=>write(k,v,frameScope),removeItem(k){memory.delete(frameScope+k);try{if(durable)localStorage.removeItem(frameScope+k);}catch{durable=false;warning();}updateMenu();}};}bindStore();
 function saved(ch){try{return JSON.parse(read(KEYS[ch])||'null');}catch{return null;}}
-function available(ch){return ch>=1&&ch<=10&&(teacher||ch===1||saved(ch-1)?.complete===true);}
+function masteryOneComplete(){
+ try{const m=JSON.parse(read('uppdrag1700.mastery.v1.ch1')||'null');return m?.v===1&&['start','law','trade'].every(a=>['learner','journeyman','master'].every(l=>m.areas?.[a]?.[l]?.status==='clear'));}catch{return false;}
+}
+function available(ch){return ch>=1&&ch<=10&&(teacher||ch===1||(masteryOneComplete()&&saved(ch-1)?.complete===true));}
 function showError(message){$('error').hidden=false;$('error').textContent=message;$('status').textContent='Äventyret behöver uppmärksamhet';}
 window.integratedError=message=>showError('Spelet rapporterade: '+message);
 async function get(name){
@@ -34,6 +37,7 @@ async function unzip(name){
 }
 async function hash(text){const bytes=new TextEncoder().encode(text),digest=await crypto.subtle.digest('SHA-256',bytes);return Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');}
 async function source(name){
+ if(chapter===1&&name==='chapter1-pilot.js')return get('chapter1-mastery.js?v=2.0.1');
  let text;
  if(payload.extra[name]!==undefined)text=payload.extra[name];
  else if(payload.questions[name]!==undefined)text=payload.questions[name];
@@ -48,6 +52,7 @@ async function source(name){
   }
  }
  text=window.UPPDRAG_GAMEPLAY_TUNING?.source(name,text)??text;
+ if(chapter===1&&name==='recall-flow.js')text=window.UPPDRAG_MASTERY_RECALL.source(text);
  // Optional encounters pause the actual map movement; never rewrite the map.
  if(name==='world-street-pilot.js'||name==='world-classic-pilot.js'){
   const marker='if(path.length&&!sailing&&!window.UPPDRAG_STORY_WORK?.busy)';
@@ -103,15 +108,16 @@ async function makePage(ch,id){
   return script(code,m[1]+m[3]);
  }));
  let index=0;page=page.replace(pattern,()=>scripts[index++]);page=query(page);
+ const masteryModule=await get('mastery-progression.js?v=2.0.1');
  const staging=(await source('room-staging.js'))+'\n'+(await source('room-life.js'));
  const styles=`<style>header small,header .chapterBack{display:none}header h1{font-size:clamp(13px,2.6vw,20px)}#ch1Modal textarea{min-height:100px}#ch1Modal .rc-tools button{min-height:44px}#ch1Modal .rc-own{overflow-wrap:anywhere}#ch1Modal .ch1Sheet{overscroll-behavior:contain}</style>`;
- page=page.replace('<head>','<head><base href="'+new URL('../demo3/',document.baseURI).href+'">'+script(bridge(id)+'\n'+staging)+styles);
+ page=page.replace('<head>','<head><base href="'+new URL('../demo3/',document.baseURI).href+'">'+script(bridge(id)+'\n'+staging+(ch===1?'\n'+masteryModule:''))+styles);
  // Shared mastery engine is loaded for every chapter during the rebuild. Chapters opt in by configuring areas.
- const masteryModule=await get('mastery-progression.js?v=2.0.0');
+ // Chapter 1 configures mastery before its pilot; other chapters still opt in later.
  // Optional, save-compatible side adventures are installed after existing scripts.
  const eventModule=ch<=10?await get('event-engine.js?v=1.5.2'):'';
  const end=`window.__ROOM_BOOTING=false;window.UPPDRAG_ROOM_LIFE?.cacheFurniture();requestAnimationFrame(()=>parent.integratedReady(${id},${ch}));`;
- page=page.replace('</body>',script(masteryModule+'\n'+eventModule+'\n'+(teacher?payload.inspector+'\n':'')+end)+'</body>');return page;
+ page=page.replace('</body>',script((ch===1?'':masteryModule+'\n')+eventModule+'\n'+(teacher?payload.inspector+'\n':'')+end)+'</body>');return page;
 }
 window.openIntegratedChapter=async function(ch){
  if(!Number.isInteger(ch)||ch<1||ch>10){showError('Välj ett kapitel mellan 1 och 10.');return false;}
@@ -133,7 +139,7 @@ window.integratedReady=(id,ch)=>{
 };
 function updateMenu(){
  $('teacherTools').hidden=!teacher;$('toggleTeacher').textContent=teacher?'Till vanlig spelgång':'Öppna lärarvy';
- const list=$('chapterList');list.replaceChildren();TITLES.forEach((title,i)=>{const ch=i+1,button=document.createElement('button'),label=document.createElement('span'),state=document.createElement('small');label.textContent=ch+'. '+title;button.append(label,state);button.disabled=ch>10||!available(ch);state.textContent=ch>10?'Återstår':saved(ch)?.complete?'Avklarat':ch===chapter?'Här är du':available(ch)?'Öppna':'Låst';button.onclick=()=>{$('menu').close();openIntegratedChapter(ch);};list.append(button);});
+ const list=$('chapterList');list.replaceChildren();TITLES.forEach((title,i)=>{const ch=i+1,button=document.createElement('button'),label=document.createElement('span'),state=document.createElement('small');label.textContent=ch+'. '+title;button.append(label,state);button.disabled=ch>10||!available(ch);state.textContent=ch>10?'Återstår':(ch===1?masteryOneComplete():saved(ch)?.complete)?'Avklarat':ch===chapter?'Här är du':available(ch)?'Öppna':'Låst';button.onclick=()=>{$('menu').close();openIntegratedChapter(ch);};list.append(button);});
 }
 $('menuButton').onclick=()=>{updateMenu();$('menu').showModal();};$('closeMenu').onclick=()=>$('menu').close();
 $('toggleTeacher').onclick=()=>{teacher=!teacher;updateMenu();$('menu').close();const last=Number(read('lastChapter'))||1;openIntegratedChapter(available(last)?last:1);};

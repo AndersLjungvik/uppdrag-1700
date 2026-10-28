@@ -23,22 +23,23 @@ function blank(){
 function load(){
  let raw=null;
  try{raw=JSON.parse(localStorage.getItem(key())||'null')}catch{}
- if(!raw||raw.v!==1||raw.chapter!==chapter||typeof raw.areas!=='object')raw=blank();
+ if(!raw||raw.v!==1||raw.chapter!==chapter||(!raw.areas||typeof raw.areas!=='object'||Array.isArray(raw.areas)))raw=blank();
  for(const a of config.areas){
-   if(!raw.areas[a.id])raw.areas[a.id]=blank().areas[a.id];
+   if(!raw.areas[a.id]||typeof raw.areas[a.id]!=='object'||Array.isArray(raw.areas[a.id]))raw.areas[a.id]=blank().areas[a.id];
    for(const l of LEVELS){
      const s=raw.areas[a.id][l];
      if(!s||!['locked','available','in-progress','pending','clear','failed'].includes(s.status))
        raw.areas[a.id][l]={status:l==='learner'?'available':'locked',attempt:0};
    }
  }
+ raw.history=Array.isArray(raw.history)?raw.history:[];
  state=raw;recompute();persist();
 }
 function persist(){try{localStorage.setItem(key(),JSON.stringify(state))}catch{}}
 function allClear(level){return config.areas.every(a=>state.areas[a.id][level].status==='clear')}
 function recompute(){
  const learnerDone=allClear('learner');
- const journeymanDone=allClear('journeyman');
+ const journeymanDone=learnerDone&&allClear('journeyman');
  for(const a of config.areas){
    if(!learnerDone&&state.areas[a.id].journeyman.status!=='clear')state.areas[a.id].journeyman.status='locked';
    else if(learnerDone&&state.areas[a.id].journeyman.status==='locked')state.areas[a.id].journeyman.status='available';
@@ -69,20 +70,21 @@ function configure(opts){
 }
 function begin(id,level){
  const c=cell(id,level);
- if(c.status==='locked')return {ok:false,reason:'locked'};
- if(c.status==='clear')return {ok:false,reason:'clear'};
+ if(!levelUnlocked(level)||c.status==='locked')return {ok:false,reason:'locked'};
+ if(!['available','in-progress'].includes(c.status))return {ok:false,reason:c.status};
+ if(c.status==='in-progress')return {ok:true,attempt:c.attempt,resumed:true};
  c.status='in-progress';c.attempt=(c.attempt||0)+1;record('begin',{area:id,level,attempt:c.attempt});persist();
  return {ok:true,attempt:c.attempt};
 }
 function pass(id,level){
- const c=cell(id,level);c.status='clear';c.completedAt=new Date().toISOString();delete c.failedAt;
+ const c=cell(id,level);if(!levelUnlocked(level)||!['in-progress','pending'].includes(c.status))return {ok:false,reason:c.status};c.status='clear';c.completedAt=new Date().toISOString();delete c.failedAt;
  record('clear',{area:id,level,attempt:c.attempt||0});recompute();persist();return snapshot();
 }
 function pending(id,level){
- const c=cell(id,level);c.status='pending';record('pending',{area:id,level,attempt:c.attempt||0});persist();return snapshot();
+ const c=cell(id,level);if(!['in-progress','pending'].includes(c.status))return {ok:false,reason:c.status};c.status='pending';record('pending',{area:id,level,attempt:c.attempt||0});persist();return snapshot();
 }
 function fail(id,level){
- const c=cell(id,level);c.status='failed';c.failedAt=new Date().toISOString();
+ const c=cell(id,level);if(!['in-progress','pending'].includes(c.status))return {ok:false,reason:c.status};c.status='failed';c.failedAt=new Date().toISOString();
  record('failed',{area:id,level,attempt:c.attempt||0});persist();return snapshot();
 }
 function retryWithApple(id,level){
@@ -96,21 +98,27 @@ function retryWithApple(id,level){
  return {ok:true,remaining:apples-1};
 }
 function buyHint(id,level){
- cell(id,level);
+ const c=cell(id,level);
  if(level!=='learner')return {ok:false,reason:'learner-only'};
+ if(c.status!=='in-progress')return {ok:false,reason:'not-in-progress'};
  if(!resourceAdapter?.getDaler||!resourceAdapter?.setDaler)return {ok:false,reason:'no-resource-adapter'};
  const daler=Math.max(0,Number(resourceAdapter.getDaler())||0);
  if(daler<1)return {ok:false,reason:'no-daler'};
  resourceAdapter.setDaler(daler-1);record('hint',{area:id,level,remaining:daler-1});persist();
  return {ok:true,remaining:daler-1};
 }
+function resumePending(id,level){
+ const c=cell(id,level);
+ if(c.status!=='pending')return {ok:false,reason:'not-pending'};
+ c.status='in-progress';persist();return {ok:true};
+}
 function levelUnlocked(level){
  if(level==='learner')return true;
  if(level==='journeyman')return allClear('learner');
- if(level==='master')return allClear('journeyman');
+ if(level==='master')return allClear('learner')&&allClear('journeyman');
  return false;
 }
-function chapterComplete(){return allClear('master')}
+function chapterComplete(){return LEVELS.every(allClear)}
 function summary(){
  const active=LEVELS.find(l=>levelUnlocked(l)&&!allClear(l))||'master';
  const done=config.areas.filter(a=>state.areas[a.id][active].status==='clear').length;
@@ -121,6 +129,6 @@ function summary(){
 }
 function snapshot(){return {chapter,config:clone(config),state:clone(state),summary:summary()}}
 function reset(){state=blank();recompute();persist();return snapshot()}
-const api={configure,begin,pass,pending,fail,retryWithApple,buyHint,levelUnlocked,chapterComplete,summary,snapshot,reset,LEVELS:[...LEVELS],LABELS:{...LABELS}};
+const api={configure,begin,pass,pending,resumePending,fail,retryWithApple,buyHint,levelUnlocked,chapterComplete,summary,snapshot,reset,LEVELS:[...LEVELS],LABELS:{...LABELS}};
 window.UPPDRAG_MASTERY=api;
 })();

@@ -64,7 +64,7 @@ function returnDaler(){if(teacher)return false;const p=getPilot();if(!p?.state)r
  const label=document.querySelector('#ch1Hud .ch1Wallet');if(label&&label.textContent.includes('daler'))label.textContent=label.textContent.replace(/\d+(?=\s*daler)/,String(p.state.daler));
  return true;
 }
-function candidates(){return (window.UPPDRAG_RECALL_BANK||[]).filter(t=>t.chapter<=chapter&&t.chapter>=1&&t.rank===0&&t.fields?.length===1&&t.fields[0].options?.length>=3&&t.fields[0].answers?.length);
+function candidates(){const known=chapter===1?new Set(getPilot()?.repetitionTaskIds||[]):null;return (window.UPPDRAG_RECALL_BANK||[]).filter(t=>(!known||known.has(t.id))&&t.chapter<=chapter&&t.chapter>=1&&t.rank===0&&t.fields?.length===1&&t.fields[0].options?.length>=3&&t.fields[0].answers?.length);
 }
 function question(seed){const all=candidates();if(!all.length)return null;
  const t=all[(seed*31+chapter*7)%all.length],f=t.fields[0];
