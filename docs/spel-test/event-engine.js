@@ -1,4 +1,4 @@
-/* Uppdrag 1700 – side-adventure engine v1.8.0.
+/* Uppdrag 1700 – side-adventure engine v1.8.1.
  * Single world-loop integration. Optional scenes, not knowledge assessment.
  * The per-chapter save is separate from the original pilot and recall saves.
  * The definitions below also reserve hooks for future chapters 9 and 10.
@@ -95,7 +95,7 @@ function returnDaler(){if(teacher)return false;const p=getPilot();if(!p?.state)r
  const label=document.querySelector('#ch1Hud .ch1Wallet');if(label&&label.textContent.includes('daler'))label.textContent=label.textContent.replace(/\d+(?=\s*daler)/,String(p.state.daler));
  return true;
 }
-function candidates(){const known=chapter===1&&!teacher?new Set(getPilot()?.repetitionTaskIds||[]):null;return (window.UPPDRAG_RECALL_BANK||[]).filter(t=>(!known||known.has(t.id))&&t.chapter<=chapter&&t.chapter>=1&&t.rank===0&&t.fields?.length===1&&t.fields[0].options?.length>=3&&t.fields[0].answers?.length);
+function candidates(){const ids=getPilot()?.repetitionTaskIds,known=!teacher&&Array.isArray(ids)?new Set(ids):null;return (window.UPPDRAG_RECALL_BANK||[]).filter(t=>(!known||known.has(t.id))&&t.chapter<=chapter&&t.chapter>=1&&t.rank===0&&t.fields?.length===1&&t.fields[0].options?.length>=3&&t.fields[0].answers?.length);
 }
 function question(seed){const all=candidates();if(!all.length)return null;
  const t=all[(seed*31+chapter*7)%all.length],f=t.fields[0];
@@ -543,7 +543,7 @@ function install(){const life=window.UPPDRAG_WORLD_LIFE;
  const keyboard=window.UPPDRAG_WORLD_KEYBOARD;
  if(keyboard&&typeof keyboard.tick==='function'){const old=keyboard.tick;keyboard.tick=function(){if(blocking)return;return old.apply(this,arguments);};}
 }
-const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,drawCover,get covers(){return coversFor(activeWorld).map(c=>({...c}));},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){recurrence.reset(wallet());state.nextAmbushDistance=0;pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.8.0'};
+const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,drawCover,get covers(){return coversFor(activeWorld).map(c=>({...c}));},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){recurrence.reset(wallet());state.nextAmbushDistance=0;pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.8.1'};
 window.UPPDRAG_EVENT_ENGINE=api;
 api.register({id:'wagon-blockade',type:'sidequest',region:'main',chapters:[1,2,3,4,5,6,7,8,9,10],multiStop:true,nonBlocking:true});
 api.register({id:'pickpocket',type:'surprise',region:'main',chapters:[1,2,4,5,7,9,10],physicalChase:true,usesRetrieval:true,maximumLoss:1,repeatAfterEarnings:true});
