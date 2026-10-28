@@ -1,4 +1,4 @@
-/* Uppdrag 1700 – side-adventure engine v1.6.2.
+/* Uppdrag 1700 – side-adventure engine v1.6.3.
  * Single world-loop integration. Optional scenes, not knowledge assessment.
  * The per-chapter save is separate from the original pilot and recall saves.
  * The definitions below also reserve hooks for future chapters 9 and 10.
@@ -89,8 +89,12 @@ const style=document.createElement('style');style.textContent=`
  #adventureDialog.ad-event-speech h2{font:600 18px/1.2 Georgia,serif;margin:0 0 8px}
  #adventureDialog.ad-event-speech .ad-speaker{font:600 13px/1.3 system-ui;color:#60513b;letter-spacing:.02em;margin-bottom:3px}
  #adventureDialog.ad-event-speech p{margin:8px 0}
- #adventureDialog.ad-event-speech .ad-actions{margin:12px 0 0;gap:6px}
- #adventureDialog.ad-event-speech .ad-actions button{flex:1 1 120px;font-size:14px;padding:8px 9px;min-height:42px}
+ #adventureReplies{position:absolute;z-index:40;left:50%;bottom:12px;transform:translateX(-50%);box-sizing:border-box;width:min(480px,calc(100% - 24px));max-height:40%;overflow:auto;padding:10px 13px 12px;background:#fff9ec;border:1px solid #aa987b;border-radius:9px;color:#332b23}
+ #adventureReplies .ad-reply-label{font:600 13px/1.3 system-ui;color:#60513b;margin-bottom:7px}
+ #adventureReplies .ad-actions{display:flex;flex-wrap:wrap;gap:8px}
+ #adventureReplies button{flex:1 1 160px;min-height:44px;padding:9px 12px;text-align:left;font:16px/1.3 Georgia,serif;background:#e5e8d8;color:#312b24;border:1px solid #8f795b;border-radius:6px;cursor:pointer}
+ #adventureReplies button.secondary{background:#fffdf6}
+ #adventureReplies button:focus-visible{outline:3px solid #266879;outline-offset:2px}
  #adventureDialog.ad-event-speech .ad-choices button{font-size:14px;padding:7px 9px}
  #adventureDialog.ad-event-speech .ad-illustration{display:none}
  #adventureDialog.ad-event-speech::before,#adventureDialog.ad-event-speech::after{display:none!important;content:none!important}
@@ -118,6 +122,7 @@ body.ch1-open #adventureJournal,body[data-conversation] #adventureJournal{displa
 `;document.head.append(style);
 const journal=document.createElement('button');journal.type='button';journal.id='adventureJournal';journal.setAttribute('aria-label','Öppna sidoäventyr och händelser');stage.append(journal);
 const dialog=document.createElement('dialog');dialog.id='adventureDialog';dialog.tabIndex=0;dialog.setAttribute('aria-label','Sidoäventyr');stage.append(dialog);
+const replies=document.createElement('section');replies.id='adventureReplies';replies.hidden=true;replies.setAttribute('role','group');replies.setAttribute('aria-label','Du svarar');stage.append(replies);
  const tail=document.createElementNS('http://www.w3.org/2000/svg','svg');tail.id='adventureTail';tail.setAttribute('aria-hidden','true');tail.setAttribute('hidden','');stage.append(tail);
  const callout=document.createElement('div');callout.id='adventureCallout';callout.hidden=true;callout.setAttribute('role','status');callout.setAttribute('aria-live','polite');stage.append(callout);
  const calloutTail=document.createElementNS('http://www.w3.org/2000/svg','svg');calloutTail.id='adventureCalloutTail';calloutTail.setAttribute('aria-hidden','true');calloutTail.setAttribute('hidden','');stage.append(calloutTail);
@@ -174,16 +179,17 @@ const dialog=document.createElement('dialog');dialog.id='adventureDialog';dialog
      }
      if(anchor.x<20||anchor.y<20||anchor.x>sr.width-20||anchor.y>sr.height-20)anchor={x:sr.width*.55,y:sr.height*.57};
    }
+   const bottom=replies.hidden?sr.height-8:Math.max(48,replies.getBoundingClientRect().top-sr.top-12);
    const width=Math.min(sr.width-16,Math.max(230,Math.min(365,sr.width*.85)));
-   dialog.style.width=width+'px';dialog.style.maxHeight=Math.max(90,sr.height-16)+'px';
-   const height=Math.min(sr.height-16,dialog.getBoundingClientRect().height),minX=8,minY=8;
+   dialog.style.width=width+'px';dialog.style.maxHeight=Math.max(40,bottom-8)+'px';
+   const height=Math.min(bottom-8,dialog.getBoundingClientRect().height),minX=8,minY=8;
    const clamp=(v,lo,hi)=>Math.max(lo,Math.min(Math.max(lo,hi),v));
    const options=[
      {x:anchor.x-width/2,y:anchor.y-height-30},
      {x:anchor.x+30,y:anchor.y-height/2},
      {x:anchor.x-width-30,y:anchor.y-height/2},
      {x:anchor.x-width/2,y:anchor.y+30}
-   ].map(o=>({x:clamp(o.x,minX,sr.width-width-8),y:clamp(o.y,minY,sr.height-height-8),w:width,h:height}));
+   ].map(o=>({x:clamp(o.x,minX,sr.width-width-8),y:clamp(o.y,minY,bottom-height),w:width,h:height}));
    options.sort((a,b)=>Math.hypot(a.x+a.w/2-anchor.x,a.y+a.h/2-anchor.y)-Math.hypot(b.x+b.w/2-anchor.x,b.y+b.h/2-anchor.y));
    const box=options[0],signature=[box.x,box.y,box.w,box.h,anchor.x,anchor.y].map(x=>Math.round(x)).join(':');
    if(signature===lastSpeechSignature)return;
@@ -197,8 +203,8 @@ const dialog=document.createElement('dialog');dialog.id='adventureDialog';dialog
  new ResizeObserver(()=>{lastSpeechSignature='';positionSpeech();}).observe(stage);
  
 const actions=(items)=>'<div class="ad-actions">'+items.map(([code,label,second])=>`<button type="button" data-adventure="${code}"${second?' class="secondary"':''}>${esc(label)}</button>`).join('')+'</div>';
- // A speech bubble shows just one utterance at a time. Supplementary notes and
- // answer alternatives stay attached to their preceding utterance.
+ // A speech bubble contains only its speaker's utterance. Player replies are
+ // separate controls, so they can never read as part of the NPC's speech.
  function splitSpeech(html){
    const container=document.createElement('div');container.innerHTML=html;
    const lines=[];
@@ -219,20 +225,22 @@ const actions=(items)=>'<div class="ad-actions">'+items.map(([code,label,second]
    const who=first?first[1]:speaker==='thief'?'Berättaren':label;lineSpeaker=who;
    const text=first?html.replace(/(<p[^>]*>)\s*<b>[^<>]+:<\/b>\s*/, '$1'):html;
    const controls=turnIndex<turns.length-1||turnChoices.length===1&&['close','later','advice'].includes(turnChoices[0][0])?[]:turnChoices;
-   dialog.innerHTML='<div class="ad-speaker">'+esc(who)+'</div><div class="ad-utterance">'+text+'</div>'+actions(controls);
+   dialog.innerHTML='<div class="ad-speaker">'+esc(who)+'</div><div class="ad-utterance">'+text+'</div>';
+   replies.innerHTML=controls.length?'<div class="ad-reply-label" aria-hidden="true">Du svarar</div>'+actions(controls):'';replies.hidden=!controls.length;
    lastSpeechSignature='';positionSpeech();
    dialog.setAttribute('aria-label',who+': '+dialog.querySelector('.ad-utterance').textContent);
-   (dialog.querySelector('button')||dialog).focus({preventScroll:true});
+   (replies.querySelector('button')||dialog).focus({preventScroll:true});
  }
  function advanceSpeech(){
   if(!dialog.classList.contains('ad-event-speech'))return;
   if(turnIndex<turns.length-1){turnIndex++;renderTurn();return;}
   if(turnChoices.length===1&&['close','later','advice'].includes(turnChoices[0][0]))return handleAction(turnChoices[0][0]);
-  if(!turnChoices.length)close();else dialog.querySelector('button')?.focus();
+  if(!turnChoices.length)close();else replies.querySelector('button')?.focus();
  }
  function display(title,html,items=[]){
    const isJournal=title.startsWith('Sidoäventyr ·'),isQuestion=title==='Minnesfråga';scene=title;blocking=true;
    dialog.classList.remove('ad-event-speech','ad-event-question');
+   replies.hidden=true;replies.replaceChildren();
    activeChallenge=null;
    if(isJournal){
      dialog.classList.remove('ad-event-speech');tail.setAttribute('hidden','');tail.replaceChildren();lastSpeechSignature='';
@@ -256,6 +264,7 @@ const actions=(items)=>'<div class="ad-actions">'+items.map(([code,label,second]
    if(activeChallenge?.type==='thief'&&state.thief==='chasing')finishThief(false);
    if(speaker==='thief'&&state.thief==='unseen'){approach.reset();thiefPoint=null;}
    if(dialog.open)dialog.close();tail.setAttribute('hidden','');tail.replaceChildren();
+   replies.hidden=true;replies.replaceChildren();
    dialog.classList.remove('ad-event-speech','ad-event-question');lastSpeechSignature='';turns=[];turnIndex=0;turnChoices=[];activeChallenge=null;
    scene=null;blocking=false;journal.hidden=atRoom;
    window.UPPDRAG_WORLD_KEYBOARD?.clear?.();
@@ -339,7 +348,7 @@ function handleKeydown(e){
  else{e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;}
  if(e.key==='Escape'){close();return;}
  const button=e.target.closest?.('button');
- if(button&&dialog.contains(button))button.click();else advanceSpeech();
+ if(button&&(dialog.contains(button)||replies.contains(button)))button.click();else advanceSpeech();
 }
 function handleAction(code){
  if(code==='close'||code==='later'||code==='cold'){close();return;}
@@ -350,6 +359,7 @@ function handleAction(code){
  if(code==='fix'){finishWagon();return;}
  if(code==='kind'||code==='harsh')witnessAnswer(code);
 }
+replies.addEventListener('click',e=>{const button=e.target.closest('[data-adventure]');if(button)handleAction(button.dataset.adventure);});
 dialog.addEventListener('click',e=>{
  const option=e.target.closest('[data-option]');
  if(option&&activeChallenge){
@@ -456,7 +466,7 @@ function install(){const life=window.UPPDRAG_WORLD_LIFE;
  const keyboard=window.UPPDRAG_WORLD_KEYBOARD;
  if(keyboard&&typeof keyboard.tick==='function'){const old=keyboard.tick;keyboard.tick=function(){if(blocking)return;return old.apply(this,arguments);};}
 }
-const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.6.2'};
+const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.6.3'};
 window.UPPDRAG_EVENT_ENGINE=api;
 api.register({id:'wagon-blockade',type:'sidequest',region:'main',chapters:[1,2,3,4,5,6,7,8,9,10],multiStop:true,nonBlocking:true});
 api.register({id:'pickpocket',type:'surprise',region:'main',chapters:[1,2,4,5,7,9,10],physicalChase:true,usesRetrieval:true,maximumLoss:1});
