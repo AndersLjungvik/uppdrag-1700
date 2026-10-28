@@ -1,6 +1,6 @@
 # Kapitel 1: minnesboken i den befintliga världen
 
-Byggversion 2.0.4, 28 oktober 2026. Arbetsgren: `rebuild/mastery-progression`.
+Byggversion 2.0.6, 28 oktober 2026. Arbetsgren: `rebuild/mastery-progression`.
 Detta är det första migrerade kapitlet. Kapitel 2–10 har fortfarande sin tidigare uppdragslogik.
 
 ## Spelgång
@@ -22,6 +22,8 @@ Osäkra formuleringar sparas för granskning utan kostnad eller stämpel. Lärar
 `questions/power-language.js` utvidgar de två öppna maktfrågorna. Den känner igen fler uttryck för begränsad kungamakt och ökat inflytande för riksdag/riksråd, inklusive ”kungens envälde upphörde och riksdagen och riksrådet fick ökat inflytande”. Kontroll sker av båda leden och maktförändringens riktning. Detta är fortfarande en lokal regelkontroll; okända formuleringar går till granskning. Övriga uppgifters bedömning lämnas till den befintliga motorn. Enhetstestet omfattar 44 giltiga formuleringar, 36 felaktiga/ofullständiga svar och 76 oförändrade uppgifter.
 
 ## Sparningar och kontinuitet
+
+Meny → Spela om kapitel 1 öppnar en ny omgång med tom minnesbok, nya resurser och återställda sidohändelser. Tidigare framsteg ligger kvar i den ordinarie omgången. Länken har ett `replay`-id som ger en separat sparning; omladdning fortsätter samma omgång. Meny → Till ordinarie omgång återgår till den ursprungliga sparningen. En ny omspelning får ett nytt id. Elev- och lärarvyn är fortfarande åtskilda inom varje omgång. `npm run test:replay` kontrollerar ny start, åtskilda sparningar, återladdning, återgång och mobilmenyn.
 
 Den gamla kapitelsparningen har kvar svar, daler, äpplen och historik. Före första migrationen sparas en engångskopia med suffix `.before-mastery-2`. Endast kompletta, styrkta områdesförsök överförs, i nivåordning. En gammal `complete:true` skapar inga nya stämplar. Minnesboken förklarar detta.
 
