@@ -24,8 +24,15 @@ function source(name,text){
   edit("if(answer==='accept'){", "if(answer.startsWith('area:')){window.UPPDRAG_CH2_PILOT?.enterMemory(answer.slice(5));return;}\n      if(answer==='accept'){");
   text=text.replaceAll("panel.querySelectorAll('[data-ch1-choice]')", "replies.querySelectorAll('[data-ch1-choice]')");
   edit("panel.querySelector('[data-ch1-choice=\"accept\"]')?.focus({preventScroll:true});", "replies.querySelector('[data-ch1-choice]')?.focus({preventScroll:true});");
+  edit('const c=current();if(!c?.cast||dialogue||voyage)return false;', "const c=current();if(!c?.cast||dialogue||voyage||window.UPPDRAG_EVENT_ENGINE?.busy||window.UPPDRAG_CH2_BED?.busy)return false;\n    if(c.key==='homes')return window.UPPDRAG_CH2_BED?.openKarin()||false;");
+  edit("const a=puppets(g),speaker=talk?.active?talk.speaker:(dialogue?dialogue.cast.lines[dialogue.index][0]:'');", "const a=puppets(g),speaker=window.UPPDRAG_EVENT_ENGINE?.roomSpeaker||(talk?.active?talk.speaker:(dialogue?dialogue.cast.lines[dialogue.index][0]:''));");
+  edit('    g.restore();\n    const chapterOneOnly=', '    window.UPPDRAG_CH2_BED?.drawRoomProps(g,c.key,geometry.w/geometry.h<1.02,now,a);\n    g.restore();\n    const chapterOneOnly=');
+  edit('const animating=(dialogue||', 'const animating=window.UPPDRAG_CH2_BED?.animating(now,motion.matches)||(dialogue||window.UPPDRAG_EVENT_ENGINE?.roomSpeaker||');
+  edit('    const a=puppets(g),speaker=window.UPPDRAG_EVENT_ENGINE?.roomSpeaker||', '    const voice=window.UPPDRAG_EVENT_ENGINE?.roomVoice;if(voice){speechAt=voice.at;speechEnd=voice.end;}\n    const a=puppets(g),speaker=window.UPPDRAG_EVENT_ENGINE?.roomSpeaker||');
+  edit('geometryForRoom:measure,drawMapPerson', 'geometryForRoom:measure,redraw(){lastPaint=-Infinity;drawPeople(performance.now());},drawRoomPerson(g,pos,who,now,speaking=false){puppets(g).side(...pos,who,true,now,speaking,false,false,0,0,null);},drawMapPerson');
  }
  if(name==='more-room-ch2-pilot.js'){
+  edit('bed(g,bx,feet,188);bed(g,bx+222,feet,188);','bed(g,bx,feet,188);window.UPPDRAG_CH2_BED?.drawBed(g,bx,feet,188);bed(g,bx+222,feet,188);');
   edit('      /* Foreground table: barnhus */', '      /* Foreground table: barnhus */\n      window.UPPDRAG_CH2_SUPPLIES?.draw(g,tall?85:100,T.top+125,.75);');
   edit("      bowl(g,1080,471,1.28);material(g,'paper',1012,605,1.0);", "      bowl(g,1080,471,1.28);material(g,'paper',1012,605,1.0);window.UPPDRAG_CH2_SUPPLIES?.draw(g,195,610,1.15);");
  }

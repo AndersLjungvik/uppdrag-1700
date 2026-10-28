@@ -114,6 +114,7 @@ function book(){
  }
  if(!q.chapterComplete){const needed=q.remaining.map(a=>a.name).join(', ');h+='<p class="mb-note">Återstår på '+q.label.toLowerCase()+'nivån: '+esc(needed)+'.</p>';}
  else h+='<p><a href="chapter3-pilot.html">Fortsätt till kapitel 3 →</a></p>';
+ h+='<p class="mb-note"><b>Frivilligt sidouppdrag · Sängen vid fönstret:</b> '+esc(window.UPPDRAG_CH2_BED?.goal?.()||'Undersök sängen på Barnhuset.')+'</p>';
  h+='<p class="mb-note">1 äpple ger ett nytt försök på hela områdesprovet efter en miss. 1 daler ger en ledtråd på lärlingsnivån. Rut hjälper dig gratis.</p>';
  display(h,'book');
 }
@@ -262,13 +263,13 @@ window.UPPDRAG_CH2_PILOT={tick,go:book,close,scenes:runs,saveKey:storage,persist
  acceptMajaMission(){story.introduced=true;people.met.Maja=true;saveWorld();book();},
  wantsMemoryMeeting:p=>areas.some(a=>a.p===p)&&areas.filter(a=>a.p===p).some(a=>levels.some(l=>mastery.levelUnlocked(l)&&status(a,l)!=='clear')),
  memoryProblem(){const a=hereArea();if(!a)return '';const choices=areas.filter(a=>a.p===locationKey()&&levels.some(l=>mastery.levelUnlocked(l)&&status(a,l)!=='clear'));
-  const thanks=locationKey()==='barnhus'&&window.UPPDRAG_EVENT_ENGINE?.state.wagon==='cleared'?'Brödet och veden kom fram. Tack för hjälpen! ':'';
-  return thanks+(choices.length>1?'Jag har två handlingar som jag vill reda ut. Vilken ska vi börja med?':story.visits[a.id]?'Välkommen tillbaka! Vill du fortsätta undersöka '+a.document+' med mig?':intro[a.id]);},
+  const thanks=locationKey()==='barnhus'?(window.UPPDRAG_CH2_BED?.siriLine?.()||''):'';
+  return (thanks?thanks+' ':'')+(choices.length>1?'Jag har två handlingar som jag vill reda ut. Vilken ska vi börja med?':story.visits[a.id]?'Välkommen tillbaka! Vill du fortsätta undersöka '+a.document+' med mig?':intro[a.id]);},
  memoryChoices(){const l=mastery.summary().level;return areas.filter(a=>a.p===locationKey()&&status(a,l)!=='clear').map(a=>({id:a.id,label:a.id==='women'?'Läs anteckningen om kvinnor':a.id==='power'?'Granska kyrkoboken':'Läs barnhusets anteckningar'}));},
  memoryChoice:()=> 'Läs '+(hereArea()?.document||'anteckningen'),
  enterMemory(aid){if(chooseHere(locationKey(),aid))begin();},wantsMemoryThanks:()=>false,memoryThanks:()=>'',finishMemory:finished,
  wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> 'Vi övar på sådant du redan mött, även från förra kapitlet. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,goArchive,
- idleLine:p=>p==='barnhus'&&window.UPPDRAG_EVENT_ENGINE?.state.wagon==='cleared'?'Brödet och veden kom fram. Tack för hjälpen!':'Välkommen tillbaka!',
+ idleLine:p=>p==='barnhus'?(window.UPPDRAG_CH2_BED?.siriLine?.()||'Välkommen tillbaka!'):'Välkommen tillbaka!',
  openBook:book,selectArea:select,
  get encounteredTaskIds(){return s.encountered.slice();},
  get repetitionTaskIds(){const ids=new Set(available(false));const topics=new Set(allBank.filter(t=>ids.has(t.id)).map(t=>t.chapter+'/'+t.topic));return allBank.filter(t=>t.rank===0&&topics.has(t.chapter+'/'+t.topic)).map(t=>t.id);}
