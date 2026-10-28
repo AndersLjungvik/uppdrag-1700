@@ -3,13 +3,14 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.0.5',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='2.0.6',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
+const replayId=/^[a-z0-9-]{1,48}$/i.test(params.get('replay')||'')?params.get('replay'):'';
 let frame=$('game');
 let teacher=params.get('teacher')==='1',chapter=1,serial=0,ready=false,durable=true,payload;
-const prefix=()=>ROOT+(teacher?'teacher.':'play.');
+const prefix=()=>ROOT+(replayId?'replay.'+replayId+'.':'')+(teacher?'teacher.':'play.');
 try{localStorage.setItem(ROOT+'probe','1');localStorage.removeItem(ROOT+'probe');}catch{durable=false;}
 function warning(){ $('storageWarning').hidden=durable; }
 function read(k,scope=prefix()){const full=scope+k;try{return durable?(localStorage.getItem(full)??memory.get(full)??null):(memory.get(full)??null);}catch{durable=false;warning();return memory.get(full)??null;}}
@@ -151,15 +152,22 @@ window.integratedReady=(id,ch)=>{
  if(!p?.recall||w.UPPDRAG_FRAGTEST_VERSION!=='3.1.0'){showError('Den nya frågedelen kunde inte kopplas till kapitlet.');return;}
  ready=true;frame.hidden=false;$('intro').hidden=true;write('lastChapter',ch);
  const url=new URL(document.baseURI);url.searchParams.set('chapter',ch);teacher?url.searchParams.set('teacher','1'):url.searchParams.delete('teacher');try{history.replaceState(null,'',url);}catch{}
- $('status').textContent='Kapitel '+ch+' av 10'+(teacher?' · Lärarvy':'');
+ $('status').textContent='Kapitel '+ch+' av 10'+(replayId?' · Omspelning':'')+(teacher?' · Lärarvy':'');
  if(teacher){const rooms=w.listStagingRooms();$('roomChoice').replaceChildren();for(const item of [{key:'town',region:'main',label:'Staden · översikt'},...rooms]){const opt=document.createElement('option');opt.value=item.region+':'+item.key;opt.textContent=(item.group?item.group+' · ':'')+item.label;$('roomChoice').append(opt);}}
  updateMenu();frame.focus();
 };
 function updateMenu(){
+ $('replayChapter').disabled=!ready||!durable;$('returnOriginal').hidden=!replayId;
+ $('replayNote').textContent=replayId?'Du spelar en separat omgång. Dina framsteg från den ordinarie omgången finns kvar.':'Spela från början i en ny omgång. Dina nuvarande framsteg finns kvar.';
  $('teacherTools').hidden=!teacher;$('toggleTeacher').textContent=teacher?'Till vanlig spelgång':'Öppna lärarvy';
  const list=$('chapterList');list.replaceChildren();TITLES.forEach((title,i)=>{const ch=i+1,button=document.createElement('button'),label=document.createElement('span'),state=document.createElement('small');label.textContent=ch+'. '+title;button.append(label,state);button.disabled=ch>10||!available(ch);state.textContent=ch>10?'Återstår':(ch===1?masteryOneComplete():saved(ch)?.complete)?'Avklarat':ch===chapter?'Här är du':available(ch)?'Öppna':'Låst';button.onclick=()=>{$('menu').close();openIntegratedChapter(ch);};list.append(button);});
 }
 $('menuButton').onclick=()=>{updateMenu();$('menu').showModal();};$('closeMenu').onclick=()=>$('menu').close();
+$('replayChapter').onclick=()=>{
+ if(!ready||!durable)return;
+ const url=new URL(document.baseURI);url.searchParams.set('chapter','1');url.searchParams.set('replay',crypto.randomUUID());url.searchParams.delete('teacher');location.assign(url.href);
+};
+$('returnOriginal').onclick=()=>{const url=new URL(document.baseURI);url.searchParams.delete('replay');url.searchParams.delete('chapter');url.searchParams.delete('teacher');location.assign(url.href);};
 $('toggleTeacher').onclick=()=>{teacher=!teacher;updateMenu();$('menu').close();const last=Number(read('lastChapter'))||1;openIntegratedChapter(available(last)?last:1);};
 $('visitRoom').onclick=()=>{if(!teacher||!ready)return;const [region,key]=$('roomChoice').value.split(':');$('menu').close();if(!frame.contentWindow.visitStagingRoom(key,region))showError('Miljön kunde inte öppnas.');};
 function entries(){const result={};for(const [k,v] of memory)if(k.startsWith(prefix()))result[k.slice(prefix().length)]=v;try{if(durable)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith(prefix()))result[k.slice(prefix().length)]=localStorage.getItem(k);}}catch{durable=false;warning();}return result;}
@@ -170,7 +178,7 @@ $('importSave').onclick=()=>$('saveFile').click();$('saveFile').onchange=async()
 };
 async function boot(){
  warning();updateMenu();if(!window.DecompressionStream||!crypto.subtle)throw Error('Öppna äventyret i en uppdaterad webbläsare via HTTPS.');
- const [delta,q,fixes,alignment,powerLanguage,inspector]=await Promise.all([unzip('deltas.json.gz'),unzip('questions/snapshot.json.gz'),get('questions/fixes.js'),get('questions/alignment.js'),get('questions/power-language.js?v=2.0.5'),get('inspector.js')]);
+ const [delta,q,fixes,alignment,powerLanguage,inspector]=await Promise.all([unzip('deltas.json.gz'),unzip('questions/snapshot.json.gz'),get('questions/fixes.js'),get('questions/alignment.js'),get('questions/power-language.js?v=2.0.6'),get('inspector.js')]);
  payload={...delta,questions:q.scripts,fixes,alignment,powerLanguage,inspector};
  let requested=Number(params.get('chapter')||read('lastChapter'))||1;if(!available(requested))requested=1;await openIntegratedChapter(requested);
 }
