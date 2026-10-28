@@ -1,4 +1,4 @@
-/* Explicit hooks into the frozen recall engine. Chapters 1 and 2 opt in.
+/* Explicit hooks into the frozen recall engine. Chapters 1, 2 and 3 opt in.
  * Keep the question bank, assessment rubrics, reading support and Rut renderer.
  */
 (function(){

@@ -14,7 +14,8 @@
     "test:events": "node docs/spel/tests/event-approach.cjs && node docs/spel/tests/event-recurrence.cjs && node docs/spel/tests/event-engine.cjs && node docs/spel/tests/event-browser.cjs && node docs/spel/tests/thief-shelter-browser.cjs && node docs/spel/tests/thief-recurrence-browser.cjs",
     "test:chapter2": "node docs/spel/tests/chapter2-quilt-puzzle.cjs && node docs/spel/tests/chapter2-mastery-browser.cjs && node docs/spel/tests/chapter2-world-browser.cjs && node docs/spel/tests/chapter2-migration-browser.cjs && node docs/spel/tests/chapter2-bed-browser.cjs",
     "test:scenes": "node docs/spel/tests/chapter1-workspace-browser.cjs",
-    "test:replay": "node docs/spel/tests/replay-browser.cjs"
+    "test:replay": "node docs/spel/tests/replay-browser.cjs",
+    "test:chapter3": "node docs/spel/tests/chapter3-courtyard-puzzle.cjs && node docs/spel/tests/chapter3-smoke-browser.cjs && node docs/spel/tests/chapter3-mastery-browser.cjs && node docs/spel/tests/chapter3-migration-browser.cjs && node docs/spel/tests/chapter3-courtyard-browser.cjs && node docs/spel/tests/chapter3-world-browser.cjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "0.1.100"
