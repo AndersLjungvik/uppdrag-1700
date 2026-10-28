@@ -1,0 +1,10 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const c={window:{}};vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../chapter3-courtyard-puzzle.js'),'utf8'),c);
+const Q=c.window.UPPDRAG_CH3_COURTYARD_PUZZLE;
+assert.equal(Q.check(Q.initial).ok,false);
+assert.equal(Q.check({a:'wall',b:'east'}).ok,true);
+assert.equal(Q.check({a:'east',b:'corner'}).ok,true);
+for(const blocked of ['door','path','bench'])assert.equal(Q.check({a:blocked,b:'wall'}).ok,false,blocked+' must stay accessible');
+assert.equal(Q.check({a:'wall',b:'wall'}).ok,false);
+assert.equal(Q.check({a:'unknown',b:'east'}).ok,false);
+console.log('PASS courtyard: several solutions, door/path/bench access and no overlapping barrels');
