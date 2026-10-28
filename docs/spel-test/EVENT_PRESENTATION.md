@@ -1,4 +1,4 @@
-# Scener och sidoäventyr – 2.0.4
+# Scener och sidoäventyr – 2.0.5
 
 Amira, Elin och Jo talar i första person. Maja får svaret ”Självklart!”. ”Se brevet”, ”Se protokollet” och ”Se handelslistan” öppnar de befintliga arbetsnärbilderna. Samma närbild används genom svar, återkoppling och nytt försök; Arkivet använder Ruts befintliga skrivbord. Minnesboken är fortfarande en separat översikt. Kajens gemensamma kameraprojektion fyller hela bildytan utan sidofält och används även av figurer och klickytor.
 
@@ -8,7 +8,7 @@ Kusken, smeden, barnet och ficktjuven använder `UPPDRAG_MEETINGS.drawMapPerson`
 
 En avlägsen klickning startar vanlig gång längs vägarna. Samtalet öppnas först inom 95 världspunkter, med fri väg till personen/vagnen. Kusken ber om smedens råd; smeden ger rådet i en replik; spelaren måste sedan gå tillbaka till vagnen och erbjuda sin hjälp. Avstånd och uppdragsstatus kontrolleras även när lösningen utförs. Inga undersöknings- eller tankepausmenyer behövs.
 
-Barnet, kusken och smeden fortsätter samtalet med klick på pratbubblan, Enter eller mellanslag. Knappar visas när spelaren gör ett verkligt val. En tidig tangentkoppling hindrar världens rörelsekontroller från att fånga Enter före dialogen. Tjuvens utrop släcks både i textlagret och i SVG-lagret, inklusive vid rumsbyte och avslutad jakt.
+Barnet, kusken och smeden fortsätter samtalet med klick på pratbubblan, Enter eller mellanslag. Knappar visas när spelaren gör ett verkligt val. En tidig tangentkoppling hindrar världens rörelsekontroller från att fånga Enter före dialogen. Tangentbordsfokus följer pratbubblans SVG-kontur; webbläsarens rektangulära fokusram visas inte runt pratbubblan. Högkontrastläget behåller en synlig fokusmarkering. Tjuvens utrop släcks både i textlagret och i SVG-lagret, inklusive vid rumsbyte och avslutad jakt.
 
 ## Tjuvmötet
 
