@@ -1,0 +1,35 @@
+# Återstående kapitel 7–10
+
+Utgångspunkt: den befintliga uppdragsplanen `Uppdrag_1700_hela_uppdragskedjan.docx` och frågedesignen för alla kapitel. Punkterna här är en arbetsplan, inte färdigbyggda nivåer.
+
+| Kapitel | Befintlig berättelseidé | Grundbok |
+| --- | --- | --- |
+| 7. Ska Sverige bli en stormakt igen? | En handelsberättelse döljer vilka som betalar priset. | s. 90–96 |
+| 8. Skottet på maskeraden | Tre uppgifter ska bli en tillförlitlig nyhet. | s. 97–99 |
+| 9. Striden om Finland | En sjömans familj väntar på brev och en riktig karta. | s. 100–102 |
+| 10. Hur kan vi veta något om 1700-talets Sverige? | Tryckeriets samling granskas och blir en utställning. | s. 103; avslutning s. 104–105 |
+
+Kapitel 6 är implementerat i version 1.1.0; se CHAPTER6.md. Nästa konkreta bygge är kapitel 7. Läs det faktiska grundboks- och arbetsboksunderlaget innan fakta, svar och distraktorer skrivs. Behåll källkopplingen i utvecklarunderlaget, men visa inte provhänvisningar i elevspelet.
+
+Fortsätt med lärling, gesäll och mästare, och återanvänd värld, sparningsgränssnitt, uppdragsbok, daler och repetition hos Rut. Fråga och rättningskrav ska beskriva samma uppgift. Ett namn eller en vara ska inte kräva en dold förklaring. Lägg regressionsfall för rapporterade missar utan att stoppa all övrig utveckling.
+
+Separat kvarstående: verklig klassvis upplåsning med autentisering, slutkontroll av gångvägar/sidouppdrag och validering av varierade elevsvar. Menyns lärarläge är en visningsgenväg, inte åtkomstkontroll.
+
+
+**Status 26 oktober 2026:** Kapitel 6 är publicerat i version 1.2.3 och kapitel 7 i version 1.3.0. Detaljer för kapitel 7 finns i `CHAPTER7.md`. Nästa byggetapp är kapitel 8, *Skottet på maskeraden*. Kapitlen 8–10 är fortfarande inte spelbara.
+
+
+### Uppdatering: kapitel 8
+Kapitel 8 Skottet på maskeraden är nu byggt i version 1.4.0 med utvecklande dialoger och daterat nyhetsblad. Kapitel 9–10 återstår. Kapitel 8 behöver fortfarande praktisk elevgenomspelning i Safari innan undervisningsbruk.
+
+
+### Gemensamma händelser · 1.5.0
+
+Kapitel 1–8 har nu stöd för valfria sidoäventyr (vagn, smed, ficktjuv och senare vittne) i den gemensamma stadsvärlden. Dataformat och berättelseidéer för 9–10 är förberedda, men dessa kapitel är fortfarande inte byggda. `EVENT_SYSTEM.md` beskriver spelregler, sparning, begränsningar och testning. Nästa utvecklingssteg är att knyta fler personer och kapitelunika händelsebågar till motorn, inte att göra varje kapitel till samma lista av överraskningar.
+
+
+## Status 27 oktober 2026 · 1.6.0
+
+Kapitel 9 och 10 är nu byggda som spelbara lärarprototyper i samma värld. Alla tio kapitel finns i menyn. Läs `CHAPTER9_10.md` för innehåll, källor, sparning, öppna resonemang och testbegränsningar. Äldre statusrader ovan är historik, inte aktuell lista över obygda kapitel.
+
+Nästa arbete är praktisk genomspelning och avgränsade rättelser, därefter kapitelvis utveckling av huvuddialogerna i 1–7 enligt berättelsebibeln. Fler unika sidoäventyr och skyddad lärarinloggning återstår.

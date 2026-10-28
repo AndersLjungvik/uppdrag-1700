@@ -1,0 +1,85 @@
+# Uppdrag 1700 – version 1.1.0
+
+26 oktober 2026. Gemensam ingång: `/uppdrag-1700/spel/`.
+Direkt lärarförhandsvisning av kapitel 6: `?teacher=1&chapter=6&v=1.1.0`.
+
+## Spelbart innehåll
+
+Kapitel 1–6 använder samma värld, 22 miljöer och den omarbetade frågemotorn. Kapitel 6 tillför 36 uppgifter och 12 arbetsbesök till de tidigare 78 uppgifterna. Brevet kommer fram genom jämförelse av bykartor; en färdigtryckt sida behöver sedan lämnas till Maja. Kapitel 7–10 återstår. Läs `CHAPTER6.md` för källunderlag och genomförda kontroller samt `ROADMAP.md` för fortsättningen.
+
+Normal spelgång kräver avslutat föregående kapitel och tillåter återbesök. Lärarvyn ger fria kapitel- och rumsgenvägar med egen sparning. Den är inte en säker lärarinloggning.
+
+## Sparning
+
+Samma prefix som version 1.0: `uppdrag1700.integrated.20261023.v1.` med skilda `play.` och `teacher.`. Kapitel 6 får en egen nyckel; daler och äpplen förs vidare från avslutat kapitel 5. Tidigare kapitel, äldre separata spel och frågetestets sparningar nollställs inte. Menyn kan exportera/importera en kopia. Vid blockerad lagring används minne tills sidan stängs. Inga elevsvar skickas till servern.
+
+## Återanvända källfiler
+
+`base/` är det frysta trädet `f81cf7fd17174b293f54f68598c07d78c1b61ea4`. De fyra delta-filerna, originalgrafiken och frågesnapshoten från sammanfogningen 1.0 är oförändrade. `decode_sources.py` skriver ut granskningsbara källfiler. Frågerättning 3.1 behålls för kapitel 1–5; kapitel 6 lägger till egna fältvisa kriterier. `chapter6-build.js` återanvänder befintliga kontroller och stoppar om dess källkodsankare inte matchar.
+
+## Kontroller
+
+Se `CHAPTER6.md`. Kör rättningstester lokalt med:
+
+```sh
+python decode_sources.py
+node tests/chapter6.cjs
+```
+
+Testerna är inte en garanti för varje elevformulering. Webbläsarkontroller har gjorts lokalt med simulerad filhämtning, sparning och navigering, inte på fysisk mobil eller genom den publicerade webbadressen. Regelbaserad rättning kan fortfarande behöva lärargranskning. Spelet är träning, inte ett betygsunderlag.
+
+
+## Speljustering 1.2
+
+Tryckpressen i Tryckeriet är nedskalad och står längre bak mot väggen i både smal och bred vy. Kapitel 6 har två sparade gatuhändelser som kan inträffa under verklig förflyttning: en ficktjuv/äppeltjuv försöker ta högst en resurs och spelaren kan välja att jaga. Jakten använder en enda kort repetitionsfråga från redan spelade kapitel; den räknas inte som mastery och fel svar blockerar aldrig progressionen. I lärarvyn triggas händelserna inte automatiskt, men kan testas via ”Brevet & stadens bok”.
+
+Mästarfrågorna om skiftet accepterar fler rimliga beskrivningar. Om den regelbaserade kontrollen ändå inte känner igen ett rimligt kapitel-6-svar kan eleven välja ”Spara svaret och gå vidare”. Svaret markeras då som väntande lärargranskning och ger inte självständig mästarstatus, men eleven fastnar inte i en loop.
+
+
+## Korrigering 1.2.2 · 26 oktober 2026
+
+Den faktiska rumsrenderaren `interior-ch1-pilot.js` får nu pressjusteringen (föregående 1.2 riktade sig mot en annan grafikfil). Handpressen har mindre skala och står med fötterna nära väggens golvlinje i både bred och smal vy.
+
+En tidigare korrekt men stödd mästarförklaring kan inte längre hålla kvar kapitel 6 i en upprepningsloop. Svaret förblir markerat `independent:false` och ger alltså inte självständig mästarprestation. Osäkra egna formuleringar kan fortsatt sparas för granskning och ge progression utan att överbedömas. Svar och kapitelöppningar för 1–5 ändras inte.
+
+Test: `node tests/room-master-regression.cjs` efter `python decode_sources.py`. Dessutom kontrollerades Byn i Chromium med korrekt stödd mästartext och återgång till nästa arbetsbesök, samt pressens placering i 1280 px och 390 px vyer lokalt. Publicerad iPhone/Safari måste fortfarande användarprovas.
+
+
+## Återställd stadsvärld 1.2.3 · 26 oktober 2026
+
+Kapitel 6 använder nu exakt samma godkända bostadskvarter och vägnät som kapitel 1–5. I den tidigare källan hade den gemensamma kartläggningen ett kapitelvillkor för bara 1–5, så kapitel 6 visade äldre huskoordinater.
+
+Hagen med tre får och två kor ligger nu mellan Byn och Herrgården (världskoordinater ungefär x=3160–3430, y=440–610), mellan herrgårdsvägen y=355 och byvägen y=705. Samma betesrörelser används, liksom samma pappersgrafik. Den gemensamma placeringen används i kapitel 1–6. Frågor, uppdragslogik, tryckpress och sparnycklar är oförändrade.
+
+Lokal Chromium-kontroll av kapitel 5 och 6: samma koordinater för Bostadskvarteren, identiskt vägnät (roads-1), nåbara vägar till bostadskvarter, by och herrgård samt synliga och rörliga betesdjur i bred- och mobilvy. Automatisk regressionskontroll: `node docs/spel/tests/world-layout.cjs` efter `python docs/spel/decode_sources.py`. Den publicerade Safari-versionen har inte testats på en fysisk mobil.
+
+
+## Kapitel 7 · 1.3.0 (26 oktober 2026)
+
+Kapitel 7 är inbyggt i samma spel och använder samma stadsplan, miljöer, sparprefix och kapitel-6-övergång. Det har 36 frågor i 12 arbetsbesök, tre återkallningsnivåer och fyra särskilda källgranskningshändelser med hamnresor till Marstrand och Gustavia. Avslutningen kräver att den färdiga sidan lämnas till Maja. Det historiska innehållet är granskat mot grundboken s. 90–96 och arbetsboken s. 34–35.
+
+Implementationen ligger i det versionskontrollerade komprimerade paketet `chapter7-sourcepack.json.gz`, vars läsbara originalskript kan återskapas med `python decode_chapter7_sources.py`. `chapter7-runtime.js` läser och checksummekontrollerar paketet innan det aktiveras. Ingen automatisk överföring av sparningar och ingen ändring av kapitel 1–6 görs. Läs `CHAPTER7.md` för genomspelning och källkritiska avgränsningar.
+
+Rättningstester: `python decode_sources.py && python decode_chapter7_sources.py && node tests/chapter7.cjs`. I lokalt webbläsartest med simulerade hämtningar startade kapitel 7 och visade spelvärlden utan JavaScript-fel. Publicerad GitHub Pages och Safari behöver separat slutkontroll.
+
+
+## Kapitel 8 · 1.4.0 (26 oktober 2026)
+Kapitel 8 Skottet på maskeraden är en fortsatt del av det integrerade spelet. Sex utvecklande, minnesbaserade samtal och nio arbetsbesök med två frågor vardera (18 frågor totalt) leder spelaren från operaprogrammet via varningsbrevet och skottet 16 mars till Jo:s dödsbesked 29 mars, tidningens korrigering och slutleveransen till Maja. Historiska fakta och dramatiserade repliker skiljs åt. Kapitel 1–7, sparnycklar, rumsplacering, betande djur och rättningsfixen 1.3.1 berörs inte. Se CHAPTER8.md. Källkodspaketet extraheras med decode_chapter8_sources.py. Det är ännu inte testat på en riktig iPhone.
+
+## Dialogerna i kapitel 8 · version 1.4.2
+
+Samtalen fortsätter genom kapitlet och figurerna minns tidigare spelarval. Se CHAPTER8.md för exempel och källkritisk avgränsning. Kapitel 1–7 och deras sparningar är oförändrade.
+
+
+## Gemensam händelsemotor · 1.5.0 (27 oktober 2026)
+
+De redan spelbara kapitlen 1–8 har nu ett gemensamt, **valfritt** händelsesystem. Vagnen vid herrgårdsvägen kan undersökas och hjälpas via ett återbesök hos smeden; tjuven riskerar högst en daler och kan följas av ett samtal med ett vittne som minns hur spelaren reagerade. Händelserna lagras separat från kapitlens fråge-/uppdragssparningar och kan återupptas. Det finns inga nya mästarpoäng eller kapitelspärrar. Kapitel 6:s tidigare tjuv förblir ensam där.
+
+Motorn använder spelvärldens befintliga rörelse- och ritloop, och vagnen flyttas åt sidan om spelaren vill passera. Kartor, byggnader, djur, tryckpress, frågor och dialogerna i kapitel 8 lämnas orörda. Ett nytt UI **Händelser** visar sidouppdragens status och ger lärarvyn manuella testknappar. Kapitel 9–10 har innehållsskisser i katalogen men är fortfarande inte byggda. Läs `EVENT_SYSTEM.md` och kör `node tests/event-engine.cjs`.
+
+Automatiska/regressionstester (255 kapitel-6-fall, 135 kapitel-8-fall, världslayout och dialoger) samt lokala Chromium-test med simulerat dokument och filhämtning för kapitel 1–8 har genomförts utan JavaScript-fel. Dessa är **inte** en verifiering av den publicerade sidan på fysisk iPhone; använd lärarvyn för fortsatt speltest.
+
+
+## Kapitelsidoäventyr och pratbubblor · 1.5.2
+
+Sidoäventyrens aktörer använder nu samma papperspratbubblor som övriga stadsbor i stället för en fristående dialogruta; en replik i taget och konkreta svarsalternativ när samtalet kräver det. Händelser-menyn används fortsatt som uppdragslogg och testgenväg. Slumpad och separat sparad inträffandesträcka för tjuven gör att den inte alltid kommer på samma antal steg. Befintlig sparnyckel och högst en daler i risk behålls. Kapitel 3 och 8 har ingen automatisk ficktjuv, kapitel 6 behåller sin tidigare separata. Vagnsblockaden är ännu samma grundsidoäventyr i flera kapitel, inte åtta olika manus. Se `EVENT_SYSTEM.md`.
