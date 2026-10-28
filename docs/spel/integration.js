@@ -106,10 +106,12 @@ async function makePage(ch,id){
  const staging=(await source('room-staging.js'))+'\n'+(await source('room-life.js'));
  const styles=`<style>header small,header .chapterBack{display:none}header h1{font-size:clamp(13px,2.6vw,20px)}#ch1Modal textarea{min-height:100px}#ch1Modal .rc-tools button{min-height:44px}#ch1Modal .rc-own{overflow-wrap:anywhere}#ch1Modal .ch1Sheet{overscroll-behavior:contain}</style>`;
  page=page.replace('<head>','<head><base href="'+new URL('../demo3/',document.baseURI).href+'">'+script(bridge(id)+'\n'+staging)+styles);
+ // Shared mastery engine is loaded for every chapter during the rebuild. Chapters opt in by configuring areas.
+ const masteryModule=await get('mastery-progression.js?v=2.0.0');
  // Optional, save-compatible side adventures are installed after existing scripts.
  const eventModule=ch<=10?await get('event-engine.js?v=1.5.2'):'';
  const end=`window.__ROOM_BOOTING=false;window.UPPDRAG_ROOM_LIFE?.cacheFurniture();requestAnimationFrame(()=>parent.integratedReady(${id},${ch}));`;
- page=page.replace('</body>',script(eventModule+'\n'+(teacher?payload.inspector+'\n':'')+end)+'</body>');return page;
+ page=page.replace('</body>',script(masteryModule+'\n'+eventModule+'\n'+(teacher?payload.inspector+'\n':'')+end)+'</body>');return page;
 }
 window.openIntegratedChapter=async function(ch){
  if(!Number.isInteger(ch)||ch<1||ch>10){showError('Välj ett kapitel mellan 1 och 10.');return false;}
