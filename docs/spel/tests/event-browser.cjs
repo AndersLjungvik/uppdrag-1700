@@ -13,7 +13,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await p.goto(origin+'/docs/spel/?chapter=1');
   await p.evaluate(key=>localStorage.setItem(key+'uppdrag1700.side-adventures.v1',JSON.stringify({v:1,chapters:{1:{wagon:'unseen',thief:'unseen',witness:'unseen',distance:1600,thiefDistance:620,history:[]}}})),key);
   await p.reload();f=await(await p.waitForSelector('#game',{timeout:30000})).contentFrame();await f.waitForSelector('#ch1Hud');
-  await f.evaluate(()=>{UPPDRAG_CH1_PILOT.close();UPPDRAG_MEETINGS.close(false);window.requestAnimationFrame=()=>0;});
+  await f.evaluate(()=>{UPPDRAG_CH1_PILOT.close();UPPDRAG_MEETINGS.close(false);window.__qaRaf=window.requestAnimationFrame;window.requestAnimationFrame=()=>0;});
   await p.waitForTimeout(60);
   const start=await f.evaluate(()=>{
    interior=null;path=[];
@@ -36,18 +36,23 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
    document.querySelector('[data-adventure="close"]').click();return {before,after};
   });
   assert.equal(paused.before.x,paused.after.x);assert.equal(paused.before.y,paused.after.y);
-  await f.evaluate(()=>{for(let i=0;i<150&&!UPPDRAG_EVENT_ENGINE.busy;i++)UPPDRAG_WORLD_LIFE.tick(12050+i*50,{region,player,activeRoom:null});draw();});
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.approach.phase),'contact');
-  assert.match(await f.locator('.ad-speaker').innerText(),/Berättaren/);
-  while(await f.locator('[data-adventure="next"]').count())await f.locator('[data-adventure="next"]').click();
   const money=await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler);
-  await f.locator('[data-adventure="ignore"]').click();assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-1);
-  await f.evaluate(()=>{for(let i=0;i<140;i++)UPPDRAG_WORLD_LIFE.tick(20000+i*50,{region,player,activeRoom:null});draw();});
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.approach.phase),'done');
-  await f.locator('[data-adventure="close"]').click();
+  await f.evaluate(()=>{for(let i=0;i<150&&!UPPDRAG_EVENT_ENGINE.busy;i++)UPPDRAG_WORLD_LIFE.tick(12050+i*50,{region,player,activeRoom:null});draw();});
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.approach.phase),'fleeing');
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.blocking),false);
+  assert.equal(await f.locator('#adventureDialog').isVisible(),false);
+  assert.equal(await f.locator('#adventureCallout').innerText(),'Mina pengar!');
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-1);
+  await p.screenshot({path:path.join(root,'qa/events-theft.png'),timeout:12000});
+  // Standing still lets the thief escape; no extra money is deducted.
+  await f.evaluate(()=>{for(let i=0;i<360;i++)UPPDRAG_WORLD_LIFE.tick(20000+i*50,{region,player,activeRoom:null});draw();});
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'lost');
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-1);
   // Shared paper actors and actual driver speech anchor, including mobile.
   await f.evaluate(()=>{player={x:2950,y:367};camera={x:3040,y:367};UPPDRAG_WORLD_LIFE.tick(30000,{region,player,activeRoom:null});draw();UPPDRAG_EVENT_ENGINE.openWagon();});
   assert.equal(await f.locator('#adventureTail .worldSpeechPaper').count(),1);
+  assert.match(await f.locator('.ad-utterance').innerText(),/Hjulet sitter fast/);assert.doesNotMatch(await f.locator('.ad-utterance').innerText(),/Kusken kör/);
+  assert.equal(await f.locator('#message').isVisible(),false);
   assert.match(await f.locator('#adventureDialog button').first().evaluate(el=>getComputedStyle(el).fontFamily),/Georgia/);
   await p.screenshot({path:path.join(root,'qa/events-wagon.png'),timeout:12000});
   while(await f.locator('[data-adventure="next"]').count())await f.locator('[data-adventure="next"]').click();
@@ -66,9 +71,22 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   while(await f.locator('[data-adventure="next"]').count())await f.locator('[data-adventure="next"]').click();
   await f.locator('[data-adventure="close"]').click();assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money);
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.witness),'recovered');
+  assert.doesNotMatch(await f.locator('#adventureDialog').innerText(),/kunskapsstämplar|mer straff/);
   await p.reload();f=await(await p.waitForSelector('#game',{timeout:30000})).contentFrame();await f.waitForSelector('#ch1Hud');
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.witness),'recovered');
+  // The actual world animation and the chase button move the player to the thief.
+  await p.setViewportSize({width:1200,height:850});
+  await f.evaluate(()=>{UPPDRAG_CH1_PILOT.close();UPPDRAG_MEETINGS.close(false);interior=null;path=[];player={x:1350,y:713};camera={...player};UPPDRAG_WORLD_LIFE.tick(performance.now(),{region,player,activeRoom:null});UPPDRAG_EVENT_ENGINE.resetChapterEvents();UPPDRAG_EVENT_ENGINE.openThief();});
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'chasing');
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-1);
+  await f.locator('#adventureChase').click();
+  await f.waitForFunction(()=>UPPDRAG_EVENT_ENGINE.state.thief==='won',{timeout:12000});
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money);
+  await p.screenshot({path:path.join(root,'qa/events-caught.png'),timeout:12000});
+  await p.reload();f=await(await p.waitForSelector('#game',{timeout:30000})).contentFrame();await f.waitForSelector('#ch1Hud');
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'won');
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money);
   assert.equal(await p.locator('#error').innerText(),'');assert.deepEqual(errors,[]);
-  console.log('PASS browser: natural thief approach, pause, contact, one-daler loss, departure, wagon, smith, witness recovery, shared speech style, mobile and reload');
+  console.log('PASS browser: natural thief approach, pause, player cry, escape, real moving pursuit and one-daler recovery, wagon, smith, witness recovery, shared speech style, mobile and reload');
  }catch(e){console.error('parent',await p.locator('#error').textContent().catch(()=>''));throw e;}finally{await b.close();server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

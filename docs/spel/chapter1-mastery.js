@@ -26,7 +26,7 @@ s.daler=Math.max(0,Number(s.daler)||0);s.apples=Math.max(0,Number(s.apples)||0);
 s.archiveActive=false;s.step=Number.isInteger(s.step)&&runs[s.step]?s.step:0;
 let story=parse(storyKey,{v:1,introduced:false,visits:{}}),people=parse(peopleKey,{v:1,met:{}});
 story.visits??={};people.met??={};
-let recall=null,view='closed',selected=null,returnFocus=null;
+let recall=null,view='closed',selected=null,returnFocus=null,roomRestore=null;
 const current=()=>runs[s.step],area=()=>areas.find(a=>a.p===current().p),level=()=>levels[current().r];
 const persist=()=>{s.complete=mastery.chapterComplete();try{localStorage.setItem(storage,JSON.stringify(s));}catch{}};
 const saveWorld=()=>{try{localStorage.setItem(storyKey,JSON.stringify(story));localStorage.setItem(peopleKey,JSON.stringify(people));}catch{}};
@@ -47,17 +47,49 @@ const style=document.createElement('style');style.textContent=`
 #ch1Modal .mb-stamps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:13px 0 4px}#ch1Modal .mb-stamps button{text-align:left;font-size:13px;overflow-wrap:anywhere}#ch1Modal .mb-stamps span{display:block;font-weight:600}
 #ch1Modal .mb-clear{background:#e8efdf}#ch1Modal .mb-pending{background:#f9e8b7}#ch1Modal .mb-note{font:14px/1.5 system-ui;color:#615645}
 #ch1Modal .mb-actions{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}#ch1Modal blockquote{white-space:pre-wrap;margin:10px 0;padding:12px;background:#efe4ce}
-#ch1Modal.ch1MemoryFull .ch1Sheet{position:relative;left:auto;top:auto;width:100%;max-height:none;padding:10px 0;background:transparent}
-#ch1Modal .ch1MemorySetting{display:none}#ch1Modal button:focus-visible,#ch1Hud button:focus-visible{outline:3px solid #286472;outline-offset:2px}
+/* Restore the original room close-up around the shared recall sheet. */
+#ch1Modal.ch1MemoryFull{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;background:#b4a38a;overflow:hidden}
+#ch1Modal.ch1MemoryFull .ch1MemorySetting,#ch1Modal.ch1MemoryFull .ch1CutPaperScene{position:absolute;inset:0;width:100%;height:100%;display:block}
+#ch1Modal.ch1MemoryFull .ch1Sheet{position:absolute;left:64%;top:55%;transform:translate(-50%,-50%);width:min(570px,calc(100% - 24px));max-width:570px;max-height:calc(100% - 90px);padding:24px;overflow:auto;overscroll-behavior:contain;touch-action:pan-y;background:#fffcf6;border:1px solid #c9bba1;box-shadow:9px 13px 1px #322c2340;box-sizing:border-box}
+#ch1Modal.ch1MemoryFull .ch1Sheet:before{content:'';position:absolute;top:0;left:0;right:0;height:12px;background:repeating-linear-gradient(96deg,#a9937620 0 2px,transparent 2px 17px);pointer-events:none}
+#ch1Modal.ch1MemoryFull article.ch1Sheet{max-height:calc(90% - 54px)}
+#ch1Modal.ch1MemoryFull .ch1Return{position:absolute;top:10px;left:12px;z-index:2;background:#fbf2dfef;min-height:44px;font:14px Georgia}
+#ch1Modal .rc-field input,#ch1Modal .rc-field textarea{padding:12px;border:1px solid #988465;border-radius:2px}
+@media(max-width:800px){#ch1Modal.ch1MemoryFull .ch1Sheet{left:50%;width:calc(100% - 28px);max-width:570px;padding:18px}}
+@media(max-height:500px){#ch1Modal.ch1MemoryFull .ch1Sheet{top:55%;max-height:calc(100% - 74px);padding:14px}#ch1Modal.ch1MemoryFull .ch1Return{top:4px;left:6px}}
+#ch1Modal button:focus-visible,#ch1Hud button:focus-visible{outline:3px solid #286472;outline-offset:2px}
 body.ch1-open #world,body.ch1-open #interiorCanvas{pointer-events:none}body.ch1-open #ch1Hud,body[data-conversation] #ch1Hud{display:none}
 @media(max-width:520px){#ch1Hud{font-size:12px;padding:7px;width:calc(100% - 130px)}#ch1Hud strong{font-size:15px}#ch1Hud button{font-size:12px;padding:6px}#ch1Modal{padding:15px;inset:5px;width:calc(100% - 10px)}#ch1Modal .mb-stamps{grid-template-columns:1fr}#ch1Modal .mb-stamps span{display:inline;margin-right:8px}}
 `;document.head.append(style);
-function display(html,kind){
- view=kind;modal.innerHTML=html;modal.classList.toggle('ch1MemoryFull',kind==='quiz');modal.hidden=false;document.body.classList.add('ch1-open');
- window.UPPDRAG_MEETINGS?.close?.(false);modal.focus({preventScroll:true});
+function restoreRoom(){
+ if(!roomRestore)return;
+ roomView.style.visibility=roomRestore.visibility;roomFooter.hidden=roomRestore.footerHidden;
+ roomRestore=null;document.body.classList.remove('ch1-memory');modal.classList.remove('ch1MemoryFull');
 }
-function close(){recall?.leavingPanel();view='closed';modal.hidden=true;document.body.classList.remove('ch1-open');s.archiveActive=false;persist();drawHud();(returnFocus?.isConnected?returnFocus:hud.querySelector('[data-mb="book"]'))?.focus?.({preventScroll:true});}
-const top=title=>'<div class="mb-top"><p>Frihetstiden · kapitel 1</p><button data-mb="close">Till staden</button></div><h2>'+esc(title)+'</h2>';
+function paintCloseup(){
+ const canvas=modal.querySelector('#ch1CutPaperScene');if(!canvas||!roomRestore)return;
+ const place=s.archiveActive?'archive':current().p;
+ if(!window.UPPDRAG_ROOM_ART?.renderMemoryCloseup?.(canvas,place))throw Error('Närbilden för '+place+' kunde inte visas.');
+ canvas.dataset.place=place;
+}
+function display(html,kind){
+ const inRoom=present()||(s.archiveActive&&locationKey()==='archive');
+ const workspace=inRoom&&['quiz','status','review','result'].includes(kind);
+ window.UPPDRAG_MEETINGS?.close?.(false);
+ if(workspace){
+  if(!roomRestore)roomRestore={visibility:roomView.style.visibility,footerHidden:roomFooter.hidden};
+  roomView.style.visibility='hidden';roomFooter.hidden=true;document.body.classList.add('ch1-memory');
+ }else restoreRoom();
+ view=kind;modal.classList.toggle('ch1MemoryFull',workspace);modal.hidden=false;document.body.classList.add('ch1-open');
+ modal.innerHTML=workspace&&html?'<div class="ch1MemorySetting" aria-hidden="true"><canvas id="ch1CutPaperScene" class="ch1CutPaperScene"></canvas></div><button type="button" class="ch1Return" data-mb="close">← Till rummet</button><article class="ch1Sheet">'+html+'</article>':html;
+ if(workspace&&html){modal.dataset.recallScene=s.archiveActive?'archive':current().p;paintCloseup();}
+ modal.setAttribute('aria-label',workspace?'Arbeta med '+(s.archiveActive?'minnen hos Rut':documents[current().p]||'dokumentet'):'Minnesboken');
+ modal.focus({preventScroll:true});
+}
+function close(){recall?.leavingPanel();view='closed';modal.hidden=true;restoreRoom();document.body.classList.remove('ch1-open');s.archiveActive=false;persist();drawHud();(returnFocus?.isConnected?returnFocus:hud.querySelector('[data-mb="book"]'))?.focus?.({preventScroll:true});}
+window.addEventListener('resize',paintCloseup);
+window.addEventListener('uppdrag-paper-fibres-ready',paintCloseup);
+const top=title=>'<div class="mb-top"><p>Frihetstiden · kapitel 1</p><button data-mb="close">'+(locationKey()?'Till rummet':'Till staden')+'</button></div><h2>'+esc(title)+'</h2>';
 function drawHud(){
  const q=mastery.summary();hud.innerHTML='<strong>'+(q.chapterComplete?'Minnesmästare · kapitel 1 klart':q.label+' · '+q.done+' av 3 områden klara')+'</strong><div class="ch1Wallet">'+s.daler+' daler · '+s.apples+' äpplen</div><button class="primary" data-mb="book">Minnesbok</button><button data-mb="rut">Rut · repetera</button>'+(q.chapterComplete?'<a href="chapter2-pilot.html">Till kapitel 2 →</a>':'');
 }
@@ -96,10 +128,16 @@ function showArea(){
  if(st==='failed'||st==='pending')return renderStatus();
  let h=top(a.name)+'<p>'+labels[r]+' · '+a.place+' · '+current().f.length+' uppgifter</p>';
  if(st==='clear')h+='<p>✓ Den här stämpeln är klar. Du kan repetera gratis hos Rut.</p>';
- else h+='<p>'+esc(story.visits[a.id]?r===0?'Vi fortsätter där vi var.':labels[r]+'provet är ett nytt minnesprov. Berättelsen är kvar.':intro[a.id])+'</p><div class="mb-actions"><button class="primary" data-mb="'+(present()?'begin':'travel')+'">'+(present()?'Börja eller fortsätt provet':'Gå till '+a.place)+'</button></div>';
+ else h+='<p>'+esc(story.visits[a.id]?r===0?'Vi fortsätter där vi var.':labels[r]+'provet är ett nytt minnesprov. Berättelsen är kvar.':areaSummary[a.id])+'</p><div class="mb-actions"><button class="primary" data-mb="'+(present()?'begin':'travel')+'">'+(present()?'Börja eller fortsätt provet':'Gå till '+a.place)+'</button></div>';
  h+='<button data-mb="book">Till minnesboken</button>';display(h,'area');
 }
-const intro={start:'Amira visar brevet vid Slottet. Ulrika Eleonora har efterträtt Karl XII, men regenten får inte längre bestämma ensam. Vad innebär den nya makten?',law:'Elin lägger fram protokollet. Fyra stånd finns i riksdagen, men de har olika mycket inflytande. Vilka regler gäller?',trade:'Jo granskar handelslistan på Kajen. Skeppen ska handla med Asien. Han vill kunna berätta vad de tar hem.'};
+const documents={palace:'brevet',riksdag:'protokollet',quay:'handelslistan'};
+const areaSummary={start:'Undersök brevet vid Amiras skrivbord och ta reda på hur kungamakten förändrades efter Karl XII.',law:'Undersök protokollet hos Elin och ta reda på hur lagarna och ståndsriksdagen fungerade.',trade:'Granska handelslistan på Kajen tillsammans med Jo.'};
+const intro={
+ start:'Kan du hjälpa mig med brevet? Jag behöver reda ut vem som tog över efter Karl XII och hur kungamakten förändrades.',
+ law:'Kan du hjälpa mig med protokollet? Jag behöver reda ut hur lagarna fungerar och vilka som får vara med och bestämma.',
+ trade:'Kan du hjälpa mig att granska handelslistan? Jag behöver reda ut vart skeppen seglar och vilka varor de tar hem.'
+};
 function begin(){
  if(!area()||!present())return false;
  if(status()==='failed'||status()==='pending'){renderStatus();return false;}
@@ -185,7 +223,7 @@ function chooseHere(p){
 }
 let hudKey='';
 function tick(){const key=JSON.stringify([mastery.summary(),s.daler,s.apples]);if(view==='closed'&&hudKey!==key){hudKey=key;drawHud();}}
-recall=window.UPPDRAG_RECALL_ENGINE.attach({chapter:1,state:()=>s,runs,facts,modal,storage,current,location:locationKey,present,previousKeys:{},persist,drawHud,paint(){},
+recall=window.UPPDRAG_RECALL_ENGINE.attach({chapter:1,state:()=>s,runs,facts,modal,storage,current,location:locationKey,present,previousKeys:{},persist,drawHud,paint:paintCloseup,
  openArchive(){display('','quiz');},finished,close,goRut:goArchive,
  mastery:{hasPassed,available,renderStatus,recorded,pending,encountered,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();return false;}}
 });
@@ -203,12 +241,13 @@ if(!s.masteryMigrated){
 }
 s.complete=mastery.chapterComplete();persist();
 window.UPPDRAG_CH1_PILOT={tick,go:book,close,scenes:runs,saveKey:storage,persist,refresh:drawHud,
- get state(){return s;},get recall(){return recall;},get memoryVisible(){return view==='quiz';},
+ get state(){return s;},get recall(){return recall;},get memoryVisible(){return !!roomRestore;},
  wantsMajaMeeting:p=>p==='cafe'&&!story.introduced,
- majaProblem:()=> 'I minnesboken finns tre områden. Amira på Slottet, Elin i Riksdagshuset och Jo på Kajen visar olika sidor av frihetstiden. Du väljer var du börjar.',
+ majaProblem:()=> 'Något märkligt händer i staden. Amira på Slottet, Elin i Riksdagshuset och Jo på Kajen behöver hjälp med sina minnen. Vill du hjälpa dem? I minnesboken väljer du var du börjar.',
  acceptMajaMission(){story.introduced=true;people.met.Maja=true;saveWorld();book();},
  wantsMemoryMeeting:p=>areas.some(a=>a.p===p)&&levels.some(l=>mastery.levelUnlocked(l)&&status(areas.find(a=>a.p===p),l)!=='clear'),
- memoryProblem(){const a=areas.find(a=>a.p===locationKey());return a?(story.visits[a.id]?'Välkommen tillbaka. Du kan fortsätta ditt minnesprov här.':intro[a.id]):'';},
+ memoryProblem(){const a=areas.find(a=>a.p===locationKey());return a?(story.visits[a.id]?'Välkommen tillbaka! Vill du fortsätta undersöka '+documents[a.p]+' med mig?':intro[a.id]):'';},
+ memoryChoice:()=> 'Se '+(documents[locationKey()]||'dokumentet'),
  enterMemory(){if(chooseHere(locationKey()))begin();},wantsMemoryThanks:()=>false,memoryThanks:()=>'',finishMemory:finished,
  wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> 'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,goArchive,
  openBook:book,selectArea:select,

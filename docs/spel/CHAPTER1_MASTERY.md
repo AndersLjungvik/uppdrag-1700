@@ -1,6 +1,6 @@
 # Kapitel 1: minnesboken i den befintliga världen
 
-Byggversion 2.0.1, 28 oktober 2026. Arbetsgren: `rebuild/mastery-progression`.
+Byggversion 2.0.3, 28 oktober 2026. Arbetsgren: `rebuild/mastery-progression`.
 Detta är det första migrerade kapitlet. Kapitel 2–10 har fortfarande sin tidigare uppdragslogik.
 
 ## Spelgång
@@ -40,4 +40,4 @@ Verifierat med enhets- och lokala Chromium-test: alla femton uppgifter genom tre
 
 Befintliga regressionstester för 255 kapitel-6-svar, världslayout, tryckpress och händelsemotor går igenom. `npm test` har sex äldre fel i `scripts/world.test.mjs` och `scripts/chapter-pilot-safety.test.mjs`; samma sex fel reproduceras på den orörda utgångscommiten `cb9adb3`. De gäller äldre världskod och dess testantaganden, inte den nya kapitel-1-adaptern. Testerna har inte tagits bort eller gjorts gröna genom att sänka kraven.
 
-Publicerad GitHub Pages och fysisk iPhone/Safari är inte verifierade i detta bygge. Arbetsgrenen publicerar inte automatiskt den nya spelversionen.
+En separat testversion finns på https://andersljungvik.github.io/uppdrag-1700/spel-test/ med egen sparning. Närbilderna i de befintliga miljöerna används för uppgifterna. Fysisk iPhone/Safari återstår; mobilbredd kontrolleras i Chromium.
