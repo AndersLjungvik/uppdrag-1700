@@ -57,10 +57,15 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await f.evaluate(()=>{player={x:2950,y:367};camera={x:3040,y:367};UPPDRAG_WORLD_LIFE.tick(40000,{region,player,activeRoom:null});draw();UPPDRAG_EVENT_ENGINE.openWagon();});
   assert.equal(await f.locator('#adventureTail .worldSpeechPaper').count(),1);
   assert.match(await f.locator('.ad-utterance').innerText(),/Hjulet sitter fast/);assert.doesNotMatch(await f.locator('.ad-utterance').innerText(),/Kusken kör/);
+  assert.equal(await f.locator('#adventureDialog [data-adventure]').count(),0,'player replies never appear in the driver bubble');
+  assert.doesNotMatch(await f.locator('#adventureDialog').innerText(),/Jag frågar smeden/);
+  assert.equal(await f.locator('#adventureReplies').getAttribute('aria-label'),'Du svarar');
+  assert.match(await f.locator('#adventureReplies').innerText(),/Jag frågar smeden/);
   assert.equal(await f.locator('#message').isVisible(),false);
   await p.screenshot({path:path.join(root,'qa/events-wagon.png'),timeout:12000});
   await f.locator('[data-adventure="smith"]').click();
   assert.equal(await f.locator('#adventureDialog').isVisible(),false);
+  assert.equal(await f.locator('#adventureReplies').isVisible(),false);
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.wagon),'need-smith');
   await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.openSmith());assert.equal(await f.locator('#adventureDialog').isVisible(),false);
   await f.evaluate(()=>{player={x:2680,y:705};camera={x:2710,y:705};UPPDRAG_WORLD_LIFE.tick(41000,{region,player,activeRoom:null});draw();UPPDRAG_EVENT_ENGINE.openSmith();});
@@ -81,7 +86,11 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await p.screenshot({path:path.join(root,'qa/events-witness-mobile.png'),timeout:12000});
   assert.equal(await f.locator('#adventureDialog').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
   const bounds=await f.locator('#adventureDialog').boundingBox();assert(bounds.x>=0&&bounds.x+bounds.width<=391);
+  const replyBounds=await f.locator('#adventureReplies').boundingBox();assert(replyBounds.x>=0&&replyBounds.x+replyBounds.width<=391);assert(replyBounds.y>=bounds.y+bounds.height+8,'the child bubble and player replies remain separate on mobile');
+  assert.equal(await f.locator('#adventureDialog [data-adventure]').count(),0);
+  assert.match(await f.locator('#adventureReplies').innerText(),/Ja, tack! Var hittade du den/);
   await f.locator('[data-adventure="kind"]').click();
+  assert.equal(await f.locator('#adventureReplies').isVisible(),false,'replies disappear when the child answers');
   assert.equal(await f.locator('[data-adventure="next"]').count(),0);
   await f.locator('.ad-utterance').click();await f.locator('#adventureDialog').press('Enter');assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money);
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.witness),'recovered');
