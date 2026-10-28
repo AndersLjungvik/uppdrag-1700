@@ -1,10 +1,12 @@
-# Scener och sidoäventyr – 2.1.0
+# Scener och sidoäventyr – 2.1.1
 
 Amira, Elin och Jo talar i första person. Maja får svaret ”Självklart!”. ”Se brevet”, ”Se protokollet” och ”Se handelslistan” öppnar de befintliga arbetsnärbilderna. Samma närbild används genom svar, återkoppling och nytt försök; Arkivet använder Ruts befintliga skrivbord. Minnesboken är fortfarande en separat översikt. Kajens gemensamma kameraprojektion fyller hela bildytan utan sidofält och används även av figurer och klickytor.
 
 Kusken, smeden, barnet och ficktjuven använder `UPPDRAG_MEETINGS.drawMapPerson`. Vagnen visas uppifrån med en separat kusk. Berättartext och information om spelregler läses inte som repliker. Kusken berättar i första person vad hen behöver hjälp med. Barnet berättar vad det såg och kan lämna tillbaka en tappad daler.
 
 ## Samtal och vagnen
+
+Vagnens reparationsuppdrag gäller inte kapitel 2. Där står kusken med hel vagn vid Barnhuset. Tvåans eget frivilliga uppdrag är det trasiga täcket: Barnhuset → Karin i Bostadskvarteren → barnet väljer lapp och sängen förändras. Äldre vagnsstatus bevaras utan att aktivera smeden. Se CHAPTER2_MASTERY.md.
 
 En avlägsen klickning startar vanlig gång längs vägarna. Samtalet öppnas först inom 95 världspunkter, med fri väg till personen/vagnen. Kusken ber om smedens råd; smeden ger rådet i en replik; spelaren måste sedan gå tillbaka till vagnen och erbjuda sin hjälp. Avstånd och uppdragsstatus kontrolleras även när lösningen utförs. Inga undersöknings- eller tankepausmenyer behövs.
 

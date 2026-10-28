@@ -74,7 +74,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await f.locator('[data-action="rc-skip"]').click();assert.equal((await state()).m.state.areas.power.learner.status,'failed');assert.equal(await f.locator('[data-mb="retry"]').isDisabled(),true);
   await enter('children','learner');await finish('children','learner');assert.equal((await state()).m.summary.done,1);
   // The delivered bread and wood exist in both the room and the close-up.
-  await room('barnhus');await f.evaluate(()=>{UPPDRAG_MEETINGS.close(false);UPPDRAG_MEETINGS.start();});await f.waitForSelector('#meetingDialogue:not([hidden])');assert.match(await f.locator('#meetingLine').innerText(),/Brödet och veden kom fram/);
+  await room('barnhus');await f.evaluate(()=>{UPPDRAG_MEETINGS.close(false);UPPDRAG_MEETINGS.start();});await f.waitForSelector('#meetingDialogue:not([hidden])');assert.match(await f.locator('#meetingLine').innerText(),/Välkommen tillbaka/);
   // A cleared learner area can still have a natural idle greeting with the delivery acknowledged.
   await f.evaluate(()=>UPPDRAG_MEETINGS.close(false));
   await enter('women','learner');await finish('women','learner');assert.equal((await state()).m.summary.done,2);

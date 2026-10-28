@@ -17,30 +17,32 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
  },kind);}
  try{
   await p.goto(gameURL,{waitUntil:'domcontentloaded',timeout:60000});
-  await p.evaluate(key=>localStorage.setItem(key+'uppdrag1700.side-adventures.v1',JSON.stringify({v:1,chapters:{2:{wagon:'unseen',thief:'unseen',witness:'unseen',distance:1600,thiefDistance:620,history:[]}}})),key);
+  await p.evaluate(key=>localStorage.setItem(key+'uppdrag1700.side-adventures.v1',JSON.stringify({v:1,chapters:{2:{wagon:'need-smith',wagonSeen:true,thief:'unseen',witness:'unseen',distance:1600,thiefDistance:620,history:[]}}})),key);
   await p.reload();f=await(await p.waitForSelector('#game',{timeout:45000})).contentFrame();await f.waitForSelector('#ch1Hud');
   await f.evaluate(()=>{UPPDRAG_CH2_PILOT.close();UPPDRAG_MEETINGS.close(false);});
   const initial=await f.evaluate(()=>UPPDRAG_CH2_PILOT.state.daler);
-  assert.equal(await f.evaluate(()=>{const c=document.createElement('canvas');c.width=400;c.height=200;return UPPDRAG_CH2_SUPPLIES.draw(c.getContext('2d'),200,110,1);}),false);
-  await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.openWagon());assert.equal(await f.locator('#adventureDialog').isVisible(),false);
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.registry.find(e=>e.id==='wagon-blockade').chapters.includes(2)),false,'the generic axle quest is disabled in chapter 2');
   await f.evaluate(()=>{player={x:2950,y:367};camera={x:3040,y:367};path=[];UPPDRAG_WORLD_LIFE.tick(performance.now(),{region,player,activeRoom:null});draw();UPPDRAG_EVENT_ENGINE.openWagon();});
-  assert.match(await f.locator('.ad-utterance').innerText(),/Brödet och veden/);assert.equal(await f.locator('#adventureDialog [data-adventure]').count(),0);
-  await f.locator('[data-adventure="smith"]').click();
-  await f.evaluate(()=>{player={x:2680,y:705};camera={x:2710,y:705};path=[];UPPDRAG_WORLD_LIFE.tick(performance.now(),{region,player,activeRoom:null});draw();UPPDRAG_EVENT_ENGINE.openSmith();});
-  await f.locator('.ad-utterance').click();assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.wagon),'advice');
-  await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.openWagon());assert.equal(await f.locator('#adventureDialog').isVisible(),false);
-  await f.evaluate(()=>{player={x:2950,y:367};camera={x:3040,y:367};path=[];UPPDRAG_WORLD_LIFE.tick(performance.now(),{region,player,activeRoom:null});draw();UPPDRAG_EVENT_ENGINE.openWagon();});
-  await f.locator('.ad-utterance').click();await f.locator('[data-adventure="fix"]').click();await f.locator('#adventureDialog').press('Enter');
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.wagon),'cleared');
-  const supplies=await f.evaluate(()=>{const c=document.createElement('canvas');c.width=400;c.height=200;const g=c.getContext('2d'),shown=UPPDRAG_CH2_SUPPLIES.draw(g,200,110,1),d=g.getImageData(0,0,400,200).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i])n++;return {shown,pixels:n};});assert.equal(supplies.shown,true);assert(supplies.pixels>1000);
+  assert.equal(await f.locator('#adventureDialog').isVisible(),false,'the driver is no longer at the old manor-road position');
+  await f.evaluate(()=>{path=[];player={x:2680,y:705};UPPDRAG_WORLD_LIFE.tick(performance.now(),{region,player,activeRoom:null});UPPDRAG_EVENT_ENGINE.openSmith();});assert.equal(await f.locator('#adventureDialog').isVisible(),false,'legacy need-smith state cannot revive the old quest');
+  await f.locator('#world').press('Escape');
+  const hit=await f.evaluate(()=>{player={x:2450,y:705};follow=false;camera={x:2510,y:775};path=[];UPPDRAG_WORLD_LIFE.tick(performance.now(),{region,player,activeRoom:null});draw();const m=ctx.getTransform(),r=canvas.getBoundingClientRect(),x=2580,y=805;return {x:(m.a*x+m.c*y+m.e)*r.width/canvas.width,y:(m.b*x+m.d*y+m.f)*r.height/canvas.height};});
+  await f.locator('#world').click({position:hit});assert.match(await f.locator('.ad-utterance').innerText(),/Här lämnar jag bröd och ved/);assert.doesNotMatch(await f.locator('.ad-utterance').innerText(),/hjul|axel|smed/i);assert.equal(await f.locator('#adventureReplies').isHidden(),true);
+  fs.mkdirSync(path.join(root,'qa'),{recursive:true});await p.screenshot({path:path.join(root,'qa/chapter2-driver-at-barnhus.png')});await f.locator('#adventureDialog').press('Enter');
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.wagon),'need-smith','legacy status is preserved without starting the retired quest');
   assert.equal(await room('barnhus'),true);await f.evaluate(()=>{UPPDRAG_MEETINGS.close(false);UPPDRAG_MEETINGS.start();});
   await f.waitForSelector('#meetingDialogue:not([hidden])');
   for(let i=0;i<8&&await f.locator('#chapter2Replies').isHidden();i++)await f.locator('#meetingDialogue').click();
-  assert.match(await f.locator('#meetingLine').innerText(),/Brödet och veden kom fram/);
+  assert.match(await f.locator('#meetingLine').innerText(),/Kan du hjälpa mig/);
   fs.mkdirSync(path.join(root,'qa'),{recursive:true});await p.screenshot({path:path.join(root,'qa/chapter2-supplies.png')});
   await f.locator('[data-ch1-choice="area:children"]').click();assert.equal(await f.locator('#ch1CutPaperScene').getAttribute('data-place'),'barnhus');
   await p.screenshot({path:path.join(root,'qa/chapter2-barnhus-workspace.png')});
   assert.deepEqual(await f.evaluate(()=>UPPDRAG_CH2_PILOT.repetitionTaskIds),['rc2-barnhus-0'],'thief gets only a chapter-2 topic actually encountered');
+  await f.evaluate(()=>{UPPDRAG_CH2_PILOT.close();UPPDRAG_MEETINGS.close(false);});
+  await f.locator('#ch2BedButton').waitFor({state:'visible'});await f.locator('#ch2BedButton').click();
+  for(let i=0;i<8&&!(await f.locator('[data-adventure="room:accept"]').count());i++)await f.locator('.ad-utterance').click();
+  await f.locator('[data-adventure="room:accept"]').click();await f.locator('#adventureDialog').press('Escape');
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'accepted');
   await f.evaluate(()=>{UPPDRAG_CH2_PILOT.close();UPPDRAG_MEETINGS.close(false);leaveInterior();path=[];window.requestAnimationFrame=()=>0;});await p.waitForTimeout(60);
   await f.evaluate(()=>{
    window.qaTime=performance.now()+10000;window.qaTick=()=>{qaTime+=40;UPPDRAG_WORLD_LIFE.tick(qaTime,{region,player,activeRoom:interior?.kind||null});};
@@ -61,11 +63,11 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await f.locator('[data-field-index="0"]').filter({hasText:'Ingen ville eller kunde ta hand om dem.'}).click();await f.locator('[data-action="rc-submit"]').click();await f.locator('[data-action="rc-next"]').click();
   assert.equal(await f.evaluate(()=>UPPDRAG_CH2_PILOT.state.daler),initial+1);
   await f.evaluate(()=>{qaTick();for(let i=0;i<1400;i++)qaTick();UPPDRAG_CH2_PILOT.close();leaveInterior();path=[];for(let x=100;x<=1100;x+=5){player={x,y:705};qaTick();}for(let i=0;i<180&&UPPDRAG_EVENT_ENGINE.state.thief!=='chasing';i++)qaTick();draw();});
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.encounters),2);assert.equal(await f.evaluate(()=>UPPDRAG_CH2_PILOT.state.daler),initial);
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'accepted','the thief never takes or resets the quilt');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.encounters),2);assert.equal(await f.evaluate(()=>UPPDRAG_CH2_PILOT.state.daler),initial);
   await p.screenshot({path:path.join(root,'qa/chapter2-thief-returns.png')});
   await p.reload();f=await(await p.waitForSelector('#game',{timeout:45000})).contentFrame();await f.waitForSelector('#ch1Hud');
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.wagon),'cleared');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.unclaimed),1);assert.equal(await f.evaluate(()=>UPPDRAG_MASTERY.snapshot().state.areas.children.learner.status),'clear');
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'accepted');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.wagon),'need-smith');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.unclaimed),1);assert.equal(await f.evaluate(()=>UPPDRAG_MASTERY.snapshot().state.areas.children.learner.status),'clear');
   assert.equal(await p.locator('#error').innerText(),'');assert.deepEqual(errors,[]);
-  console.log('PASS chapter 2 world: actual wagon/smith steps, bread and wood drawn and acknowledged by Siri, existing barnhus close-up, known-topic pursuit, no sidequest stamps, new reward and recurring thief, persisted supplies and progress');
+  console.log('PASS chapter 2 world: relocated driver at Barnhuset, no axle/smith quest even with old saves, known-topic pursuit, no sidequest stamps, new reward and recurring thief, preserved legacy state and progress');
  }catch(e){console.error('Parent',await p.locator('#error').textContent().catch(()=>''));console.error(await f?.evaluate(()=>({events:UPPDRAG_EVENT_ENGINE?.state,approach:UPPDRAG_EVENT_ENGINE?.approach,pilot:UPPDRAG_CH2_PILOT?.state.daler,room:interior?.kind,path})));throw e;}finally{await b.close();server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
