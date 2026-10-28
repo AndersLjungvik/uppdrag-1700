@@ -310,7 +310,7 @@ function showSmith(){
 // Classic chapters have walking people but no street-dialogue controller.
 // Give them a short, on-site greeting using the existing speech presentation.
 function showPasserby(person){
- if(scene||interior||sailing||voyage||!person||person.region!==region.id)return false;
+ if(scene||interior||sailing||voyage||region.id!=='main'||!person||person.region!==region.id)return false;
  const current=window.UPPDRAG_WORLD_LIFE.people(region).find(p=>p.id===person.id);
  if(!current||Math.hypot(player.x-current.x,player.y-current.y)>80||!clearPath(region,player,current))return false;
  cancelPersonArrival();pendingRoom=null;pending=null;returnPending=false;pendingEvent=null;
