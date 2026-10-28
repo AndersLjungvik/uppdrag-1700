@@ -28,6 +28,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
  async function cloth(id,x,y){await f.locator('[data-piece="'+id+'"]').click();const r=await f.locator('#quiltBoard').boundingBox();await f.locator('#quiltBoard').click({position:{x:r.width*x/600,y:r.height*y/280}});}
  try{
   for(const [iteration,pattern]of ['sail','stripe'].entries()){
+   console.log('Bed story: starting',pattern);
    await boot();if(iteration===0){
     await p.evaluate(key=>localStorage.setItem(key+'uppdrag1700.side-adventures.v1',JSON.stringify({v:1,chapters:{2:{wagon:'need-smith',wagonSeen:true,thief:'unseen',distance:200,thiefDistance:1500,witness:'unseen',history:[]}}})),key);await boot();
    }
@@ -44,6 +45,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
     await choose('later');await closeSpeech();assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'available');await bed();
    }
    await choose('accept');assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'accepted');await closeSpeech();
+   console.log('Bed story: accepted',pattern);
    await f.evaluate(()=>UPPDRAG_CH2_PILOT.openBook());assert.match(await f.locator('#ch1Modal').innerText(),/Visa täcket för Karin/);assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.openBed()),false,'knowledge work is never interrupted');await f.locator('#ch1Modal').press('Escape');
    await boot();assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'accepted');
    if(iteration===0){
@@ -52,6 +54,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
    }else await karin();
    assert.match(await f.locator('.ad-utterance').innerText(),iteration===0?/Tillbaka redan/:/Lägg det här/);
    await choose('work');await f.locator('#quiltWorkshop').waitFor({state:'visible'});
+   console.log('Bed story: workshop',pattern);
    assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'repairing');
    assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.openBed()),false);
    await cloth('small',300,140);await f.locator('[data-quilt="check"]').click();assert.match(await f.locator('.quiltMessage').innerText(),/sticker hålet fortfarande fram/);assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'repairing');
@@ -70,6 +73,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
    await f.locator('[data-quilt="check"]').click();assert.equal(await f.locator('#quiltWorkshop').count(),0);assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'ready');assert.match(await f.locator('.ad-utterance').innerText(),/Jag syr fast det/);await closeSpeech();
    if(iteration===0){await f.locator('#meetingPerson').click();await choose('return');await f.waitForFunction(()=>interior?.kind==='barnhus',undefined,{timeout:30000});}else await room('barnhus');
    await bed();await choose(pattern);assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'delivered');assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.pattern),pattern);await closeSpeech();
+   console.log('Bed story: delivered',pattern);
    await p.screenshot({path:path.join(root,'qa/quilt-delivered-'+pattern+'.png')});
    const after=await f.evaluate(()=>({m:localStorage.getItem('uppdrag1700.mastery.v1.ch2'),daler:UPPDRAG_CH2_PILOT.state.daler,apples:UPPDRAG_CH2_PILOT.state.apples,wagon:UPPDRAG_EVENT_ENGINE.state.wagon}));assert.deepEqual(after,before,'the story never spends money, apples or knowledge progress, and preserves old wagon status');
    await boot();await room('barnhus');assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.pattern),pattern);await bed();assert.match(await f.locator('.ad-utterance').innerText(),/inte gömma hålet/);await closeSpeech();await bed();assert.match(await f.locator('.ad-utterance').innerText(),/mitt täcke/);await closeSpeech();
@@ -79,13 +83,20 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
    await p.locator('#menuButton').click();await p.locator('summary').filter({hasText:'Sparning och version'}).click();const download=await Promise.all([p.waitForEvent('download'),p.locator('#exportSave').click()]);const exported=JSON.parse(fs.readFileSync(await download[0].path()));assert.equal(JSON.parse(exported.entries[bedKey]).pattern,pattern);assert.deepEqual(JSON.parse(exported.entries[bedKey]).layout,layout);await p.locator('#closeMenu').click();
    if(iteration===0){
     const importFile=await download[0].path();await f.evaluate(key=>localStorage.setItem(key,JSON.stringify({v:1,phase:'available',layout:{}})),bedKey);await boot();assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'available');
-    const serial=await f.evaluate(()=>__INTEGRATED_SERIAL);await p.locator('#menuButton').click();
-    p.once('dialog',dialog=>dialog.accept());await p.locator('#saveFile').setInputFiles(importFile);
-    await p.waitForFunction(serial=>document.querySelector('#game')?.contentWindow?.__INTEGRATED_SERIAL>serial&&document.querySelector('#game')?.contentWindow?.UPPDRAG_CH2_BED?.state.phase==='delivered',serial);
-    f=await(await p.locator('#game').elementHandle()).contentFrame();assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.pattern),pattern);assert.deepEqual(await f.evaluate(()=>UPPDRAG_CH2_BED.state.layout),layout);
+    await p.locator('#menuButton').click();
+    // Import reloads the parent page; its per-page serial starts over.
+    p.once('dialog',dialog=>dialog.accept());await Promise.all([p.waitForEvent('domcontentloaded'),p.locator('#saveFile').setInputFiles(importFile)]);
+    f=await(await p.waitForSelector('#game')).contentFrame();await f.waitForFunction(()=>window.UPPDRAG_CH2_BED?.state.phase==='delivered');
+    assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.pattern),pattern);assert.deepEqual(await f.evaluate(()=>UPPDRAG_CH2_BED.state.layout),layout);
+    console.log('Bed story: imported',pattern);
    }
    if(iteration===0){await p.locator('#menuButton').click();const replay=new URL(p.url()).searchParams.get('replay');await Promise.all([p.waitForURL(u=>u.searchParams.get('replay')!==replay),p.locator('#replayChapter').click()]);const url=p.url();await boot(url);}
   }
   assert.equal(await p.locator('#error').innerText(),'');assert.deepEqual(errors,[]);console.log('PASS window-bed story: decline/return, Karin before/after, free insufficient attempts, broad and two-piece solutions, saved puzzle, keyboard/Escape, both child choices, persistent visible repair, short revisits, export/import, untouched progress and reduced motion/mobile');
- }catch(e){console.error('Parent',await p.locator('#error').textContent().catch(()=>''));console.error(await f?.evaluate(()=>({bed:UPPDRAG_CH2_BED?.state,room:interior?.kind,event:UPPDRAG_EVENT_ENGINE?.state,scene:document.querySelector('#adventureDialog')?.outerHTML})));throw e;}finally{await b.close();server.close();}
+ }catch(e){
+  console.error('Failure',e);
+  console.error('Parent',await p.locator('#error').textContent().catch(()=>''));
+  console.error(await f?.evaluate(()=>({bed:UPPDRAG_CH2_BED?.state,room:interior?.kind,event:UPPDRAG_EVENT_ENGINE?.state,scene:document.querySelector('#adventureDialog')?.outerHTML})).catch(error=>({detachedFrame:error.message})));
+  throw e;
+ }finally{await b.close();server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
