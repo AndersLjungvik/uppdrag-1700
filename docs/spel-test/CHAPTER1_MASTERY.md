@@ -1,6 +1,6 @@
 # Kapitel 1: minnesboken i den befintliga världen
 
-Byggversion 2.0.3, 28 oktober 2026. Arbetsgren: `rebuild/mastery-progression`.
+Byggversion 2.0.4, 28 oktober 2026. Arbetsgren: `rebuild/mastery-progression`.
 Detta är det första migrerade kapitlet. Kapitel 2–10 har fortfarande sin tidigare uppdragslogik.
 
 ## Spelgång
@@ -18,6 +18,8 @@ Eleven väljer områdesordning inom en nivå. Alla tre lärlingsstämplar krävs
 Ett faktiskt misslyckat prov låser det försöket. Ett äpple öppnar ett nytt försök på hela det valda områdesprovet, från första uppgiften. Andra områden behålls. Ledtrådar kostar en daler och finns enbart på lärlingsnivån. Rut är gratis och kan ge äpplen även när plånboken är tom. Gatuhändelser i ettan och Rut använder samma kända ämnen; framtida och ännu inte visade uppgifter tas inte med i gatuhändelser. Rut har en introduktionsreserv om ingen uppgift alls har mötts.
 
 Osäkra formuleringar sparas för granskning utan kostnad eller stämpel. Läraren kan på samma enhet läsa svaret och uppgiftens exempelsvar, be eleven bearbeta eller bekräfta att innehållet uppfyller kraven. Ett granskat svar loggas som `teacher-approved`, aldrig som en självständig automatisk prestation. Lärarbekräftelsen är en lokal klassrumsfunktion, ingen säker behörighetskontroll.
+
+`questions/power-language.js` utvidgar de två öppna maktfrågorna. Den känner igen fler uttryck för begränsad kungamakt och ökat inflytande för riksdag/riksråd, inklusive ”kungens envälde upphörde och riksdagen och riksrådet fick ökat inflytande”. Kontroll sker av båda leden och maktförändringens riktning. Detta är fortfarande en lokal regelkontroll; okända formuleringar går till granskning. Övriga uppgifters bedömning lämnas till den befintliga motorn. Enhetstestet omfattar 44 giltiga formuleringar, 36 felaktiga/ofullständiga svar och 76 oförändrade uppgifter.
 
 ## Sparningar och kontinuitet
 

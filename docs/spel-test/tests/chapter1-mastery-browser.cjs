@@ -22,7 +22,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   const t=await f.evaluate(()=>UPPDRAG_CH1_PILOT.recall.current);
   for(let i=0;i<t.fields.length;i++){
    const field=t.fields[i];if(t.rank===0&&field.options){await f.locator('[data-field-index="'+i+'"]').filter({hasText:field.answers[0]}).click();}
-   else await f.locator('[data-rc-field="'+i+'"]').fill(field.sample);
+   else await f.locator('[data-rc-field="'+i+'"]').fill(t.id==='rc1-power-1'?'kungens envälde upphörde och riksdagen och riksrådet fick ökat inflytande.':field.sample);
   }
   await f.locator('[data-action="rc-submit"]').click();
   const u=await f.evaluate(()=>UPPDRAG_CH1_PILOT.recall.ui);

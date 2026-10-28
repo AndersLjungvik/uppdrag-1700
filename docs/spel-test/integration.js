@@ -3,7 +3,7 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.0.3',ROOT='uppdrag1700.preview.mastery.20261028.v1.';
+const $=id=>document.getElementById(id),VERSION='2.0.4',ROOT='uppdrag1700.preview.mastery.20261028.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -83,6 +83,7 @@ const query=s=>s.replace(/new URLSearchParams\(location\.search\)/g,'new URLSear
 function script(code,attrs=''){return '<script'+attrs+'>'+safe(code)+'\n</scr'+'ipt>';}
 function bridge(id){return `window.__ROOM_BOOTING=true;window.__UPPDRAG_QUERY=${JSON.stringify(teacher?'?preview=1':'?')};
 Object.defineProperty(window,'localStorage',{value:parent.integratedStore,configurable:true});
+window.addEventListener('keydown',e=>window.UPPDRAG_EVENT_ENGINE?.handleKeydown?.(e),true);
 window.addEventListener('error',e=>parent.integratedError(String(e.message||'Okänt fel')));
 window.addEventListener('unhandledrejection',e=>parent.integratedError(String(e.reason?.message||e.reason)));
 document.addEventListener('click',e=>{const a=e.target.closest?.('a[href]'),m=a?.getAttribute('href')?.match(/chapter(\\d+)-pilot\\.html/);if(m){e.preventDefault();e.stopPropagation();parent.openIntegratedChapter(Number(m[1]));}},true);
@@ -118,7 +119,7 @@ async function makePage(ch,id){
   if(name==='chapter5-pilot.js'){code=code.replace("<h2>Kapitel 5 avklarat!</h2>","<h2>Kapitel 5 avklarat!</h2><p><a href=\"chapter6-pilot.html\">Fortsätt till kapitel 6 →</a></p>");}
   if(name==='chapter8-pilot.js')code=code.replace('<h2>Kapitel 8 avklarat!</h2>','<h2>Kapitel 8 avklarat!</h2><p><a href="chapter9-pilot.html">Fortsätt till kapitel 9 →</a></p>');
   if(name==='chapter8-pilot.js')code=code.replace("+'<button class=\"primary\" data-action=\"restart\">Börja om äventyret</button>'","+'<p><a href=\"chapter9-pilot.html\">Fortsätt till kapitel 9 →</a></p><button class=\"primary\" data-action=\"restart\">Börja om äventyret</button>'");
-  if(name==='recall-assessment.js')code+='\n'+payload.fixes+'\n'+payload.alignment;
+  if(name==='recall-assessment.js')code+='\n'+payload.fixes+'\n'+payload.alignment+'\n'+payload.powerLanguage;
   if(name==='chapter7-content.js')code+='\n'+await get('chapter7-war-rule-fix.js?v=1.3.1');
   if(name==='recall-flow.js')code=`{const s=document.createElement('script');s.textContent=UPPDRAG_PROMPT_ALIGNMENT.flow(${JSON.stringify(code)}).replaceAll('maxlength="120"','maxlength="240"').replaceAll('maxlength="600"','maxlength="4000"');document.head.append(s);}`;
   if(ch>=9&&name==='recall-flow.js')code=code.replace('document.head.append(s);','s.textContent=s.textContent.replace("Kontrollera svaren i rutorna","Jämför och spara ditt svar").replace("Att läsa exemplet är träning. Ett självständigt svar ska senare ges utan exemplet. En fråga om ett namn eller en vara kräver fortfarande bara den uppgiften.","Jämför med exemplet, men behåll dina egna ord. Öppna resonemang sparas för granskning utan automatisk mästarstämpel.");document.head.append(s);');
@@ -132,7 +133,7 @@ async function makePage(ch,id){
  // Shared mastery engine is loaded for every chapter during the rebuild. Chapters opt in by configuring areas.
  // Chapter 1 configures mastery before its pilot; other chapters still opt in later.
  // Optional, save-compatible side adventures are installed after existing scripts.
- const eventModule=ch<=10?(await get('event-approach.js?v=1.6.0'))+'\n'+(await get('event-engine.js?v=1.6.0')):'';
+ const eventModule=ch<=10?(await get('event-approach.js?v=1.6.0'))+'\n'+(await get('event-engine.js?v=1.6.1')):'';
  const end=`window.__ROOM_BOOTING=false;window.UPPDRAG_ROOM_LIFE?.cacheFurniture();requestAnimationFrame(()=>parent.integratedReady(${id},${ch}));`;
  page=page.replace('</body>',script((ch===1?'':masteryModule+'\n')+eventModule+'\n'+(teacher?payload.inspector+'\n':'')+end)+'</body>');return page;
 }
@@ -169,8 +170,8 @@ $('importSave').onclick=()=>$('saveFile').click();$('saveFile').onchange=async()
 };
 async function boot(){
  warning();updateMenu();if(!window.DecompressionStream||!crypto.subtle)throw Error('Öppna äventyret i en uppdaterad webbläsare via HTTPS.');
- const [delta,q,fixes,alignment,inspector]=await Promise.all([unzip('deltas.json.gz'),unzip('questions/snapshot.json.gz'),get('questions/fixes.js'),get('questions/alignment.js'),get('inspector.js')]);
- payload={...delta,questions:q.scripts,fixes,alignment,inspector};
+ const [delta,q,fixes,alignment,powerLanguage,inspector]=await Promise.all([unzip('deltas.json.gz'),unzip('questions/snapshot.json.gz'),get('questions/fixes.js'),get('questions/alignment.js'),get('questions/power-language.js?v=2.0.4'),get('inspector.js')]);
+ payload={...delta,questions:q.scripts,fixes,alignment,powerLanguage,inspector};
  let requested=Number(params.get('chapter')||read('lastChapter'))||1;if(!available(requested))requested=1;await openIntegratedChapter(requested);
 }
 window.addEventListener('unhandledrejection',e=>showError(e.reason?.message||String(e.reason)));boot().catch(e=>showError(e.message));
