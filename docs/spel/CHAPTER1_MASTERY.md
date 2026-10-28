@@ -1,7 +1,7 @@
 # Kapitel 1: minnesboken i den befintliga världen
 
-Byggversion 2.0.6, 28 oktober 2026. Arbetsgren: `rebuild/mastery-progression`.
-Detta är det första migrerade kapitlet. Kapitel 2–10 har fortfarande sin tidigare uppdragslogik.
+Byggversion 2.1.0, 28 oktober 2026. Arbetsgren: `rebuild/mastery-progression`.
+Detta är referenskapitlet. Kapitel 2 har också migrerats enligt samma modell, se CHAPTER2_MASTERY.md. Kapitel 3–10 har fortfarande sin tidigare uppdragslogik.
 
 ## Spelgång
 
