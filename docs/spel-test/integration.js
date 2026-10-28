@@ -3,7 +3,7 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.0.2',ROOT='uppdrag1700.preview.mastery.20261028.v1.';
+const $=id=>document.getElementById(id),VERSION='2.0.3',ROOT='uppdrag1700.preview.mastery.20261028.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -37,7 +37,7 @@ async function unzip(name){
 }
 async function hash(text){const bytes=new TextEncoder().encode(text),digest=await crypto.subtle.digest('SHA-256',bytes);return Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');}
 async function source(name){
- if(chapter===1&&name==='chapter1-pilot.js')return get('chapter1-mastery.js?v=2.0.1');
+ if(chapter===1&&name==='chapter1-pilot.js')return get('chapter1-mastery.js?v=2.0.3');
  let text;
  if(payload.extra[name]!==undefined)text=payload.extra[name];
  else if(payload.questions[name]!==undefined)text=payload.questions[name];
@@ -52,10 +52,22 @@ async function source(name){
   }
  }
  text=window.UPPDRAG_GAMEPLAY_TUNING?.source(name,text)??text;
+ if(name==='harbour-fibre-art.js'){
+  const before="const scale=Math.min(Math.max(width/SCENE.w,height/SCENE.h),\n      width/SCENE.coreWidth,height/680);";
+  if(text.split(before).length!==2)throw Error('Kajens bildutsnitt kunde inte återställas.');
+  text=text.replace(before,'const scale=Math.max(width/SCENE.w,height/SCENE.h);');
+  text=text.replace("Math.min(446,SCENE.h-visibleHeight/2)","SCENE.h-visibleHeight/2");
+ }
  if(name==='paper-dialogues.js'){
   const marker='#rutDocuments,#message)';
   if(text.split(marker).length!==2)throw Error('Sidoäventyrens gemensamma pappersstil kunde inte kopplas in.');
   text=text.replace(marker,'#rutDocuments,#message,#adventureDialog)');
+ }
+ if(/^meeting-ch[1-5]-pilot\.js$/.test(name))text=text.replaceAll("'Jag hjälper till'","'Självklart!'");
+ if(chapter===1&&name==='meeting-ch1-pilot.js'){
+  const marker="'Jag hjälper dig att minnas'";
+  if(text.split(marker).length!==2)throw Error('Samtalets svarsknapp kunde inte kopplas till arbetsytan.');
+  text=text.replace(marker,"(window.UPPDRAG_CH1_PILOT?.memoryChoice?.()||'Självklart!')");
  }
  if(chapter===1&&name==='recall-flow.js')text=window.UPPDRAG_MASTERY_RECALL.source(text);
  // Optional encounters pause the actual map movement; never rewrite the map.
@@ -120,7 +132,7 @@ async function makePage(ch,id){
  // Shared mastery engine is loaded for every chapter during the rebuild. Chapters opt in by configuring areas.
  // Chapter 1 configures mastery before its pilot; other chapters still opt in later.
  // Optional, save-compatible side adventures are installed after existing scripts.
- const eventModule=ch<=10?(await get('event-approach.js?v=1.5.3'))+'\n'+(await get('event-engine.js?v=1.5.3')):'';
+ const eventModule=ch<=10?(await get('event-approach.js?v=1.6.0'))+'\n'+(await get('event-engine.js?v=1.6.0')):'';
  const end=`window.__ROOM_BOOTING=false;window.UPPDRAG_ROOM_LIFE?.cacheFurniture();requestAnimationFrame(()=>parent.integratedReady(${id},${ch}));`;
  page=page.replace('</body>',script((ch===1?'':masteryModule+'\n')+eventModule+'\n'+(teacher?payload.inspector+'\n':'')+end)+'</body>');return page;
 }

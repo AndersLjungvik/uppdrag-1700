@@ -19,3 +19,17 @@ const b=create();for(let x=0;x<=240;x+=10)b.tick(x*5,{x,y:0},{enabled:true});
 assert(b.snapshot().point);s=b.tick(2000,{x:900,y:0},{enabled:true});assert.equal(s.point,null);
 for(let x=900;x<=1150;x+=10)b.tick(x*5,{x,y:0},{enabled:true,clear:()=>false});assert.equal(b.snapshot().point,null);
 console.log('PASS thief approach: visible distance, road corners, pause/resume, contact, retreat, teleports and obstructions');
+// An actual chase: the player can close the gap, or let the thief escape.
+const chase=create();let t=0,hero={x:30,y:0};chase.place({x:0,y:0});chase.flee([{x:-700,y:0}]);
+for(let i=0;i<20;i++){t+=50;chase.tick(t,hero);}
+assert.equal(chase.snapshot().phase,'fleeing');const pausedAt=chase.snapshot().point.x;
+t+=60000;chase.tick(t,hero,{paused:true});assert.equal(chase.snapshot().point.x,pausedAt);
+for(let i=0;i<100&&chase.snapshot().phase!=='caught';i++){hero.x-=9;t+=50;chase.tick(t,hero);}
+assert.equal(chase.snapshot().phase,'caught','moving player catches slower thief');
+const escape=create();escape.place({x:0,y:0});escape.flee([{x:-400,y:0}]);
+for(let i=0;i<120;i++)escape.tick(i*50,{x:30,y:0});assert.equal(escape.snapshot().phase,'escaped');
+const graph={edges:[{a:'a',b:'b'},{a:'b',b:'c'},{a:'c',b:'d'}]},nodes={a:{x:0,y:0},b:{x:400,y:0},c:{x:400,y:500},d:{x:900,y:500}};
+const safe=(a,b)=>a.y===0&&b.y===0||a.x===400&&b.x===400||a.y===500&&b.y===500;
+const flight=sandbox.UPPDRAG_EVENT_APPROACH.escapeRoute(graph,{x:200,y:0},{x:170,y:0},id=>nodes[id],safe);
+assert(flight&&flight.length>=3);let last={x:200,y:0};for(const p of flight){assert(safe(last,p));last=p;}
+console.log('PASS physical chase: catch, escape, pause and connected road flight');
