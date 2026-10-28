@@ -10,7 +10,7 @@
   "scripts": {
     "build": "node curriculum/build.mjs && node scripts/build-offline.mjs && node scripts/build-pages.mjs",
     "test": "node scripts/verify.mjs && node scripts/ui-smoke.mjs && node --test preparation/google-sync/google-sync.test.mjs scripts/practice.test.mjs scripts/gameplay.test.mjs scripts/sound.test.mjs scripts/world.test.mjs scripts/classroom-bank.test.mjs scripts/chapter-scope.test.mjs scripts/chapter-pilot-safety.test.mjs scripts/demo.test.mjs scripts/narration.test.mjs && node scripts/paper-ui-smoke.mjs",
-    "test:mastery": "node docs/spel/tests/mastery-progression.cjs && node docs/spel/tests/chapter1-mastery-browser.cjs",
+    "test:mastery": "node docs/spel/tests/power-language.cjs && node docs/spel/tests/mastery-progression.cjs && node docs/spel/tests/chapter1-mastery-browser.cjs",
     "test:events": "node docs/spel/tests/event-approach.cjs && node docs/spel/tests/event-engine.cjs && node docs/spel/tests/event-browser.cjs",
     "test:scenes": "node docs/spel/tests/chapter1-workspace-browser.cjs"
   },
