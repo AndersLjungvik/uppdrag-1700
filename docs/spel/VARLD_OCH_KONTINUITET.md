@@ -2,7 +2,7 @@
 
 **28 oktober 2026 · bevarandekrav och planeringsunderlag**
 
-**Status:** Detta dokument kompletterar kapitelmanusen. Det ändrar inte spelkoden. Kraven för att bevara världsförändringar kommer från Anders; fyrans utvecklingsidéer nedan är arbetsförslag, inte publicerade funktioner. Befintlig kod är inventerad, inte fullständigt genomspelad i denna granskning.
+**Status:** Detta dokument kompletterar kapitelmanusen. Det ändrar inte spelkoden. Kraven för att bevara världsförändringar kommer från Anders. Övergången från ryssläger till Linnés land och potatisåkern, med arbetande dalkarlar och Eva Ekeblad, är uttryckligen bekräftad av Anders som något att bevara. Övriga utvecklingsidéer nedan är arbetsförslag, inte publicerade funktioner. Befintlig kod är inventerad, inte fullständigt genomspelad i denna granskning.
 
 ## Grundregel: förenkla uppdragen, inte världen
 
@@ -48,6 +48,20 @@ I base/chapter4-street-life.js finns bokhandlare, lärare, naturforskare, tidnin
 
 Fyran behandlar händelser från olika år. Forskarporträtt och politiska förändringar måste få begriplig tidsmärkning. Ett nytt kapitel är inte automatiskt en exakt dag direkt efter det föregående.
 
+## Bekräftad övergång 3 → 4: från läger till odling och forskning
+
+**Anders precisering, 28 oktober 2026:** Rysslägren ersätts av **Linnés land** och **potatisåkern**. Dalkarlarna börjar arbeta på åkern och är glada. **Eva Ekeblad finns där, odlar och forskar.** Detta ska behandlas som en viktig kontinuitet att bevara, inte som en ny idé som ersätter tidigare världsgestaltning.
+
+- **Samma igenkännbara platser får nytt innehåll.** De två tidigare lägerområdena blir Linnés odlings-/undersökningsplats respektive potatisåkern. Vid implementation ska exakt fördelning och befintliga koordinater kontrolleras mot världens renderingskod; områdena får inte godtyckligt flyttas eller lämnas tomma bara för att lägertälten tas bort.
+- **Linné är aktiv i sitt land:** undersöker och jämför växter. Eleven ska kunna upptäcka verksamheten i miljön, inte bara få en replik om att forskning pågår någon annanstans.
+- **Dalkarlarna känns igen från trean, men gör något annat.** I fyrans dramatiserade fortsättning arbetar de med odlingen, med gladare kroppsspråk och vardagliga samtal i stället för marsch och protestrop. Arbete, redskap, grödor och personernas placering ska synas. Återanvänd redan fungerande animationer och kontrollera vad som faktiskt finns innan nya utlovas.
+- **Eva Ekeblad deltar vid potatisåkern.** Odling och undersökning är hennes verksamhet, inte bara ett namn i Sams eller Sigrids frågerutor. Hennes möte med eleven ska knytas till kapitlets område om potatis och nya användningar utan att skapa ytterligare ett överlappande obligatoriskt kunskapsområde.
+- **Staden får ett annat tempo och en annan stämning.** Treans oro och försiktighet kontrasteras mot fyrans arbete, nyfikenhet och mer livliga vardag. Elevens egen rörelse ska förbli lätt att styra.
+
+Övergången är en **kapitelbunden förändring av världen**, inte en belöning för ett sidouppdrag eller ett godkänt enskilt prov. Den gäller därför även för den elev som inte gjorde gårdsuppdraget i trean. Provomförsök och byte mellan lärling, gesäll och mästare ska inte återinföra militärlägren i fyran. Vid ett uttryckligt återbesök i kapitel 3 visas däremot treans eget sparade tidsläge.
+
+**Historisk avgränsning:** Att just dessa dalkarlar arbetar tillsammans med Eva Ekeblad på den tidigare lägerplatsen är spelets gestaltning, inte en belagd enskild händelse. Glädjen gäller deras nuvarande arbete och gemenskap; repliker ska inte påstå att upprorets förluster har upphört eller att allas liv blivit bra. Inget historiskt originalcitat tillskrivs personerna. Tidsramen måste fortfarande vara tydlig.
+
 ## Fyrans befintliga sidoäventyr: Cajsa Wargs kokbok
 
 **Behåll hela kedjan, inte bara föremålet:** Cajsa som gäst i berättelsen → kokboken hos Brita → leverans till Karin i Bostadskvarteren → Karin förbereder → eleven lämnar platsen → fest vid återbesöket.
@@ -67,7 +81,9 @@ Små arbetsytor vid huvudmiljöerna kan göra lärlingsbesöken konkreta, exempe
 ## Kontroller före framtida spelpublicering
 
 - Treans läger, vakter och folksamlingar visas vid avsedda berättelsefaser även när provordningen ändras.
+- Fyrans två lägerersättningar är synliga på avsedda platser: Linnés land och potatisåkern. Dalkarlarna känns igen, arbetar och har gladare kroppsspråk. Eva Ekeblad odlar/undersöker vid åkern. Verifiera i själva miljön, inte enbart i rollistan.
 - Skillnaden i invånarnas tempo och stadens stämning jämförs visuellt mellan kapitlen. Att bara behålla en konstant i koden räcker inte som verifiering.
+- Kapitelövergången till fyrans odlingar kräver inte gårdsuppdraget eller kokboksuppdraget. Provomförsök ändrar inte världens tidsläge. Ett medvetet återbesök i trean visar treans sparade tillstånd.
 - Ett provomförsök, kapitelåterbesök, omladdning och export/import återställer inte genomförda sidoäventyr.
 - Kokboken kan levereras, förberedelsen spelas och festen uppstår vid rätt återbesök, även om tidigare nya sidoäventyr inte gjorts.
 - Personer tillskriver aldrig eleven hjälp som inte finns i sparningen.
@@ -85,3 +101,5 @@ Små arbetsytor vid huvudmiljöerna kan göra lärlingsbesöken konkreta, exempe
 - base/chapter4-content.js: fyrans innehåll och befintliga platsfördelning.
 - base/chapter4-street-life.js: forskare, vardagsfolk, odlande bönder och frånvaro av läger i fyran.
 - base/chapter4-sidequest.js: kokbok, förberedelse, fest och befintlig separat sparning.
+
+**Tillagt underlag:** Anders uttryckliga precisering i samtalet om rysslägrens ersättningar, glada arbetande dalkarlar samt Eva Ekeblad vid odlingen. Detta tillägg dokumenterar den önskade kontinuiteten; det innebär inte att en ny spelversion har publicerats eller att de berörda animationerna har funktionstestats här.
