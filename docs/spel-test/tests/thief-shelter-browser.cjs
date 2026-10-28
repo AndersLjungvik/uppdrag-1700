@@ -17,7 +17,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
    await p.reload();f=await(await p.waitForSelector('#game',{timeout:30000})).contentFrame();await f.waitForSelector('#ch1Hud');
    await f.evaluate(()=>{UPPDRAG_CH1_PILOT.close();UPPDRAG_MEETINGS.close(false);window.requestAnimationFrame=()=>0;});await p.waitForTimeout(60);
    return f.evaluate(()=>{
-    interior=null;path=[];UPPDRAG_CH1_PILOT.state.encountered=['rc1-queen-0'];UPPDRAG_CH1_PILOT.persist();
+    interior=null;path=[];UPPDRAG_CH1_PILOT.state.encountered=['rc1-queen-0'];UPPDRAG_CH1_PILOT.state.daler=8;UPPDRAG_CH1_PILOT.persist();
     window.qaTime=10000;
     window.qaTick=()=>{qaTime+=40;UPPDRAG_WORLD_LIFE.tick(qaTime,{region,player,activeRoom:interior?.kind||null});};
     window.qaWalk=target=>{let n=0;while(Math.hypot(target.x-player.x,target.y-player.y)>.01&&n++<1000){const d=Math.hypot(target.x-player.x,target.y-player.y),step=Math.min(d,7.2),next={x:player.x+(target.x-player.x)/d*step,y:player.y+(target.y-player.y)/d*step};if(!UPPDRAG_WORLD_KEYBOARD.clearSegment(region,player,next,12))throw Error('blocked fixture walk');player=next;qaTick();}};
@@ -65,10 +65,10 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
    for(let i=0;i<180&&UPPDRAG_EVENT_ENGINE.state.thief==='unseen';i++)qaTick();draw();
    return {gap,motion:UPPDRAG_EVENT_ENGINE.approach,money:UPPDRAG_CH1_PILOT.state.daler};
   });
-  assert(offroad.gap>60,'reproduce the former off-road disappearance');assert.equal(offroad.motion.phase,'fleeing');assert(offroad.motion.point);assert.equal(offroad.money,start.money-1);
+  assert(offroad.gap>60,'reproduce the former off-road disappearance');assert.equal(offroad.motion.phase,'fleeing');assert(offroad.motion.point);assert.equal(offroad.money,start.money-Math.ceil(start.money/2));
   await p.screenshot({path:path.join(root,'qa/thief-offroad.png')});
   await f.evaluate(()=>{for(let i=0;i<450;i++)qaTick();});
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.approach.phase),'escaped');assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),start.money-1);
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.approach.phase),'escaped');assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),start.money-Math.ceil(start.money/2));
   start=await setup();
   const hit=await f.evaluate(()=>{draw();const q=UPPDRAG_EVENT_ENGINE.approach.point,m=ctx.getTransform(),r=canvas.getBoundingClientRect();return {x:(m.a*q.x+m.c*q.y+m.e)*r.width/canvas.width,y:(m.b*q.x+m.d*q.y+m.f)*r.height/canvas.height};});
   await f.locator('#world').click({position:hit});await f.evaluate(()=>qaTick());
@@ -82,7 +82,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
    for(let i=0;i<500;i++)qaTick();leaveInterior();qaTick();
    return {before,stolen,money:UPPDRAG_CH1_PILOT.state.daler,retreat,final:UPPDRAG_EVENT_ENGINE.approach,state:UPPDRAG_EVENT_ENGINE.state};
   });
-  assert.equal(lateHouse.stolen,lateHouse.before-1);assert.equal(lateHouse.money,lateHouse.stolen);assert.equal(lateHouse.retreat.phase,'departing');assert(lateHouse.retreat.point);assert.equal(lateHouse.final.phase,'done');assert.equal(lateHouse.state.thief,'lost');
+  assert.equal(lateHouse.stolen,lateHouse.before-Math.ceil(lateHouse.before/2));assert.equal(lateHouse.money,lateHouse.stolen);assert.equal(lateHouse.retreat.phase,'departing');assert(lateHouse.retreat.point);assert.equal(lateHouse.final.phase,'done');assert.equal(lateHouse.state.thief,'lost');
   assert.equal(await p.locator('#error').innerText(),'');assert.deepEqual(errors,[]);
   console.log('PASS shelter browser: real nearby conversation, doorway entry, tree line of sight/search/retreat, off-road theft and escape, noticed thief, and shelter after theft without duplicate money');
  }catch(e){console.error('parent',await p.locator('#error').textContent().catch(()=>''));console.error(await f?.evaluate(()=>({motion:UPPDRAG_EVENT_ENGINE.approach,state:UPPDRAG_EVENT_ENGINE.state,player,path})));throw e;}finally{await b.close();server.close();}

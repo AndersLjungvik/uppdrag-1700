@@ -49,7 +49,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
    for(let x=700;x<=1100;x+=5){player={x,y:705};qaTick();}
    for(let i=0;i<180&&UPPDRAG_EVENT_ENGINE.state.thief!=='chasing';i++)qaTick();draw();
   });
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'chasing');assert.equal(await f.evaluate(()=>UPPDRAG_CH2_PILOT.state.daler),initial-1);
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'chasing');assert.equal(await f.evaluate(()=>UPPDRAG_CH2_PILOT.state.daler),initial-Math.ceil(initial/2));
   await f.locator('#adventureChase').click();await f.evaluate(()=>{
    for(let i=0;i<1000&&UPPDRAG_EVENT_ENGINE.approach.phase!=='caught';i++){
     const target=path[0];if(target){const d=Math.hypot(target.x-player.x,target.y-player.y),step=Math.min(d,7.2);if(d<.01)path.shift();else{player={x:player.x+(target.x-player.x)/d*step,y:player.y+(target.y-player.y)/d*step};if(step>=d)path.shift();}}qaTick();
@@ -63,10 +63,10 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await f.locator('[data-field-index="0"]').filter({hasText:'Ingen ville eller kunde ta hand om dem.'}).click();await f.locator('[data-action="rc-submit"]').click();await f.locator('[data-action="rc-next"]').click();
   assert.equal(await f.evaluate(()=>UPPDRAG_CH2_PILOT.state.daler),initial+1);
   await f.evaluate(()=>{qaTick();for(let i=0;i<1400;i++)qaTick();UPPDRAG_CH2_PILOT.close();leaveInterior();path=[];for(let x=100;x<=1100;x+=5){player={x,y:705};qaTick();}for(let i=0;i<180&&UPPDRAG_EVENT_ENGINE.state.thief!=='chasing';i++)qaTick();draw();});
-  assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'accepted','the thief never takes or resets the quilt');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.encounters),2);assert.equal(await f.evaluate(()=>UPPDRAG_CH2_PILOT.state.daler),initial);
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'accepted','the thief never takes or resets the quilt');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.encounters),2);assert.equal(await f.evaluate(()=>UPPDRAG_CH2_PILOT.state.daler),initial+1-Math.ceil((initial+1)/2));
   await p.screenshot({path:path.join(root,'qa/chapter2-thief-returns.png')});
   await p.reload();f=await(await p.waitForSelector('#game',{timeout:45000})).contentFrame();await f.waitForSelector('#ch1Hud');
-  assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'accepted');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.wagon),'need-smith');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.unclaimed),1);assert.equal(await f.evaluate(()=>UPPDRAG_MASTERY.snapshot().state.areas.children.learner.status),'clear');
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH2_BED.state.phase),'accepted');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.wagon),'need-smith');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.recurrence.unclaimed),Math.ceil((initial+1)/2));assert.equal(await f.evaluate(()=>UPPDRAG_MASTERY.snapshot().state.areas.children.learner.status),'clear');
   assert.equal(await p.locator('#error').innerText(),'');assert.deepEqual(errors,[]);
   console.log('PASS chapter 2 world: relocated driver at Barnhuset, no axle/smith quest even with old saves, known-topic pursuit, no sidequest stamps, new reward and recurring thief, preserved legacy state and progress');
  }catch(e){console.error('Parent',await p.locator('#error').textContent().catch(()=>''));console.error(await f?.evaluate(()=>({events:UPPDRAG_EVENT_ENGINE?.state,approach:UPPDRAG_EVENT_ENGINE?.approach,pilot:UPPDRAG_CH2_PILOT?.state.daler,room:interior?.kind,path})));throw e;}finally{await b.close();server.close();}

@@ -1,4 +1,4 @@
-# Kapitel 3 – Krig eller fred? · testversion 2.2.0
+# Kapitel 3 – Krig eller fred? · testversion 2.3.0
 
 Bygger `KAPITEL3_MANUS.md` i den befintliga pappersstaden. Huvudmålet är fyra områden med lärling, gesäll och mästare. Sidouppdraget **Den stängda gården** är frivilligt och påverkar miljön. Provresultat, berättelsetid, möbler och äldre sidohändelser har separata sparningar.
 
@@ -37,7 +37,7 @@ Karin känner igen hjälpen med täcket endast när `uppdrag1700.ch2-window-bed.
 
 ## Gatan
 
-Trean använder befintliga bönder, soldater, hattar, mössor, David och senare ryska vakter. En närbelägen patrull kan efter fortsatt gång och sparad vila stanna spelaren för en kort fråga från kända ämnen. Frågan använder den befintliga frågebanken. Det går att svara eller gå vidare; fel svar medför ingen förlust och ger ingen stämpel. Patrullen återkommer först efter mer gång och vila. Prov, pussel, samtal och sammanfattningen av nedslagningen avbryts inte. Ingen generisk hjulaxelhändelse eller komisk ficktjuv är aktiv i trean. Äldre vagnsflaggor sparas ändå oförändrade.
+Trean använder befintliga bönder, soldater, hattar, mössor, David och senare ryska vakter. En närbelägen patrull kan efter fortsatt gång och sparad vila stanna spelaren för en kort fråga från kända ämnen. Frågan använder den befintliga frågebanken. Det går att svara eller gå vidare; fel svar medför ingen förlust och ger ingen stämpel. Patrullen återkommer först efter mer gång och vila. Prov, pussel, samtal och sammanfattningen av nedslagningen avbryts inte. Hjulaxelhändelsen är avstängd. Den gemensamma ficktjuven kan däremot återkomma under vanliga stadspromenader, utanför samtal, prov, materialpussel och nedslagningens sammanfattning. När spelaren har minst 3 daler kan halva plånboken stjälas, avrundat uppåt. Både jakten och senare hjälp hos barnet återbetalar den exakta stulna summan, högst en gång per penningpung. Omladdning och äldre en-dalersförluster bevaras. Äldre vagnsflaggor sparas ändå oförändrade.
 
 ## Sparningar, övergång och testomgång
 

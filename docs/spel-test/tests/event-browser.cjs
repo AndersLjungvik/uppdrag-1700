@@ -37,12 +37,12 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.blocking),false);
   assert.equal(await f.locator('#adventureDialog').isVisible(),false);
   assert.equal(await f.locator('#adventureCallout').innerText(),'Mina pengar!');
-  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-1);
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-Math.ceil(money/2));
   await p.screenshot({path:path.join(root,'qa/events-theft.png'),timeout:12000});
   // Standing still lets the thief escape; no extra money is deducted.
   await f.evaluate(()=>{for(let i=0;i<360;i++)UPPDRAG_WORLD_LIFE.tick(20000+i*50,{region,player,activeRoom:null});draw();});
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'lost');
-  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-1);
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-Math.ceil(money/2));
   assert.equal(await f.locator('#adventureCallout').isVisible(),false);
   assert.equal(await f.locator('#adventureCalloutTail').isVisible(),false,'speech paper disappears as well as text');
   // A distant click walks toward the actor, without opening or solving the quest.
@@ -96,10 +96,10 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await p.setViewportSize({width:1200,height:850});
   await f.evaluate(()=>{UPPDRAG_CH1_PILOT.close();UPPDRAG_MEETINGS.close(false);interior=null;path=[];player={x:1350,y:713};camera={...player};UPPDRAG_WORLD_LIFE.tick(performance.now(),{region,player,activeRoom:null});UPPDRAG_EVENT_ENGINE.resetChapterEvents();UPPDRAG_EVENT_ENGINE.openThief();});
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'chasing');
-  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-1);
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-Math.ceil(money/2));
   await f.locator('#adventureChase').click();
   await f.locator('.ad-event-question [data-option]').first().waitFor({state:'visible',timeout:12000});
-  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-1,'catching alone does not return the coin');
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-Math.ceil(money/2),'catching alone does not return the coin');
   assert.equal(await f.locator('#adventureCalloutTail').isVisible(),false);
   await p.screenshot({path:path.join(root,'qa/events-memory-question.png'),timeout:12000});
   await f.getByRole('button',{name:'Ulrika Eleonora',exact:true}).click();
@@ -138,7 +138,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await f.locator('.ad-event-question [data-option]').first().waitFor({state:'visible',timeout:12000});
   await f.locator('[data-option]').filter({hasNotText:'Ulrika Eleonora'}).first().click();
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'lost');
-  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-1);
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-Math.ceil(money/2));
   await f.locator('[data-adventure="close"]').press('Enter');
   assert.equal(await f.locator('#adventureDialog').isVisible(),false);
   assert.equal(await f.locator('#adventureTail').isVisible(),false);
