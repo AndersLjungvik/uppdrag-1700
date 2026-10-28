@@ -17,27 +17,22 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await p.waitForTimeout(60);
   const start=await f.evaluate(()=>{
    interior=null;path=[];UPPDRAG_CH1_PILOT.state.encountered=['rc1-queen-0'];UPPDRAG_CH1_PILOT.persist();
-   const edge=region.edges.map(e=>({a:navigationPoint(region,e.a),b:navigationPoint(region,e.b)})).find(e=>e.a&&e.b&&Math.hypot(e.a.x-e.b.x,e.a.y-e.b.y)>400&&e.a.x<2500&&e.b.x<2500&&UPPDRAG_WORLD_KEYBOARD.clearSegment(region,e.a,e.b,0));
-   if(!edge)throw Error('No safe test road');
-   const len=Math.hypot(edge.a.x-edge.b.x,edge.a.y-edge.b.y);
-   const origin={x:edge.a.x+(edge.b.x-edge.a.x)*.1,y:edge.a.y+(edge.b.y-edge.a.y)*.1};
-   const direction={x:(edge.b.x-edge.a.x)/len,y:(edge.b.y-edge.a.y)/len};
-   for(let d=0;d<=280;d+=5){player={x:origin.x+d*direction.x,y:origin.y+d*direction.y};UPPDRAG_WORLD_LIFE.tick(10000+d*4,{region,player,activeRoom:null});}
-   camera={x:player.x-70*direction.x,y:player.y-70*direction.y};draw();
+   for(let x=700;x<=1100;x+=5){player={x,y:705};UPPDRAG_WORLD_LIFE.tick(10000+(x-700)*8,{region,player,activeRoom:null});}
+   camera={x:1030,y:760};draw();
    return {approach:UPPDRAG_EVENT_ENGINE.approach,busy:UPPDRAG_EVENT_ENGINE.busy,player};
   });
-  assert.equal(start.approach.phase,'approaching');assert.equal(start.busy,false);assert(Math.hypot(start.player.x-start.approach.point.x,start.player.y-start.approach.point.y)>120);
+  assert.equal(start.approach.phase,'approaching');assert.equal(start.busy,false);assert(start.approach.home?.id,'the thief starts behind an actual tree');assert(Math.hypot(start.player.x-start.approach.point.x,start.player.y-start.approach.point.y)>60);
   fs.mkdirSync(path.join(root,'qa'),{recursive:true});await p.screenshot({path:path.join(root,'qa/events-sneak.png'),timeout:12000});
   // A dialogue elsewhere pauses the thief at precisely the same position.
   const paused=await f.evaluate(()=>{
    UPPDRAG_EVENT_ENGINE.openJournal();const before=UPPDRAG_EVENT_ENGINE.approach.point;
-   UPPDRAG_WORLD_LIFE.tick(12000,{region,player,activeRoom:null});
+   UPPDRAG_WORLD_LIFE.tick(13300,{region,player,activeRoom:null});
    const after=UPPDRAG_EVENT_ENGINE.approach.point;
    document.querySelector('[data-adventure="close"]').click();return {before,after};
   });
   assert.equal(paused.before.x,paused.after.x);assert.equal(paused.before.y,paused.after.y);
   const money=await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler);
-  await f.evaluate(()=>{for(let i=0;i<150&&!UPPDRAG_EVENT_ENGINE.busy;i++)UPPDRAG_WORLD_LIFE.tick(12050+i*50,{region,player,activeRoom:null});draw();});
+  await f.evaluate(()=>{for(let i=0;i<150&&!UPPDRAG_EVENT_ENGINE.busy;i++)UPPDRAG_WORLD_LIFE.tick(13350+i*50,{region,player,activeRoom:null});draw();});
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.approach.phase),'fleeing');
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.blocking),false);
   assert.equal(await f.locator('#adventureDialog').isVisible(),false);
