@@ -16,7 +16,7 @@
     "test:scenes": "node docs/spel/tests/chapter1-workspace-browser.cjs",
     "test:replay": "node docs/spel/tests/replay-browser.cjs",
     "test:chapter3": "node docs/spel/tests/chapter3-courtyard-puzzle.cjs && node docs/spel/tests/chapter3-smoke-browser.cjs && node docs/spel/tests/chapter3-mastery-browser.cjs && node docs/spel/tests/chapter3-migration-browser.cjs && node docs/spel/tests/chapter3-courtyard-browser.cjs && node docs/spel/tests/chapter3-world-browser.cjs && node docs/spel/tests/thief-stakes-browser.cjs",
-    "test:chapter4": "python docs/spel/decode_sources.py && node docs/spel/tests/chapter4-foundation.cjs && node docs/spel/tests/chapter4-material.cjs && node docs/spel/tests/chapter4-smoke-browser.cjs && node docs/spel/tests/chapter4-mastery-browser.cjs && node docs/spel/tests/chapter4-migration-browser.cjs && node docs/spel/tests/chapter4-bookwork-browser.cjs && node docs/spel/tests/chapter4-world-browser.cjs && node docs/spel/tests/chapter4-thief-browser.cjs"
+    "test:chapter4": "python docs/spel/decode_sources.py && node docs/spel/tests/chapter4-foundation.cjs && node docs/spel/tests/chapter4-material.cjs && node docs/spel/tests/chapter4-smoke-browser.cjs && node docs/spel/tests/chapter4-mastery-browser.cjs && node docs/spel/tests/chapter4-migration-browser.cjs && node docs/spel/tests/chapter4-bookwork-browser.cjs && node docs/spel/tests/chapter4-cajsa-browser.cjs && node docs/spel/tests/chapter4-world-browser.cjs && node docs/spel/tests/chapter4-thief-browser.cjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "0.1.100"

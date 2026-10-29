@@ -10,6 +10,11 @@ function source(name,text){
   edit('    g.restore();\n    const chapterOneOnly=', '    window.UPPDRAG_CH4_SCENES?.drawProps(g,c.key,geometry.w/geometry.h<1.02,now,a);\n    g.restore();\n    const chapterOneOnly=');
   edit('person.hidden=!c.cast||!!dialogue||!!controller(c.key)?.busy;','person.hidden=!c.cast||!!dialogue||!!controller(c.key)?.busy||!!window.UPPDRAG_EVENT_ENGINE?.busy||!!window.UPPDRAG_CH4_PILOT?.studyBusy;');
   edit('const animating=(dialogue||','const animating=(dialogue||window.UPPDRAG_EVENT_ENGINE?.roomSpeaker||');
+  // Cajsa is a standing visitor, not a second instance of Siri at work.
+  // Keep her own pose, depth and hands; only the host paints the work table.
+  edit('(r.width/r.height<1.02?[443,891,.53]:[598,690,.72]):null;', '(r.width/r.height<1.02?[667,1000,.72]:[820,690,.80]):null;');
+  edit('drawings.push({pos:geometry.visitorPose,who:CAST.cajsa,right:true,isNpc:true});', 'drawings.push({pos:geometry.visitorPose,who:CAST.cajsa,right:false,isVisitor:true});');
+  edit('left:(left+p.x+vx*p.scale-56*unit)', 'left:(left+p.x+vx*p.scale-Math.max(44,112*unit)/2)');
   edit('if(!dialogue&&(!task||task.hidden)&&window.UPPDRAG_ROOM_STAGING?.greetingDue(now,motion.matches))startTalk();','if(!window.UPPDRAG_CH4_SCENES&&!dialogue&&(!task||task.hidden)&&window.UPPDRAG_ROOM_STAGING?.greetingDue(now,motion.matches))startTalk();');
   edit('geometryForRoom:measure,drawMapPerson', 'geometryForRoom:measure,redraw(){lastPaint=-Infinity;drawPeople(performance.now());},drawRoomPerson(g,pos,who,now,speaking=false){puppets(g).side(...pos,who,false,now,speaking,false,false,0,0,null);},drawMapPerson');
   edit('roomFooter.append(bookButton);','roomView.append(bookButton);');
