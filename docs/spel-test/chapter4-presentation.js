@@ -4,6 +4,35 @@
 function source(name,text){
  const edit=(a,b)=>{if(text.split(a).length!==2)throw Error('Kapitel 4: presentationsankaret matchar inte '+name+': '+a.slice(0,60));text=text.replace(a,b);};
  if(name==='meeting-ch4-pilot.js'){
+  edit("cajsa:{name:'Cajsa Warg',color:'#92735c'", "cajsa:{name:'Cajsa Warg',color:'#465c70'");
+  const portraitStart="  }else if(role==='cajsa'){",portraitEnd="  }else if(role==='karin'){";
+  const portraitAt=text.indexOf(portraitStart),portraitNext=text.indexOf(portraitEnd,portraitAt);
+  if(portraitAt<0||portraitNext<0)throw Error('Kapitel 4: Cajsas porträttankare saknas.');
+  edit(text.slice(portraitAt,portraitNext),`  }else if(role==='cajsa'){
+    // A distinct visiting author in the same cut-paper materials.
+    // The shared face and mouth stay visible for the common speech animation.
+    poly([[-43,-228],[31,-227],[46,-111],[-43,-108]],'#465c70',false);
+    poly([[-39,-117],[35,-116],[64,-23],[-64,-23]],'#3d5267',false);
+    poly([[-26,-101],[-12,-103],[-29,-26],[-45,-26]],'#586c7b',false);
+    poly([[11,-104],[23,-104],[45,-27],[29,-27]],'#53697b',false);
+    // A broad burgundy shoulder shawl replaces the shared pale apron shape.
+    poly([[-54,-231],[-18,-240],[10,-231],[42,-232],[56,-195],[31,-168],[-5,-183],[-40,-150],[-55,-185]],'#8b4e59',false);
+    poly([[-44,-221],[-14,-234],[8,-225],[-9,-200],[-39,-170]],'#a0666b',false);
+    poly([[-12,-233],[6,-231],[12,-215],[-3,-206]],'#eadcc1',false);
+    oval(-5,-205,5,6,'#c5a875');
+    // Grey swept-back hair and a visible bun, with no white kitchen kerchief.
+    oval(-33,-286,19,20,'#827f74');
+    poly([[-35,-284],[-31,-306],[-14,-317],[10,-317],[29,-305],[33,-291],[16,-292],[-4,-294],[-20,-274],[-33,-265]],'#b4b0a0',false);
+    poly([[-28,-303],[-10,-312],[12,-310],[23,-302],[8,-301],[-13,-301]],'#d0c9b6',false);
+    cut(22,-279,12,2,'#82796a');
+    cut(20,-258,8,1,'#aa875f');
+    // A closed bound cookbook reads as an object rather than a second apron.
+    ctx.save();ctx.translate(-62,-169);ctx.rotate(-.12);
+    cut(0,0,64,79,'#624b3b');cut(5,4,56,70,'#7d5a43');
+    cut(3,3,5,73,'#c3a572');cut(18,18,32,29,'#ddc69d');
+    cut(22,26,23,2,'#745c44');cut(22,33,19,2,'#745c44');
+    ctx.restore();
+`);
   edit("key=quay?dockKey:window.UPPDRAG_STORY_WORLD?.roomKey?.(storyPlace)||interior.kind","key=quay?dockKey:interior.kind");
   edit('const c=current();if(!c?.cast||dialogue||voyage)return false;', 'const c=current();if(!c?.cast||dialogue||voyage||window.UPPDRAG_EVENT_ENGINE?.busy||window.UPPDRAG_CH4_PILOT?.studyBusy)return false;\n    if(window.UPPDRAG_CH4_SCENES)return window.UPPDRAG_CH4_SCENES.openRoom(c.key);');
   edit("const a=puppets(g),speaker=talk?.active?talk.speaker:(dialogue?dialogue.cast.lines[dialogue.index][0]:'');","const voice=window.UPPDRAG_EVENT_ENGINE?.roomVoice;if(voice){speechAt=voice.at;speechEnd=voice.end;}\n    const a=puppets(g),speaker=window.UPPDRAG_EVENT_ENGINE?.roomSpeaker||(talk?.active?talk.speaker:(dialogue?dialogue.cast.lines[dialogue.index][0]:''));");
