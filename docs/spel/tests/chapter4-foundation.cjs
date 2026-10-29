@@ -23,5 +23,5 @@ s.enter(null);for(let i=0;i<60;i++){s.c.player.x+=5;s.api.tick();}assert(s.api.s
 assert.equal(scenario(s.api.snapshot()).api.party,true);
 const legacy=scenario({version:1,phase:'delivered',leftHome:true});legacy.enter('homes');assert.equal(legacy.api.party,true,'preserve the already completed older return condition');
 assert.equal(scenario({version:1,phase:'carrying',leftHome:false}).api.hasBook,true);
-for(const file of ['chapter4-mastery.js','chapter4-scenes.js','chapter4-cookbook.js','integration.js'])new Function(read(file));
+for(const file of ['chapter4-mastery.js','chapter4-scenes.js','chapter4-cookbook.js','chapter4-bookwork.js','questions/chapter4-material.js','questions/chapter4-review.js','integration.js'])new Function(read(file));
 console.log('PASS chapter 4 source anchors and cookbook: physical location, study protection, exact once-only transfer, real preparation walk, legacy phase/reload compatibility');

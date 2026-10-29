@@ -32,7 +32,7 @@ const {launch,assert,fs,path}=require('./chapter4-test-utils.cjs');
   },{scope:h.scope,priorKey});await h.boot();f=h.frame;
   const prior=await f.evaluate(k=>localStorage.getItem(k),priorKey);
   assert.equal((await state()).s.daler,5);
-  const map=await f.evaluate(()=>({ids:UPPDRAG_CH4_PILOT.scenes.flatMap(r=>r.f),bank:UPPDRAG_RECALL_BANK.filter(t=>t.chapter===4).map(t=>t.id)}));
+  const map=await f.evaluate(()=>({ids:UPPDRAG_CH4_PILOT.scenes.flatMap(r=>r.f),bank:UPPDRAG_RECALL_BANK.filter(t=>t.chapter===4&&!t.reviewOnly).map(t=>t.id)}));
   assert.deepEqual(map.ids.slice().sort(),map.bank.slice().sort());assert.equal(new Set(map.ids).size,15);
   await mb('book');assert.equal(await f.locator('[data-level="journeyman"]:disabled').count(),4);assert.equal(await f.locator('[data-level="master"]:disabled').count(),4);
   assert.equal(await f.evaluate(()=>UPPDRAG_CH4_PILOT.selectArea('ekeblad','master')),false);
@@ -52,7 +52,7 @@ const {launch,assert,fs,path}=require('./chapter4-test-utils.cjs');
   assert.equal(await f.evaluate(()=>localStorage.getItem('uppdrag1700.ch4-cajsa-cookbook.20261020.v1')),world.court);
   for(const a of ['research','reading','freedoms','ekeblad']){await enter(a,'journeyman');assert.equal(await f.locator('[data-action="rc-hint"]').count(),0);await finish(a,'journeyman');}
   assert.equal((await state()).m.summary.level,'master');
-  await enter('freedoms','master');await f.locator('[data-rc-field="0"]').fill('Jag vill granska min förklaring tillsammans med läraren.');await f.locator('[data-action="rc-submit"]').click();await f.locator('[data-action="rc-save-review"]').click();assert.equal((await state()).m.state.areas.freedoms.master.status,'pending');
+  await enter('freedoms','master');const reviewTask=await f.evaluate(()=>UPPDRAG_CH4_PILOT.recall.current);for(let i=1;i<reviewTask.fields.length;i++)await f.locator('[data-rc-field="'+i+'"]').fill(reviewTask.fields[i].sample);await f.locator('[data-rc-field="0"]').fill('Jag vill granska min förklaring tillsammans med läraren.');await f.locator('[data-action="rc-submit"]').click();await f.locator('[data-action="rc-save-review"]').click();assert.equal((await state()).m.state.areas.freedoms.master.status,'pending');
   await h.boot();f=h.frame;await enter('freedoms','master');await mb('review');await mb('approve');assert.equal((await state()).m.state.areas.freedoms.master.status,'pending');
   await mb('revise');const t=await f.evaluate(()=>UPPDRAG_CH4_PILOT.recall.current);await f.locator('[data-rc-field="0"]').fill(t.fields[0].sample);await f.locator('[data-action="rc-submit"]').click();await mb('review');await f.locator('#mbTeacher').check();await mb('approve');await f.locator('[data-action="rc-next"]').click();await finish('freedoms','master');
   for(const a of ['ekeblad','research','reading']){await enter(a,'master');await finish(a,'master');}

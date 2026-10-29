@@ -6,7 +6,7 @@ Kusken, smeden, barnet och ficktjuven använder `UPPDRAG_MEETINGS.drawMapPerson`
 
 ## Samtal och vagnen
 
-Vagnens reparationsuppdrag gäller inte kapitel 2, 3 eller 4. I tvåan står kusken med hel vagn vid Barnhuset. Treans frivilliga hjälp är Den stängda gården; se CHAPTER3_MASTERY.md. Fyran har kokboken och grannarnas måltid; se CHAPTER4_MASTERY.md. Tvåans eget frivilliga uppdrag är det trasiga täcket: Barnhuset → Karin i Bostadskvarteren → barnet väljer lapp och sängen förändras. Äldre vagnsstatus bevaras utan att aktivera smeden. Se CHAPTER2_MASTERY.md.
+Vagnens reparationsuppdrag gäller inte kapitel 2, 3 eller 4. I tvåan står kusken med hel vagn vid Barnhuset. Treans frivilliga hjälp är Den stängda gården; se CHAPTER3_MASTERY.md. Fyran har kokboken och grannarnas måltid; se CHAPTER4_MASTERY.md. Fyrans bok- och bedömningsfrågor har kompletterade huvudprov, en begreppsomgång hos Rut och skrivblad hos Sam/Rut. Arbete med skrivbladen skyddas på samma sätt som andra arbetsnärbilder. Tvåans eget frivilliga uppdrag är det trasiga täcket: Barnhuset → Karin i Bostadskvarteren → barnet väljer lapp och sängen förändras. Äldre vagnsstatus bevaras utan att aktivera smeden. Se CHAPTER2_MASTERY.md.
 
 En avlägsen klickning startar vanlig gång längs vägarna. Samtalet öppnas först inom 95 världspunkter, med fri väg till personen/vagnen. Kusken ber om smedens råd; smeden ger rådet i en replik; spelaren måste sedan gå tillbaka till vagnen och erbjuda sin hjälp. Avstånd och uppdragsstatus kontrolleras även när lösningen utförs. Inga undersöknings- eller tankepausmenyer behövs.
 

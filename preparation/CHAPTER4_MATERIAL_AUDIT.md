@@ -1,6 +1,6 @@
 # Kapitel 4 – kontroll mot klassrumsmaterialet, 2026-10-29
 
-Status: arbetsutkast. Inte publicerat till `docs/spel-test/`. PR 4 ska förbli draft och får inte mergas. Den ordinarie `docs/spel/` på main ska inte ändras.
+Status: kompletterat och funktionellt verifierat inför testversion 2.4.0. Publicering gäller enbart `docs/spel-test/` på main. PR 4 förblir draft och ska inte mergas. Den ordinarie `docs/spel/` på main ändras inte.
 
 ## Huvudkravet
 
@@ -15,7 +15,7 @@ Spelet ska träna återkallning av bokens frågor och de kunskaper och resoneman
 
 Originalprov och bilder ska inte läggas i det publika spelet.
 
-## Identifierade luckor som måste slutas före publicering
+## Kontrollerad täckning
 
 | Underlag | Vad träningen behöver omfatta |
 | --- | --- |
@@ -35,27 +35,27 @@ Originalprov och bilder ska inte läggas i det publika spelet.
 | Prov 4–5 | Jämförelser då/nu om kvinnors villkor respektive barnhus. |
 | Prov 1a | Tsar = rysk kejsare behöver finnas i repetitionen. |
 
-## Komplettering som påbörjats men ännu inte är verifierad
+## Genomförd komplettering
 
-Lokalt hade tre tillägg påbörjats efter den tidigare fungerande kapitelversionen:
-- `questions/chapter4-material.js`: kompletterade fält i de ursprungliga 15 uppgifterna och innehållsbaserad rättning av Bibelns exempel och fred/forskning.
-- `questions/chapter4-review.js`: 44 befintliga källförankrade kort från kapitel 1–4 plus tsar. Enbart tillgängliga när kapitel 4 laddas; märks `reviewOnly` och får inte blandas in i de tolv huvudstämplarna.
-- `chapter4-bookwork.js`: åtta skrivblad med sparade egna svar och jämförelsestöd på plats hos Sam/Rut: tre forskare, samhällsbidrag, män i historieskrivningen, människors rangordning, budkavle/källa, kvinnors villkor då/nu, barnhus då/nu och egen läsning.
+- `docs/spel/questions/chapter4-material.js` kompletterar de 15 huvuduppgifterna med kraven ovan. Ursprungliga id behålls. Två tydliga bibelläsningsexempel kan skrivas med egna ord eller stödord. Fred/forskningssvaret behöver ett samband. Motsägande eller ofullständiga svar får ingen automatisk kredit. Meningsfulla formuleringar som inte känns igen kan granskas.
+- `docs/spel/questions/chapter4-review.js` innehåller 44 befintliga källanknutna kortsvarsfrågor för kapitel 1–4 plus tsar. Testet jämför samtliga 44 korts frågor, svarsalternativ, kapitel och källhänvisningar med `curriculum/classroom.mjs`. Kort märkta `reviewOnly` hålls utanför huvudprov och områdesstämplar.
+- Rut erbjuder blandad repetition eller en särskild omgång med de nio provbegreppen plus budkavle och tsar. Alla elva kommer före upprepning. Loggen och framstegen sparas; fullföljd gratisomgång ger ett äpple.
+- `docs/spel/chapter4-bookwork.js` har åtta skrivblad på plats hos Sam/Rut: tre forskare, samhällsbidrag, män i historieskrivningen, människors rangordning, budkavle/källa, kvinnors villkor då/nu, barnhus då/nu och egen läsning. Egna svar och jämförelsestöd sparas separat och ingår i export/import. Inga automatiska stämplar ges för att läsa stödet eller ange en viss åsikt.
+- Materialmodulerna laddas endast i kapitel 4 och före frågemotorns id-register. De ändrar inte tidigare kapitels uppgifter och sparningar.
+- Äldre svar bedöms mot de kompletterade kraven före överföring. En gammal ok-flagga ersätter inte tillkomna svarsfält.
+- Samtal och arbete sker i befintliga rum. Science/Byn använder den målade rummiljön inklusive det separata förgrundslagret med bord och föremål.
 
-Arbetsmiljön blev otillgänglig innan dessa nya lokala filer kunde läsas in till versionshanteringen och verifieras. De finns alltså inte som färdiga moduler i denna checkpoint. Återskapa dem från kraven ovan, koppla dem i rätt laddordning och testa före publicering.
+## Verifiering
 
-Föreslagen genomföring:
-1. Lägg materialtilläggen efter fixes/alignment/power-language men före recall-flow, vars byId fryses vid start.
-2. Behåll originalfrågornas id. Filtrera `reviewOnly` bort från huvudprov och dess räknare. Lägg repetitionen i Rut-loggen, aldrig huvudprovsloggen.
-3. Erbjud en tydlig repetitionsomgång för de nio begreppen plus budkavle och tsar. Prioritera ännu inte rätt återkallade kort.
-4. Låt Sam och Rut öppna de skrivna resonemangen i målade arbetsnärbilder. Spara utkast och jämförelse separat. Inget visst öppet resonemang ska automatiskt ge rätt/fel eller stämpel.
-5. Osäkra men meningsfulla formuleringar ska kunna granskas. Skydda mot motsägelser och enbart nyckelordslistor utan att kräva en exakt facitmening.
-6. Vid äldre bevis migrering: bedöm svarens innehåll mot de uppdaterade kraven. En gammal ok-flagga får inte ge kredit för nytillkomna fält.
-7. Lägg funktionella prov för alla kompletteringar, parapraser, ofullständiga/motsägande svar, inga nya kostnader/stämplar i Rut/skrivblad, spara/ladda/export/import, mobil/tangentbord och tidigare kapitel.
-8. Först efter QA: publicera endast `docs/spel-test/` på main med befintlig preview-nyckel. Behåll `replay=kapitel2-test-210` så användarens omgång kan fortsätta.
+Följande kontroller har passerat lokalt:
 
-## Vad denna checkpoint faktiskt innehåller
+- Källankare och fysisk, sparningskompatibel kokboksleverans.
+- Materialprov: samtliga 15 fullständiga huvuduppgifter, 45 källkort, de sex forskarkopplingarna, elva begrepp, parafraser, ofullständiga och motsägande svar, återkommande dekorering utan dubbla fält samt oförändrade kapitel 1–3.
+- Huvudprogression: alla 15 uppgifter och tolv stämplar, områdesordning, nivåspärrar, helomförsök, ledtråd, Rut och lokal granskning.
+- Äldre sparningar: både styrkta och otillräckliga gamla svar, blandade försök, säkerhetskopia, resurser/sidouppdrag, normal kapitellåsning och verklig övergång till kapitel 5.
+- Skrivblad och repetition: alla åtta blad via Sam/Rut, fri text, jämförelsestöd, alla elva begrepp före upprepning, mobil/tangentbord, återkomst, omladdning och export/import utan oavsiktliga huvudstämplar eller kostnader.
+- Världen: verklig leverans, vandring före grannmåltid, sparad måltid, tidigare täcke/gård, rena mobila pratbubblor, datum och fysisk närhet.
+- Tjuv: faktisk stöld/jakt/återbetalning av 6 daler, ny inkomst och återkomst med 7 dalers stöld, barnets exakta återbetalning efter omladdning, skyddat arbete och bevarade uppdragsföremål/stämplar.
+- Gemensam händelsemotor, ansmygning, gömställen och återkomst.
 
-Den tidigare verifierade kapitel-4-koden med ursprungliga 15 uppgifter, tolv områdesstämplar, naturliga samtal, målade arbetsytor, fysisk kokboksleverans och grannmåltid, kvarvarande tjuv, separata sparningar och migrationsprov. Källankare, smoke, mastery, migration, world, thief samt gemensamma eventprov passerade före materialkompletteringen. Det är funktionella spelprov; täckningsluckorna ovan återstår.
-
-Ingen liveuppdatering av main gjordes i denna arbetsomgång.
+Detta är funktionella kontroller och en innehållskoppling till de givna källorna. Det är ingen effektmätning av elevers lärande eller en automatiserad bedömning av öppna uppsatssvar.

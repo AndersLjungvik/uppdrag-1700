@@ -38,8 +38,11 @@ function speak(lines,choices=[],action=()=>{}){
 }
 function offer(p,lines){
  const area=UPPDRAG_MASTERY.snapshot().state.areas[ids[p]],host={church:'Olof',print:'Brita',science:'Sam',farm:'Sigrid'}[p];
- if(Object.values(area).every(x=>x.status==='clear'))return speak([[host,'Välkommen tillbaka! Rut hjälper dig om du vill öva på det vi har pratat om.']]);
- return speak(lines,[['study','Se '+({church:'läsboken',print:'tryckbladet',science:'forskarbladen',farm:'försöksanteckningen'}[p])+'.'],['later','Vi ses senare.']],a=>{if(a==='study'&&room()===p)pilot.enterMemory(ids[p]);});
+ const clear=Object.values(area).every(x=>x.status==='clear'),choices=[];
+ if(!clear)choices.push(['study','Se '+({church:'läsboken',print:'tryckbladet',science:'forskarbladen',farm:'försöksanteckningen'}[p])+'.']);
+ if(p==='science')choices.push(['writing','Jag vill förklara vad arbetena betydde.']);
+ choices.push(['later','Vi ses senare.']);
+ return speak(clear?[[host,'Välkommen tillbaka! Vill du arbeta vidare med det vi har pratat om?']]:lines,choices,a=>{if(room()!==p)return;if(a==='study')pilot.enterMemory(ids[p]);if(a==='writing')window.UPPDRAG_CH4_BOOKWORK?.open();});
 }
 function openRoom(p){
  if(room()!==p||!idle())return false;
@@ -53,7 +56,7 @@ function openRoom(p){
   return speak([['Karin','Där är du! Kom och sitt med oss.'],['Du','Det doftar ända ut på gatan.'],['Karin','Boken gav mig idéer till hela måltiden. Nu får grannarna smaka.']]);
  }
  if(p==='cafe')return speak([['Maja',first?'Fler människor läser och pratar om sådant som de förut bara fick höra talas om.':'Välkommen tillbaka! Har du hört något nytt ute i staden?'],['Du','Var kan jag börja?'],['Maja','Olof har läsböckerna. Brita vill reda ut två friheter. Sam och Sigrid arbetar med forskning. Välj själv vem du vill besöka.']],[['book','Visa minnesboken.'],['later','Jag går och ser mig om.']],a=>{if(a==='book')pilot.acceptMajaMission();});
- if(p==='archive')return speak([['Rut','Här kan du repetera kapitel 1–3 och det du redan har mött i fyran. Vi tar en sak i taget.']],[['practice','Vi övar tillsammans.'],['later','En annan gång.']],a=>{if(a==='practice')pilot.enterArchive();});
+ if(p==='archive')return speak([['Rut','Vad minns du från böckerna? Vi kan pröva begreppen, blanda frågor eller skriva längre förklaringar.']],[['terms','Jag prövar begreppen.'],['practice','Vi blandar frågorna.'],['writing','Jag vill förklara och jämföra.']],a=>{if(room()!=='archive')return;if(a==='practice')pilot.enterArchive();if(a==='terms')pilot.enterMaterialReview();if(a==='writing')window.UPPDRAG_CH4_BOOKWORK?.open();});
  if(p==='barnhus')return speak([['Siri','Välkommen tillbaka. Cajsa är här på besök i köket.'],['Du','Kan jag prata med henne?'],['Siri','Ja, hon står här bredvid.']]);
  if(p==='quay')return speak([['Jo','Böcker och brev följer också med fartygen. Det är inte bara varor som färdas långt.']]);
  if(p==='church')return offer(p,first?[['Olof','Den här boken har många barn stavat sig igenom. Katekesen handlar om kristendomens viktigaste delar.'],['Du','Vad händer när man sedan kan läsa själv?'],['Olof','Då kan man jämföra det någon säger med det som står i boken. Det kan väcka besvärliga frågor.']]:[['Olof','Vad minns du om läsundervisningen och möjligheten att läsa själv?']]);
@@ -124,5 +127,5 @@ function tick(){
  if(side.phase!==lastSidePhase){lastSidePhase=side.phase;if(interior){renderInterior();UPPDRAG_MEETINGS.redraw();}}
 }
 function goal(){return {unfound:'Fråga Karin i Bostadskvarteren eller se kokboken hos Brita.',carrying:'Lämna kokboken till Karin i Bostadskvarteren.',delivered:'Karin förbereder maten. Gå ett ärende i staden och återvänd.',feast:'Grannarnas måltid är framdukad. Besök Karin igen när du vill.'}[side.phase];}
-window.UPPDRAG_CH4_SCENES={openRoom,openCookbook,openCajsa,travel,tick,drawProps,drawInheritedBed,streetDate,goal,get busy(){return false;},journalHTML:()=>'<p><b>Kokboken och grannarna:</b> '+goal()+'</p>'};
+window.UPPDRAG_CH4_SCENES={openRoom,openCookbook,openCajsa,travel,tick,drawProps,drawInheritedBed,streetDate,goal,get busy(){return !!window.UPPDRAG_CH4_BOOKWORK?.busy;},journalHTML:()=>'<p><b>Kokboken och grannarna:</b> '+goal()+'</p>'};
 })();

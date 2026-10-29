@@ -114,6 +114,7 @@ Object.defineProperty(window,'localStorage',{value:parent.integratedStore,config
 window.addEventListener('keydown',e=>window.UPPDRAG_EVENT_ENGINE?.handleKeydown?.(e),true);
 window.addEventListener('keydown',e=>window.UPPDRAG_CH2_BED?.handleKeydown?.(e),true);
 window.addEventListener('keydown',e=>window.UPPDRAG_CH3_SCENES?.handleKeydown?.(e),true);
+window.addEventListener('keydown',e=>window.UPPDRAG_CH4_BOOKWORK?.handleKeydown?.(e),true);
 window.addEventListener('error',e=>parent.integratedError(String(e.message||'Okänt fel')));
 window.addEventListener('unhandledrejection',e=>parent.integratedError(String(e.reason?.message||e.reason)));
 document.addEventListener('click',e=>{const a=e.target.closest?.('a[href]'),m=a?.getAttribute('href')?.match(/chapter(\\d+)-pilot\\.html/);if(m){e.preventDefault();e.stopPropagation();parent.openIntegratedChapter(Number(m[1]));}},true);
@@ -149,7 +150,7 @@ async function makePage(ch,id){
   if(name==='chapter5-pilot.js'){code=code.replace("<h2>Kapitel 5 avklarat!</h2>","<h2>Kapitel 5 avklarat!</h2><p><a href=\"chapter6-pilot.html\">Fortsätt till kapitel 6 →</a></p>");}
   if(name==='chapter8-pilot.js')code=code.replace('<h2>Kapitel 8 avklarat!</h2>','<h2>Kapitel 8 avklarat!</h2><p><a href="chapter9-pilot.html">Fortsätt till kapitel 9 →</a></p>');
   if(name==='chapter8-pilot.js')code=code.replace("+'<button class=\"primary\" data-action=\"restart\">Börja om äventyret</button>'","+'<p><a href=\"chapter9-pilot.html\">Fortsätt till kapitel 9 →</a></p><button class=\"primary\" data-action=\"restart\">Börja om äventyret</button>'");
-  if(name==='recall-assessment.js')code+='\n'+payload.fixes+'\n'+payload.alignment+'\n'+payload.powerLanguage;
+  if(name==='recall-assessment.js'){code+='\n'+payload.fixes+'\n'+payload.alignment+'\n'+payload.powerLanguage;if(ch===4)code+='\n'+await get('questions/chapter4-material.js?v=2.4.0')+'\n'+await get('questions/chapter4-review.js?v=2.4.0');}
   if(name==='chapter7-content.js')code+='\n'+await get('chapter7-war-rule-fix.js?v=1.3.1');
   if(name==='recall-flow.js')code=`{const s=document.createElement('script');s.textContent=UPPDRAG_PROMPT_ALIGNMENT.flow(${JSON.stringify(code)}).replaceAll('maxlength="120"','maxlength="240"').replaceAll('maxlength="600"','maxlength="4000"');document.head.append(s);}`;
   if(ch>=9&&name==='recall-flow.js')code=code.replace('document.head.append(s);','s.textContent=s.textContent.replace("Kontrollera svaren i rutorna","Jämför och spara ditt svar").replace("Att läsa exemplet är träning. Ett självständigt svar ska senare ges utan exemplet. En fråga om ett namn eller en vara kräver fortfarande bara den uppgiften.","Jämför med exemplet, men behåll dina egna ord. Öppna resonemang sparas för granskning utan automatisk mästarstämpel.");document.head.append(s);');
@@ -164,7 +165,7 @@ async function makePage(ch,id){
  // Chapters 1 and 2 configure mastery before their pilots; later chapters opt in later.
  // Optional, save-compatible side adventures are installed after existing scripts.
  const eventModule=ch<=10?(await get('event-approach.js?v=1.7.0'))+'\n'+(await get('event-recurrence.js?v=1.1.0'))+'\n'+(await get('event-engine.js?v=1.11.0')):'';
- const chapterPresentation=ch===4?(await get('chapter4-presentation.js?v=2.4.0'))+'\n'+(await get('chapter4-scenes.js?v=2.4.0')):ch===3?(await get('chapter3-presentation.js?v=2.2.0'))+'\n'+(await get('chapter3-courtyard-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter3-scenes.js?v=2.2.0')):ch===2?(await get('chapter2-presentation.js?v=2.1.1'))+'\n'+(await get('chapter2-quilt-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter2-sidequest.js?v=1.0.0')):'';
+ const chapterPresentation=ch===4?(await get('chapter4-presentation.js?v=2.4.0'))+'\n'+(await get('chapter4-scenes.js?v=2.4.0'))+'\n'+(await get('chapter4-bookwork.js?v=2.4.0')):ch===3?(await get('chapter3-presentation.js?v=2.2.0'))+'\n'+(await get('chapter3-courtyard-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter3-scenes.js?v=2.2.0')):ch===2?(await get('chapter2-presentation.js?v=2.1.1'))+'\n'+(await get('chapter2-quilt-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter2-sidequest.js?v=1.0.0')):'';
  const end=`window.__ROOM_BOOTING=false;window.UPPDRAG_ROOM_LIFE?.cacheFurniture();requestAnimationFrame(()=>parent.integratedReady(${id},${ch}));`;
  page=page.replace('</body>',script(([1,2,3,4].includes(ch)?'':masteryModule+'\n')+eventModule+'\n'+chapterPresentation+'\n'+(teacher?payload.inspector+'\n':'')+end)+'</body>');return page;
 }

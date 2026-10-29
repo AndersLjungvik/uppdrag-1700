@@ -43,6 +43,9 @@ function install(){
   const bounds=canvas.getBoundingClientRect();if(!bounds.width||!bounds.height)return false;
   const original=document.createElement('canvas');original.style.cssText='position:fixed;left:-10000px;top:0;width:1280px;height:720px;pointer-events:none';document.body.append(original);
   approved.render(original,kind);
+  // The native room paints work tables in a separate foreground layer.
+  // Include that layer so the close-up contains the actual desk and objects.
+  approved.drawForeground?.(original.getContext('2d'),kind,false);
   const d=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(bounds.width*d);canvas.height=Math.round(bounds.height*d);
   const g=canvas.getContext('2d');g.drawImage(original,170*d,260*d,1110*d,460*d,0,0,canvas.width,canvas.height);original.remove();return true;
  }};

@@ -15,7 +15,7 @@ const areas=[
  {id:'ekeblad',name:'Eva Ekeblad och potatisen',place:'Byn',p:'farm',who:'Sigrid',slot:4,topics:['ekeblad'],document:'anteckningen om Eva Ekeblads försök'}
 ];
 const levels=['learner','journeyman','master'],labels=['Lärling','Gesäll','Mästare'];
-const allBank=window.UPPDRAG_RECALL_BANK.filter(t=>t.chapter<=4),bank=allBank.filter(t=>t.chapter===4);
+const allBank=window.UPPDRAG_RECALL_BANK.filter(t=>t.chapter<=4),bank=allBank.filter(t=>t.chapter===4&&!t.reviewOnly);
 const previousKey='uppdrag1700.ch3-real-world.20261019.v1',previousTwoKey='uppdrag1700.ch2-real-world.20261019.v1',previousOneKey='uppdrag1700.ch1-real-world.20261019.v11',previous=parse(previousKey,{});
 const facts={},runs=[{p:'cafe',who:'Maja',f:[],r:0}];
 for(let r=0;r<3;r++)for(const a of areas)runs.push({p:a.p,who:a.who,r,area:a.id,f:bank.filter(t=>t.rank===r&&a.topics.includes(t.topic)).map(t=>t.id)});
@@ -28,7 +28,7 @@ let s=old&&old.v===2?old:{v:2,record:[],daler:Number.isInteger(previous.daler)?M
 s.record=Array.isArray(s.record)?s.record:[];s.earned??={};s.sessions??={};s.reviewQueue??=[];s.encountered??=[];
 s.daler=Math.max(0,Number(s.daler)||0);s.apples=Math.max(0,Number(s.apples)||0);
 if(!s.chapter4AreasPrepared){for(const entry of s.record)entry.beforeChapter4Mastery=true;s.sessions={};s.step=0;s.index=0;s.mode='intro';s.recallUI=null;s.chapter4AreasPrepared=true;}
-s.archiveActive=false;s.step=Number.isInteger(s.step)&&runs[s.step]?s.step:0;
+s.archiveActive=false;s.materialReviewMode=false;s.step=Number.isInteger(s.step)&&runs[s.step]?s.step:0;
 let story=parse(storyKey,{v:1,introduced:false,visits:{}}),people=parse(peopleKey,{v:1,met:{}});
 story.visits??={};people.met??={};
 let recall=null,view='closed',selected=null,returnFocus=null,roomRestore=null;
@@ -91,7 +91,7 @@ function display(html,kind){
  modal.setAttribute('aria-label',workspace?'Arbeta med '+(s.archiveActive?'minnen hos Rut':(area()?.document)||'dokumentet'):'Minnesboken');
  modal.focus({preventScroll:true});
 }
-function close(){recall?.leavingPanel();view='closed';modal.hidden=true;restoreRoom();document.body.classList.remove('ch1-open');s.archiveActive=false;persist();drawHud();(returnFocus?.isConnected?returnFocus:hud.querySelector('[data-mb="book"]'))?.focus?.({preventScroll:true});}
+function close(){recall?.leavingPanel();view='closed';modal.hidden=true;restoreRoom();document.body.classList.remove('ch1-open');s.archiveActive=false;s.materialReviewMode=false;persist();drawHud();(returnFocus?.isConnected?returnFocus:hud.querySelector('[data-mb="book"]'))?.focus?.({preventScroll:true});}
 window.addEventListener('resize',paintCloseup);
 window.addEventListener('uppdrag-paper-fibres-ready',paintCloseup);
 const top=title=>'<div class="mb-top"><p>Nya tider, nya tankar · kapitel 4</p><button data-mb="close">'+(locationKey()?'Till rummet':'Till staden')+'</button></div><h2>'+esc(title)+'</h2>';
@@ -107,6 +107,7 @@ function book(){
  if(!story.introduced&&!q.chapterComplete)h+='<p class="mb-note">Maja på Kaffehuset visar hur minnesboken fungerar. Du kan också gå direkt till ett område.</p><button data-mb="maja">Besök Maja</button>';
  if(s.masteryMigrationNotice)h+='<p class="mb-note">Dina tidigare svar och resurser är bevarade. Stämplar har bara förts över där hela områdets prov kan styrkas. Övriga områden behöver kompletteras.</p>';
  h+='<p class="mb-note">Alla fyra lärlingsstämplar öppnar gesällproven. Alla fyra gesällstämplar öppnar mästarproven. Sidoäventyr ger inga provstämplar.</p>';
+ const review=materialReviewProgress();h+='<p class="mb-note">Hos Rut: '+review.done+' av '+review.total+' begrepp och källfrågor från bedömningsmaterialet repeterade. Hos Sam kan du skriva bokens resonemang.</p>';
  for(const a of areas){
   h+='<section class="mb-area"><h3>'+esc(a.name)+'</h3><p class="mb-note">'+esc(a.place+' · '+a.who)+'</p><div class="mb-stamps">';
   for(let r=0;r<3;r++){
@@ -211,14 +212,18 @@ function retry(){
  s.sessions[s.step]=null;s.index=0;s.mode='intro';s.recallUI=null;s.recallInterlude=null;persist();
  if(present())begin();else goPlace(area().p);return true;
 }
+const materialTerms=['hattar-mossor','katekesen','kolt','tryckfrihet','aga','offentlighet','oakta','censur','skampale','budkavle'].map(id=>'material4-sos-'+id).concat('material4-tsar');
+function materialReviewProgress(){const seen=new Set((s.recallRutLog||[]).filter(x=>x.ok).map(x=>x.id));return {done:materialTerms.filter(id=>seen.has(id)).length,total:materialTerms.length};}
 function available(includeStarter=true){
- const known=new Set([...allBank.filter(t=>t.chapter<4).map(t=>t.id),...s.encountered,...s.record.map(r=>r.id),...Object.keys(s.earned)]);
+ if(s.materialReviewMode){const seen=new Set((s.recallRutLog||[]).filter(x=>x.ok).map(x=>x.id));const remaining=materialTerms.filter(id=>!seen.has(id));return remaining.length?remaining:materialTerms.slice();}
+ const known=new Set([...allBank.filter(t=>t.chapter<4).map(t=>t.id),...s.encountered,...s.record.map(r=>r.id),...Object.keys(s.earned),...(window.UPPDRAG_CH4_MATERIAL_REVIEW||[])]);
  for(const prior of [parse(previousOneKey,{}),parse(previousTwoKey,{}),parse(previousKey,{})])for(const id of [...(prior.encountered||[]),...(prior.record||[]).map(r=>r.id),...Object.keys(prior.earned||{})])known.add(id);
  const topics=new Set();return allBank.filter(t=>known.has(t.id)).filter(t=>{const key=t.chapter+'/'+t.topic;if(topics.has(key))return false;topics.add(key);return true;}).map(t=>t.id);
 }
 function goPlace(p){close();return window.UPPDRAG_CH4_SCENES?.travel(p)||false;}
 function goArchive(){goPlace('archive');}
-function enterArchive(){if(locationKey()!=='archive')return false;return recall.enterArchive();}
+function enterArchive(){if(locationKey()!=='archive')return false;s.materialReviewMode=false;return recall.enterArchive();}
+function enterMaterialReview(){if(locationKey()!=='archive')return false;s.materialReviewMode=true;return recall.enterArchive();}
 function hereArea(){
  const p=locationKey(),l=mastery.summary().level;
  const chosen=selected&&areas.find(a=>a.id===selected.aid&&a.p===p&&status(a,selected.l)!=='clear');
@@ -243,7 +248,7 @@ if(!s.chapter4MasteryMigrated){
   if(!mastery.levelUnlocked(levels[r])||status(a,levels[r])!=='available')continue;
   const groups=new Map();for(const id of runs[a.slot+r*4].f){const t=bank.find(t=>t.id===id);const step=(t.topic==='freedoms'?1:t.topic==='reading'?2:t.topic==='ekeblad'?4:3)+r*4;if(!groups.has(step))groups.set(step,[]);groups.get(step).push(id);}
   const proved=[...groups].every(([step,ids])=>{
-   const eligible=s.record.filter(x=>x.beforeChapter4Mastery&&x.version==='recall-2-rubric'&&x.step===step&&x.ok&&x.assessment!=='pending-review'&&x.assessment!=='self-review'&&(r<2||x.independent));
+   const eligible=s.record.filter(x=>x.beforeChapter4Mastery&&Array.isArray(x.answer)&&(()=>{const t=bank.find(t=>t.id===x.id);return t&&UPPDRAG_RECALL_ASSESS.assess(t,x.answer,UPPDRAG_RECALL_ENGINE.checkField).status==='sufficient';})()&&x.version==='recall-2-rubric'&&x.step===step&&x.ok&&x.assessment!=='pending-review'&&x.assessment!=='self-review'&&(r<2||x.independent));
    return [...new Set(eligible.map(x=>x.trial))].some(tr=>ids.every(id=>eligible.some(x=>x.id===id&&x.trial===tr)));
   });
   if(proved){mastery.begin(a.id,levels[r]);mastery.pass(a.id,levels[r]);s.masteryRewards??={};s.masteryRewards[a.slot+r*4]=true;}
@@ -262,11 +267,11 @@ window.UPPDRAG_CH4_PILOT={tick,go:book,close,scenes:runs,saveKey:storage,persist
  memoryChoices(){const l=mastery.summary().level;return areas.filter(a=>a.p===locationKey()&&status(a,l)!=='clear').map(a=>({id:a.id,label:'Pröva '+a.name.toLocaleLowerCase('sv')}));},
  memoryChoice:()=> 'Läs '+(hereArea()?.document||'anteckningen'),
  enterMemory(aid){if(chooseHere(locationKey(),aid))begin();},wantsMemoryThanks:()=>false,memoryThanks:()=>'',finishMemory:finished,
- wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> 'Vi övar på kapitel 1–3 och sådant du redan mött i fyran. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,goArchive,
+ wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> 'Vi övar på kapitel 1–3 och sådant du redan mött i fyran. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,enterMaterialReview,materialReviewProgress,goArchive,
  idleLine:()=> 'Välkommen tillbaka!',
- openBook:book,selectArea:select,get studyBusy(){return !modal.hidden;},
+ openBook:book,selectArea:select,get studyBusy(){return !modal.hidden||!!window.UPPDRAG_CH4_BOOKWORK?.busy;},
  get encounteredTaskIds(){return s.encountered.slice();},
- get repetitionTaskIds(){const ids=new Set(available(false));const topics=new Set(allBank.filter(t=>ids.has(t.id)).map(t=>t.chapter+'/'+t.topic));return allBank.filter(t=>t.rank===0&&topics.has(t.chapter+'/'+t.topic)).map(t=>t.id);}
+ get repetitionTaskIds(){const ids=new Set(available(false));const topics=new Set(allBank.filter(t=>ids.has(t.id)).map(t=>t.chapter+'/'+t.topic));return allBank.filter(t=>t.rank===0&&topics.has(t.chapter+'/'+t.topic)&&(!t.reviewOnly||t.chapter<4||(s.recallRutLog||[]).some(x=>x.id===t.id))).map(t=>t.id);}
 };
 function action(e){
  const button=e.target.closest('[data-mb]');if(!button)return;const name=button.dataset.mb;

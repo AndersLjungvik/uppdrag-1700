@@ -11,13 +11,15 @@ const {launch,assert}=require('./chapter4-test-utils.cjs');
   },{scope:h.scope,pilotKey,sideKey,record});await h.boot();f=h.frame;
  }
  try{
-  await h.boot();f=h.frame;const bank=await f.evaluate(()=>UPPDRAG_RECALL_BANK.filter(t=>t.chapter===4));assert.equal(bank.length,15);
+  await h.boot();f=h.frame;const bank=await f.evaluate(()=>UPPDRAG_RECALL_BANK.filter(t=>t.chapter===4&&!t.reviewOnly));assert.equal(bank.length,15);
   await seed([]);assert.equal(await f.evaluate(()=>UPPDRAG_CH4_PILOT.state.complete),false);assert.equal(await f.evaluate(()=>UPPDRAG_MASTERY.summary().done),0);
   assert.deepEqual(await f.evaluate(()=>[UPPDRAG_CH4_PILOT.state.daler,UPPDRAG_CH4_PILOT.state.apples]),[9,2]);
   assert.equal(await f.evaluate(k=>JSON.parse(localStorage.getItem(k+'.before-mastery-4')).draft,pilotKey),'Äldre eget svar');
   assert.equal(await f.evaluate(()=>UPPDRAG_CH4_SIDEQUEST.phase),'carrying');
   await h.page.locator('#menuButton').click();assert.equal(await h.page.locator('#chapterList button').filter({hasText:'5. Gustavianska'}).isDisabled(),true);await h.page.locator('#closeMenu').click();
   const proof=bank.map(t=>({version:'recall-2-rubric',chapter:4,id:t.id,step:(t.topic==='freedoms'?1:t.topic==='reading'?2:t.topic==='ekeblad'?4:3)+t.rank*4,trial:7,ok:true,independent:true,assessment:'local',answer:t.fields.map(f=>f.sample)}));
+  const oldProof=proof.map(x=>({...x,answer:x.answer.slice(0,x.id.includes('freedoms')?(x.id.endsWith('-2')?1:2):x.id.includes('researchers')?(x.id.endsWith('-1')?3:x.id.endsWith('-0')?2:1):1)}));
+  await seed(oldProof);assert.equal(await f.evaluate(()=>UPPDRAG_MASTERY.summary().chapterComplete),false,'an old ok flag cannot stand in for the added book requirements');
   await seed(proof);assert.equal(await f.evaluate(()=>UPPDRAG_MASTERY.summary().chapterComplete),true);assert.equal(await f.evaluate(()=>UPPDRAG_CH4_PILOT.state.record.length),15);
   assert.deepEqual(await f.evaluate(()=>[UPPDRAG_CH4_PILOT.state.daler,UPPDRAG_CH4_PILOT.state.apples]),[9,2]);
   assert.equal(await f.evaluate(()=>UPPDRAG_CH4_SIDEQUEST.phase),'carrying');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.wagon),'need-smith');
