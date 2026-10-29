@@ -3,7 +3,7 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.4.1',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='2.4.2',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -165,7 +165,7 @@ async function makePage(ch,id){
  // Chapters 1 and 2 configure mastery before their pilots; later chapters opt in later.
  // Optional, save-compatible side adventures are installed after existing scripts.
  const eventModule=ch<=10?(await get('event-approach.js?v=1.7.0'))+'\n'+(await get('event-recurrence.js?v=1.1.0'))+'\n'+(await get('event-engine.js?v=1.11.0')):'';
- const chapterPresentation=ch===4?(await get('chapter4-presentation.js?v=2.4.1'))+'\n'+(await get('chapter4-scenes.js?v=2.4.0'))+'\n'+(await get('chapter4-bookwork.js?v=2.4.0')):ch===3?(await get('chapter3-presentation.js?v=2.2.0'))+'\n'+(await get('chapter3-courtyard-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter3-scenes.js?v=2.2.0')):ch===2?(await get('chapter2-presentation.js?v=2.1.1'))+'\n'+(await get('chapter2-quilt-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter2-sidequest.js?v=1.0.0')):'';
+ const chapterPresentation=ch===4?(await get('chapter4-presentation.js?v=2.4.2'))+'\n'+(await get('chapter4-scenes.js?v=2.4.0'))+'\n'+(await get('chapter4-bookwork.js?v=2.4.0')):ch===3?(await get('chapter3-presentation.js?v=2.2.0'))+'\n'+(await get('chapter3-courtyard-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter3-scenes.js?v=2.2.0')):ch===2?(await get('chapter2-presentation.js?v=2.1.1'))+'\n'+(await get('chapter2-quilt-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter2-sidequest.js?v=1.0.0')):'';
  const end=`window.__ROOM_BOOTING=false;window.UPPDRAG_ROOM_LIFE?.cacheFurniture();requestAnimationFrame(()=>parent.integratedReady(${id},${ch}));`;
  page=page.replace('</body>',script(([1,2,3,4].includes(ch)?'':masteryModule+'\n')+eventModule+'\n'+chapterPresentation+'\n'+(teacher?payload.inspector+'\n':'')+end)+'</body>');return page;
 }
