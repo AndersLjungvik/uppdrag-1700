@@ -1,4 +1,4 @@
-# Kapitel 4 – Nya tider, nya tankar · testversion 2.4.0
+# Kapitel 4 – Nya tider, nya tankar · testversion 2.4.1
 
 Fortsätter i den befintliga pappersstaden med fyra områden och lärling, gesäll och mästare i varje. Personerna talar i första person. Spelaren väljer mellan områdena i minnesboken och arbetar i rummens målade närbilder.
 
@@ -46,7 +46,7 @@ Karin vill bjuda grannarna på mat och behöver en kokbok. Spelaren kan möta he
 
 Den befintliga sparningen uppgraderas utan att fasen försvinner: unfound → carrying → delivered → feast. Efter leveransen behöver spelaren faktiskt gå ett ärende, minst 300 världspunkter, och återvända. Att klicka igen eller gå genom dörren direkt ordnar ingen färdig måltid. Efteråt syns dukning, mat, ljus och grannar i samma hushåll. Boken syns också efter leverans. Det går att återbesöka och ladda om.
 
-Äldre sparningar med uppfyllt återbesöksvillkor bevarar det villkoret. Hjälpen ger inga daler, äpplen eller kunskapsstämplar och krävs inte för kapitel 5. Karin kan känna igen tidigare täckes- eller gårdshjälp i samma elevomgång. Barnhusets lagade täcke från tvåan bevaras visuellt. Tidigare sidoäventyrs sparningar läses utan att ändras. Cajsa är en dramatiserad gäst, inte den historiskt belagda ansvariga för just detta fiktiva kök.
+Äldre sparningar med uppfyllt återbesöksvillkor bevarar det villkoret. Hjälpen ger inga daler, äpplen eller kunskapsstämplar och krävs inte för kapitel 5. Karin kan känna igen tidigare täckes- eller gårdshjälp i samma elevomgång. Barnhusets lagade täcke från tvåan bevaras visuellt. Tidigare sidoäventyrs sparningar läses utan att ändras. Cajsa har en egen ståplats bredvid bordet, skild från Siris arbetsrörelse och förgrundslager. Samma placering styr figur, klickyta och pratbubbla på dator och mobil. Cajsa är en dramatiserad gäst, inte den historiskt belagda ansvariga för just detta fiktiva kök.
 
 ## Tjuven och gatan
 
