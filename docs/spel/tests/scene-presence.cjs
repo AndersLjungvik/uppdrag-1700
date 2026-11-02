@@ -53,6 +53,18 @@ for(const direction of [1,-1]){
  }
  assert(usedOpening,'the resident leaves room at the opening');assert(waited,'the resident waits beside the walking lane');assert(Math.hypot(c.player.x-goal.x,c.player.y-goal.y)<=1,'a head-on narrow meeting actually lets the player through in either direction');
 }
+// Held arrows keep requesting the same compass direction, even after a
+// sidestep. A yielding resident must not pull that walk sideways into a house.
+let resident={id:'book',x:485,y:705,heading:0,moving:false};const rawBook={...resident},street={id:'courtesy-regression'};
+c.player={x:385,y:705};clock=0;
+c.window.UPPDRAG_WORLD_KEYBOARD={buildingStep:(r,a,b)=>b.x>25&&b.x<900&&b.y>25&&b.y<1000&&!(b.x>226&&b.x<499&&b.y>376&&b.y<605)};
+c.window.UPPDRAG_CH4_CITY_LIFE={people:()=>[resident]};resident=P.cityPose(rawBook,street,clock,true);
+for(let i=1;i<350&&c.player.x<580;i++){
+ clock=i*20;const next=P.advance(street,c.player,{x:c.player.x+120,y:c.player.y},3.6,'manual');c.player={x:next.x,y:next.y};resident=P.cityPose(rawBook,street,clock);
+ assert(Math.abs(c.player.y-705)<12,'two people do not chase each other sideways');
+ assert(Math.hypot(c.player.x-resident.x,c.player.y-resident.y)>=35.8);
+}
+assert(c.player.x>=580,'held arrows continue past the yielding resident beside the house');
 const calls=[],ctx={globalAlpha:.77,getTransform:()=>({a:1,b:0,c:0,d:1,e:0,f:0}),save(){},restore(){},setTransform(){}};
 P.begin(ctx);P.enqueue(ctx,90,()=>calls.push('front'),'front');P.enqueue(ctx,30,()=>calls.push('player'),'player');P.enqueue(ctx,10,()=>calls.push('back'),'back');P.flush();assert.equal(calls.join(','),'back,player,front','player is drawn among people by ground depth');
 assert.equal(P.enqueue(ctx,0,()=>{},'outside'),false);
