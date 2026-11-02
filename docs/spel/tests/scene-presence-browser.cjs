@@ -26,11 +26,11 @@ const {launch,assert,fs,path}=require('./chapter4-test-utils.cjs');
   });assert(!fixture.error,fixture.error);console.log('Fixture resident:',fixture.id);
   await f.evaluate(()=>{player={x:__presenceActor.x-100,y:__presenceActor.y};camera={...player};path=[{x:__presenceActor.x+100,y:__presenceActor.y}];__recordPresence=true;draw();});
   await f.waitForFunction(()=>!path.length&&Math.hypot(player.x-(__presenceActor.x+100),player.y-__presenceActor.y)<3,undefined,{timeout:20000});
-  let trace=await f.evaluate(()=>{__recordPresence=false;return __presenceTrace;});assert(trace.min>=35.7,'click route crosses a resident: '+trace.min);assert(trace.maxStep<=10,'click route teleported: '+trace.maxStep);assert(trace.positions.some(p=>Math.abs(p.y-fixture.y)>15),'click route takes a visible sidestep');
+  let trace=await f.evaluate(()=>{__recordPresence=false;return __presenceTrace;});assert(trace.min>=11.7,'click route crosses a resident: '+trace.min);assert(trace.maxStep<=10,'click route teleported: '+trace.maxStep);assert(trace.positions.some(p=>Math.abs(p.y-fixture.y)>4),'click route takes a visible sidestep');
   console.log('PASS actual click route around resident, clearance',trace.min.toFixed(1));
   await f.evaluate(()=>{player={x:__presenceActor.x-100,y:__presenceActor.y};camera={...player};path=[];__presenceTrace={min:Infinity,maxStep:0,positions:[]};window.__presencePrevious=null;__recordPresence=true;draw();});
   await f.locator('#world').focus();await h.page.keyboard.down('ArrowRight');await f.waitForFunction(()=>player.x>__presenceActor.x+85,undefined,{timeout:20000});await h.page.keyboard.up('ArrowRight');
-  trace=await f.evaluate(()=>{__recordPresence=false;return __presenceTrace;});assert(trace.min>=35.7,'arrows cross a resident: '+trace.min);assert(trace.maxStep<=10);assert(trace.positions.every(p=>Math.abs(p.y-fixture.y)<20),'the player keeps the walking line while the resident yields');console.log('PASS actual arrow walk around resident, clearance',trace.min.toFixed(1));
+  trace=await f.evaluate(()=>{__recordPresence=false;return __presenceTrace;});assert(trace.min>=11.7,'arrows cross a resident: '+trace.min);assert(trace.maxStep<=10);assert(trace.positions.every(p=>Math.abs(p.y-fixture.y)<20),'the player keeps the walking line while the resident yields');console.log('PASS actual arrow walk around resident, clearance',trace.min.toFixed(1));
   // Manual walking releases a selected meeting. Hold the resident at its
   // current visible position again before comparing the two depth samples.
   await f.evaluate(()=>{const a=UPPDRAG_CH4_CITY_LIFE.find(region,__presenceActor.id);UPPDRAG_CH4_CITY_LIFE.hold(a);window.__presenceActor=UPPDRAG_CH4_CITY_LIFE.find(region,a.id);});
