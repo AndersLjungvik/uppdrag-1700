@@ -33,6 +33,9 @@ function walkStep(from,goal,length,bodies,staticStep=()=>true,memory=new Map()){
   .filter(o=>o.along>-.5&&o.along<Math.min(95,remaining+2)&&Math.abs(o.cross)<18+o.b.radius+4).sort((a,b)=>a.along-b.along)[0];
  const angles=[];
  if(ahead){
+  // Once a pedestrian has agreed to yield, keep the player's walking line.
+  // Two simultaneous sidesteps can otherwise chase each other into a wall.
+  if(ahead.b.yielding){const next={x:from.x+direction.x*step,y:from.y+direction.y*step};return staticStep(from,next)&&bodyStep(from,next,bodies)?next:{...from};}
   const {b,cross}=ahead,d=dist(from,b),r=18+b.radius+3,id=b.id||b.x+':'+b.y;
   let remembered=memory.get(id);if(!remembered||remembered.dx*direction.x+remembered.dy*direction.y<-.3){remembered={side:Math.abs(cross)>2?-Math.sign(cross):-1,dx:direction.x,dy:direction.y};memory.set(id,remembered);}
   if(d>r){const tangent=Math.asin(clamp(r/d,0,1)),base=Math.atan2(b.y-from.y,b.x-from.x),preferred=base+remembered.side*tangent,other=base-remembered.side*tangent;if(Math.cos(preferred-angle)<-.05&&Math.cos(other-angle)>.05)angles.push(other,preferred);else angles.push(preferred,other);}
@@ -92,6 +95,7 @@ function yieldGoal(r,person,player,state,intent){
  if(plan){
   const along=(person.x-player.x)*plan.dx+(person.y-player.y)*plan.dy;
   if(along<-clearance||dist(person,player)>190){state.yield=null;plan=null;}
+  else if(intent&&plan.park){const dx=plan.park.x-player.x,dy=plan.park.y-player.y,ahead=dx*intent.dx+dy*intent.dy,cross=dx*-intent.dy+dy*intent.dx;if(ahead>0&&ahead<112&&Math.abs(cross)<clearance-2){state.yield=null;plan=null;}}
  }
  if(!plan&&intent){
   const dx=person.x-player.x,dy=person.y-player.y,along=dx*intent.dx+dy*intent.dy,cross=dx*-intent.dy+dy*intent.dx;
@@ -240,5 +244,5 @@ function source(name,text){
  }
  return text;
 }
-window.UPPDRAG_SCENE_PRESENCE={source,install,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.1.0'};
+window.UPPDRAG_SCENE_PRESENCE={source,install,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.1.1'};
 })();
