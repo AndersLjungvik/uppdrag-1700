@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm'),path=require('path'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const c={window:{}};vm.createContext(c);vm.runInContext(read('scene-presence.js'),c);const P=c.window.UPPDRAG_SCENE_PRESENCE;
-for(const name of ['paper-dialogues.js','living-dialogues.js','world-keyboard.js','world-keyboard-ch3.js','world-keyboard-ch4.js','world-life.js','world-life-ch3.js','world-life-ch4.js','meeting-ch1-pilot.js','meeting-ch2-pilot.js','meeting-ch3-pilot.js','meeting-ch4-pilot.js','chapter3-street-life.js','chapter4-street-life.js','world-street-pilot.js','world-classic-pilot.js']){
+for(const name of ['paper-dialogues.js','living-dialogues.js','world-keyboard.js','world-keyboard-ch3.js','world-keyboard-ch4.js','world-keyboard-ch5.js','world-life.js','world-life-ch3.js','world-life-ch4.js','world-life-ch5.js','meeting-ch1-pilot.js','meeting-ch2-pilot.js','meeting-ch3-pilot.js','meeting-ch4-pilot.js','meeting-ch5-pilot.js','chapter3-street-life.js','chapter4-street-life.js','chapter5-street-life.js','world-street-pilot.js','world-classic-pilot.js']){
  let s=read('_decoded/'+name);if(name.startsWith('world-street')||name.startsWith('world-classic'))s=s.replace('UPPDRAG_MEETINGS.drawMapPlayer(ctx,player,window.UPPDRAG_WORLD_KEYBOARD?.motionPath||path,performance.now());','UPPDRAG_MEETINGS.drawMapPlayer(ctx,player,window.UPPDRAG_WORLD_KEYBOARD?.motionPath||path,performance.now());window.UPPDRAG_EVENT_ENGINE?.drawCover(ctx,region);');new Function(P.source(name,s));
 }
 const overlap=(a,b)=>Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x))*Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y));

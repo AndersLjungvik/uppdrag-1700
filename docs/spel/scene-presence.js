@@ -173,7 +173,11 @@ function speech(target,{box,tip,round}){
  const bubble=target.__presenceBubble||document.getElementById(bubbleIDs[target.id]);if(!bubble||bubble.hidden||!bubble.getClientRects().length)return null;
  const geo=sceneGeometry();if(!geo||!geo.heads.length)return null;
  const anchor=geo.heads.slice().sort((a,b)=>dist(a,tip)-dist(b,tip))[0];
- const replies=document.getElementById('adventureReplies');if(replies&&!replies.hidden&&replies.getClientRects().length){const y=replies.getBoundingClientRect().top-stage.getBoundingClientRect().top-10;geo.bounds.h=Math.max(50,Math.min(geo.bounds.h,y-geo.bounds.y));}
+ const replies=document.getElementById('adventureReplies');if(replies&&!replies.hidden&&replies.getClientRects().length){
+  const r=replies.getBoundingClientRect(),s=stage.getBoundingClientRect();
+  if(window.__INTEGRATED_CHAPTER===5&&interior){const obstacle={x:r.left-s.left-6,y:r.top-s.top-6,w:r.width+12,h:r.height+12};geo.faces.push(obstacle);geo.bodies.push(obstacle);}
+  else {const y=r.top-s.top-10;geo.bounds.h=Math.max(50,Math.min(geo.bounds.h,y-geo.bounds.y));}
+ }
  // Measure each utterance with its own paper inset. A compact previous line
  // must not leave the next speaker's name against the curved paper edge.
  let copy=bubble.querySelector(':scope > .presence-speech-copy');
@@ -225,7 +229,7 @@ function source(name,text){
   const poseEnd='      walkPhase:step.phase,lateralOffset:offset,roadDistance:Math.abs(offset)\n    };';
   edit(poseEnd,poseEnd+'\n    if(state.frozen&&state.presenceStopped){state.pose.x=state.presenceStopped.x;state.pose.y=state.presenceStopped.y;if(Number.isFinite(state.playerX)&&Number.isFinite(state.playerY))state.pose.heading=Math.atan2(state.playerY-state.pose.y,state.playerX-state.pose.x);state.pose.facing=Math.cos(state.pose.heading)<0?-1:1;}');
  }
- if(/chapter[34]-street-life\.js$/.test(name)){
+ if(/chapter[345]-street-life\.js$/.test(name)){
   edit('function position(actor,now=performance.now()){','function nativePosition(actor,now=performance.now()){');
   edit('function people(region){',"function position(actor,now=performance.now()){const p=nativePosition(actor,now);return window.UPPDRAG_SCENE_PRESENCE?.cityPose(p,REGIONS[actor.region],now,active?.id===actor.id||teaser?.id===actor.id||pendingHold?.id===actor.id)||p;}\nfunction people(region){");
   edit('function drawGroup(ctx,a,now){','function drawGroup(ctx,a,now){\n if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,a.y,()=>drawGroup(ctx,a,now),a.id))return;');
@@ -253,5 +257,5 @@ function source(name,text){
  }
  return text;
 }
-window.UPPDRAG_SCENE_PRESENCE={footRadius:FOOT_RADIUS,source,install,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get talking(){return !!(window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.active||window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_EVENT_ENGINE?.blocking);},get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.2.0'};
+window.UPPDRAG_SCENE_PRESENCE={footRadius:FOOT_RADIUS,source,install,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get talking(){return !!(window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.active||window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_EVENT_ENGINE?.blocking);},get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.3.0'};
 })();
