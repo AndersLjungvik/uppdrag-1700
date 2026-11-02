@@ -31,6 +31,9 @@ const {launch,assert,fs,path}=require('./chapter4-test-utils.cjs');
   await f.evaluate(()=>{player={x:__presenceActor.x-100,y:__presenceActor.y};camera={...player};path=[];__presenceTrace={min:Infinity,maxStep:0,positions:[]};window.__presencePrevious=null;__recordPresence=true;draw();});
   await f.locator('#world').focus();await h.page.keyboard.down('ArrowRight');await f.waitForFunction(()=>player.x>__presenceActor.x+85,undefined,{timeout:20000});await h.page.keyboard.up('ArrowRight');
   trace=await f.evaluate(()=>{__recordPresence=false;return __presenceTrace;});assert(trace.min>=35.7,'arrows cross a resident: '+trace.min);assert(trace.maxStep<=10);console.log('PASS actual arrow walk around resident, clearance',trace.min.toFixed(1));
+  // Manual walking releases a selected meeting. Hold the resident at its
+  // current visible position again before comparing the two depth samples.
+  await f.evaluate(()=>{const a=UPPDRAG_CH4_CITY_LIFE.find(region,__presenceActor.id);UPPDRAG_CH4_CITY_LIFE.hold(a);window.__presenceActor=UPPDRAG_CH4_CITY_LIFE.find(region,a.id);});
   for(const side of [-1,1]){
    const order=await f.evaluate(side=>{player={x:__presenceActor.x-60,y:__presenceActor.y+side*55};camera={...player};path=[];draw();return UPPDRAG_SCENE_PRESENCE.lastOrder;},side);
    const pi=order.findIndex(x=>x.id==='player'),ni=order.findIndex(x=>x.id===fixture.id);assert(pi>=0&&ni>=0,JSON.stringify(order));assert.equal(pi>ni,side>0,'ground depth switches in front/behind');

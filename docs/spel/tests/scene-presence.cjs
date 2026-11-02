@@ -30,7 +30,30 @@ for(let i=0;i<240;i++){
  previous=p;
 }
 assert(previous.x>175,'NPC completes the pass after yielding');
+assert(Math.abs(P.turn(Math.PI-.05,-Math.PI+.05,.2)-(Math.PI+.05))<.001,'a look across the angle boundary does not spin around');
+// Two people cannot fit side by side in this alley. The resident must back
+// toward the opening, step out of the lane, and wait for the player to pass.
+let clock=0;c.performance={now:()=>clock};c.window.__INTEGRATED_CHAPTER=4;
+for(const direction of [1,-1]){
+ let resident={id:'alley-resident',x:direction>0?205:195,y:150,heading:direction>0?Math.PI:0,moving:false};
+ c.player={x:direction>0?145:255,y:150};
+ const alley={id:'alley-'+direction},rawResident={...resident},goal={x:direction>0?400:50,y:150};
+ const ground=q=>q.x>=25&&q.x<=475&&q.y>=25&&q.y<=275&&(!(q.x>100&&q.x<300)||(q.y>=140&&q.y<=160));
+ c.window.UPPDRAG_WORLD_KEYBOARD={buildingStep:(r,a,b)=>ground(b)};
+ c.window.UPPDRAG_CH4_CITY_LIFE={people:()=>[resident]};
+ let usedOpening=false,waited=false;
+ for(let i=0;i<500&&Math.hypot(c.player.x-goal.x,c.player.y-goal.y)>1;i++){
+  clock=i*20;const next=P.advance(alley,c.player,goal,3.6);c.player={x:next.x,y:next.y};
+  const last={...resident};resident=P.cityPose(rawResident,alley,clock);
+  assert(Math.hypot(resident.x-last.x,resident.y-last.y)<=2.31,'yielding respects walking speed');
+  assert(Math.hypot(c.player.x-resident.x,c.player.y-resident.y)>=35.8,'the narrow meeting never passes through a body');
+  assert(ground(resident)&&ground(c.player),'both stay clear of the houses');
+  if((resident.x>=300||resident.x<=100)&&Math.abs(resident.y-150)>36)usedOpening=true;
+  if(usedOpening&&!resident.moving&&direction*(c.player.x-resident.x)<45)waited=true;
+ }
+ assert(usedOpening,'the resident leaves room at the opening');assert(waited,'the resident waits beside the walking lane');assert(Math.hypot(c.player.x-goal.x,c.player.y-goal.y)<=1,'a head-on narrow meeting actually lets the player through in either direction');
+}
 const calls=[],ctx={globalAlpha:.77,getTransform:()=>({a:1,b:0,c:0,d:1,e:0,f:0}),save(){},restore(){},setTransform(){}};
 P.begin(ctx);P.enqueue(ctx,90,()=>calls.push('front'),'front');P.enqueue(ctx,30,()=>calls.push('player'),'player');P.enqueue(ctx,10,()=>calls.push('back'),'back');P.flush();assert.equal(calls.join(','),'back,player,front','player is drawn among people by ground depth');
 assert.equal(P.enqueue(ctx,0,()=>{},'outside'),false);
-console.log('PASS scene presence: all frozen source anchors, all-face bubble placement at three sizes, swept body separation, safe escape, 3 reachable detours, narrow passages, no teleport/speed boost and shared ground-depth drawing');
+console.log('PASS scene presence: source anchors, all-face bubbles, body separation, safe escape, 3 detours, bounded turns, narrow head-on meetings that yield and wait at either opening, no teleport/speed boost and shared depth');
