@@ -1,4 +1,4 @@
-# Kapitel 5 – Gustavianska tiden · testversion 2.6.0
+# Kapitel 5 – Gustavianska tiden · testversion 2.6.1
 
 Femman fortsätter i den befintliga pappersstaden. Huvuduppgiften är återkallning av klassrumsmaterialet, med egna förklaringar inför bedömningen. Frågorna kommer från SOS-underlagen, inte från ny allmän historiefakta. Se `preparation/CHAPTER5_MATERIAL_AUDIT.md` för innehållskoppling och källkonflikten om dödsstraff.
 
