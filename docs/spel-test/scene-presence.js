@@ -35,7 +35,7 @@ function walkStep(from,goal,length,bodies,staticStep=()=>true,memory=new Map()){
  if(ahead){
   const {b,cross}=ahead,d=dist(from,b),r=18+b.radius+3,id=b.id||b.x+':'+b.y;
   let remembered=memory.get(id);if(!remembered||remembered.dx*direction.x+remembered.dy*direction.y<-.3){remembered={side:Math.abs(cross)>2?-Math.sign(cross):-1,dx:direction.x,dy:direction.y};memory.set(id,remembered);}
-  if(d>r){const tangent=Math.asin(clamp(r/d,0,1)),base=Math.atan2(b.y-from.y,b.x-from.x);angles.push(base+remembered.side*tangent,base-remembered.side*tangent);}
+  if(d>r){const tangent=Math.asin(clamp(r/d,0,1)),base=Math.atan2(b.y-from.y,b.x-from.x),preferred=base+remembered.side*tangent,other=base-remembered.side*tangent;if(Math.cos(preferred-angle)<-.05&&Math.cos(other-angle)>.05)angles.push(other,preferred);else angles.push(preferred,other);}
   else angles.push(Math.atan2(from.y-b.y,from.x-b.x));
  }
  angles.push(angle);for(const a of [.25,.55,.9,1.3,Math.PI/2])angles.push(angle-a,angle+a);
@@ -64,46 +64,92 @@ function actors(r=currentWorld()){
 function colliders(r){return actors(r).filter(p=>p.solid!==false&&p.role!=='dog');}
 function staticStep(r,a,b){const fn=window.UPPDRAG_WORLD_KEYBOARD?.buildingStep;return fn?fn(r,a,b):!!window.UPPDRAG_WORLD_KEYBOARD?.clearSegment?.(r,a,b,24);}
 const movementMemory=new Map();let lastRegion=null;
+let walkingIntent=null;
 function advance(r,from,goal,length,mode='route'){
  if(r!==lastRegion){movementMemory.clear();lastRegion=r;}
+ if(length>0&&dist(from,goal)>.1)walkingIntent={region:r.id,x:from.x,y:from.y,dx:(goal.x-from.x)/dist(from,goal),dy:(goal.y-from.y)/dist(from,goal),at:performance.now()};
  const bodies=colliders(r);let point={x:from.x,y:from.y},remaining=length;
  while(remaining>.001){const step=Math.min(3,remaining,dist(point,goal));if(step<.001)break;const next=walkStep(point,goal,step,bodies,(a,b)=>staticStep(r,a,b),movementMemory);if(dist(next,point)<.001)break;point=next;remaining-=step;}
  const goalBlocked=mode==='route'&&bodies.some(b=>dist(goal,b)<18+b.radius&&dist(point,goal)<=18+b.radius+3);
  return {...point,arrived:dist(point,goal)<.1||goalBlocked};
 }
-function yieldCitizens(r,states,delta,p,inRoom,advanceTime=0){
- if(inRoom||!p||window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){for(const state of states){state.presenceSafe=null;state.presenceYield=null;}return;}
- const speed=Math.max(0,Math.min(delta,80))/1000*52;
+function yieldCitizens(r,states,delta,p,inRoom,advanceTime=0,now=performance.now()){
+ if(inRoom||!p){for(const state of states)cityStates.delete(r.id+'/world:'+state.person.id);return;}
  for(const state of states){
-  const pose=state.pose;if(!pose||state.frozen||state.escort)continue;
-  const dx=pose.x-p.x,dy=pose.y-p.y,d=Math.hypot(dx,dy),nx=-Math.sin(pose.heading||0),ny=Math.cos(pose.heading||0);
-  let side=state.presenceSide;if(d>110)side=null;if(!side&&d<82)side=Math.abs(dx*nx+dy*ny)>2?Math.sign(dx*nx+dy*ny):(String(pose.id).length%2?1:-1);state.presenceSide=side;
-  const amount=side?clamp((82-d)/48,0,1)*24:0,targetX=nx*(side||0)*amount,targetY=ny*(side||0)*amount;
-  const old=state.presenceYield||{x:0,y:0},change=Math.hypot(targetX-old.x,targetY-old.y),ratio=change?Math.min(1,speed/change):1;
-  const offset={x:old.x+(targetX-old.x)*ratio,y:old.y+(targetY-old.y)*ratio};
-  const candidate={x:pose.x+offset.x,y:pose.y+offset.y},prior=state.presenceSafe;
-  if(staticStep(r,pose,candidate)){pose.x=candidate.x;pose.y=candidate.y;state.presenceYield=offset;}
-  if(prior&&dist(prior,p)>=36&&segmentDistance(p,prior,pose)<36){pose.x=prior.x;pose.y=prior.y;pose.moving=false;state.time-=advanceTime;}
-  state.presenceSafe={x:pose.x,y:pose.y};
+  if(!state.pose)continue;
+  if(state.escort){cityStates.delete(r.id+'/world:'+state.person.id);continue;}
+  Object.assign(state.pose,cityPose(state.pose,r,now,state.frozen,'world:'));
  }
 }
 const cityStates=new Map();
-function cityPose(p,r,now,locked=false){
+const turn=(from,to,maximum)=>from+clamp(Math.atan2(Math.sin(to-from),Math.cos(to-from)),-maximum,maximum);
+function clearGround(r,a,b){const steps=Math.max(1,Math.ceil(dist(a,b)/6));let last=a;for(let i=1;i<=steps;i++){const next={x:a.x+(b.x-a.x)*i/steps,y:a.y+(b.y-a.y)*i/steps};if(!staticStep(r,last,next))return false;last=next;}return true;}
+// Pedestrians yield to an actual walking request. A single-file alley needs
+// a retreat to its opening before a sidestep, rather than two blocked bodies.
+function yieldGoal(r,person,player,state,intent){
+ const radius=['farmers','soldiers','dalarna'].includes(person.id)?48:18,clearance=18+radius+9;
+ let plan=state.yield;
+ if(plan){
+  const along=(person.x-player.x)*plan.dx+(person.y-player.y)*plan.dy;
+  if(along<-clearance||dist(person,player)>190){state.yield=null;plan=null;}
+ }
+ if(!plan&&intent){
+  const dx=person.x-player.x,dy=person.y-player.y,along=dx*intent.dx+dy*intent.dy,cross=dx*-intent.dy+dy*intent.dx;
+  if(along>0&&along<112&&Math.abs(cross)<clearance){plan=state.yield={...intent,side:Math.abs(cross)>3?Math.sign(cross):(person.id.length%2?1:-1)};}
+ }
+ if(!plan)return null;
+ if(plan.park)return {...plan.park,waiting:true};
+ const nx=-plan.dy,ny=plan.dx,along=(person.x-plan.x)*plan.dx+(person.y-plan.y)*plan.dy;
+ for(const forward of [0,22,44])for(const side of [plan.side,-plan.side]){
+  const goal={x:plan.x+plan.dx*(along+forward)+nx*side*clearance,y:plan.y+plan.dy*(along+forward)+ny*side*clearance};
+  if(clearGround(r,person,goal)&&bodyStep(person,goal,[{...player,radius}])){plan.park=goal;return {...goal,waiting:true};}
+ }
+ if(!intent)return {...person,waiting:true};
+ return {x:person.x+plan.dx*80,y:person.y+plan.dy*80,waiting:true};
+}
+function cityPose(p,r,now,locked=false,namespace=''){
  const player=currentPlayer();if(!player||!r)return p;
- const key=r.id+'/'+p.id,old=cityStates.get(key),reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
- if(locked||reduced||(typeof interior!=='undefined'&&interior)){cityStates.set(key,{pose:{...p},raw:{...p},at:now,memory:new Map()});return p;}
+ const key=r.id+'/'+namespace+p.id,old=cityStates.get(key),reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ const dt=old?Math.max(0,Math.min(.08,(now-old.at)/1000)):.016;
+ if(locked||(typeof interior!=='undefined'&&interior)){
+  const priorHeading=Number.isFinite(old?.pose.heading)?old.pose.heading:Number.isFinite(p.heading)?p.heading:0;
+  const heading=locked?turn(priorHeading,Math.atan2(player.y-p.y,player.x-p.x),reduced?Math.PI*2:dt*6):p.heading;
+  const pose={...p,heading,facing:Math.cos(heading)<0?-1:1,moving:false,yielding:false};
+  cityStates.set(key,{pose,raw:{...p},at:now,memory:new Map()});return pose;
+ }
  if(old&&now-old.at<12)return {...p,...old.pose};
- const dt=old?Math.max(.001,Math.min(.08,(now-old.at)/1000)):.016,state=old||{pose:{...p},raw:{...p},at:now,memory:new Map()};
+ const state=old||{pose:{...p},raw:{...p},at:now,memory:new Map()};
  const nx=-Math.sin(p.heading||0),ny=Math.cos(p.heading||0),dx=p.x-player.x,dy=p.y-player.y,d=Math.hypot(dx,dy);
  if(d>110)state.side=null;
  if(!state.side&&d<85)state.side=Math.abs(dx*nx+dy*ny)>2?Math.sign(dx*nx+dy*ny):(p.id.length%2?1:-1);
- const amount=state.side?clamp((85-d)/60,0,1)*42:0;
+ const amount=state.side&&!reduced?clamp((85-d)/60,0,1)*42:0;
  let goal={x:p.x+nx*(state.side||0)*amount,y:p.y+ny*(state.side||0)*amount};
  if(!staticStep(r,p,goal))goal={x:p.x,y:p.y};
- const natural=dist(p,state.raw)/dt,speed=Math.max(32,Math.min(115,natural+40)),distance=Math.min(dist(state.pose,goal),speed*dt);
+ const intent=walkingIntent?.region===r.id&&performance.now()-walkingIntent.at<300?walkingIntent:null;
+ const polite=yieldGoal(r,{...p,...state.pose},player,state,intent);if(polite)goal=polite;
+ const natural=dist(p,state.raw)/dt,speed=polite?110:Math.max(32,Math.min(115,natural+40)),distance=Math.min(dist(state.pose,goal),speed*dt);
  const next=walkStep(state.pose,goal,distance,[{...player,id:'player',radius:['farmers','soldiers','dalarna'].includes(p.id)?48:18}],(a,b)=>staticStep(r,a,b),state.memory);
- const travelled=dist(state.pose,next),heading=travelled>.1?Math.atan2(next.y-state.pose.y,next.x-state.pose.x):p.heading;
- state.pose={x:next.x,y:next.y,heading,moving:travelled>.05};state.raw={x:p.x,y:p.y};state.at=now;cityStates.set(key,state);return {...p,...state.pose};
+ const travelled=dist(state.pose,next),heading=polite?turn(state.pose.heading??p.heading??0,Math.atan2(player.y-next.y,player.x-next.x),reduced?Math.PI*2:dt*6):travelled>.1?Math.atan2(next.y-state.pose.y,next.x-state.pose.x):p.heading;
+ state.pose={x:next.x,y:next.y,heading,moving:travelled>.05,yielding:!!polite};state.raw={x:p.x,y:p.y};state.at=now;cityStates.set(key,state);return {...p,...state.pose};
+}
+function partner(r=currentWorld()){
+ if(!r||(typeof interior!=='undefined'&&interior)||(typeof sailing!=='undefined'&&sailing)||(typeof voyage!=='undefined'&&voyage))return null;
+ const city=window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE'];
+ const cityId=city?.actor||city?.teaser,cityPerson=cityId?city.find(r,cityId):null;
+ if(cityPerson&&dist(currentPlayer(),cityPerson)<130)return {...cityPerson,engaged:!!city.actor};
+ const event=window.UPPDRAG_EVENT_ENGINE?.conversation;if(event)return {...event,engaged:true};
+ const living=window.UPPDRAG_LIVING_DIALOGUES;
+ if(living?.active&&!living.roomKey){const p=window.UPPDRAG_WORLD_LIFE?.people(r).find(p=>p.id===living.personId);if(p)return {...p,engaged:true};}
+ return null;
+}
+let playerView=null;
+function playerPose(pos,route,heading,now){
+ const attention=partner(),goal=route?.some(p=>dist(pos,p)>.5),previous=playerView;
+ const moved=previous&&dist(pos,previous)>.01&&dist(pos,previous)<40;
+ const dt=previous?Math.max(0,Math.min(.08,(now-previous.at)/1000)):.016;
+ if(attention&&(attention.engaged||!goal))heading=turn(previous?.heading??heading,Math.atan2(attention.y-pos.y,attention.x-pos.x),window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?Math.PI*2:dt*7);
+ else if(moved)heading=Math.atan2(pos.y-previous.y,pos.x-previous.x);
+ playerView={x:pos.x,y:pos.y,heading,at:now,moving:!!goal&&!attention?.engaged};return playerView;
 }
 function sceneGeometry(){
  const sr=stage.getBoundingClientRect();
@@ -160,20 +206,31 @@ function source(name,text){
  if(/^world-keyboard(?:-ch\d+)?\.js$/.test(name)){
   edit('    tick,clear,interact,walkablePoint,clearSegment,keyOf,claimAction,','    tick,clear,interact,walkablePoint,clearSegment,keyOf,claimAction,buildingStep:escapeStep,');
   edit('      const full={x:player.x+sx,y:player.y+sy};','      if(window.UPPDRAG_SCENE_PRESENCE){const next=UPPDRAG_SCENE_PRESENCE.advance(region,player,{x:player.x+sx*40,y:player.y+sy*40},Math.hypot(sx,sy),"manual");player.x=next.x;player.y=next.y;continue;}\n      const full={x:player.x+sx,y:player.y+sy};');
+  if(text.includes('run:()=>city.open(conflict)'))edit('run:()=>city.open(conflict)','run:()=>requestStreetChat(conflict)');
+  edit('    cancelPersonArrival();drag=null;follow=true;canvas.focus({preventScroll:true});',"    cancelPersonArrival();window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.releaseHold?.();if(typeof pendingStreetChat!=='undefined')pendingStreetChat=null;drag=null;follow=true;canvas.focus({preventScroll:true});");
  }
  if(/^world-life(?:-ch[345])?\.js$/.test(name)){
   const population=text.includes('const activePopulation=population(region);')?'activePopulation':'population(region)';
-  const hook='    window.UPPDRAG_SCENE_PRESENCE?.yieldCitizens(region,'+population+',delta,player,!!activeRoom,advance);';
+  const hook='    window.UPPDRAG_SCENE_PRESENCE?.yieldCitizens(region,'+population+',delta,player,!!activeRoom,advance,now);';
   if(text.includes('    yieldFor(region,activePopulation,delta);'))edit('    yieldFor(region,activePopulation,delta);','    yieldFor(region,activePopulation,delta);\n'+hook);
   else edit('    }\n  }\n\n  function freeze(id) {','    }\n'+hook+'\n  }\n\n  function freeze(id) {');
+  edit('    state.frozen=true;updateWalker(state);','    state.presenceStopped=state.pose?{x:state.pose.x,y:state.pose.y}:null;state.frozen=true;updateWalker(state);');
+  edit('    state.frozen=false;updateWalker(state);return true;','    state.frozen=false;state.presenceStopped=null;updateWalker(state);return true;');
+  const poseEnd='      walkPhase:step.phase,lateralOffset:offset,roadDistance:Math.abs(offset)\n    };';
+  edit(poseEnd,poseEnd+'\n    if(state.frozen&&state.presenceStopped){state.pose.x=state.presenceStopped.x;state.pose.y=state.presenceStopped.y;if(Number.isFinite(state.playerX)&&Number.isFinite(state.playerY))state.pose.heading=Math.atan2(state.playerY-state.pose.y,state.playerX-state.pose.x);state.pose.facing=Math.cos(state.pose.heading)<0?-1:1;}');
  }
  if(/chapter[34]-street-life\.js$/.test(name)){
   edit('function position(actor,now=performance.now()){','function nativePosition(actor,now=performance.now()){');
   edit('function people(region){',"function position(actor,now=performance.now()){const p=nativePosition(actor,now);return window.UPPDRAG_SCENE_PRESENCE?.cityPose(p,REGIONS[actor.region],now,active?.id===actor.id||teaser?.id===actor.id||pendingHold?.id===actor.id)||p;}\nfunction people(region){");
   edit('function drawGroup(ctx,a,now){','function drawGroup(ctx,a,now){\n if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,a.y,()=>drawGroup(ctx,a,now),a.id))return;');
+  edit('function updateNearby(region,player,now){\n if(!region||!player||active)return;','function updateNearby(region,player,now){\n if(!region||!player||active)return;\n if(window.UPPDRAG_SCENE_PRESENCE?.walking){stopTeaser(now);arrivalCandidate=null;hideBubble();return;}');
  }
- if(/^meeting-ch[1-5]-pilot\.js$/.test(name))edit('  function drawMapPlayer(g,pos,route,now){','  function drawMapPlayer(g,pos,route,now){\n    if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(g,pos.y,()=>drawMapPlayer(g,pos,route,now),"player"))return;');
+ if(/^meeting-ch[1-5]-pilot\.js$/.test(name)){
+  edit('  function drawMapPlayer(g,pos,route,now){','  function drawMapPlayer(g,pos,route,now){\n    if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(g,pos.y,()=>drawMapPlayer(g,pos,route,now),"player"))return;');
+  edit('    puppets(g).map(pos.x,pos.y,mapHeading,!!goal,now,CAST.player);','    const view=window.UPPDRAG_SCENE_PRESENCE?.playerPose(pos,route,mapHeading,now);if(view)mapHeading=view.heading;\n    puppets(g).map(pos.x,pos.y,mapHeading,view?view.moving:!!goal,now,CAST.player);');
+ }
  if(['world-street-pilot.js','world-classic-pilot.js'].includes(name)){
+  edit('cancelPersonArrival();pendingRoom=null;const next=routeAlongRoads(region.map.get(id));',"cancelPersonArrival();window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.releaseHold?.();if(typeof pendingStreetChat!=='undefined')pendingStreetChat=null;pendingRoom=null;const next=routeAlongRoads(region.map.get(id));");
   edit('ctx.drawImage(layer(region),0,0);','ctx.drawImage(layer(region),0,0);window.UPPDRAG_SCENE_PRESENCE?.begin(ctx);');
   if(name==='world-street-pilot.js')edit('ctx.globalAlpha=.77;','ctx.globalAlpha=1;');
   edit('window.UPPDRAG_EVENT_ENGINE?.drawCover(ctx,region);','');
@@ -183,5 +240,5 @@ function source(name,text){
  }
  return text;
 }
-window.UPPDRAG_SCENE_PRESENCE={source,install,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,enqueue,begin,flush,speech,actors,sceneGeometry,get lastOrder(){return lastOrder.slice();},version:'1.0.0'};
+window.UPPDRAG_SCENE_PRESENCE={source,install,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.1.0'};
 })();
