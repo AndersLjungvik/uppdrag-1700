@@ -226,12 +226,13 @@ const replies=document.createElement('section');replies.id='adventureReplies';re
    ].map(o=>({x:clamp(o.x,minX,sr.width-width-8),y:clamp(o.y,minY,bottom-height),w:width,h:height}));
    const coversHead=b=>anchor.x>=b.x-8&&anchor.x<=b.x+b.w+8&&anchor.y>=b.y-12&&anchor.y<=b.y+b.h+12;
    options.sort((a,b)=>Number(coversHead(a))-Number(coversHead(b))||Math.hypot(a.x+a.w/2-anchor.x,a.y+a.h/2-anchor.y)-Math.hypot(b.x+b.w/2-anchor.x,b.y+b.h/2-anchor.y));
-   const box=options[0],signature=[box.x,box.y,box.w,box.h,anchor.x,anchor.y].map(x=>Math.round(x)).join(':');
+   const placed=window.UPPDRAG_SCENE_PRESENCE?.speech(tail,{box:options[0],tip:anchor});
+   const box=placed?.box||options[0],tip=placed?.tip||anchor,signature=[box.x,box.y,box.w,box.h,anchor.x,anchor.y].map(x=>Math.round(x)).join(':');
    if(signature===lastSpeechSignature)return;
    lastSpeechSignature=signature;
    dialog.style.left=box.x+'px';dialog.style.top=box.y+'px';tail.removeAttribute('hidden');
    if(dialog.classList.contains('ad-event-question')){tail.setAttribute('hidden','');return;}
-   if(!window.UPPDRAG_PAPER_DIALOGUES?.drawSpeech?.(tail,{box,tip:anchor})){
+   if(!window.UPPDRAG_PAPER_DIALOGUES?.drawSpeech?.(tail,{box,tip,round:placed?.round??.62})){
      dialog.style.background='#fff9ec';dialog.style.border='1px solid #8f7752';
    }
  }
@@ -492,6 +493,7 @@ const people={
  thief:{name:'En förbipasserande',color:'#596458',role:'passerby'}
 };
 function drawPerson(ctx,key,pos,now,scale=1){
+ if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,pos.y,()=>drawPerson(ctx,key,pos,now,scale),"event-"+key))return;
  const target=last||{x:pos.x+1,y:pos.y};
  const heading=Number.isFinite(pos.heading)?pos.heading:Math.atan2(target.y-pos.y,target.x-pos.x);
  ctx.save();ctx.globalAlpha*=pos.alpha??1;ctx.translate(pos.x,pos.y);ctx.scale(scale,scale);
@@ -499,6 +501,7 @@ function drawPerson(ctx,key,pos,now,scale=1){
  ctx.restore();
 }
 function drawWagon(ctx,now){const p=wagonPosition();
+ if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,p.y,()=>drawWagon(ctx,now),"wagon"))return;
  ctx.save();ctx.translate(p.x,p.y);ctx.rotate(chapter===2?0:-.08);
  const paper=(points,color)=>{ctx.fillStyle=color;ctx.strokeStyle='#5e503c';ctx.lineWidth=1.2;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();ctx.stroke();};
  // Wooden cart seen from above, with cut-paper edges and planked load bed.
@@ -520,12 +523,22 @@ function drawWagon(ctx,now){const p=wagonPosition();
  for(const y of [-19,19])paper([[55,y-2],[95,y-1],[95,y+2],[55,y+2]],'#86714d');
  ctx.restore();drawPerson(ctx,'wagon',driverPosition(),now);
 }
+function streetPeople(r){
+ if(r?.id!=='main')return [];
+ const result=[];
+ if(allowed('wagon')||chapter===2)result.push({...driverPosition(),id:'event-driver',radius:18});
+ if(allowed('wagon')&&state.wagon==='need-smith')result.push({...smithAt,id:'event-smith',radius:18});
+ if(witnessAvailable())result.push({...witnessAt,id:'event-witness',radius:15});
+ // Physical contact is part of both the theft and the recovery. Keep it possible.
+ if(thiefPoint)result.push({...thiefPoint,id:'event-thief',radius:18,solid:false});
+ return result;
+}
 function draw(ctx,{region,now=0}={}){if(!ctx||region?.id!=='main')return;
  matrix=ctx.getTransform();if(scene)positionSpeech();
  if(allowed('wagon')||chapter===2)drawWagon(ctx,now);
  if(allowed('wagon')&&state.wagon==='need-smith')drawPerson(ctx,'smith',smithAt,now);
  if(witnessAvailable())drawPerson(ctx,'witness',witnessAt,now,.78);
- if(thiefPoint){drawPerson(ctx,'thief',thiefPoint,now);if(state.thief==='chasing'){ctx.save();ctx.translate(thiefPoint.x,thiefPoint.y);ctx.rotate(thiefPoint.heading||0);ctx.fillStyle='#b59355';ctx.strokeStyle='#5a4430';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(1,18,6,7,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();}}
+ if(thiefPoint){const paintThief=()=>{drawPerson(ctx,'thief',thiefPoint,now);if(state.thief==='chasing'){ctx.save();ctx.translate(thiefPoint.x,thiefPoint.y);ctx.rotate(thiefPoint.heading||0);ctx.fillStyle='#b59355';ctx.strokeStyle='#5a4430';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(1,18,6,7,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();}};if(!window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,thiefPoint.y,paintThief,"event-thief"))paintThief();}
  positionCallout();
 }
 function drawCover(ctx,region){
@@ -567,7 +580,7 @@ function install(){const life=window.UPPDRAG_WORLD_LIFE;
  const keyboard=window.UPPDRAG_WORLD_KEYBOARD;
  if(keyboard&&typeof keyboard.tick==='function'){const old=keyboard.tick;keyboard.tick=function(){if(blocking)return;return old.apply(this,arguments);};}
 }
-const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,drawCover,speakRoom,get roomSpeaker(){return roomSpeech?lineSpeaker:null;},get roomVoice(){return roomSpeech?.voice||null;},get covers(){return coversFor(activeWorld).map(c=>({...c}));},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){recurrence.reset(wallet());state.nextAmbushDistance=0;pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;state.stolenAmount=0;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.11.0'};
+const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,drawCover,speakRoom,people:streetPeople,get roomSpeaker(){return roomSpeech?lineSpeaker:null;},get roomVoice(){return roomSpeech?.voice||null;},get covers(){return coversFor(activeWorld).map(c=>({...c}));},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){recurrence.reset(wallet());state.nextAmbushDistance=0;pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;state.stolenAmount=0;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.12.0'};
 window.UPPDRAG_EVENT_ENGINE=api;
 api.register({id:'wagon-blockade',type:'sidequest',region:'main',chapters:[1,5,6,7,8,9,10],multiStop:true,nonBlocking:true});
 api.register({id:'pickpocket',type:'surprise',region:'main',chapters:[1,2,3,4,5,7,9,10],physicalChase:true,usesRetrieval:true,lossFraction:.5,minimumBalance:3,repeatAfterEarnings:true});
