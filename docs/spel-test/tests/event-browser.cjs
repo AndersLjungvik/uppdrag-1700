@@ -15,6 +15,16 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await p.reload();f=await(await p.waitForSelector('#game',{timeout:30000})).contentFrame();await f.waitForSelector('#ch1Hud');
   await f.evaluate(()=>{UPPDRAG_CH1_PILOT.close();UPPDRAG_MEETINGS.close(false);window.__qaRaf=window.requestAnimationFrame;window.requestAnimationFrame=()=>0;});
   await p.waitForTimeout(60);
+  const firstMeetingView=await f.evaluate(()=>{
+   interior=null;path=[];
+   const person=UPPDRAG_WORLD_LIFE.people(region).find(p=>p.ponderings?.length);
+   if(!person)return {error:'no ordinary conversation host'};
+   player={x:person.x-55,y:person.y};camera={x:person.x+140,y:person.y+70};clamp();follow=false;draw();
+   const before={...camera},opened=requestPerson(person),after={...camera};
+   return {opened,before,after,follow};
+  });
+  assert(!firstMeetingView.error,firstMeetingView.error);assert(firstMeetingView.opened,'first ordinary meeting opens');assert.deepEqual(firstMeetingView.after,firstMeetingView.before,'first meeting leaves the world camera in place');assert.equal(firstMeetingView.follow,false);
+  await f.locator('#adventureDialog').press('Escape');
   const start=await f.evaluate(()=>{
    interior=null;path=[];UPPDRAG_CH1_PILOT.state.encountered=['rc1-queen-0'];UPPDRAG_CH1_PILOT.persist();
    for(let x=700;x<=1100;x+=5){player={x,y:705};UPPDRAG_WORLD_LIFE.tick(10000+(x-700)*8,{region,player,activeRoom:null});}

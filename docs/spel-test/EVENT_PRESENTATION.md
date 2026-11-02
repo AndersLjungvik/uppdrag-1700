@@ -1,10 +1,10 @@
-# Scener och sidoäventyr – 2.5.2
+# Scener och sidoäventyr – 2.5.3
 
 Amira, Elin och Jo talar i första person. Maja får svaret ”Självklart!”. ”Se brevet”, ”Se protokollet” och ”Se handelslistan” öppnar de befintliga arbetsnärbilderna. Samma närbild används genom svar, återkoppling och nytt försök; Arkivet använder Ruts befintliga skrivbord. Minnesboken är fortfarande en separat översikt. Kajens gemensamma kameraprojektion fyller hela bildytan utan sidofält och används även av figurer och klickytor.
 
 Kusken, smeden, barnet och ficktjuven använder `UPPDRAG_MEETINGS.drawMapPerson`. Vagnen visas uppifrån med en separat kusk. Berättartext och information om spelregler läses inte som repliker. Kusken berättar i första person vad hen behöver hjälp med. Barnet berättar vad det såg och kan lämna tillbaka en tappad penningpung med den faktiskt förlorade summan.
 
-Spelarens gång, stadsbornas sidosteg och den gemensamma ritordningen använder nu samma mark. Stadsbor lämnar plats och väntar vid möten i smala passager. I samtal vänder sig båda figurerna mot varandra. Pratbubblor skyddar alla synliga ansikten. Se SCENE_PRESENCE.md för avgränsning och kontroller.
+Spelarens gång, stadsbornas sidosteg och den gemensamma ritordningen använder nu samma mark. Stadsbor tar ett litet sidosteg och väntar vid möten. Bildrutor får överlappa medan stödytorna vid fötterna hålls isär. En vald samtalspartner står kvar. I samtal vänder sig båda figurerna mot varandra och kameran behåller sin vy. Pratbubblor skyddar alla synliga ansikten. Se SCENE_PRESENCE.md för avgränsning och kontroller.
 
 ## Samtal och vagnen
 
