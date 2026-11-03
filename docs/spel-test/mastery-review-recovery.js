@@ -15,6 +15,10 @@ function practice(entry,context){
  if(Number.isInteger(entry.index)&&run.f[entry.index]!==entry.id)return true;
  const savedAt=Date.parse(entry.at);
  const evidence=(context.state.recallEvidence||[]).filter(e=>e.id===entry.id&&e.step===entry.step&&same(e.answer,entry.answer)&&Number.isFinite(savedAt)&&Date.parse(e.at)<=savedAt).sort((a,b)=>Date.parse(b.at)-Date.parse(a.at))[0];
+ // A later, genuinely recorded main answer can reuse words from an earlier
+ // drill. Supported correct master answers still need their real review.
+ const mainAnswer=(context.state.record||[]).some(e=>e.version==='recall-2-rubric'&&e.id===entry.id&&e.step===entry.step&&e.trial===entry.trial&&e.ok&&!e['beforeChapter'+context.chapter+'Mastery']&&same(e.answer,entry.answer)&&Date.parse(e.at)<=savedAt&&(!evidence||Date.parse(e.at)>=Date.parse(evidence.at)));
+ if(mainAnswer)return false;
  if(!evidence||evidence.rank!==1)return false;
  return run.r!==1||entry.answer?.length===1&&task.fields.length>1;
 }

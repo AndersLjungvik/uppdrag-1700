@@ -72,6 +72,11 @@ for(const rank of [0,1,2]){
 }
 // Practice may be separated while a genuine review still blocks the same attempt.
 {
+ const h=fixture({rank:2});h.core.fields=[{label:'Förklaring'}];const e=h.queue(h.core.id,['Samma egna formulering']);h.evidence(e,1);
+ h.state.record.push({version:'recall-2-rubric',id:e.id,step:e.step,trial:e.trial,ok:true,support:true,independent:false,answer:copy(e.answer),at:'2026-11-03T09:10:01.000Z'});
+ assert.deepEqual(h.recover(),{moved:0,resumed:0},'newer real supported main evidence overrides an older identical drill answer');assert.equal(h.cell().status,'pending');
+}
+{
  const h=fixture({rank:1}),bad=h.queue(),valid=h.queue(h.core.id,['Mitt ofullständiga svar','']);h.evidence(valid,1);
  assert.deepEqual(h.recover(),{moved:1,resumed:0});assert.equal(bad.resolved,'practice-separated');assert.equal(valid.resolved,undefined);assert.equal(h.cell().status,'pending');
 }
