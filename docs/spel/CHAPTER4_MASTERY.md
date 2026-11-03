@@ -1,4 +1,4 @@
-# Kapitel 4 – Nya tider, nya tankar · testversion 2.6.2
+# Kapitel 4 – Nya tider, nya tankar · testversion 2.6.3
 
 Fortsätter i den befintliga pappersstaden med fyra områden och lärling, gesäll och mästare i varje. Personerna talar i första person. Spelaren väljer mellan områdena i minnesboken och arbetar i rummens målade närbilder.
 
