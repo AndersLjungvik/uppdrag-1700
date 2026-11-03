@@ -1,7 +1,7 @@
 # Kapitel 1: minnesboken i den befintliga världen
 
-Byggversion 2.1.0, 28 oktober 2026. Arbetsgren: `rebuild/mastery-progression`.
-Detta är referenskapitlet. Kapitel 2 har också migrerats enligt samma modell, se CHAPTER2_MASTERY.md. Kapitel 3–10 har fortfarande sin tidigare uppdragslogik.
+Byggversion 2.8.0, 3 november 2026. Arbetsgren: `rebuild/mastery-progression`.
+Detta är referenskapitlet. Kapitel 2 har också migrerats enligt samma modell, se CHAPTER2_MASTERY.md. Kapitel 3–5 har också byggts om till minnesmästare. Kapitel 6–10 har fortfarande sin tidigare uppdragslogik.
 
 ## Spelgång
 
@@ -17,7 +17,7 @@ Eleven väljer områdesordning inom en nivå. Alla tre lärlingsstämplar krävs
 
 Ett faktiskt misslyckat prov låser det försöket. Ett äpple öppnar ett nytt försök på hela det valda områdesprovet, från första uppgiften. Andra områden behålls. Ledtrådar kostar en daler och finns enbart på lärlingsnivån. Rut är gratis och kan ge äpplen även när plånboken är tom. Gatuhändelser i ettan och Rut använder samma kända ämnen; framtida och ännu inte visade uppgifter tas inte med i gatuhändelser. Rut har en introduktionsreserv om ingen uppgift alls har mötts.
 
-Osäkra formuleringar sparas för granskning utan kostnad eller stämpel. Läraren kan på samma enhet läsa svaret och uppgiftens exempelsvar, be eleven bearbeta eller bekräfta att innehållet uppfyller kraven. Ett granskat svar loggas som `teacher-approved`, aldrig som en självständig automatisk prestation. Lärarbekräftelsen är en lokal klassrumsfunktion, ingen säker behörighetskontroll.
+Osäkra formuleringar sparas för granskning utan kostnad eller stämpel. Läraren kan på samma enhet läsa svaret och uppgiftens exempelsvar, be eleven bearbeta eller bekräfta att innehållet uppfyller kraven. Ett granskat svar loggas som `teacher-approved`, aldrig som en självständig automatisk prestation. Lärarbekräftelsen i ettan kräver nu en sexsiffrig kod i stället för en kryssruta. Koden är en lokal klassrumsspärr, ingen serverbaserad behörighetskontroll. Eleven kan också öva hos Rut och göra ett nytt självständigt områdesprov, så att stöd inte skapar en återvändsgränd. Se YEAR6_LANGUAGE_AND_REVIEW.md.
 
 `questions/power-language.js` utvidgar de två öppna maktfrågorna. Den känner igen fler uttryck för begränsad kungamakt och ökat inflytande för riksdag/riksråd, inklusive ”kungens envälde upphörde och riksdagen och riksrådet fick ökat inflytande”. Kontroll sker av båda leden och maktförändringens riktning. Detta är fortfarande en lokal regelkontroll; okända formuleringar går till granskning. Övriga uppgifters bedömning lämnas till den befintliga motorn. Enhetstestet omfattar 44 giltiga formuleringar, 36 felaktiga/ofullständiga svar och 76 oförändrade uppgifter.
 
@@ -36,7 +36,7 @@ Alla nycklar går genom den befintliga integrationens separata elev- och lärars
 
 ## Filer och kontroller
 
-`chapter1-mastery.js` ersätter ettans gamla pilot först när integrationen laddar kapitel 1. `mastery-recall-adapter.js` lägger uttryckliga krokar i den frysta rättningsmotorn; ankaravvikelser stoppar laddningen. Frågebank och bedömningskriterier återanvänds. Övriga kapitel får inte adaptern.
+`chapter1-mastery.js` ersätter ettans gamla pilot först när integrationen laddar kapitel 1. `mastery-recall-adapter.js` lägger uttryckliga krokar i den frysta rättningsmotorn; ankaravvikelser stoppar laddningen. Frågebank och bedömningskriterier återanvänds. Även kapitel 2–5 använder adaptern. De nya språkinstruktionerna och granskningsflödet i 2.8.0 gäller ettan; den kortare texten vid exempelsvar delas av kapitlen.
 
 Kör `npm run test:mastery` med Playwright installerat. `CHROMIUM_PATH` kan ange en lokal Chromium. I Codex-miljön hämtas Playwright från `CODEX_PRIMARY_RUNTIME_NODE_MODULES`.
 
