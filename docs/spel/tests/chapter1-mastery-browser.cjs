@@ -4,6 +4,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
  const root=path.resolve(__dirname,'../../..'),server=http.createServer((req,res)=>{const p=path.join(root,decodeURIComponent(req.url.split('?')[0]));let file=p;if(fs.existsSync(p)&&fs.statSync(p).isDirectory())file=path.join(p,'index.html');if(!fs.existsSync(file)){res.writeHead(404);res.end();return;}const type={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.webp':'image/webp','.png':'image/png','.json':'application/json'}[path.extname(file)]||'application/octet-stream';res.setHeader('Content-Type',type);res.end(fs.readFileSync(file));});await new Promise(r=>server.listen(0,'127.0.0.1',r));
  const b=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']});
  const p=await b.newPage({viewport:{width:1200,height:850},reducedMotion:'reduce'});p.setDefaultTimeout(12000);p.on('pageerror',e=>console.log('ERROR',e.message));
+ const teacherCode=await require('./teacher-review-test-utils.cjs').installTeacherCode(p);
  const errors=[];p.on('pageerror',e=>errors.push(e.message));
  const origin='http://127.0.0.1:'+server.address().port, url=origin+'/docs/spel/?teacher=1&chapter=1';
  let f;
@@ -62,7 +63,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   // Teacher asks for a revision; the learner writes a sufficient answer.
   await mb('revise');await f.locator('[data-rc-field="0"]').fill('Det handlade med Asien, bland annat Kina, och importerade exempelvis te.');await f.locator('[data-action="rc-submit"]').click();
   assert.equal((await state()).m.state.areas.trade.master.status,'pending','supported revision needs review');
-  await mb('review');await f.locator('#mbTeacher').check();await mb('approve');await f.locator('[data-action="rc-next"]').click();
+  await mb('review');await f.locator('#mbTeacherCode').fill(teacherCode);await mb('approve');await f.locator('[data-action="rc-next"]').click();
   assert.equal((await state()).m.state.areas.trade.master.status,'clear');assert.equal((await state()).s.apples,apples);
   for(const id of ['law','start']){await enter(id,'master');await finish(id,'master');}
   assert.equal((await state()).s.complete,true);assert.equal((await state()).m.summary.chapterComplete,true);

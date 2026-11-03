@@ -3,7 +3,7 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.7.2',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='2.8.0',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -59,7 +59,7 @@ async function source(name){
  if(chapter===4&&name==='chapter4-sidequest.js')return get('chapter4-cookbook.js?v=2.4.0');
  if(chapter===3&&name==='chapter3-pilot.js')return get('chapter3-mastery.js?v=2.6.2');
  if(chapter===2&&name==='chapter2-pilot.js')return get('chapter2-mastery.js?v=2.6.2');
- if(chapter===1&&name==='chapter1-pilot.js')return get('chapter1-mastery.js?v=2.7.2');
+ if(chapter===1&&name==='chapter1-pilot.js')return get('chapter1-mastery.js?v=2.8.0');
  let text;
  if(payload.extra[name]!==undefined)text=payload.extra[name];
  else if(payload.questions[name]!==undefined)text=payload.questions[name];
@@ -161,17 +161,18 @@ async function makePage(ch,id){
   if(name==='chapter8-pilot.js')code=code.replace("+'<button class=\"primary\" data-action=\"restart\">Börja om äventyret</button>'","+'<p><a href=\"chapter9-pilot.html\">Fortsätt till kapitel 9 →</a></p><button class=\"primary\" data-action=\"restart\">Börja om äventyret</button>'");
   if(name==='recall-assessment.js'){code+='\n'+payload.fixes+'\n'+payload.alignment+'\n'+payload.powerLanguage;if(ch===4)code+='\n'+await get('questions/chapter4-material.js?v=2.4.0')+'\n'+await get('questions/chapter4-review.js?v=2.4.0');if(ch===5)code+='\n'+await get('questions/chapter5-material.js?v=2.6.0')+'\n'+await get('questions/chapter5-review.js?v=2.6.0');}
   if(name==='chapter7-content.js')code+='\n'+await get('chapter7-war-rule-fix.js?v=1.3.1');
-  if(name==='recall-flow.js')code=`{const s=document.createElement('script');s.textContent=UPPDRAG_PROMPT_ALIGNMENT.flow(${JSON.stringify(code)}).replaceAll('maxlength="120"','maxlength="240"').replaceAll('maxlength="600"','maxlength="4000"');document.head.append(s);}`;
+  if(name==='recall-flow.js')code=`{const s=document.createElement('script');s.textContent=${ch===1?'UPPDRAG_PUPIL_LANGUAGE.flow(UPPDRAG_PROMPT_ALIGNMENT.flow('+JSON.stringify(code)+'))':'UPPDRAG_PROMPT_ALIGNMENT.flow('+JSON.stringify(code)+')'}.replaceAll('maxlength="120"','maxlength="240"').replaceAll('maxlength="600"','maxlength="4000"');document.head.append(s);}`;
   if(ch>=9&&name==='recall-flow.js')code=code.replace('document.head.append(s);','s.textContent=s.textContent.replace("Kontrollera svaren i rutorna","Jämför och spara ditt svar").replace("Att läsa exemplet är träning. Ett självständigt svar ska senare ges utan exemplet. En fråga om ett namn eller en vara kräver fortfarande bara den uppgiften.","Jämför med exemplet, men behåll dina egna ord. Öppna resonemang sparas för granskning utan automatisk mästarstämpel.");document.head.append(s);');
   return script(code,m[1]+m[3]);
  }));
  let index=0;page=page.replace(pattern,()=>scripts[index++]);page=query(page);
- const masteryModule=await get('mastery-progression.js?v=2.0.1');
+ const masteryModule=await get('mastery-progression.js?v=2.8.0');
  const reviewRecovery=[1,2,3,4,5].includes(ch)?await get('mastery-review-recovery.js?v=1.0.1'):'';
+ const classroom=ch===1?(await get('pupil-language.js?v=1.0.0'))+'\n'+(await get('teacher-review.js?v=1.0.0')):'';
  const presence=[1,2,3,4,5].includes(ch)?await get('scene-presence.js?v=1.3.0'):'';
  const staging=(await source('room-staging.js'))+'\n'+(await source('room-life.js'));
  const styles=`<style>header small,header .chapterBack{display:none}header h1{font-size:clamp(13px,2.6vw,20px)}#ch1Modal textarea{min-height:100px}#ch1Modal .rc-tools button{min-height:44px}#ch1Modal .rc-own{overflow-wrap:anywhere}#ch1Modal .ch1Sheet{overscroll-behavior:contain}</style>`;
- page=page.replace('<head>','<head><base href="'+new URL('../demo3/',document.baseURI).href+'">'+script(bridge(id)+'\n'+staging+'\n'+presence+([1,2,3,4,5].includes(ch)?'\n'+masteryModule+'\n'+reviewRecovery:''))+styles);
+ page=page.replace('<head>','<head><base href="'+new URL('../demo3/',document.baseURI).href+'">'+script(bridge(id)+'\n'+classroom+'\n'+staging+'\n'+presence+([1,2,3,4,5].includes(ch)?'\n'+masteryModule+'\n'+reviewRecovery:''))+styles);
  // Shared mastery engine is loaded for every chapter during the rebuild. Chapters opt in by configuring areas.
  // Chapters 1 and 2 configure mastery before their pilots; later chapters opt in later.
  // Optional, save-compatible side adventures are installed after existing scripts.
@@ -223,7 +224,7 @@ $('importSave').onclick=()=>$('saveFile').click();$('saveFile').onchange=async()
 };
 async function boot(){
  warning();updateMenu();if(!window.DecompressionStream||!crypto.subtle)throw Error('Öppna äventyret i en uppdaterad webbläsare via HTTPS.');
- const [delta,q,fixes,alignment,powerLanguage,inspector]=await Promise.all([unzip('deltas.json.gz'),unzip('questions/snapshot.json.gz'),get('questions/fixes.js'),get('questions/alignment.js'),get('questions/power-language.js?v=2.1.1'),lessonOne?Promise.resolve(''):get('inspector.js')]);
+ const [delta,q,fixes,alignment,powerLanguage,inspector]=await Promise.all([unzip('deltas.json.gz'),unzip('questions/snapshot.json.gz'),get('questions/fixes.js'),get('questions/alignment.js?v=2.8.0'),get('questions/power-language.js?v=2.1.1'),lessonOne?Promise.resolve(''):get('inspector.js')]);
  payload={...delta,questions:q.scripts,fixes,alignment,powerLanguage,inspector};
  if(lessonOne){document.querySelector('.badge').textContent='Elevversion · kapitel 1';$('intro').querySelector('h1').textContent='Uppdrag 1700 · Frihetstiden';$('intro').querySelector('p').textContent='Spela kapitel 1. Dina framsteg sparas i den här webbläsaren.';}
  let requested=lessonOne?1:Number(params.get('chapter')||read('lastChapter'))||1;if(!available(requested))requested=1;await openIntegratedChapter(requested);

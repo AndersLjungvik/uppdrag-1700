@@ -1,8 +1,10 @@
-# Elevlänk – enbart kapitel 1 · 2.7.2
+# Elevlänk – enbart kapitel 1 · 2.8.0
 
-Länken `?only=1&chapter=1&v=2.7.2` öppnar Frihetstiden i en elevvy med enbart kapitel 1. Menyn visar bara ettan. Senare kapitel förblir otillgängliga även när alla ettans nio stämplar är klara. Avslutningen och minnesboken erbjuder då ingen fortsättning till tvåan. Lärarvyn finns inte i denna elevvy.
+Länken `?only=1&chapter=1&v=2.8.0` öppnar Frihetstiden i en elevvy med enbart kapitel 1. Menyn visar bara ettan. Senare kapitel förblir otillgängliga även när alla ettans nio stämplar är klara. Avslutningen och minnesboken erbjuder då ingen fortsättning till tvåan. Lärarvyn finns inte i denna elevvy.
 
 Elevvyn begränsar äppelförrådet till högst ett äpple. Ett äpple används till ett nytt försök på hela områdesprovet. Därefter behöver eleven avsluta en ny repetition hos Rut för att få ett nytt. Repetition med ett äpple kvar är fortfarande gratis men ger inget extra äpple och lovar ingen ny belöning. Sparade och importerade förråd över ett begränsas vid öppning; svar, stämplar, daler och historik behålls. Det vanliga spelets äppelförråd påverkas inte.
+
+Instruktioner, knappar och återkoppling i ettan är anpassade för elever som arbetar själva i årskurs 6. Frågornas formuleringar, ämnesbegrepp och bedömningskrav är bevarade. Manuell granskning kräver en sexsiffrig lärarkod, vars klartext aldrig publiceras eller sparas i spelet. Det är en lokal klassrumsspärr, ingen serverbaserad behörighet. Vid osäkert svar kan eleven i stället avsluta en ny repetitionsomgång hos Rut och göra om hela områdesprovet utan hjälp. Det kräver inget äpple och ger ingen stämpel förrän det nya provet är klart. Se YEAR6_LANGUAGE_AND_REVIEW.md.
 
 Elevvyn använder en egen sparning under `lesson.1.` i appens befintliga namnrymd. Den blandas inte med lärarens testomgång eller det obegränsade spelet. Samma länk kan skickas till alla elever; varje webbläsare sparar sin egen omgång lokalt. Ljudinställningen hör fortfarande till enheten och går att använda även här.
 

@@ -99,11 +99,11 @@ A.assess=function(t,drafts,original){
  return {...result,details,status:status(details)};
 };
 A.modelHTML=function(t){
- let html='<div class="rc-model"><h3>Exempel på svar till just den här uppgiften</h3>';
+ let html='<div class="rc-model"><h3>Exempel på svar</h3>';
  t.fields.forEach(f=>{html+='<p><b>'+esc(f.label)+'</b><br>'+esc(f.sample)+'</p>';});
  const note=t.fields.every(f=>f.answers)
-  ?'Här räcker de namn eller sakuppgifter som rutorna ber om. Du behöver inte lägga till orsaker eller en längre förklaring.'
-  :'Exemplet är inte en mall att kopiera. Svara på det frågan och rutorna ber om. Inga ytterligare orsaker eller detaljer krävs för att de råkar finnas i ett längre exempelsvar.';
+  ?'Skriv det namn eller den uppgift som frågan ber om. Du behöver inte förklara mer.'
+  :'Svara på det som frågan ber om. Du får använda egna ord och behöver inte skriva allt som står i exemplet.';
  return html+'<p class="rc-note">'+note+'</p></div>';
 };
 function flow(source){

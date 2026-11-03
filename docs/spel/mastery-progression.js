@@ -112,6 +112,14 @@ function resumePending(id,level){
  if(c.status!=='pending')return {ok:false,reason:'not-pending'};
  c.status='in-progress';persist();return {ok:true};
 }
+function reopenPending(id,level){
+ const c=cell(id,level);
+ if(c.status!=='pending')return {ok:false,reason:'not-pending'};
+ // The chapter verifies completed practice before calling this. Reopening
+ // creates no credit: begin() must allocate a new whole-area attempt.
+ c.status='available';record('practice-retry',{area:id,level,attempt:c.attempt||0});persist();
+ return {ok:true,attempt:c.attempt||0};
+}
 function levelUnlocked(level){
  if(level==='learner')return true;
  if(level==='journeyman')return allClear('learner');
@@ -129,6 +137,6 @@ function summary(){
 }
 function snapshot(){return {chapter,config:clone(config),state:clone(state),summary:summary()}}
 function reset(){state=blank();recompute();persist();return snapshot()}
-const api={configure,begin,pass,pending,resumePending,fail,retryWithApple,buyHint,levelUnlocked,chapterComplete,summary,snapshot,reset,LEVELS:[...LEVELS],LABELS:{...LABELS}};
+const api={configure,begin,pass,pending,resumePending,reopenPending,fail,retryWithApple,buyHint,levelUnlocked,chapterComplete,summary,snapshot,reset,LEVELS:[...LEVELS],LABELS:{...LABELS}};
 window.UPPDRAG_MASTERY=api;
 })();
