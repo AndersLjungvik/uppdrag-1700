@@ -1,17 +1,21 @@
-# Miljöljud · version 2.7.0
+# Miljöljud · version 2.9.0
 
 Miljöljuden hör till den befintliga pappersvärlden. De följer platsen och växlar mjukt när spelaren går in, går ut eller reser. De är egna procedurala ljudskisser, inte historiska inspelningar. Inga ljudfiler hämtas från externa tjänster.
 
 | Miljö | Ljud |
 | --- | --- |
-| Staden | Svag vind och avlägset sorl; sparsamma trä-/vagnsljud och fåglar |
-| Kajen och öarnas utomhusmiljöer | Vatten, vind, enstaka måsar och träknarr |
-| Båtresan | Mer vatten och vind, sparsamt knarr från trä |
+| Staden | Pauser mellan sparsamma vagnsljud, fåglar och fotsteg; ingen jämn vind- eller brusmatta |
+| Nära kajen och öarnas hamnar | Vågor, enstaka måsar och träknarr; avtar när spelaren går inåt land |
+| Båtresan | Vågor och sparsamt knarr från trä och måsar; inget separat vindbrus |
 | Tryckeriet | Oregelbundna träpresslag, knarr och pappersprassel |
 | Verkstäderna | Dämpade hammarslag och trä |
-| Byn | Vind och fåglar |
-| Kaffehus, hushåll och Barnhus | Lågmäld inomhusmiljö och eld |
-| Arkiv, vetenskap, slott, kyrka och fästning | Mycket svag rumston och enstaka prassel |
+| Byn | Fåglar och fotsteg med pauser mellan ljuden |
+| Kaffehus, hushåll och Barnhus | Lågmäld eld och enstaka träknarr |
+| Arkiv, vetenskap, slott, kyrka och fästning | Enstaka prassel med tysta pauser |
+
+Det jämna syntetiska vind- och sorlbruset används inte i den nya mixen. De korta ljuden och spelets befintliga djurrepliker behålls. Inga extra djurläten läggs ovanpå.
+
+Havsmiljön har full styrka inom 140 kartenheter från hamnens riktiga navigationspunkt, tonas mjukt mellan 140 och 500 och är tyst längre inåt land. Detta gäller även Marstrand och kolonin. Kajens närbild och båtresan ger full havsmiljö; inomhus blir den tyst. Vågornas ljudfas och måsarnas schema startas inte om vid varje positionsuppdatering. Pågående måsljud tonas också bort.
 
 Fotsteg hörs vid faktisk rörelse utomhus. En planerad men stillastående väg, ett miljöbyte eller en teleport ger inga steg. Mellan miljöerna tonas ljudlagren över ungefär en sekund. En rumsövergång startar inga extra parallella ljudmotorer.
 
@@ -28,4 +32,4 @@ Toppljudknappen har fast bredd. Dess tillståndsbyte ska inte ändra spelrutans 
 - `ambient-controls.js`: knapp, ljudstyrka och koppling mellan miljöläsare och ljudmotor.
 - Integrationen laddar ljudmiljöläsaren i alla kapitel. Elevsparningens namnrymd behålls. Publiceringen gäller endast `docs/spel-test/` på main; PR 4 förblir draft.
 
-`npm run test:ambient` kontrollerar deterministiska, ändliga och avtonade ljuddata med marginal till klippning; inget automatiskt ljud före opt-in; sparad inställning; en enda ljudmotor; övergångar och begränsade röster; läs-/samtals-/uppläsningsdämpning; volym; dold flik och återkomst; snabb av/på; sent återupptaget ljud efter avstängning; faktisk ljudsignal i Chromium; platser och båtresa; mobil/tangentbord; oförändrad spelruta och elevdata; navigation mellan kapitel; samt webbläsare utan ljudstöd. Fysisk iPhone/Safari ingår inte i Chromium-kontrollerna.
+`npm run test:ambient` kontrollerar deterministiska, ändliga och avtonade ljuddata med marginal till klippning; inget automatiskt ljud före opt-in; sparad inställning; en enda ljudmotor; övergångar och begränsade röster; läs-/samtals-/uppläsningsdämpning; volym; dold flik och återkomst; snabb av/på; sent återupptaget ljud efter avstängning; faktisk ljudsignal i Chromium; platser, båtresa, gradvis hamnljud och tystare inland på öarna; mobil/tangentbord; oförändrad spelruta och elevdata; navigation mellan kapitel; samt webbläsare utan ljudstöd. Fysisk iPhone/Safari ingår inte i Chromium-kontrollerna.

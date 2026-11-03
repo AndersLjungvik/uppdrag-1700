@@ -19,8 +19,8 @@ const {launch,assert,fs,path}=require('./chapter4-test-utils.cjs');
   const saves=await f.evaluate(()=>[localStorage.getItem(UPPDRAG_CH4_PILOT.saveKey),localStorage.getItem('uppdrag1700.mastery.v1.ch4')]);
   const stageBefore=await f.locator('#stage').boundingBox();
   await h.page.locator('#ambientToggle').click();await active();assert.equal(await h.page.evaluate(()=>__qaAudio.length),1);
-  await h.page.waitForFunction(()=>{const c=__qaAudio[0],a=c?.__qaMeter;if(!a)return false;const data=new Float32Array(a.fftSize);a.getFloatTimeDomainData(data);return data.some(v=>Math.abs(v)>.00001);});
-  const audio=await h.page.evaluate(()=>{const a=__qaAudio[0].__qaMeter,d=new Float32Array(a.fftSize);a.getFloatTimeDomainData(d);return {peak:Math.max(...d.map(Math.abs)),rms:Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length)};});
+  await h.page.waitForFunction(()=>{const c=__qaAudio[0],a=c?.__qaMeter;if(!a)return false;const d=new Float32Array(a.fftSize);a.getFloatTimeDomainData(d);const peak=Math.max(...d.map(Math.abs));if(peak<=.00001)return false;window.__qaSignal={peak,rms:Math.sqrt(d.reduce((s,v)=>s+v*v,0)/d.length)};return true;});
+  const audio=await h.page.evaluate(()=>__qaSignal);
   assert(audio.peak>0&&audio.peak<.9&&audio.rms>0,'actual Web Audio output is nonzero and has headroom: '+JSON.stringify(audio));
   assert.deepEqual(await f.locator('#stage').boundingBox(),stageBefore,'sound toggle does not move the game world');
   assert.deepEqual(await f.evaluate(()=>[localStorage.getItem(UPPDRAG_CH4_PILOT.saveKey),localStorage.getItem('uppdrag1700.mastery.v1.ch4')]),saves,'audio settings do not change pupil progress');
@@ -31,8 +31,21 @@ const {launch,assert,fs,path}=require('./chapter4-test-utils.cjs');
   await h.page.waitForFunction(()=>UPPDRAG_AMBIENT.status().duck===.015);
   await f.evaluate(()=>{if(__qaSpeech)Object.defineProperty(window,'speechSynthesis',__qaSpeech);else delete window.speechSynthesis;});
   await h.room('archive');await scene('quiet');await h.room('farm');await scene('country');await h.room('homes');await scene('home');
+  // Actual map positions change coastal volume gradually. Holding the same
+  // wave source avoids resetting the sea loop on every sampled footstep.
+  await f.evaluate(()=>{UPPDRAG_CH4_CITY_LIFE.suspend();if(interior)leaveInterior();path=[];window.__qaPort={...navigationPoint(region,region.harbor)};player={x:__qaPort.x+100,y:__qaPort.y};draw();});
+  await h.page.waitForFunction(()=>UPPDRAG_AMBIENT.status().coast===1);
+  for(const [distance,expected]of [[230,.84375],[320,.5],[410,.15625]]){
+   await f.evaluate(distance=>{path=[];player={x:__qaPort.x+distance,y:__qaPort.y};draw();},distance);
+   await h.page.waitForFunction(expected=>Math.abs(UPPDRAG_AMBIENT.status().coast-expected)<.00001,expected);
+  }
+  await f.evaluate(()=>{path=[];player={x:__qaPort.x+650,y:__qaPort.y};draw();});
+  await h.page.waitForFunction(()=>UPPDRAG_AMBIENT.status().coast===0&&UPPDRAG_AMBIENT.status().scene==='city');
+  assert.equal(await h.page.evaluate(()=>__qaAudio.length),1,'walking inland keeps a single audio context');
   await f.evaluate(()=>{if(interior)leaveInterior();UPPDRAG_CH4_CITY_LIFE.suspend();path=[];player={...navigationPoint(region,region.harbor)};camera={...player};requestHarbour();draw();});await scene('harbour');
   await f.evaluate(()=>departHarbour('marstrand'));await scene('sailing');await f.locator('#skipVoyage').click();await f.waitForFunction(()=>region.id==='marstrand'&&!voyage);await scene('harbour');
+  await f.evaluate(()=>{if(interior)leaveInterior();path=[];const port=navigationPoint(region,region.harbor);player={x:port.x+650,y:port.y};draw();});
+  await h.page.waitForFunction(()=>UPPDRAG_AMBIENT.status().coast===0&&UPPDRAG_AMBIENT.status().scene==='city');
   await h.room('fort');await scene('quiet');
   // Settings remain usable on a phone, with no viewport jump on toggling.
   await h.page.setViewportSize({width:390,height:844});await h.page.locator('#menuButton').click();await h.page.locator('#ambientSettings summary').click();
@@ -55,6 +68,6 @@ const {launch,assert,fs,path}=require('./chapter4-test-utils.cjs');
   const fallback=await h.browser.newPage({ignoreHTTPSErrors:!!process.env.GAME_URL});
   await fallback.addInitScript(()=>{window.AudioContext=undefined;window.webkitAudioContext=undefined;});await fallback.goto(h.url,{waitUntil:'domcontentloaded'});
   await fallback.waitForFunction(()=>!!window.UPPDRAG_AMBIENT);assert.equal(await fallback.locator('#ambientToggle').isDisabled(),true);assert.equal(await fallback.locator('#error').innerText(),'');await fallback.close();
-  assert.deepEqual(h.errors,[]);console.log('PASS ambience browser: actual nonzero audio, opt-in/one context, place/boat changes, print foley, dialogue/study/TTS ducking, mobile stable camera/volume/keyboard, hidden pause/resume, saved preferences and child gesture after chapter navigation, unsupported fallback');
+  assert.deepEqual(h.errors,[]);console.log('PASS ambience browser: sparse real audio, smooth coastal levels and island inland silence, opt-in/one context, place/boat changes, print foley, dialogue/study/TTS ducking, mobile stable camera/volume/keyboard, hidden pause/resume, saved preferences and child gesture after chapter navigation, unsupported fallback');
  }catch(e){console.error('Parent',await h.page.locator('#error').textContent().catch(()=>''));console.error('Audio',await status().catch(()=>null));throw e;}finally{await h.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
