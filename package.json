@@ -20,7 +20,8 @@
     "test:presence": "node docs/spel/tests/scene-presence.cjs && node docs/spel/tests/scene-presence-browser.cjs && node docs/spel/tests/social-presence-browser.cjs",
     "test:chapter5": "node docs/spel/tests/chapter5-foundation.cjs && node docs/spel/tests/chapter5-material.cjs && node docs/spel/tests/chapter5-smoke-browser.cjs && node docs/spel/tests/chapter5-mastery-browser.cjs && node docs/spel/tests/chapter5-migration-browser.cjs && node docs/spel/tests/chapter5-bookwork-browser.cjs && node docs/spel/tests/chapter5-world-browser.cjs && node docs/spel/tests/chapter5-travel-browser.cjs && node docs/spel/tests/chapter5-replies-browser.cjs && node docs/spel/tests/chapter5-thief-browser.cjs",
     "test:rut-review": "node docs/spel/tests/mastery-review-recovery.cjs && node docs/spel/tests/chapter4-rut-review-browser.cjs && node docs/spel/tests/mastery-review-chapters-browser.cjs",
-    "test:ambient": "node docs/spel/tests/ambient-audio.cjs && node docs/spel/tests/ambient-scene.cjs && node docs/spel/tests/ambient-browser.cjs"
+    "test:ambient": "node docs/spel/tests/ambient-audio.cjs && node docs/spel/tests/ambient-scene.cjs && node docs/spel/tests/ambient-browser.cjs",
+    "test:chapter-one-only": "node docs/spel/tests/chapter-one-only-browser.cjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "0.1.100"
