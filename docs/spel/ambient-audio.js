@@ -4,14 +4,14 @@
 'use strict';
 const lengths={air:12,water:12,fire:10,crowd:11,step:.18,paper:.72,wood:.8,press:1.7,hammer:.45,bird:.85,gull:1.5,cart:2.5};
 const profiles={
- city:{name:'Staden',beds:{air:.28,crowd:.15},cues:[['cart',16,32,.16],['bird',14,30,.09]],steps:.16},
- harbour:{name:'Kajen',beds:{air:.3,water:.47,crowd:.055},cues:[['gull',11,22,.1],['wood',9,19,.12]],steps:.12},
- sailing:{name:'Till sjöss',beds:{air:.42,water:.62},cues:[['wood',7,15,.15],['gull',22,40,.07]],steps:0},
- print:{name:'Tryckeriet',beds:{air:.035},cues:[['press',5,9,.34],['paper',4,8,.2]],steps:0},
- workshop:{name:'Verkstäderna',beds:{air:.07},cues:[['hammer',4,8,.17],['wood',9,18,.12]],steps:0},
- country:{name:'Byn och naturen',beds:{air:.3},cues:[['bird',5,12,.14]],steps:.13},
- home:{name:'Inomhus',beds:{air:.02,fire:.11,crowd:.035},cues:[['wood',16,30,.035]],steps:0},
- quiet:{name:'Lugnt rum',beds:{air:.022},cues:[['paper',18,34,.035]],steps:0}
+ city:{name:'Staden',beds:{},cues:[['cart',16,32,.16],['bird',14,30,.09]],steps:.16},
+ harbour:{name:'Kajen',beds:{},cues:[['wood',9,19,.12]],steps:.12},
+ sailing:{name:'Till sjöss',beds:{},cues:[['wood',7,15,.15]],steps:0},
+ print:{name:'Tryckeriet',beds:{},cues:[['press',5,9,.34],['paper',4,8,.2]],steps:0},
+ workshop:{name:'Verkstäderna',beds:{},cues:[['hammer',4,8,.17],['wood',9,18,.12]],steps:0},
+ country:{name:'Byn och naturen',beds:{},cues:[['bird',5,12,.14]],steps:.13},
+ home:{name:'Inomhus',beds:{fire:.08},cues:[['wood',16,30,.035]],steps:0},
+ quiet:{name:'Lugnt rum',beds:{},cues:[['paper',18,34,.035]],steps:0}
 };
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
 function samples(kind,rate=24000,seed=1732){
@@ -75,8 +75,9 @@ function create({storageKey='uppdrag1700.ambient.preferences.v1',onChange=()=>{}
  let enabled=false,volume=.4;
  try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved?.v===1){enabled=saved.enabled===true;if(Number.isFinite(saved.volume))volume=clamp(saved.volume,0,1);}}catch{}
  let context=null,master=null,compressor=null,unlocking=null,timer=null,disposed=false,generation=0;
- let state={scene:'city',place:'town',visible:false,walking:false,study:false,dialogue:false,narration:false};
+ let state={scene:'city',place:'town',coast:0,visible:false,walking:false,study:false,dialogue:false,narration:false};
  let activeScene=null,layers=[],schedule=[],stepAt=0,played=0,transitions=0,blocked=false;
+ let seaLayer=null,seaNext=0;
  const voices=new Set(),cache=new Map();
  const visible=()=>!document.hidden&&state.visible!==false;
  const canRun=()=>enabled&&visible()&&!disposed;
@@ -108,7 +109,7 @@ function create({storageKey='uppdrag1700.ambient.preferences.v1',onChange=()=>{}
  }
  function stopVoices(){
   for(const item of voices){try{item.source.stop();}catch{}item.source.disconnect();item.level.disconnect();}
-  voices.clear();layers=[];schedule=[];activeScene=null;
+  voices.clear();layers=[];schedule=[];activeScene=null;seaLayer=null;seaNext=0;
  }
  function stopTimer(){if(timer!==null){clearInterval(timer);timer=null;}}
  function pause(immediate=false){
@@ -116,11 +117,11 @@ function create({storageKey='uppdrag1700.ambient.preferences.v1',onChange=()=>{}
   if(!context)return;
   if(immediate){if(master)master.gain.value=0;stopVoices();void context.suspend?.().catch(()=>{});return;}
   if(master)target(master.gain,0,.02);
-  for(const item of voices)release(item,.09);layers=[];schedule=[];activeScene=null;
+  for(const item of voices)release(item,.09);layers=[];schedule=[];activeScene=null;seaLayer=null;seaNext=0;
   setTimeout(()=>{if(token===generation&&!canRun()){stopVoices();void context.suspend?.().catch(()=>{});emit();}},110);
  }
  function transition(){
-  const kind=profiles[state.scene]?state.scene:'quiet';if(kind===activeScene&&layers.length)return;
+  const kind=profiles[state.scene]?state.scene:'quiet';if(kind===activeScene)return;
   for(const item of layers)release(item);layers=[];
   // Rapidly changing a doorway must not accumulate a growing stack of loops.
   if(voices.size>12)for(const item of voices)if(item.retiring){try{item.source.stop();}catch{}}
@@ -128,10 +129,25 @@ function create({storageKey='uppdrag1700.ambient.preferences.v1',onChange=()=>{}
   for(const [id,gain] of Object.entries(profiles[kind].beds)){const item=voice(id,gain,{loop:true,pan:id==='crowd'?-.12:0});if(item)layers.push(item);}
   const now=context.currentTime;schedule=profiles[kind].cues.map(([id,min,max,gain],i)=>({id,min,max,gain,next:now+1.2+i*1.7+Math.random()*2.2}));stepAt=now+.2;
  }
+ function mixSea(){
+  const coast=state.coast,sailing=state.scene==='sailing';
+  // Keep one wave phase while walking along the harbour boundary. Position
+  // changes adjust gain; they must not restart loops or gull schedules.
+  if(coast>0&&!seaLayer)seaLayer=voice('water',0,{loop:true});
+  if(seaLayer)target(seaLayer.level.gain,(sailing?.58:.47)*coast,.24);
+  for(const item of voices)if(!item.retiring&&item.coastalGain!==undefined)target(item.level.gain,item.coastalGain*coast,.16);
+  if(coast>.08){if(!seaNext)seaNext=context.currentTime+2.5+Math.random()*2.5;}
+  else seaNext=0;
+ }
  function tick(){
   if(!canRun()||context?.state!=='running')return;
-  transition();output();const now=context.currentTime;
+  transition();mixSea();output();const now=context.currentTime;
   for(const cue of schedule)if(now>=cue.next){voice(cue.id,cue.gain,{pan:(Math.random()-.5)*.65});cue.next=now+cue.min+Math.random()*(cue.max-cue.min);}
+  if(seaNext&&now>=seaNext){
+   const sailing=state.scene==='sailing',gain=sailing?.07:.1,item=voice('gull',gain*state.coast,{pan:(Math.random()-.5)*.65});
+   if(item)item.coastalGain=gain;
+   seaNext=now+(sailing?22:11)+Math.random()*(sailing?18:11);
+  }
   if(state.walking&&profiles[activeScene].steps&&now>=stepAt){voice('step',profiles[activeScene].steps,{pan:(played%2?1:-1)*.07});stepAt=now+.37+Math.random()*.09;}
  }
  async function unlock(){
@@ -146,7 +162,7 @@ function create({storageKey='uppdrag1700.ambient.preferences.v1',onChange=()=>{}
     }
     generation++;if(context.state!=='running')await context.resume();
     blocked=context.state!=='running';
-    if(canRun()&&!blocked){transition();output();if(timer===null)timer=setInterval(tick,120);}
+    if(canRun()&&!blocked){transition();mixSea();output();if(timer===null)timer=setInterval(tick,120);}
     else if(!canRun())pause(true);
     emit();return !blocked;
    }catch{blocked=true;pause(true);emit();return false;}
@@ -162,12 +178,14 @@ function create({storageKey='uppdrag1700.ambient.preferences.v1',onChange=()=>{}
  function setVolume(value){if(Number.isFinite(Number(value)))volume=clamp(Number(value),0,1);remember();output();emit();return volume;}
  function setScene(next){
   if(!next||disposed)return;
-  state={...state,...next,scene:profiles[next.scene]?next.scene:'quiet'};
+  const scene=profiles[next.scene]?next.scene:'quiet';
+  const coast=Number.isFinite(next.coast)?clamp(next.coast,0,1):['harbour','sailing'].includes(scene)?1:0;
+  state={...state,...next,scene,coast};
   if(!canRun()){if(context&&(timer!==null||voices.size))pause(true);emit();return;}
-  if(context){if(context.state==='running'){transition();output();if(timer===null)timer=setInterval(tick,120);}else void unlock();}
+  if(context){if(context.state==='running'){transition();mixSea();output();if(timer===null)timer=setInterval(tick,120);}else void unlock();}
   emit();
  }
- function status(){return {enabled,volume,supported:!!Audio,context:context?.state||'idle',active:!!(canRun()&&context?.state==='running'),blocked,scene:state.scene,place:state.place,duck:state.narration?0.015:state.study?0.12:state.dialogue?0.32:1,voices:voices.size,layers:layers.length,played,transitions};}
+ function status(){return {enabled,volume,supported:!!Audio,context:context?.state||'idle',active:!!(canRun()&&context?.state==='running'),blocked,scene:state.scene,place:state.place,coast:state.coast,duck:state.narration?0.015:state.study?0.12:state.dialogue?0.32:1,voices:voices.size,layers:layers.length+(seaLayer?1:0),played,transitions};}
  function visibility(){if(document.hidden)pause(true);else if(enabled&&context)void unlock();emit();}
  function gesture(){if(enabled)return unlock();return Promise.resolve(false);}
  function trustedGesture(event){if(event?.isTrusted&&!event.repeat&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.target?.closest?.('[data-ambient-control]'))void gesture();}

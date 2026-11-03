@@ -9,18 +9,48 @@ function fixture(){
 }
 {
  const h=fixture(),before=JSON.stringify({region:h.c.region,player:h.c.player,interior:h.c.interior});
- assert.deepEqual(h.read(),{scene:'city',place:'',region:'main',walking:false,study:false,dialogue:false,narration:false,visible:true});
+ assert.deepEqual(h.read(),{scene:'city',place:'',region:'main',coast:0,walking:false,study:false,dialogue:false,narration:false,visible:true});
  assert.equal(JSON.stringify({region:h.c.region,player:h.c.player,interior:h.c.interior}),before,'reader changes no game state');
  for(const [place,scene] of [['print','print'],['workshop','workshop'],['farm','country'],['cafe','home'],['homes','home'],['barnhus','home'],['archive','quiet'],['science','quiet'],['palace','quiet'],['church','quiet'],['fort','quiet'],['opera','quiet']]){
-  h.c.interior={kind:place};assert.equal(h.read().scene,scene,place);
+  h.c.interior={kind:place};const state=h.read();assert.equal(state.scene,scene,place);assert.equal(state.coast,0,place+' has no coast sound indoors');
  }
- h.c.interior={kind:'waterfront',outdoor:true,regionId:'main'};assert.equal(h.read().scene,'harbour');
- for(const place of ['quay','marstrandHarbor','colonyHarbor']){h.c.interior={kind:place};assert.equal(h.read().scene,'harbour',place);}
- h.c.interior=null;h.c.player={x:410,y:700};assert.equal(h.read().scene,'harbour','walking close to the quay changes ambience');
- h.c.player.x=430;assert.equal(h.read().scene,'city','city resumes beyond quay radius');
- for(const id of ['marstrand','colony']){h.c.region={id,harbor:'port'};h.c.player={x:1200,y:400};assert.equal(h.read().scene,'harbour',id+' outdoors');}
- h.c.interior={kind:'fort'};h.c.voyage={to:'main'};assert.equal(h.read().scene,'sailing','voyage overrides room');
- h.c.voyage=null;h.c.sailing={to:'marstrand'};assert.equal(h.read().scene,'sailing','legacy sailing supported');
+ h.c.interior={kind:'waterfront',outdoor:true,regionId:'main'};assert.equal(h.read().scene,'harbour');assert.equal(h.read().coast,1);
+ for(const place of ['quay','marstrandHarbor','colonyHarbor']){h.c.interior={kind:place};assert.equal(h.read().scene,'harbour',place);assert.equal(h.read().coast,1,place+' has full coastal sound');}
+ h.c.interior=null;h.c.player={x:410,y:700};assert.equal(h.read().scene,'harbour','walking close to the quay changes ambience');assert(h.read().coast>0&&h.read().coast<1);
+ h.c.player.x=700;assert.equal(h.read().scene,'city','city resumes inland');assert.equal(h.read().coast,0);
+ for(const id of ['marstrand','colony']){h.c.region={id,harbor:'port'};h.c.player={x:1200,y:400};assert.equal(h.read().scene,'city',id+' inland does not remain a harbour');assert.equal(h.read().coast,0);}
+ h.c.interior={kind:'fort'};h.c.voyage={to:'main'};assert.equal(h.read().scene,'sailing','voyage overrides room');assert.equal(h.read().coast,1);
+ h.c.voyage=null;h.c.sailing={to:'marstrand'};assert.equal(h.read().scene,'sailing','legacy sailing supported');assert.equal(h.read().coast,1);
+}
+{
+ // Harbour coordinates come from the active chapter's navigation helper,
+ // including moved island ports, rather than a raw or cached map position.
+ const h=fixture();let port={x:1480,y:1120};
+ h.c.navigationPoint=(r,key)=>{assert.equal(r,h.c.region);assert.equal(key,r.harbor);return port;};
+ const expected=distance=>{const t=Math.max(0,Math.min(1,(distance-140)/360));return 1-t*t*(3-2*t);};
+ for(const [id,key,point]of [['main','quay',{x:1480,y:1120}],['marstrand','port',{x:780,y:844}],['colony','port',{x:760,y:840}]]){
+  h.c.region={id,harbor:key,map:new Map([[key,{x:10,y:10}]])};port=point;
+  let previous=1;
+  for(const distance of [0,100,140,200,280,320,360,440,499,500,700]){
+   h.c.player={x:port.x+distance,y:port.y};
+   const state=h.read();
+   assert(Number.isFinite(state.coast)&&state.coast>=0&&state.coast<=1,id+' coast is bounded');
+   assert(Math.abs(state.coast-expected(distance))<1e-12,id+' smooth coast at '+distance);
+   assert(state.coast<=previous,id+' fades monotonically inland');previous=state.coast;
+   assert.equal(state.scene,state.coast>.5?'harbour':'city',id+' semantic scene at '+distance);
+  }
+  assert.equal(h.c.region.id,id);assert.equal(h.c.region.map.get(key).x,10,'reader does not rewrite map nodes');
+  port={x:point.x+700,y:point.y-100};h.c.player={...port};assert.equal(h.read().coast,1,id+' follows a changed navigation point');
+ }
+}
+{
+ const h=fixture();
+ const silent=label=>{const state=h.read();assert.equal(state.coast,0,label);assert.notEqual(state.scene,'harbour',label);};
+ delete h.c.navigationPoint;silent('missing navigation helper fails quietly');
+ h.c.navigationPoint=()=>{throw Error('not ready');};silent('unavailable navigation helper fails quietly');
+ for(const point of [null,{}, {x:NaN,y:700},{x:200,y:Infinity}]){h.c.navigationPoint=()=>point;silent('invalid harbour coordinates have no coastal sound');}
+ h.c.navigationPoint=()=>({x:200,y:700});
+ for(const point of [null,{}, {x:NaN,y:700},{x:200,y:Infinity}]){h.c.player=point;silent('invalid player coordinates have no coastal sound');}
 }
 {
  const h=fixture();h.read();h.advance();assert.equal(h.read().walking,false,'standing has no footsteps');
@@ -66,7 +96,7 @@ function fixture(){
 }
 {
  const c={window:{__ROOM_BOOTING:true},document:{}};vm.createContext(c);vm.runInContext(source,c);
- assert.deepEqual(JSON.parse(JSON.stringify(c.window.UPPDRAG_AMBIENCE_STATE())),{scene:'quiet',place:'',region:'',walking:false,study:false,dialogue:false,narration:false,visible:false},'early boot and absent optional APIs');
+ assert.deepEqual(JSON.parse(JSON.stringify(c.window.UPPDRAG_AMBIENCE_STATE())),{scene:'quiet',place:'',region:'',coast:0,walking:false,study:false,dialogue:false,narration:false,visible:false},'early boot and absent optional APIs');
  vm.runInContext('let region; let player; let interior; let voyage; let sailing;',c);assert.equal(c.window.UPPDRAG_AMBIENCE_STATE().visible,false,'uninitialized world values');
 }
-console.log('PASS ambient scene: read-only chapter 4/5 rooms, quay proximity/islands, modern and legacy sailing, real movement sampling, study/dialogue/TTS, trusted capture gestures and missing/early APIs');
+console.log('PASS ambient scene: read-only chapter 4/5 rooms, bounded smooth coast on all three maps and dynamic ports, inland island silence, modern and legacy sailing, real movement sampling, study/dialogue/TTS, trusted capture gestures and missing/early APIs');

@@ -17,18 +17,23 @@ function state(){
  const eventDialogue=!!(read(()=>event?.roomSpeaker,false)||(read(()=>event?.blocking,false)&&(openEvent||read(()=>event.state?.thief,'')!=='chasing')));
  const dialogue=!!(read(()=>window.UPPDRAG_MEETINGS.state.talking,false)||read(()=>window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE'].active,false)||eventDialogue);
  const narration=!!read(()=>window.speechSynthesis?.speaking||window.speechSynthesis?.pending,false);
- let scene='quiet';
- if(travelling)scene='sailing';
- else if(room?.outdoor||['waterfront','quay','marstrandHarbor','colonyHarbor'].includes(place))scene='harbour';
+ let scene='quiet',coast=0;
+ if(travelling){scene='sailing';coast=1;}
+ else if(room?.outdoor||['waterfront','quay','marstrandHarbor','colonyHarbor'].includes(place)){scene='harbour';coast=1;}
  else if(room){
   if(place==='print')scene='print';
   else if(place==='workshop')scene='workshop';
   else if(place==='farm')scene='country';
   else if(['cafe','homes','barnhus'].includes(place))scene='home';
  }else if(regionId){
-  scene=regionId==='main'?'city':'harbour';
+  scene='city';
   const harbour=read(()=>navigationPoint(r,r.harbor));
-  if(harbour&&point&&Math.hypot(point.x-harbour.x,point.y-harbour.y)<220)scene='harbour';
+  if([harbour?.x,harbour?.y,point?.x,point?.y].every(Number.isFinite)){
+   const distance=Math.hypot(point.x-harbour.x,point.y-harbour.y);
+   const t=Math.max(0,Math.min(1,(distance-140)/360));
+   coast=1-t*t*(3-2*t);
+   if(coast>.5)scene='harbour';
+  }
  }
  const now=read(()=>performance.now(),Date.now()),outside=visible&&!room&&!travelling;
  const coordinates=Number.isFinite(point?.x)&&Number.isFinite(point?.y);
@@ -39,7 +44,7 @@ function state(){
   walking=elapsed>=0&&elapsed<1500&&distance>.3&&distance<=Math.min(420,Math.max(50,elapsed*.7+24));
  }
  previous={region:regionId,x:point?.x,y:point?.y,at:now,outside:outside&&coordinates};
- return {scene,place,region:regionId,walking,study,dialogue,narration,visible};
+ return {scene,place,region:regionId,coast,walking,study,dialogue,narration,visible};
 }
 window.UPPDRAG_AMBIENCE_STATE=state;
 function gesture(event){
