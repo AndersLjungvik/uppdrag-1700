@@ -36,6 +36,9 @@ const current=()=>runs[s.step],area=()=>areas.find(a=>a.id===current().area),lev
 const persist=()=>{s.complete=mastery.chapterComplete();try{localStorage.setItem(storage,JSON.stringify(s));}catch{}};
 const saveWorld=()=>{try{localStorage.setItem(storyKey,JSON.stringify(story));localStorage.setItem(peopleKey,JSON.stringify(people));}catch{}};
 const mastery=window.UPPDRAG_MASTERY.configure({chapter:5,areas,resources:{getApples:()=>s.apples,setApples:v=>{s.apples=v;persist();},getDaler:()=>s.daler,setDaler:v=>{s.daler=v;persist();}}});
+const reviewContext={chapter:5,state:s,bank,runs,areas,mastery};
+window.UPPDRAG_MASTERY_REVIEW.recover(reviewContext);
+const mainReview=x=>!x.resolved&&!!window.UPPDRAG_MASTERY_REVIEW.mainTask(x,reviewContext);
 const status=(a=area(),l=level())=>a?mastery.snapshot().state.areas[a.id][l].status:'available';
 const locationKey=()=>!interior?'':interior.outdoor&&interior.regionId==='main'?'quay':interior.kind;
 const present=()=>locationKey()===current().p;
@@ -168,6 +171,7 @@ function finished(){
  const q=mastery.summary();display(top(labels[current().r]+' i '+area().name+' – klart')+'<p>'+esc(current().who)+': ”Tack. Det här har du visat att du kan.”</p><p>'+(q.chapterComplete?'Du är minnesmästare i kapitel 5. Kapitel 6 är öppet.':q.label+': '+q.done+' av 4 områden klara.')+'</p><button class="primary" data-mb="book">Öppna minnesboken</button>'+(q.chapterComplete?'<p><a href="chapter6-pilot.html">Fortsätt till kapitel 6 →</a></p>':''),'result');return true;
 }
 function pending(t,u){
+ if(s.archiveActive||s.recallInterlude||!t||!current().f.includes(t.id)||t.rank!==current().r)return false;
  const prior=s.reviewQueue.find(x=>x.step===s.step&&x.trial===s.trial&&x.id===t.id&&!x.resolved);
  if(!prior)s.reviewQueue.push({id:t.id,step:s.step,trial:s.trial,index:s.index,answer:copy(u.drafts),at:new Date().toISOString()});
  mastery.pending(area().id,level());persist();drawHud();
@@ -187,14 +191,14 @@ function renderStatus(){
  h+='<button data-mb="book">Till minnesboken</button>';display(h,'status');return true;
 }
 function review(){
- const entry=s.reviewQueue.find(x=>x.step===s.step&&x.trial===s.trial&&!x.resolved);if(!entry)return;
- const t=bank.find(t=>t.id===entry.id);
+ const entry=s.reviewQueue.find(x=>x.step===s.step&&x.trial===s.trial&&mainReview(x));if(!entry)return;
+ const t=bank.find(t=>t.id===entry.id);if(!t)return false;
  let h=top('Granska tillsammans med läraren')+'<p class="mb-note">Granskningen görs på den här enheten. Detta är ingen säker lärarinloggning.</p><p>'+esc(t.prompt)+'</p><blockquote>'+esc(entry.answer.join('\n'))+'</blockquote>';
  h+=window.UPPDRAG_RECALL_ASSESS.modelHTML(t)+'<label><input type="checkbox" id="mbTeacher"> Jag är lärare och har granskat elevens svar mot uppgiftens krav.</label><div class="mb-actions"><button class="primary" data-mb="approve">Godkänn innehållet</button><button data-mb="revise">Låt eleven bearbeta</button></div><button data-mb="book">Till minnesboken</button>';display(h,'review');
 }
 function approve(){
  if(!modal.querySelector('#mbTeacher')?.checked)return false;
- const entry=s.reviewQueue.find(x=>x.step===s.step&&x.trial===s.trial&&!x.resolved);if(!entry)return false;
+ const entry=s.reviewQueue.find(x=>x.step===s.step&&x.trial===s.trial&&mainReview(x));if(!entry)return false;
  entry.resolved='approved';entry.reviewedAt=new Date().toISOString();
  s.record.push({version:'recall-2-rubric',chapter:5,step:s.step,trial:s.trial,id:entry.id,level:labels[current().r],ok:true,support:true,independent:false,assessment:'teacher-approved',answer:copy(entry.answer),at:entry.reviewedAt});
  mastery.resumePending(area().id,level());s.index=entry.index;s.mode='feedback';

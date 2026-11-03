@@ -13,7 +13,7 @@ function source(text){
  edit("  const t=effectiveTask(),u=ui();if(!t||!u)return false;", "  if(!isDrill()&&b.mastery?.renderStatus())return true;\n  const t=effectiveTask(),u=ui();if(!t||!u)return false;\n  if(!isDrill())b.mastery?.encountered(t.id);");
  edit("   s.record.push(entry);", "   s.record.push(entry);\n   b.mastery?.recorded(entry);");
  edit("  e?.preventDefault();const name=act.slice(3),s=state();ensure();", "  e?.preventDefault();const name=act.slice(3),s=state();ensure();\n  if(!isDrill()&&b.mastery?.action(name))return true;");
- edit("  }else if(name==='save-review'&&u.phase==='review'){", "  }else if(name==='save-review'&&u.phase==='review'){\n   if(b.mastery){b.mastery.pending(t,u);render();return true;}");
+ edit("  }else if(name==='save-review'&&u.phase==='review'){", "  }else if(name==='save-review'&&u.phase==='review'){\n   if(b.mastery&&!isDrill()){b.mastery.pending(t,u);render();return true;}");
  edit("  if(!isDrill()&&t.rank<2&&!u.hint)", "  if(!isDrill()&&t.rank===0&&!u.hint)");
  edit("!u.hint&&!isDrill()&&t.rank<2)", "!u.hint&&!isDrill()&&t.rank===0)");
  edit("   if(s.daler>=1){s.daler--;u.hint=true;s.hint=true;save();b.drawHud();render();}", "   if(b.mastery?b.mastery.hint():s.daler>=1){if(!b.mastery)s.daler--;u.hint=true;s.hint=true;save();b.drawHud();render();}");
