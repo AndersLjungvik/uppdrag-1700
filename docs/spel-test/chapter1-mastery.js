@@ -4,6 +4,7 @@
 (function(){
 'use strict';
 const storage='uppdrag1700.ch1-real-world.20261019.v11';
+const lessonOne=window.__UPPDRAG_LESSON_ONLY===1;
 const storyKey='uppdrag1700.story.v2.ch1',peopleKey='uppdrag1700.people.v2.ch1';
 const parse=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))||fallback;}catch{return fallback;}};
 const copy=v=>JSON.parse(JSON.stringify(v));
@@ -94,12 +95,12 @@ window.addEventListener('resize',paintCloseup);
 window.addEventListener('uppdrag-paper-fibres-ready',paintCloseup);
 const top=title=>'<div class="mb-top"><p>Frihetstiden · kapitel 1</p><button data-mb="close">'+(locationKey()?'Till rummet':'Till staden')+'</button></div><h2>'+esc(title)+'</h2>';
 function drawHud(){
- const q=mastery.summary();hud.innerHTML='<strong>'+(q.chapterComplete?'Minnesmästare · kapitel 1 klart':q.label+' · '+q.done+' av 3 områden klara')+'</strong><div class="ch1Wallet">'+s.daler+' daler · '+s.apples+' äpplen</div><button class="primary" data-mb="book">Minnesbok</button><button data-mb="rut">Rut · repetera</button>'+(q.chapterComplete?'<a href="chapter2-pilot.html">Till kapitel 2 →</a>':'');
+ const q=mastery.summary();hud.innerHTML='<strong>'+(q.chapterComplete?'Minnesmästare · kapitel 1 klart':q.label+' · '+q.done+' av 3 områden klara')+'</strong><div class="ch1Wallet">'+s.daler+' daler · '+s.apples+' äpplen</div><button class="primary" data-mb="book">Minnesbok</button><button data-mb="rut">Rut · repetera</button>'+(q.chapterComplete&&!lessonOne?'<a href="chapter2-pilot.html">Till kapitel 2 →</a>':'');
 }
 const statusLabel={available:'○ Återstår','in-progress':'◐ Påbörjat',failed:'○ Återstår · nytt försök',pending:'◷ Väntar på granskning',clear:'✓ Klar',locked:'– Låst'};
 function book(){
  returnFocus=document.activeElement;const q=mastery.summary();
- let h=top('Din minnesbok')+'<p>'+(q.chapterComplete?'Alla tre mästarstämplar är klara. Kapitel 2 är öppet.':q.label+': '+q.done+' av 3 områden klara. Välj ordning mellan områdena.')+'</p>';
+ let h=top('Din minnesbok')+'<p>'+(q.chapterComplete?(lessonOne?'Alla tre mästarstämplar är klara. Kapitel 1 är avklarat.':'Alla tre mästarstämplar är klara. Kapitel 2 är öppet.'):q.label+': '+q.done+' av 3 områden klara. Välj ordning mellan områdena.')+'</p>';
  if(!story.introduced&&!q.chapterComplete)h+='<p class="mb-note">Maja på Kaffehuset visar hur minnesboken fungerar. Du kan också gå direkt till ett område.</p><button data-mb="maja">Besök Maja</button>';
  if(s.masteryMigrationNotice)h+='<p class="mb-note">Dina tidigare svar och resurser är bevarade. Stämplar har bara förts över där hela områdets prov kan styrkas. Övriga områden behöver kompletteras.</p>';
  h+='<p class="mb-note">Alla tre lärlingsstämplar öppnar gesällproven. Alla tre gesällstämplar öppnar mästarproven. Sidoäventyr ger inga provstämplar.</p>';
@@ -112,7 +113,7 @@ function book(){
   h+='</div></section>';
  }
  if(!q.chapterComplete){const needed=q.remaining.map(a=>a.name).join(', ');h+='<p class="mb-note">Återstår på '+q.label.toLowerCase()+'nivån: '+esc(needed)+'.</p>';}
- else h+='<p><a href="chapter2-pilot.html">Fortsätt till kapitel 2 →</a></p>';
+ else if(!lessonOne)h+='<p><a href="chapter2-pilot.html">Fortsätt till kapitel 2 →</a></p>';
  h+='<p class="mb-note">1 äpple ger ett nytt försök på hela områdesprovet efter en miss. 1 daler ger en ledtråd på lärlingsnivån. Rut hjälper dig gratis.</p>';
  display(h,'book');
 }
@@ -157,7 +158,7 @@ function finished(){
  for(const id of current().f)s.earned[id]=true;
  s.masteryRewards??={};const reward=s.step;if(!s.masteryRewards[reward]){s.daler++;s.masteryRewards[reward]=true;}
  s.mode='end';stash();persist();drawHud();
- const q=mastery.summary();display(top(labels[current().r]+' i '+area().name+' – klart')+'<p>'+esc(current().who)+': ”Tack. Det här har du visat att du kan.”</p><p>'+(q.chapterComplete?'Du är minnesmästare i kapitel 1. Kapitel 2 är öppet.':q.label+': '+q.done+' av 3 områden klara.')+'</p><button class="primary" data-mb="book">Öppna minnesboken</button>'+(q.chapterComplete?'<p><a href="chapter2-pilot.html">Fortsätt till kapitel 2 →</a></p>':''),'result');return true;
+ const q=mastery.summary();display(top(labels[current().r]+' i '+area().name+' – klart')+'<p>'+esc(current().who)+': ”Tack. Det här har du visat att du kan.”</p><p>'+(q.chapterComplete?(lessonOne?'Du är minnesmästare i kapitel 1. Bra arbetat!':'Du är minnesmästare i kapitel 1. Kapitel 2 är öppet.'):q.label+': '+q.done+' av 3 områden klara.')+'</p><button class="primary" data-mb="book">Öppna minnesboken</button>'+(q.chapterComplete&&!lessonOne?'<p><a href="chapter2-pilot.html">Fortsätt till kapitel 2 →</a></p>':''),'result');return true;
 }
 function pending(t,u){
  if(s.archiveActive||s.recallInterlude||!t||!current().f.includes(t.id)||t.rank!==current().r)return false;
