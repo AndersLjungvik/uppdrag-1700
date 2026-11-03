@@ -24,6 +24,12 @@ try{if(old&&!localStorage.getItem(storage+'.before-mastery-2'))localStorage.setI
 let s=old&&old.v===2?old:{v:2,record:[],daler:3,apples:0,earned:{},step:0,index:0,trial:0,mode:'intro'};
 s.record=Array.isArray(s.record)?s.record:[];s.earned??={};s.sessions??={};s.reviewQueue??=[];s.encountered??=[];
 s.daler=Math.max(0,Number(s.daler)||0);s.apples=Math.max(0,Number(s.apples)||0);
+// The classroom round has room for one apple. Keep the limit at the resource
+// boundary so restored saves and the frozen Rut reward cannot build a reserve.
+if(lessonOne){
+ let apples=Number.isFinite(s.apples)?Math.min(1,Math.floor(s.apples)):0;
+ Object.defineProperty(s,'apples',{enumerable:true,get:()=>apples,set(v){const n=Number(v);apples=Number.isFinite(n)?Math.min(1,Math.max(0,Math.floor(n))):0;}});
+}
 s.archiveActive=false;s.step=Number.isInteger(s.step)&&runs[s.step]?s.step:0;
 let story=parse(storyKey,{v:1,introduced:false,visits:{}}),people=parse(peopleKey,{v:1,met:{}});
 story.visits??={};people.met??={};
@@ -95,7 +101,7 @@ window.addEventListener('resize',paintCloseup);
 window.addEventListener('uppdrag-paper-fibres-ready',paintCloseup);
 const top=title=>'<div class="mb-top"><p>Frihetstiden · kapitel 1</p><button data-mb="close">'+(locationKey()?'Till rummet':'Till staden')+'</button></div><h2>'+esc(title)+'</h2>';
 function drawHud(){
- const q=mastery.summary();hud.innerHTML='<strong>'+(q.chapterComplete?'Minnesmästare · kapitel 1 klart':q.label+' · '+q.done+' av 3 områden klara')+'</strong><div class="ch1Wallet">'+s.daler+' daler · '+s.apples+' äpplen</div><button class="primary" data-mb="book">Minnesbok</button><button data-mb="rut">Rut · repetera</button>'+(q.chapterComplete&&!lessonOne?'<a href="chapter2-pilot.html">Till kapitel 2 →</a>':'');
+ const q=mastery.summary();hud.innerHTML='<strong>'+(q.chapterComplete?'Minnesmästare · kapitel 1 klart':q.label+' · '+q.done+' av 3 områden klara')+'</strong><div class="ch1Wallet">'+s.daler+' daler · '+s.apples+(s.apples===1?' äpple':' äpplen')+'</div><button class="primary" data-mb="book">Minnesbok</button><button data-mb="rut">Rut · repetera</button>'+(q.chapterComplete&&!lessonOne?'<a href="chapter2-pilot.html">Till kapitel 2 →</a>':'');
 }
 const statusLabel={available:'○ Återstår','in-progress':'◐ Påbörjat',failed:'○ Återstår · nytt försök',pending:'◷ Väntar på granskning',clear:'✓ Klar',locked:'– Låst'};
 function book(){
@@ -115,6 +121,7 @@ function book(){
  if(!q.chapterComplete){const needed=q.remaining.map(a=>a.name).join(', ');h+='<p class="mb-note">Återstår på '+q.label.toLowerCase()+'nivån: '+esc(needed)+'.</p>';}
  else if(!lessonOne)h+='<p><a href="chapter2-pilot.html">Fortsätt till kapitel 2 →</a></p>';
  h+='<p class="mb-note">1 äpple ger ett nytt försök på hela områdesprovet efter en miss. 1 daler ger en ledtråd på lärlingsnivån. Rut hjälper dig gratis.</p>';
+ if(lessonOne)h+='<p class="mb-note">Du kan ha högst ett äpple i fickan. När du har använt det behöver du repetera hos Rut för att få ett nytt.</p>';
  display(h,'book');
 }
 const sessionFields=['index','trial','mode','recallUI','recallAttempt','recallInterlude','hint','draft'];
@@ -228,9 +235,13 @@ function chooseHere(p){
 }
 let hudKey='';
 function tick(){const key=JSON.stringify([mastery.summary(),s.daler,s.apples]);if(view==='closed'&&hudKey!==key){hudKey=key;drawHud();}}
+const lessonAppleReward=lessonOne?{
+ awardRutApple(){s.lessonRutAppleAdded=s.apples<1;if(s.lessonRutAppleAdded)s.apples++;},
+ rutRewardHTML(){return s.lessonRutAppleAdded?'<h2 class="rc-prompt">Ett äpple för repetitionen</h2><p>Du har återgett minnen utan en lista med svar. Rut ger dig ett äpple.</p><p class="rc-note">Du kan ha ett äpple i fickan. Använd det till ett nytt försök innan du tjänar ett nytt.</p>':'<h2 class="rc-prompt">Repetitionen är klar</h2><p>Du har redan ett äpple i fickan. Använd det till ett nytt försök innan du kan få ett nytt hos Rut. Du kan fortsätta öva gratis.</p>';}
+}:{};
 recall=window.UPPDRAG_RECALL_ENGINE.attach({chapter:1,state:()=>s,runs,facts,modal,storage,current,location:locationKey,present,previousKeys:{},persist,drawHud,paint:paintCloseup,
  openArchive(){display('','quiz');},finished,close,goRut:goArchive,
- mastery:{hasPassed,available,renderStatus,recorded,pending,encountered,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();return false;}}
+ mastery:{hasPassed,available,renderStatus,recorded,pending,encountered,...lessonAppleReward,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();return false;}}
 });
 // Import only complete, evidenced area attempts, in prerequisite order. Never infer
 // stamps from old chapter completion or from reading a model answer.
@@ -254,7 +265,7 @@ window.UPPDRAG_CH1_PILOT={tick,go:book,close,scenes:runs,saveKey:storage,persist
  memoryProblem(){const a=areas.find(a=>a.p===locationKey());return a?(story.visits[a.id]?'Välkommen tillbaka! Vill du fortsätta undersöka '+documents[a.p]+' med mig?':intro[a.id]):'';},
  memoryChoice:()=> 'Se '+(documents[locationKey()]||'dokumentet'),
  enterMemory(){if(chooseHere(locationKey()))begin();},wantsMemoryThanks:()=>false,memoryThanks:()=>'',finishMemory:finished,
- wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> 'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,goArchive,
+ wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> lessonOne?(s.apples?'Vi kan öva på sådant du redan mött. Du har redan ett äpple. Använd det till ett nytt försök, så kan du få ett nytt när du repeterar hos mig.':'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple. Du kan ha ett i fickan åt gången.'):'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,goArchive,
  openBook:book,selectArea:select,
  get encounteredTaskIds(){return s.encountered.slice();},
  get repetitionTaskIds(){const topics=new Set(available(false).map(id=>bank.find(t=>t.id===id)?.topic));return bank.filter(t=>t.rank===0&&topics.has(t.topic)).map(t=>t.id);}

@@ -17,6 +17,8 @@ function source(text){
  edit("  if(!isDrill()&&t.rank<2&&!u.hint)", "  if(!isDrill()&&t.rank===0&&!u.hint)");
  edit("!u.hint&&!isDrill()&&t.rank<2)", "!u.hint&&!isDrill()&&t.rank===0)");
  edit("   if(s.daler>=1){s.daler--;u.hint=true;s.hint=true;save();b.drawHud();render();}", "   if(b.mastery?b.mastery.hint():s.daler>=1){if(!b.mastery)s.daler--;u.hint=true;s.hint=true;save();b.drawHud();render();}");
+ edit("if(!s.recallRutRewarded){s.apples++;s.recallRutRewarded=true;}", "if(!s.recallRutRewarded){if(b.mastery?.awardRutApple)b.mastery.awardRutApple();else s.apples++;s.recallRutRewarded=true;}");
+ edit("<h2 class=\"rc-prompt\">Ett äpple för repetitionen</h2><p>Du har återgett minnen utan en lista med svar. Rut ger dig ett äpple.</p>", "'+(b.mastery?.rutRewardHTML?.()||'<h2 class=\"rc-prompt\">Ett äpple för repetitionen</h2><p>Du har återgett minnen utan en lista med svar. Rut ger dig ett äpple.</p>')+'");
  return text;
 }
 window.UPPDRAG_MASTERY_RECALL={source};
