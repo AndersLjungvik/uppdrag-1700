@@ -2,7 +2,7 @@
  * Only a salted digest is shipped; entered codes are never saved. */
 (function(){
 'use strict';
-const salt="fc9985b571e2be74879a3fcd4a7f907a",digest="5af85779fbd171e269105da0a08c967a3ce70d336fffde5bc54c335554f2479c";
+const salt="fb1f0a0ba3066c665d68eee5448ec5b3",digest="ee27ccd97a363dcdcb298c92693497970dfb63af5f93f508dd80188bc6dcb24d";
 async function verify(value){
  const code=String(value??'').trim();
  if(!/^\d{6}$/.test(code))return false;
