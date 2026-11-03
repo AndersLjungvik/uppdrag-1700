@@ -1,4 +1,4 @@
-# Kapitel 4 – Nya tider, nya tankar · testversion 2.4.2
+# Kapitel 4 – Nya tider, nya tankar · testversion 2.6.2
 
 Fortsätter i den befintliga pappersstaden med fyra områden och lärling, gesäll och mästare i varje. Personerna talar i första person. Spelaren väljer mellan områdena i minnesboken och arbetar i rummens målade närbilder.
 
@@ -16,6 +16,12 @@ Spelets huvuduppgift är återkallning av bokens frågor och träning på de kun
 Alla fyra lärlingsstämplar öppnar gesäll. Alla fyra gesällstämplar öppnar mästare. Kapitel 5 kräver alla tolv stämplar. Ordningen inom nivån är fri. Ett misslyckat områdesprov kräver ett nytt försök på hela området; ett äpple används för detta och övriga stämplar behålls. Lärlingsledtrådar kostar en daler. Rut är gratis och kan ge äpplen genom repetition av kapitel 1–3 och mötta ämnen i fyran.
 
 Osäkra svar kan bearbetas eller sparas för lokal granskning utan automatisk stämpel. Lärarbekräftelse loggas uttryckligen som teacher-approved. Det är en lokal granskningsväg och ingen säker lärarinloggning.
+
+## Ruts granskning och huvudproven
+
+Ruts repetition och mellanminnen sparar osäkra svar i repetitionsgranskningen. De får inte markera det pausade huvudområdets försök som väntande. En tidigare felkoppling i den gemensamma adaptern kunde lägga en Rut-fråga i exempelvis Forskarnas arbetes granskningskö. Det kunde låsa Sams prov och försöka visa en uppgift som inte ingick där.
+
+Vid öppning flyttas säkert identifierade sådana granskningsposter till separat repetitionsgranskning. Den ursprungliga posten, svaren och tidpunkterna bevaras. Ett felaktigt väntande försök återupptas bara när försökets nummer stämmer och ingen verklig eller tvetydig huvudgranskning återstår. Samma skydd gäller de fem första kapitlen. Inga stämplar tilldelas, inga resurser dras och klara eller misslyckade försök ändras inte. En huvuduppgift som faktiskt väntar på lärargranskning behåller den statusen.
 
 ## Frågor från bok och bedömning
 
