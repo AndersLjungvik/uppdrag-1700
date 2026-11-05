@@ -6,8 +6,10 @@ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),copy=p=>({x:p.x,y:p.y});
 const bounded=(v,max,fallback=0)=>Number.isFinite(v)?Math.max(0,Math.min(max,v)):fallback;
 function create(raw={},hooks={}){
  if(!raw||typeof raw!=='object'||Array.isArray(raw))raw={};
+ const kinds=Array.isArray(hooks.kinds)&&hooks.kinds.length?Array.from(new Set(hooks.kinds.filter(k=>['dog','guard'].includes(k)))):['dog','guard'];
+ if(!kinds.length)kinds.push('dog');
  const state={v:1,distance:bounded(raw.distance,1e8),nextDistance:bounded(raw.nextDistance,1e8,650),quietMs:bounded(raw.quietMs,60000,20000),
-  nextKind:raw.nextKind==='guard'?'guard':'dog',encounters:bounded(raw.encounters,1e6),losses:bounded(raw.losses,1e6),
+  nextKind:kinds.includes(raw.nextKind)?raw.nextKind:kinds[0],encounters:bounded(raw.encounters,1e6),losses:bounded(raw.losses,1e6),
   needsRut:raw.needsRut===true,lossRound:bounded(raw.lossRound,1e6),lastCompletedRound:bounded(raw.lastCompletedRound,1e6),history:Array.isArray(raw.history)?raw.history.slice(-20):[]};
  let active=null,lastTime=null,lastPlayer=null,lastRegion=null,saveAt=0;
  const save=()=>hooks.save?.(JSON.parse(JSON.stringify(state)));
@@ -58,7 +60,7 @@ function create(raw={},hooks={}){
    const anchor=config.anchor?.(state.nextKind,player,previous);
    if(!anchor?.home||!anchor?.post||!config.route?.(anchor.home,anchor.post)?.length)return snapshot();
    active={kind:state.nextKind,phase:'warning',point:{...copy(anchor.home),heading:0,moving:false},home:{...anchor.home},post:copy(anchor.post),route:[],routeAt:0,phaseTime:0,age:0,unseen:0};
-   state.encounters++;state.nextKind=active.kind==='dog'?'guard':'dog';rest();record(active.kind,'warning');
+   state.encounters++;state.nextKind=kinds[(kinds.indexOf(active.kind)+1)%kinds.length];rest();record(active.kind,'warning');
   }
   const a=active;a.phaseTime+=dt;a.age+=dt;
   if(a.phase==='retreat'){
