@@ -75,6 +75,8 @@ for(const [kind,chapter] of [['dog',3],['dog',4],['guard',4],['dog',5],['guard',
   if(h.state.archiveMode!=='reward')assert.equal(h.state.apples,0,'every card must be completed');
  }
  h.tick(player);assert.equal(h.state.apples,1);assert.equal(h.c.UPPDRAG_APPLE_THREATS.snapshot.state.needsRut,false);assert(h.c.UPPDRAG_APPLE_THREATS.snapshot.state.quietMs>44000);
+ const remaining=h.c.UPPDRAG_APPLE_THREATS.snapshot.state.quietMs;h.c.document.querySelector=()=>modal;
+ for(let i=0;i<100;i++)h.tick(player);assert.equal(h.c.UPPDRAG_APPLE_THREATS.snapshot.state.quietMs,remaining,'reading Ruts reward does not spend the safe period');h.c.document.querySelector=()=>null;
  assert.deepEqual(copy({daler:h.state.daler,record:h.state.record,earned:h.state.earned}),preserved,'real retrieval never changes previous answers or resources');
  assert(h.state.recallRutLog.every(r=>r.chapter<=chapter));console.log('PASS real town '+kind+', chapter '+chapter+': valid cover and paths, real pilot debit, interrupted/wrong/complete Rut retrieval, preserved progress');
 }

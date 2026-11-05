@@ -1,6 +1,6 @@
 # Händelsesystem för Uppdrag 1700 · 1.5.2
 
-## Äppelrisker · 2.11.2
+## Äppelrisker · 2.11.3
 
 Hunden tillkommer i kapitel 3. Den vaktande tjuven tillkommer i kapitel 4, och därefter kan båda förekomma i fyran och femman. Kapitel 1–2 behåller den befintliga ficktjuven utan nya äppelhot. En hund får vittring på det burna äpplet och följer efter. En annan tjuv går fram från ett verkligt träd till en passage och bevakar den; han följer bara en kort sträcka runt sin plats. I fyrans första nya möte introduceras vakten före den redan bekanta hunden. Från kapitel 4 växlar de mellan möten och varnar i tre sekunder innan närkontakt kan kosta något. Skydd i hus eller samtal, bruten sikt bakom ett träd och att hålla avstånd kan avvärja dem. De använder samma vägkontroll, målade hund/personer och markdjup som staden, utan att flytta kameran eller öppna en frågedialog på gatan.
 
@@ -57,3 +57,5 @@ Mobilvy 390 px och bred vy 900 px har testats i Chromium: en replik i taget, vag
 ## Vaktens förvarning vid vanlig gång · 2.11.2
 
 Passagen väljs 590–800 kartenheter framför spelaren. Vid normal gång på 180 enheter per sekund finns då hela tresekundersvarningen kvar innan passagen korsas. Tidigare valdes den 125–300 enheter framför spelaren, så en fortsatt vanlig promenad hann passera medan vakten fortfarande var ofarlig. Vaktens observationsavstånd följer den längre placeringen; hundens avstånd och hastighet är oförändrade. Integrationsprovet går nu genom en verklig passage med normal gånghastighet, bekräftar varningen, exakt en äppelförlust och att vända tillbaka bevarar äpplet.
+
+Vilans tid pausas även när spelaren läser Ruts återkoppling inne i Arkivet. Skydd i hus och samtal avslutar först förföljelsen; därefter fryses klockan under läsning och dialog. Både modellprovet och provet med riktig Rut-belöning kontrollerar detta.

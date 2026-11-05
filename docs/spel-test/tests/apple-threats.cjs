@@ -33,8 +33,10 @@ for(const kind of ['dog','guard']){
  assert.equal(h.model.snapshot().active.kind,kind==='dog'?'guard':'dog','the other kind returns after a new apple, rest and walking');
 }
 for(const shelter of ['house','conversation']){
- const h=fixture();h.tick({shelter});assert.equal(h.model.snapshot().active.phase,'retreat');h.wait(200);assert.equal(h.apples,1);assert(h.events.some(x=>x[1]==='shelter'));
+ const h=fixture();h.tick({shelter});assert(!h.model.snapshot().active||h.model.snapshot().active.phase==='retreat');h.wait(200);assert.equal(h.apples,1);assert(h.events.some(x=>x[1]==='shelter'));
  const saved=h.saved,r=fixture('dog',saved);assert.equal(r.model.snapshot().active,null,'cooldown survives reload');
+ const paused=fixture();paused.tick({shelter,paused:true});assert.equal(paused.model.snapshot().active.phase,'retreat','shelter ends pursuit while a dialogue pauses the clock');
+ const remaining=paused.model.snapshot().state.quietMs;paused.wait(100,{shelter,paused:true});assert.equal(paused.model.snapshot().state.quietMs,remaining);assert.equal(paused.apples,1);
 }
 {
  const h=fixture();h.wait(40);h.wait(30,{canSee:()=>false});assert(h.events.some(x=>x[1]==='cover'));assert.equal(h.apples,1,'a tree or wall breaks pursuit');
