@@ -4,7 +4,7 @@
 (function(){
 'use strict';
 const storage='uppdrag1700.ch1-real-world.20261019.v11';
-const lessonOne=window.__UPPDRAG_LESSON_ONLY===1;
+const pupilRound=window.__UPPDRAG_LESSON_ONLY>0,lessonEnd=window.__UPPDRAG_LESSON_ONLY===1;
 const storyKey='uppdrag1700.story.v2.ch1',peopleKey='uppdrag1700.people.v2.ch1';
 const parse=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))||fallback;}catch{return fallback;}};
 const copy=v=>JSON.parse(JSON.stringify(v));
@@ -26,7 +26,7 @@ s.record=Array.isArray(s.record)?s.record:[];s.earned??={};s.sessions??={};s.rev
 s.daler=Math.max(0,Number(s.daler)||0);s.apples=Math.max(0,Number(s.apples)||0);
 // The classroom round has room for one apple. Keep the limit at the resource
 // boundary so restored saves and the frozen Rut reward cannot build a reserve.
-if(lessonOne){
+if(pupilRound){
  let apples=Number.isFinite(s.apples)?Math.min(1,Math.floor(s.apples)):0;
  Object.defineProperty(s,'apples',{enumerable:true,get:()=>apples,set(v){const n=Number(v);apples=Number.isFinite(n)?Math.min(1,Math.max(0,Math.floor(n))):0;}});
 }
@@ -102,12 +102,12 @@ window.addEventListener('resize',paintCloseup);
 window.addEventListener('uppdrag-paper-fibres-ready',paintCloseup);
 const top=title=>'<div class="mb-top"><p>Frihetstiden · kapitel 1</p><button data-mb="close">'+(locationKey()?'Till rummet':'Till staden')+'</button></div><h2>'+esc(title)+'</h2>';
 function drawHud(){
- const q=mastery.summary();hud.innerHTML='<strong>'+(q.chapterComplete?'Minnesmästare · kapitel 1 klart':q.label+' · '+q.done+' av 3 områden klara')+'</strong><div class="ch1Wallet">'+s.daler+' daler · '+s.apples+(s.apples===1?' äpple':' äpplen')+'</div><button class="primary" data-mb="book">Minnesbok</button><button data-mb="rut">Rut · repetera</button>'+(q.chapterComplete&&!lessonOne?'<a href="chapter2-pilot.html">Till kapitel 2 →</a>':'');
+ const q=mastery.summary();hud.innerHTML='<strong>'+(q.chapterComplete?'Minnesmästare · kapitel 1 klart':q.label+' · '+q.done+' av 3 områden klara')+'</strong><div class="ch1Wallet">'+s.daler+' daler · '+s.apples+(s.apples===1?' äpple':' äpplen')+'</div><button class="primary" data-mb="book">Minnesbok</button><button data-mb="rut">Rut · repetera</button>'+(q.chapterComplete&&!lessonEnd?'<a href="chapter2-pilot.html">Till kapitel 2 →</a>':'');
 }
 const statusLabel={available:'○ Inte klart än','in-progress':'◐ Påbörjat',failed:'○ Prova igen',pending:'◷ Öva igen eller visa läraren',clear:'✓ Klar',locked:'– Låst'};
 function book(){
  returnFocus=document.activeElement;const q=mastery.summary();
- let h=top('Din minnesbok')+'<p>'+(q.chapterComplete?(lessonOne?'Alla tre mästarstämplar är klara. Kapitel 1 är avklarat.':'Alla tre mästarstämplar är klara. Kapitel 2 är öppet.'):q.label+': '+q.done+' av 3 områden klara. Välj var du vill börja.')+'</p>';
+ let h=top('Din minnesbok')+'<p>'+(q.chapterComplete?(lessonEnd?'Alla tre mästarstämplar är klara. Kapitel 1 är avklarat.':'Alla tre mästarstämplar är klara. Kapitel 2 är öppet.'):q.label+': '+q.done+' av 3 områden klara. Välj var du vill börja.')+'</p>';
  if(!story.introduced&&!q.chapterComplete)h+='<p class="mb-note">Maja på Kaffehuset visar hur minnesboken fungerar. Du kan också gå direkt till ett område.</p><button data-mb="maja">Besök Maja</button>';
  if(s.masteryMigrationNotice)h+='<p class="mb-note">Dina svar, pengar och äpplen finns kvar. Stämplar som spelet kunde kontrollera finns också kvar. Gör de prov som återstår i minnesboken.</p>';
  h+='<p class="mb-note">Klara de tre lärlingsproven för att öppna gesällproven. Klara sedan gesällproven för att öppna mästarproven. Sidoäventyren ger inga stämplar.</p>';
@@ -120,9 +120,9 @@ function book(){
   h+='</div></section>';
  }
  if(!q.chapterComplete){const needed=q.remaining.map(a=>a.name).join(', ');h+='<p class="mb-note">Återstår på '+q.label.toLowerCase()+'nivån: '+esc(needed)+'.</p>';}
- else if(!lessonOne)h+='<p><a href="chapter2-pilot.html">Fortsätt till kapitel 2 →</a></p>';
+ else if(!lessonEnd)h+='<p><a href="chapter2-pilot.html">Fortsätt till kapitel 2 →</a></p>';
  h+='<p class="mb-note">1 äpple ger ett nytt försök på hela områdesprovet efter en miss. 1 daler ger en ledtråd på lärlingsnivån. Rut hjälper dig gratis.</p>';
- if(lessonOne)h+='<p class="mb-note">Du kan ha högst ett äpple i fickan. När du har använt det behöver du repetera hos Rut för att få ett nytt.</p>';
+ if(pupilRound)h+='<p class="mb-note">Du kan ha högst ett äpple i fickan. När du har använt det behöver du repetera hos Rut för att få ett nytt.</p>';
  display(h,'book');
 }
 const sessionFields=['index','trial','mode','recallUI','recallAttempt','recallInterlude','hint','draft'];
@@ -166,7 +166,7 @@ function finished(){
  for(const id of current().f)s.earned[id]=true;
  s.masteryRewards??={};const reward=s.step;if(!s.masteryRewards[reward]){s.daler++;s.masteryRewards[reward]=true;}
  s.mode='end';stash();persist();drawHud();
- const q=mastery.summary();display(top(labels[current().r]+' i '+area().name+' – klart')+'<p>'+esc(current().who)+': ”Tack. Det här har du visat att du kan.”</p><p>'+(q.chapterComplete?(lessonOne?'Du är minnesmästare i kapitel 1. Bra arbetat!':'Du är minnesmästare i kapitel 1. Kapitel 2 är öppet.'):q.label+': '+q.done+' av 3 områden klara.')+'</p><button class="primary" data-mb="book">Öppna minnesboken</button>'+(q.chapterComplete&&!lessonOne?'<p><a href="chapter2-pilot.html">Fortsätt till kapitel 2 →</a></p>':''),'result');return true;
+ const q=mastery.summary();display(top(labels[current().r]+' i '+area().name+' – klart')+'<p>'+esc(current().who)+': ”Tack. Det här har du visat att du kan.”</p><p>'+(q.chapterComplete?(lessonEnd?'Du är minnesmästare i kapitel 1. Bra arbetat!':'Du är minnesmästare i kapitel 1. Kapitel 2 är öppet.'):q.label+': '+q.done+' av 3 områden klara.')+'</p><button class="primary" data-mb="book">Öppna minnesboken</button>'+(q.chapterComplete&&!lessonEnd?'<p><a href="chapter2-pilot.html">Fortsätt till kapitel 2 →</a></p>':''),'result');return true;
 }
 function pending(t,u){
  if(s.archiveActive||s.recallInterlude||!t||!current().f.includes(t.id)||t.rank!==current().r)return false;
@@ -278,9 +278,9 @@ function tick(){const key=JSON.stringify([mastery.summary(),s.daler,s.apples]);i
 const reviewRewards={
  awardRutApple(){
   for(const ticket of Object.values(s.reviewPractice))if(s.archiveRounds>ticket.roundBefore&&(s.recallRutLog?.length||0)>ticket.logBefore)ticket.completedRound=s.archiveRounds;
-  if(lessonOne){s.lessonRutAppleAdded=s.apples<1;if(s.lessonRutAppleAdded)s.apples++;}else s.apples++;
+  if(pupilRound){s.lessonRutAppleAdded=s.apples<1;if(s.lessonRutAppleAdded)s.apples++;}else s.apples++;
  },
- ...(lessonOne?{
+ ...(pupilRound?{
  rutRewardHTML(){return s.lessonRutAppleAdded?'<h2 class="rc-prompt">Ett äpple för repetitionen</h2><p>Du svarade rätt på övningsfrågorna. Du får ett äpple.</p><p class="rc-note">Du kan ha ett äpple i fickan. Använd det till ett nytt försök innan du tjänar ett nytt.</p>':'<h2 class="rc-prompt">Repetitionen är klar</h2><p>Du har redan ett äpple i fickan. Använd det till ett nytt försök innan du kan få ett nytt hos Rut. Du kan fortsätta öva gratis.</p>';}
  }:{})
 };
@@ -310,7 +310,7 @@ window.UPPDRAG_CH1_PILOT={tick,go:book,close,scenes:runs,saveKey:storage,persist
  memoryProblem(){const a=areas.find(a=>a.p===locationKey());return a?(story.visits[a.id]?'Välkommen tillbaka! Vill du fortsätta undersöka '+documents[a.p]+' med mig?':intro[a.id]):'';},
  memoryChoice:()=> 'Se '+(documents[locationKey()]||'dokumentet'),
  enterMemory(){if(chooseHere(locationKey()))begin();},wantsMemoryThanks:()=>false,memoryThanks:()=>'',finishMemory:finished,
- wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> lessonOne?(s.apples?'Vi kan öva på sådant du redan mött. Du har redan ett äpple. Använd det till ett nytt försök, så kan du få ett nytt när du repeterar hos mig.':'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple. Du kan ha ett i fickan åt gången.'):'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,goArchive,
+ wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> pupilRound?(s.apples?'Vi kan öva på sådant du redan mött. Du har redan ett äpple. Använd det till ett nytt försök, så kan du få ett nytt när du repeterar hos mig.':'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple. Du kan ha ett i fickan åt gången.'):'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,goArchive,
  openBook:book,selectArea:select,
  get encounteredTaskIds(){return s.encountered.slice();},
  get repetitionTaskIds(){const topics=new Set(available(false).map(id=>bank.find(t=>t.id===id)?.topic));return bank.filter(t=>t.rank===0&&topics.has(t.topic)).map(t=>t.id);}
