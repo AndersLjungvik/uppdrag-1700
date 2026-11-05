@@ -8,6 +8,8 @@ const teacher=new URLSearchParams(window.__UPPDRAG_QUERY||location.search).get('
 const key='uppdrag1700.apple-threats.v1',pilot=()=>window['UPPDRAG_CH'+chapter+'_PILOT'];
 let store;try{store=JSON.parse(localStorage.getItem(key));}catch{}
 if(!store||store.v!==1||!store.chapters||typeof store.chapters!=='object'||Array.isArray(store.chapters))store={v:1,chapters:{}};
+// A fresh fourth chapter introduces its new guard before the familiar dog.
+if(chapter===4&&store.chapters[4]&&!store.chapters[4].encounters&&!store.chapters[4].history?.length)store.chapters[4].nextKind='guard';
 let currentWorld=null,noticeUntil=0,noticeOutcome='',lastNow=0,inRoom=true,anchorCheckAt=0;
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),treeCache=new WeakMap();
 const clear=(a,b)=>!!currentWorld&&!!window.UPPDRAG_WORLD_KEYBOARD?.clearSegment?.(currentWorld,a,b,12);
@@ -33,7 +35,7 @@ function message(kind,outcome){
  live.replaceChildren();const title=document.createElement('strong');title.textContent=text[0];live.append(title,document.createTextNode(text[1]));rut.hidden=outcome!=='lost-apple';
 }
 const model=window.UPPDRAG_APPLE_THREAT_MODEL.create(store.chapters[chapter],{
- kinds:chapter===3?['dog']:['dog','guard'],
+ kinds:chapter===3?['dog']:chapter===4?['guard','dog']:['dog','guard'],
  save(value){store.chapters[chapter]=value;try{localStorage.setItem(key,JSON.stringify(store));}catch{}},
  loseApple(){const p=pilot();if(teacher||!p?.state||p.state.apples<1)return false;p.state.apples--;p.persist();p.refresh?.();return true;},
  event(kind,outcome){if(outcome!=='no-apple'&&outcome!=='left')message(kind,outcome);}
@@ -47,14 +49,17 @@ function anchor(kind,p,previous){
  const candidates=[];
  for(const tree of trees()){
   const home={x:tree.x+12,y:tree.y,id:tree.id};
-  if(distance(home,p)<125||distance(home,p)>330||forward(home)<70)continue;
+  const gap=distance(home,p);
+  if(kind==='dog'?(gap<125||gap>330||forward(home)<70):(gap<500||gap>900||forward(home)<470))continue;
   if(kind==='dog'){
    const post={x:home.x+dx/travel*22,y:home.y+dy/travel*22};
    if(clear(home,post)&&route(home,p)?.length)candidates.push({home,post,score:distance(home,p)});
   }else for(const edge of currentWorld.edges){
    const a=navigationPoint(currentWorld,edge.a),b=navigationPoint(currentWorld,edge.b),vx=b.x-a.x,vy=b.y-a.y,len=vx*vx+vy*vy||1;
    const t=Math.max(.08,Math.min(.92,((home.x-a.x)*vx+(home.y-a.y)*vy)/len)),post={x:a.x+t*vx,y:a.y+t*vy};
-   if(distance(home,post)>140||distance(p,post)<125||distance(p,post)>300||forward(post)<85||door&&distance(post,door)<190)continue;
+   // A normal walker covers 540 map units during the three-second warning.
+   // Put the guarded passage beyond that distance, before it is crossed.
+   if(distance(home,post)>140||distance(p,post)<590||distance(p,post)>800||forward(post)<570||door&&distance(post,door)<190)continue;
    if(clear(post,post)&&route(home,post)?.length&&route(post,p)?.length)candidates.push({home,post,score:distance(post,p)+distance(home,post)});
   }
  }

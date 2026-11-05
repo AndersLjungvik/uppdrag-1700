@@ -70,7 +70,7 @@ function create(raw={},hooks={}){
   }
   if(config.shelter){retire('shelter');return snapshot();}
   if(config.apples<1){retire('no-apple');return snapshot();}
-  if(distance(a.point,player)>420||a.age>24){retire('evaded');return snapshot();}
+  if(distance(a.point,player)>(a.kind==='guard'?1050:420)||a.age>24){retire('evaded');return snapshot();}
   if(a.phase==='warning'){
    move(a.post,dt,config,72);
    if(a.phaseTime>=3){a.phase=a.kind==='dog'?'following':'guarding';a.phaseTime=0;hooks.event?.(a.kind,'active');}

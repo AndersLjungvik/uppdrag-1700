@@ -1,8 +1,8 @@
 # Händelsesystem för Uppdrag 1700 · 1.5.2
 
-## Äppelrisker · 2.11.1
+## Äppelrisker · 2.11.2
 
-Hunden tillkommer i kapitel 3. Den vaktande tjuven tillkommer i kapitel 4, och därefter kan båda förekomma i fyran och femman. Kapitel 1–2 behåller den befintliga ficktjuven utan nya äppelhot. En hund får vittring på det burna äpplet och följer efter. En annan tjuv går fram från ett verkligt träd till en passage och bevakar den; han följer bara en kort sträcka runt sin plats. Från kapitel 4 växlar de mellan möten och varnar i tre sekunder innan närkontakt kan kosta något. Skydd i hus eller samtal, bruten sikt bakom ett träd och att hålla avstånd kan avvärja dem. De använder samma vägkontroll, målade hund/personer och markdjup som staden, utan att flytta kameran eller öppna en frågedialog på gatan.
+Hunden tillkommer i kapitel 3. Den vaktande tjuven tillkommer i kapitel 4, och därefter kan båda förekomma i fyran och femman. Kapitel 1–2 behåller den befintliga ficktjuven utan nya äppelhot. En hund får vittring på det burna äpplet och följer efter. En annan tjuv går fram från ett verkligt träd till en passage och bevakar den; han följer bara en kort sträcka runt sin plats. I fyrans första nya möte introduceras vakten före den redan bekanta hunden. Från kapitel 4 växlar de mellan möten och varnar i tre sekunder innan närkontakt kan kosta något. Skydd i hus eller samtal, bruten sikt bakom ett träd och att hålla avstånd kan avvärja dem. De använder samma vägkontroll, målade hund/personer och markdjup som staden, utan att flytta kameran eller öppna en frågedialog på gatan.
 
 Båda tar **ett faktiskt äpple** vid kontakt. Det finns ingen återbetalning från jakten, barnet eller en självrapport. Ett nytt tjänas genom den befintliga, fullständiga repetitionsomgången hos Rut i Arkivet. Att öppna Rut, avbryta eller svara fel ger inget nytt äpple. Frågor och bedömning hos Rut är oförändrade och använder det redan tillgängliga repetitionsunderlaget. Daler, klarade frågor, stämplar och berättelseföremål ändras inte av dessa två risker. Den tidigare ficktjuvens penningjakt är kvar separat.
 
@@ -52,3 +52,8 @@ Kusken, smeden, tjuven och barnet talar nu i **samma papperspratbubblor** som de
 Ficktjuvens förflyttningsgräns slumpas fram individuellt och sparas direkt; en omladdning kan därför inte slumpa om händelsen. Tjuven dyker fortfarande högst en gång per tillåtet kapitel; den kostar högst en daler och är aldrig obligatorisk. Kapitel 6 har fortfarande en enda äldre tjuvhändelse, och kapitel 3 och 8 får ingen extra ficktjuv. Vagnens samma grundsidoäventyr finns i kapitel 1–8 med kapitelspecifik inledning. **Det är alltså ännu inte en katalog av unika sidoäventyr per kapitel.** Kapitel 9–10 förbereds i katalogen men är inte spelbara.
 
 Mobilvy 390 px och bred vy 900 px har testats i Chromium: en replik i taget, vagnens två val, smedens uppdrag, tjuvens repetitionsalternativ och barnets följddialog. Den sammanfogade sidans öppning och sparning ska dessutom kontrolleras inför publicering. Riktigt iOS/Safari och variationen av elevsvar återstår att elevtesta.
+
+
+## Vaktens förvarning vid vanlig gång · 2.11.2
+
+Passagen väljs 590–800 kartenheter framför spelaren. Vid normal gång på 180 enheter per sekund finns då hela tresekundersvarningen kvar innan passagen korsas. Tidigare valdes den 125–300 enheter framför spelaren, så en fortsatt vanlig promenad hann passera medan vakten fortfarande var ofarlig. Vaktens observationsavstånd följer den längre placeringen; hundens avstånd och hastighet är oförändrade. Integrationsprovet går nu genom en verklig passage med normal gånghastighet, bekräftar varningen, exakt en äppelförlust och att vända tillbaka bevarar äpplet.
