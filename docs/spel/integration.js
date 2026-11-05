@@ -3,7 +3,7 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.10.0',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='2.11.0',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -51,6 +51,12 @@ async function unzip(name){
  const r=await fetch(name,{signal:AbortSignal.timeout(30000)});if(!r.ok)throw Error('Kunde inte hämta '+name+' ('+r.status+').');return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json();
 }
 async function hash(text){const bytes=new TextEncoder().encode(text),digest=await crypto.subtle.digest('SHA-256',bytes);return Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');}
+function appleDogSource(text){
+ const pose=/if\s*\(!dog\.route\)\s*return;\s*const pose\s*=\s*dogPose\(dog,\s*time\);/g,exports='window.UPPDRAG_WORLD_LIFE = {tick,draw,people,hit,freeze,release,';
+ if([...text.matchAll(pose)].length!==1||text.split(exports).length!==2)throw Error('Gatuhunden kunde inte kopplas till stadens befintliga djur.');
+ text=text.replace(pose,'if (!dog.pose&&!dog.route) return;\n    const pose = dog.pose||dogPose(dog, time);');
+ return text.replace(exports,exports+"drawAppleDog(ctx,pose,time,region){drawDog(ctx,{pose,color:'#998268',patch:'#e0d2b3',lastTurn:Infinity},time,motion.matches,region,[]);},");
+}
 async function source(name){
  if(chapterTest&&chapter<=5&&available(chapter)&&name==='chapter-access-pilot.js')return '/* The isolated chapter round is authorized by the integration gate. */';
  if(chapter===5&&name==='chapter5-pilot.js')return get('chapter5-mastery.js?v=2.6.2');
@@ -74,6 +80,7 @@ async function source(name){
   }
  }
  text=window.UPPDRAG_GAMEPLAY_TUNING?.source(name,text)??text;
+ if([1,2,3,4,5].includes(chapter)&&/^world-life(?:-ch[345])?\.js$/.test(name))text=appleDogSource(text);
  if(name==='paper-look.js'){
   const marker='return {drawRegion,buildingSprite,ready,';
   if(text.split(marker).length!==2)throw Error('Trädens gömställen kunde inte kopplas till den befintliga kartan.');
@@ -118,6 +125,7 @@ const query=s=>s.replace(/new URLSearchParams\(location\.search\)/g,'new URLSear
 function script(code,attrs=''){return '<script'+attrs+'>'+safe(code)+'\n</scr'+'ipt>';}
 function bridge(id){return `window.__ROOM_BOOTING=true;window.__UPPDRAG_QUERY=${JSON.stringify(teacher?'?preview=1':'?')};
 Object.defineProperty(window,'localStorage',{value:parent.integratedStore,configurable:true});
+window.UPPDRAG_MENU_OPEN=()=>parent.document.getElementById('menu')?.open===true;
 window.addEventListener('keydown',e=>window.UPPDRAG_EVENT_ENGINE?.handleKeydown?.(e),true);
 window.addEventListener('keydown',e=>window.UPPDRAG_CH2_BED?.handleKeydown?.(e),true);
 window.addEventListener('keydown',e=>window.UPPDRAG_CH3_SCENES?.handleKeydown?.(e),true);
@@ -176,7 +184,7 @@ async function makePage(ch,id){
  // Shared mastery engine is loaded for every chapter during the rebuild. Chapters opt in by configuring areas.
  // Chapters 1 and 2 configure mastery before their pilots; later chapters opt in later.
  // Optional, save-compatible side adventures are installed after existing scripts.
- const eventModule=ch<=10?(await get('event-approach.js?v=1.7.0'))+'\n'+(await get('event-recurrence.js?v=1.1.0'))+'\n'+(await get('event-engine.js?v=1.13.1')):'';
+ const eventModule=ch<=10?(await get('event-approach.js?v=1.7.0'))+'\n'+(await get('event-recurrence.js?v=1.1.0'))+'\n'+(await get('event-engine.js?v=1.14.0'))+([1,2,3,4,5].includes(ch)?'\n'+(await get('apple-threats-model.js?v=1.0.0'))+'\n'+(await get('apple-threats.js?v=1.0.0')):''):'';
  const chapterPresentation=ch===5?(await get('chapter5-presentation.js?v=2.6.0'))+'\n'+(await get('chapter5-scenes.js?v=2.6.0'))+'\n'+(await get('chapter5-bookwork.js?v=2.6.0')):ch===4?(await get('chapter4-presentation.js?v=2.4.2'))+'\n'+(await get('chapter4-scenes.js?v=2.4.0'))+'\n'+(await get('chapter4-bookwork.js?v=2.4.0')):ch===3?(await get('chapter3-presentation.js?v=2.2.0'))+'\n'+(await get('chapter3-courtyard-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter3-scenes.js?v=2.2.0')):ch===2?(await get('chapter2-presentation.js?v=2.1.1'))+'\n'+(await get('chapter2-quilt-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter2-sidequest.js?v=1.0.0')):'';
  const ambientScene=await get('ambient-scene.js?v=1.1.0');
  const end=`window.UPPDRAG_SCENE_PRESENCE?.install();window.__ROOM_BOOTING=false;window.UPPDRAG_ROOM_LIFE?.cacheFurniture();requestAnimationFrame(()=>parent.integratedReady(${id},${ch}));`;

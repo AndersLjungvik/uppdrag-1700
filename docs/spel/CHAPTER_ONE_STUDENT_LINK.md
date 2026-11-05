@@ -26,3 +26,7 @@ Båda länkarna använder samma befintliga `lesson.1.`-sparning. Elevernas frams
 Elevomgångens gräns på ett äpple, lärarkoden och vägen via en ny Rut-omgång till ett självständigt omprov gäller även i tvåan. Frågebank, områden, berättelse och sidoäventyr är tvåans egna. Det vanliga spelet har kvar sin fortsättning till trean.
 
 `chapter-two-student-browser.cjs` provar övergången från gammal elevlänk och verkligt sista prov i ettan till tvåan, bevarad sparning, spärr före klar etta, äppelgräns och granskning i tvåan, ett riktigt sista områdesprov i tvåan, spärr till kapitel 3–10, import, omspelning/återgång och mobil.
+
+## Hunden och tjuven vid passagen · 2.11.0
+
+Aktuell elevlänk: `?only=2&chapter=2&v=2.11.0`. Samma sparning och kapitelspärrar används. Hunden och en vaktande tjuv kan ta elevens enda äpple ute på gatan. De går att undvika och aktiveras först när eleven har ett äpple och tillgängliga repetitionsfrågor. Ett förlorat äpple ersätts genom en hel vanlig repetitionsomgång hos Rut, följd av en lugn tid och sträcka innan nästa hot kan börja. Inga klarade frågor eller stämplar försvinner. Se `EVENT_SYSTEM.md`.
