@@ -15,3 +15,14 @@ Detta är en avgränsning av elevvyn och kapitelnavigeringen i den statiska appe
 `npm run test:chapter-one-only` kontrollerar första öppning, eget sparutrymme, dold lärarvy, förtvingad etta, verkligt sista mästarprov, avslutning/minnesbok utan tvåanslänk, spärr mot kapitel 2–10 även efter full progression, import av senare lastChapter, omspelning/återgång och mobil. `node docs/spel/tests/chapter-one-apple-browser.cjs` provar två verkliga repetitionsomgångar utan extra äpple, helomförsök efter miss, spärr efter förbrukat äpple, ny repetition, omladdning/import samt ordinarie spel. Det vanliga ettans mastery-prov verifierar fortsatt korrekt tillgång till tvåan utanför elevvyn.
 
 Publicering sker endast under `docs/spel-test/` på main. PR 4 hålls draft och ordinarie `docs/spel/` på main ändras inte.
+
+
+## Kapitel 1 och 2 · 2.10.0
+
+Den nya elevlänken `?only=2&chapter=2&v=2.10.0` ger tillgång till kapitel 1 och 2. Tvåan öppnas när ettans nio stämplar är klara. Menyn visar endast ettan och tvåan, och efter tvåan erbjuds ingen fortsättning till trean. Lärarvyn och kapitelprovsgenvägar är avstängda även om sådana parametrar finns i länken. Den tidigare `only=1`-länken gäller fortfarande enbart ettan.
+
+Båda länkarna använder samma befintliga `lesson.1.`-sparning. Elevernas framsteg från den tidigare länken, omspelningar och sparfiler följer därför med utan kopiering eller återställning. Tvåans befintliga resursöverföring från ettan behålls.
+
+Elevomgångens gräns på ett äpple, lärarkoden och vägen via en ny Rut-omgång till ett självständigt omprov gäller även i tvåan. Frågebank, områden, berättelse och sidoäventyr är tvåans egna. Det vanliga spelet har kvar sin fortsättning till trean.
+
+`chapter-two-student-browser.cjs` provar övergången från gammal elevlänk och verkligt sista prov i ettan till tvåan, bevarad sparning, spärr före klar etta, äppelgräns och granskning i tvåan, ett riktigt sista områdesprov i tvåan, spärr till kapitel 3–10, import, omspelning/återgång och mobil.

@@ -4,6 +4,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
  const root=path.resolve(__dirname,'../../..'),server=http.createServer((req,res)=>{const p=path.join(root,decodeURIComponent(req.url.split('?')[0]));let file=p;if(fs.existsSync(p)&&fs.statSync(p).isDirectory())file=path.join(p,'index.html');if(!fs.existsSync(file)){res.writeHead(404);res.end();return;}const type={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.webp':'image/webp','.png':'image/png','.json':'application/json'}[path.extname(file)]||'application/octet-stream';res.setHeader('Content-Type',type);res.end(fs.readFileSync(file));});await new Promise(r=>server.listen(0,'127.0.0.1',r));
  const b=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH,proxy:process.env.GAME_URL&&process.env.HTTPS_PROXY?{server:process.env.HTTPS_PROXY}:undefined,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']});
  const p=await b.newPage({ignoreHTTPSErrors:!!process.env.GAME_URL,viewport:{width:1200,height:850},reducedMotion:process.env.REDUCED_MOTION==='1'?'reduce':'no-preference'});p.setDefaultTimeout(process.env.GAME_URL?45000:12000);p.on('pageerror',e=>console.log('ERROR',e.message));
+ const teacherCode=await require('./teacher-review-test-utils.cjs').installTeacherCode(p);
  const errors=[];p.on('pageerror',e=>errors.push(e.message));
 
  const origin='http://127.0.0.1:'+server.address().port;
@@ -89,7 +90,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   assert.equal((await state()).m.state.areas.women.master.status,'pending');
   await boot();await enter('women','master');await mb('review');await mb('approve');assert.equal((await state()).m.state.areas.women.master.status,'pending');
   await mb('revise');const reviewed=await f.evaluate(()=>UPPDRAG_CH2_PILOT.recall.current);await f.locator('[data-rc-field="0"]').fill(reviewed.fields[0].sample);await f.locator('[data-action="rc-submit"]').click();
-  await mb('review');await f.locator('#mbTeacher').check();await mb('approve');await f.locator('[data-action="rc-next"]').click();await finish('women','master');
+  await mb('review');await f.locator('#mbTeacherCode').fill(teacherCode);await mb('approve');await f.locator('[data-action="rc-next"]').click();await finish('women','master');
   for(const area of ['children','power']){await enter(area,'master');await finish(area,'master');}
   assert.equal((await state()).m.summary.chapterComplete,true);assert.equal((await state()).s.complete,true);assert.equal((await state()).s.record.filter(r=>r.assessment==='teacher-approved').length,1);
   assert.equal(await f.evaluate(previousKey=>localStorage.getItem(previousKey),previousKey),previousBefore);

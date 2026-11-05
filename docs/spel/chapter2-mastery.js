@@ -4,6 +4,7 @@
 (function(){
 'use strict';
 const storage='uppdrag1700.ch2-real-world.20261019.v1';
+const pupilRound=window.__UPPDRAG_LESSON_ONLY>0,lessonEnd=window.__UPPDRAG_LESSON_ONLY===2;
 const storyKey='uppdrag1700.story.v2.ch2',peopleKey='uppdrag1700.people.v2.ch2';
 const parse=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))||fallback;}catch{return fallback;}};
 const copy=v=>JSON.parse(JSON.stringify(v));
@@ -24,8 +25,14 @@ runs.forEach((r,i)=>r.f=desired[i]);
 const old=parse(storage,null);
 try{if(old&&!localStorage.getItem(storage+'.before-mastery-2'))localStorage.setItem(storage+'.before-mastery-2',JSON.stringify(old));}catch{}
 let s=old&&old.v===2?old:{v:2,record:[],daler:Number.isInteger(previous.daler)?Math.max(0,previous.daler):3,apples:Number.isInteger(previous.apples)?Math.max(0,previous.apples):0,earned:{},step:0,index:0,trial:0,mode:'intro'};
-s.record=Array.isArray(s.record)?s.record:[];s.earned??={};s.sessions??={};s.reviewQueue??=[];s.encountered??=[];
+s.record=Array.isArray(s.record)?s.record:[];s.earned??={};s.sessions??={};s.reviewQueue??=[];s.encountered??=[];s.reviewPractice??={};
 s.daler=Math.max(0,Number(s.daler)||0);s.apples=Math.max(0,Number(s.apples)||0);
+// The classroom round has room for one apple. Keep the limit at the resource
+// boundary so restored saves and the frozen Rut reward cannot build a reserve.
+if(pupilRound){
+ let apples=Number.isFinite(s.apples)?Math.min(1,Math.floor(s.apples)):0;
+ Object.defineProperty(s,'apples',{enumerable:true,get:()=>apples,set(v){const n=Number(v);apples=Number.isFinite(n)?Math.min(1,Math.max(0,Math.floor(n))):0;}});
+}
 if(!s.chapter2AreasPrepared){for(const entry of s.record)entry.beforeChapter2Mastery=true;s.sessions={};s.step=0;s.index=0;s.mode='intro';s.recallUI=null;s.chapter2AreasPrepared=true;}
 s.archiveActive=false;s.step=Number.isInteger(s.step)&&runs[s.step]?s.step:0;
 let story=parse(storyKey,{v:1,introduced:false,visits:{}}),people=parse(peopleKey,{v:1,met:{}});
@@ -62,6 +69,7 @@ const style=document.createElement('style');style.textContent=`
 #ch1Modal.ch1MemoryFull article.ch1Sheet{max-height:calc(90% - 54px)}
 #ch1Modal.ch1MemoryFull .ch1Return{position:absolute;top:10px;left:12px;z-index:2;background:#fbf2dfef;min-height:44px;font:14px Georgia}
 #ch1Modal .rc-field input,#ch1Modal .rc-field textarea{padding:12px;border:1px solid #988465;border-radius:2px}
+#mbTeacherCode{display:block;width:min(100%,240px);min-height:44px;padding:8px 12px;margin-top:6px;border:1px solid #988465;border-radius:3px;font:18px system-ui}
 @media(max-width:800px){#ch1Modal.ch1MemoryFull .ch1Sheet{left:50%;width:calc(100% - 28px);max-width:570px;padding:18px}}
 @media(max-height:500px){#ch1Modal.ch1MemoryFull .ch1Sheet{top:55%;max-height:calc(100% - 74px);padding:14px}#ch1Modal.ch1MemoryFull .ch1Return{top:4px;left:6px}}
 #ch1Modal button:focus-visible,#ch1Hud button:focus-visible{outline:3px solid #286472;outline-offset:2px}
@@ -98,15 +106,15 @@ window.addEventListener('resize',paintCloseup);
 window.addEventListener('uppdrag-paper-fibres-ready',paintCloseup);
 const top=title=>'<div class="mb-top"><p>Fria och ofria · kapitel 2</p><button data-mb="close">'+(locationKey()?'Till rummet':'Till staden')+'</button></div><h2>'+esc(title)+'</h2>';
 function drawHud(){
- const q=mastery.summary();hud.innerHTML='<strong>'+(q.chapterComplete?'Minnesmästare · kapitel 2 klart':q.label+' · '+q.done+' av 3 områden klara')+'</strong><div class="ch1Wallet">'+s.daler+' daler · '+s.apples+' äpplen</div><button class="primary" data-mb="book">Minnesbok</button><button data-mb="rut">Rut · repetera</button>'+(q.chapterComplete?'<a href="chapter3-pilot.html">Till kapitel 3 →</a>':'');
+ const q=mastery.summary();hud.innerHTML='<strong>'+(q.chapterComplete?'Minnesmästare · kapitel 2 klart':q.label+' · '+q.done+' av 3 områden klara')+'</strong><div class="ch1Wallet">'+s.daler+' daler · '+s.apples+(s.apples===1?' äpple':' äpplen')+'</div><button class="primary" data-mb="book">Minnesbok</button><button data-mb="rut">Rut · repetera</button>'+(q.chapterComplete&&!lessonEnd?'<a href="chapter3-pilot.html">Till kapitel 3 →</a>':'');
 }
 const statusLabel={available:'○ Återstår','in-progress':'◐ Påbörjat',failed:'○ Återstår · nytt försök',pending:'◷ Väntar på granskning',clear:'✓ Klar',locked:'– Låst'};
 function book(){
  returnFocus=document.activeElement;const q=mastery.summary();
- let h=top('Din minnesbok')+'<p>'+(q.chapterComplete?'Alla tre mästarstämplar är klara. Kapitel 3 är öppet.':q.label+': '+q.done+' av 3 områden klara. Välj ordning mellan områdena.')+'</p>';
+ let h=top('Din minnesbok')+'<p>'+(q.chapterComplete?(lessonEnd?'Alla tre mästarstämplar är klara. Kapitel 2 är avklarat.':'Alla tre mästarstämplar är klara. Kapitel 3 är öppet.'):q.label+': '+q.done+' av 3 områden klara. Välj var du vill börja.')+'</p>';
  if(!story.introduced&&!q.chapterComplete)h+='<p class="mb-note">Maja på Kaffehuset visar hur minnesboken fungerar. Du kan också gå direkt till ett område.</p><button data-mb="maja">Besök Maja</button>';
- if(s.masteryMigrationNotice)h+='<p class="mb-note">Dina tidigare svar och resurser är bevarade. Stämplar har bara förts över där hela områdets prov kan styrkas. Övriga områden behöver kompletteras.</p>';
- h+='<p class="mb-note">Alla tre lärlingsstämplar öppnar gesällproven. Alla tre gesällstämplar öppnar mästarproven. Sidoäventyr ger inga provstämplar.</p>';
+ if(s.masteryMigrationNotice)h+='<p class="mb-note">Dina svar, pengar och äpplen finns kvar. Stämplar som spelet kunde kontrollera finns också kvar. Gör de prov som återstår i minnesboken.</p>';
+ h+='<p class="mb-note">Klara de tre lärlingsproven för att öppna gesällproven. Klara sedan gesällproven för att öppna mästarproven. Sidoäventyren ger inga stämplar.</p>';
  for(const a of areas){
   h+='<section class="mb-area"><h3>'+esc(a.name)+'</h3><p class="mb-note">'+esc(a.place+' · '+a.who)+'</p><div class="mb-stamps">';
   for(let r=0;r<3;r++){
@@ -116,9 +124,10 @@ function book(){
   h+='</div></section>';
  }
  if(!q.chapterComplete){const needed=q.remaining.map(a=>a.name).join(', ');h+='<p class="mb-note">Återstår på '+q.label.toLowerCase()+'nivån: '+esc(needed)+'.</p>';}
- else h+='<p><a href="chapter3-pilot.html">Fortsätt till kapitel 3 →</a></p>';
+ else if(!lessonEnd)h+='<p><a href="chapter3-pilot.html">Fortsätt till kapitel 3 →</a></p>';
  h+='<p class="mb-note"><b>Frivilligt sidouppdrag · Sängen vid fönstret:</b> '+esc(window.UPPDRAG_CH2_BED?.goal?.()||'Undersök sängen på Barnhuset.')+'</p>';
  h+='<p class="mb-note">1 äpple ger ett nytt försök på hela områdesprovet efter en miss. 1 daler ger en ledtråd på lärlingsnivån. Rut hjälper dig gratis.</p>';
+ if(pupilRound)h+='<p class="mb-note">Du kan ha högst ett äpple i fickan. När du har använt det behöver du repetera hos Rut för att få ett nytt.</p>';
  display(h,'book');
 }
 const sessionFields=['index','trial','mode','recallUI','recallAttempt','recallInterlude','hint','draft'];
@@ -165,13 +174,41 @@ function finished(){
  for(const id of current().f)s.earned[id]=true;
  s.masteryRewards??={};const reward=s.step;if(!s.masteryRewards[reward]){s.daler++;s.masteryRewards[reward]=true;}
  s.mode='end';stash();persist();drawHud();
- const q=mastery.summary();display(top(labels[current().r]+' i '+area().name+' – klart')+'<p>'+esc(current().who)+': ”Tack. Det här har du visat att du kan.”</p><p>'+(q.chapterComplete?'Du är minnesmästare i kapitel 2. Kapitel 3 är öppet.':q.label+': '+q.done+' av 3 områden klara.')+'</p><button class="primary" data-mb="book">Öppna minnesboken</button>'+(q.chapterComplete?'<p><a href="chapter3-pilot.html">Fortsätt till kapitel 3 →</a></p>':''),'result');return true;
+ const q=mastery.summary();display(top(labels[current().r]+' i '+area().name+' – klart')+'<p>'+esc(current().who)+': ”Tack. Det här har du visat att du kan.”</p><p>'+(q.chapterComplete?(lessonEnd?'Du är minnesmästare i kapitel 2. Bra arbetat!':'Du är minnesmästare i kapitel 2. Kapitel 3 är öppet.'):q.label+': '+q.done+' av 3 områden klara.')+'</p><button class="primary" data-mb="book">Öppna minnesboken</button>'+(q.chapterComplete&&!lessonEnd?'<p><a href="chapter3-pilot.html">Fortsätt till kapitel 3 →</a></p>':''),'result');return true;
 }
 function pending(t,u){
  if(s.archiveActive||s.recallInterlude||!t||!current().f.includes(t.id)||t.rank!==current().r)return false;
  const prior=s.reviewQueue.find(x=>x.step===s.step&&x.trial===s.trial&&x.id===t.id&&!x.resolved);
  if(!prior)s.reviewQueue.push({id:t.id,step:s.step,trial:s.trial,index:s.index,answer:copy(u.drafts),at:new Date().toISOString()});
- mastery.pending(area().id,level());persist();drawHud();
+ mastery.pending(area().id,level());practiceTicket();persist();drawHud();
+}
+function practiceTicket(){
+ if(status()!=='pending')return null;
+ let ticket=s.reviewPractice[s.step];
+ if(!ticket||ticket.trial!==s.trial)ticket=s.reviewPractice[s.step]={trial:s.trial,roundBefore:s.archiveRounds||0,logBefore:s.recallRutLog?.length||0,completedRound:null};
+ return ticket;
+}
+function practiceReady(){
+ const ticket=practiceTicket();if(!ticket||!(ticket.completedRound>ticket.roundBefore))return false;
+ // Keep the recall engine's exposure rule: two recorded retrieval responses
+ // must separate the last model view and the new answer. Never erase exposure.
+ const shown=current().f.map(id=>s.recallShown?.[id]).filter(Number.isInteger);
+ return !shown.length||s.recallClock-Math.max(...shown)>=2;
+}
+function practice(){
+ if(status()!=='pending'){
+  const t=recall.current,u=recall.ui;if(!t||u?.phase!=='review')return false;
+  pending(t,u);
+ }
+ practiceTicket();persist();goArchive();return true;
+}
+function retryAfterPractice(){
+ if(!practiceReady())return false;
+ if(!present()){goPlace(area().p);return true;}
+ const oldTrial=s.trial;if(!mastery.reopenPending(area().id,level()).ok)return false;
+ for(const x of s.reviewQueue)if(x.step===s.step&&x.trial===oldTrial&&mainReview(x)){x.resolved='practice-retry';x.retriedAt=new Date().toISOString();}
+ delete s.reviewPractice[s.step];s.sessions[s.step]=null;s.index=0;s.mode='intro';s.recallUI=null;s.recallInterlude=null;s.hint=false;
+ persist();return begin();
 }
 function encountered(id){if(id&&!s.encountered.includes(id)){s.encountered.push(id);persist();}}
 function recorded(entry){
@@ -183,20 +220,30 @@ function renderStatus(){
  const st=status();if(!['failed','pending'].includes(st))return false;
  let h=top(area().name)+'<p>'+labels[current().r]+' · '+esc(area().place)+'</p>';
  if(st==='failed'){const entry=s.record.at(-1),t=bank.find(t=>t.id===entry?.id);if(t){h+='<p>'+esc(t.prompt)+'</p>'+window.UPPDRAG_RECALL_ASSESS.modelHTML(t);s.recallShown[t.id]=s.recallClock;persist();}}
- if(st==='failed')h+='<p>Provet behöver ett nytt försök. Ett äpple startar om hela det här områdesprovet. Dina andra stämplar och händelser i staden finns kvar.</p><div class="mb-actions"><button class="primary" data-mb="retry"'+(s.apples<1?' disabled':'')+'>Nytt försök · 1 äpple</button><button data-mb="rut">Öva gratis hos Rut</button></div>';
- else h+='<p>◷ Svaret är sparat och väntar på granskning. Det har inte gett en stämpel. Du kan visa det för din lärare eller bearbeta det gratis.</p><div class="mb-actions"><button data-mb="review">Visa svaret för läraren</button><button data-mb="revise">Bearbeta svaret</button></div>';
+ if(st==='failed')h+='<p>Prova igen från första frågan. Det kostar ett äpple. Dina andra stämplar finns kvar. Saknar du ett äpple? Öva gratis hos Rut i Arkivet.</p><div class="mb-actions"><button class="primary" data-mb="retry"'+(s.apples<1?' disabled':'')+'>Nytt försök · 1 äpple</button><button data-mb="rut">Öva gratis hos Rut</button></div>';
+ else{
+  const ready=practiceReady();persist();
+  h+='<p>Ditt svar är sparat. Du har inte fått en stämpel än. Du kan visa din lärare eller öva och göra ett nytt försök.</p><p>'+(ready?'Du har övat hos Rut. Nu kan du göra om provet från första frågan utan hjälp. Det kostar inget äpple.':'Öva en omgång hos Rut i Arkivet. Kom sedan tillbaka hit och gör om provet utan hjälp. Det kostar inget äpple.')+'</p><div class="mb-actions"><button class="'+(ready?'primary':'')+'" data-mb="practice-retry"'+(ready?'':' disabled')+'>'+(present()?'Prova igen utan hjälp':'Gå till '+area().place)+'</button><button class="'+(ready?'':'primary')+'" data-mb="practice">Öva hos Rut</button><button data-mb="review">Visa för läraren</button><button data-mb="revise">Ändra mitt svar</button></div>';
+ }
  h+='<button data-mb="book">Till minnesboken</button>';display(h,'status');return true;
 }
 function review(){
  const entry=s.reviewQueue.find(x=>x.step===s.step&&x.trial===s.trial&&mainReview(x));if(!entry)return;
  const t=bank.find(t=>t.id===entry.id);if(!t)return false;
- let h=top('Granska tillsammans med läraren')+'<p class="mb-note">Granskningen görs på den här enheten. Detta är ingen säker lärarinloggning.</p><p>'+esc(t.prompt)+'</p><blockquote>'+esc(entry.answer.join('\n'))+'</blockquote>';
- h+=window.UPPDRAG_RECALL_ASSESS.modelHTML(t)+'<label><input type="checkbox" id="mbTeacher"> Jag är lärare och har granskat elevens svar mot uppgiftens krav.</label><div class="mb-actions"><button class="primary" data-mb="approve">Godkänn innehållet</button><button data-mb="revise">Låt eleven bearbeta</button></div><button data-mb="book">Till minnesboken</button>';display(h,'review');
+ s.recallShown??={};s.recallShown[t.id]=s.recallClock;persist();
+ let h=top('Visa svaret för din lärare')+'<p>Be din lärare läsa ditt svar. Läraren skriver sin kod om svaret är rätt.</p><p>'+esc(t.prompt)+'</p><blockquote>'+esc(entry.answer.join('\n'))+'</blockquote>';
+ h+=window.UPPDRAG_RECALL_ASSESS.modelHTML(t)+'<label for="mbTeacherCode">Lärarkod</label><input type="password" id="mbTeacherCode" inputmode="numeric" maxlength="6" autocomplete="off" aria-describedby="mbTeacherError"><p id="mbTeacherError" role="alert"></p><div class="mb-actions"><button class="primary" data-mb="approve">Godkänn svaret</button><button data-mb="practice">Öva och prova igen</button><button data-mb="revise">Ändra mitt svar</button></div><button data-mb="book">Till minnesboken</button>';display(h,'review');
 }
-function approve(){
- if(!modal.querySelector('#mbTeacher')?.checked)return false;
+async function approve(){
+ const input=modal.querySelector('#mbTeacherCode'),button=modal.querySelector('[data-mb="approve"]');if(!input||button?.disabled)return false;
  const entry=s.reviewQueue.find(x=>x.step===s.step&&x.trial===s.trial&&mainReview(x));if(!entry)return false;
+ if(button)button.disabled=true;
+ const code=input.value;input.value='';const accepted=await window.UPPDRAG_TEACHER_REVIEW.verify(code);
+ if(!input.isConnected||view!=='review'||s.step!==entry.step||s.trial!==entry.trial||entry.resolved)return false;
+ if(button)button.disabled=false;
+ if(!accepted){modal.querySelector('#mbTeacherError').textContent='Koden stämmer inte. Be din lärare skriva koden.';input.focus({preventScroll:true});return false;}
  entry.resolved='approved';entry.reviewedAt=new Date().toISOString();
+ delete s.reviewPractice[s.step];
  s.record.push({version:'recall-2-rubric',chapter:2,step:s.step,trial:s.trial,id:entry.id,level:labels[current().r],ok:true,support:true,independent:false,assessment:'teacher-approved',answer:copy(entry.answer),at:entry.reviewedAt});
  mastery.resumePending(area().id,level());s.index=entry.index;s.mode='feedback';
  const u=recall.ui;u.phase='feedback';u.drafts=copy(entry.answer);u.result={status:'right',support:true};
@@ -204,6 +251,7 @@ function approve(){
 }
 function revise(){
  mastery.resumePending(area().id,level());
+ delete s.reviewPractice[s.step];
  for(const x of s.reviewQueue)if(x.step===s.step&&x.trial===s.trial&&!x.resolved)x.resolved='revising';
  const u=recall.ui;if(u){u.phase='question';u.error='';u.result=null;u.hint=true;}s.mode='question';persist();display('','quiz');recall.render();
 }
@@ -241,9 +289,18 @@ function chooseHere(p,aid){
 }
 let hudKey='';
 function tick(){const key=JSON.stringify([mastery.summary(),s.daler,s.apples]);if(view==='closed'&&hudKey!==key){hudKey=key;drawHud();}}
+const reviewRewards={
+ awardRutApple(){
+  for(const ticket of Object.values(s.reviewPractice))if(s.archiveRounds>ticket.roundBefore&&(s.recallRutLog?.length||0)>ticket.logBefore)ticket.completedRound=s.archiveRounds;
+  if(pupilRound){s.lessonRutAppleAdded=s.apples<1;if(s.lessonRutAppleAdded)s.apples++;}else s.apples++;
+ },
+ ...(pupilRound?{
+ rutRewardHTML(){return s.lessonRutAppleAdded?'<h2 class="rc-prompt">Ett äpple för repetitionen</h2><p>Du svarade rätt på övningsfrågorna. Du får ett äpple.</p><p class="rc-note">Du kan ha ett äpple i fickan. Använd det till ett nytt försök innan du tjänar ett nytt.</p>':'<h2 class="rc-prompt">Repetitionen är klar</h2><p>Du har redan ett äpple i fickan. Använd det till ett nytt försök innan du kan få ett nytt hos Rut. Du kan fortsätta öva gratis.</p>';}
+ }:{})
+};
 recall=window.UPPDRAG_RECALL_ENGINE.attach({chapter:2,state:()=>s,runs,facts,modal,storage,current,location:locationKey,present,previousKeys:{1:previousKey},persist,drawHud,paint:paintCloseup,
  openArchive(){display('','quiz');},finished,close,goRut:goArchive,
- mastery:{hasPassed,available,renderStatus,recorded,pending,encountered,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();return false;}}
+ mastery:{hasPassed,available,renderStatus,recorded,pending,encountered,...reviewRewards,practiceRetry:true,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();if(name==='practice-review'){practice();return true;}return false;}}
 });
 // Import only complete, evidenced area attempts, in prerequisite order. Never infer
 // stamps from old chapter completion or from reading a model answer.
@@ -272,7 +329,7 @@ window.UPPDRAG_CH2_PILOT={tick,go:book,close,scenes:runs,saveKey:storage,persist
  memoryChoices(){const l=mastery.summary().level;return areas.filter(a=>a.p===locationKey()&&status(a,l)!=='clear').map(a=>({id:a.id,label:a.id==='women'?'Läs anteckningen om kvinnor':a.id==='power'?'Granska kyrkoboken':'Läs barnhusets anteckningar'}));},
  memoryChoice:()=> 'Läs '+(hereArea()?.document||'anteckningen'),
  enterMemory(aid){if(chooseHere(locationKey(),aid))begin();},wantsMemoryThanks:()=>false,memoryThanks:()=>'',finishMemory:finished,
- wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> 'Vi övar på sådant du redan mött, även från förra kapitlet. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,goArchive,
+ wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> pupilRound?(s.apples?'Vi kan öva på sådant du redan mött. Du har redan ett äpple. Använd det till ett nytt försök, så kan du få ett nytt när du repeterar hos mig.':'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple. Du kan ha ett i fickan åt gången.'):'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,goArchive,
  idleLine:p=>p==='barnhus'?(window.UPPDRAG_CH2_BED?.siriLine?.()||'Välkommen tillbaka!'):'Välkommen tillbaka!',
  openBook:book,selectArea:select,
  get encounteredTaskIds(){return s.encountered.slice();},
@@ -282,7 +339,7 @@ function action(e){
  const button=e.target.closest('[data-mb]');if(!button)return;const name=button.dataset.mb;
  if(name==='close')close();else if(name==='book')book();else if(name==='select')select(button.dataset.area,button.dataset.level);
  else if(name==='travel')goPlace(area().p);else if(name==='begin')begin();else if(name==='rut')goArchive();else if(name==='maja')goPlace('cafe');
- else if(name==='retry')retry();else if(name==='review')review();else if(name==='approve')approve();else if(name==='revise')revise();
+ else if(name==='retry')retry();else if(name==='review')review();else if(name==='approve')approve();else if(name==='revise')revise();else if(name==='practice')practice();else if(name==='practice-retry')retryAfterPractice();
 }
 hud.addEventListener('click',action);modal.addEventListener('click',e=>{action(e);const act=e.target.closest('[data-action]')?.dataset.action;if(act==='close'||act==='archive-exit')close();else recall.action(act,e);});
 modal.addEventListener('input',e=>recall.input(e));
