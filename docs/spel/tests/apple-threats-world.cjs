@@ -41,7 +41,7 @@ function fixture(kind,chapter=1){
  }
  return {c,state,p,memory,stage,tasks,tick,spawn,setRoom:value=>room=value};
 }
-for(const kind of ['dog','guard'])for(const chapter of [1,2]){
+for(const [kind,chapter] of [['dog',3],['dog',4],['guard',4],['dog',5],['guard',5]]){
  const h=fixture(kind,chapter),found=h.spawn(),a=found.encounter;
  assert.equal(a.kind,kind);assert(a.home.id.startsWith('tree-'),'real existing cover');assert(h.c.UPPDRAG_WORLD_KEYBOARD.clearSegment(h.c.testRegion,a.home,a.home,12));
  h.c.UPPDRAG_MENU_OPEN=()=>true;const paused=copy(h.c.UPPDRAG_APPLE_THREATS.snapshot.active);paused.point.moving=false;
@@ -61,7 +61,7 @@ for(const kind of ['dog','guard'])for(const chapter of [1,2]){
  h.setRoom('archive');h.tick(player);const modal=new Element();
  // Exercise the real recall engine and the pilot's unchanged reward callback.
  const pilot=read('chapter'+chapter+'-mastery.js'),begin=pilot.indexOf('const reviewRewards={'),end=pilot.indexOf('\nrecall=',begin);
- h.c.testState=h.state;const rewards=vm.runInContext('(function(s,pupilRound){'+pilot.slice(begin,end)+';return reviewRewards;})(testState,true)',h.c);
+ h.c.testState=h.state;const rewards=begin>=0?vm.runInContext('(function(s,pupilRound){'+pilot.slice(begin,end)+';return reviewRewards;})(testState,true)',h.c):{};
  const recall=h.c.UPPDRAG_RECALL_ENGINE.attach({chapter,state:()=>h.state,current:()=>({p:'palace',who:'Amira',r:0,f:h.tasks.map(t=>t.id)}),location:()=> 'archive',
   modal,persist:()=>h.p.persist(),drawHud(){},paint(){},openArchive(){},close(){},
   mastery:{...rewards,hasPassed:()=>false,available:()=>h.tasks.map(t=>t.id),renderStatus:()=>false,recorded(){throw Error('Rut must not award a main stamp');}}});
@@ -90,3 +90,6 @@ for(const kind of ['dog','guard'])for(const chapter of [1,2]){
  }
  console.log('PASS dog renderer source hooks in all five mastery chapters');
 }
+for(const chapter of [1,2])assert.equal(fixture('dog',chapter).c.UPPDRAG_APPLE_THREATS,undefined,'no new threats in early chapter '+chapter);
+assert.equal(fixture('guard',3).spawn().encounter.kind,'dog','chapter three cannot load a saved guarding thief');
+console.log('PASS staged introduction: no dog/guard in 1–2, dog only in 3, both in 4–5');

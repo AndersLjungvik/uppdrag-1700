@@ -1,8 +1,8 @@
 # Händelsesystem för Uppdrag 1700 · 1.5.2
 
-## Äppelrisker · 2.11.0
+## Äppelrisker · 2.11.1
 
-Kapitel 1–5 har två nya, undvikbara resursrisker på huvudstadens karta. En hund får vittring på det burna äpplet och följer efter. En annan tjuv går fram från ett verkligt träd till en passage och bevakar den; han följer bara en kort sträcka runt sin plats. De växlar mellan möten och varnar i tre sekunder innan närkontakt kan kosta något. Skydd i hus eller samtal, bruten sikt bakom ett träd och att hålla avstånd kan avvärja dem. De använder samma vägkontroll, målade hund/personer och markdjup som staden, utan att flytta kameran eller öppna en frågedialog på gatan.
+Hunden tillkommer i kapitel 3. Den vaktande tjuven tillkommer i kapitel 4, och därefter kan båda förekomma i fyran och femman. Kapitel 1–2 behåller den befintliga ficktjuven utan nya äppelhot. En hund får vittring på det burna äpplet och följer efter. En annan tjuv går fram från ett verkligt träd till en passage och bevakar den; han följer bara en kort sträcka runt sin plats. Från kapitel 4 växlar de mellan möten och varnar i tre sekunder innan närkontakt kan kosta något. Skydd i hus eller samtal, bruten sikt bakom ett träd och att hålla avstånd kan avvärja dem. De använder samma vägkontroll, målade hund/personer och markdjup som staden, utan att flytta kameran eller öppna en frågedialog på gatan.
 
 Båda tar **ett faktiskt äpple** vid kontakt. Det finns ingen återbetalning från jakten, barnet eller en självrapport. Ett nytt tjänas genom den befintliga, fullständiga repetitionsomgången hos Rut i Arkivet. Att öppna Rut, avbryta eller svara fel ger inget nytt äpple. Frågor och bedömning hos Rut är oförändrade och använder det redan tillgängliga repetitionsunderlaget. Daler, klarade frågor, stämplar och berättelseföremål ändras inte av dessa två risker. Den tidigare ficktjuvens penningjakt är kvar separat.
 
@@ -10,7 +10,7 @@ Efter förlust väntar nya äppelhot tills en ny Rut-omgång verkligen har gett 
 
 Takt, turordning, förluster och behov av repetition sparas kapitelvis under `uppdrag1700.apple-threats.v1`, innanför befintlig spel-/elev-/omspelningsnamnrymd. Ett avbrott avslutar det pågående mötet utan ny debitering; en redan förlorad resurs dras inte igen vid omladdning. Vanliga sparfilsexporter inkluderar nyckeln automatiskt. Elevlänkens gräns på ett äpple och kapitel 1–2 behålls.
 
-`npm run test:apple-threats` provar fysisk kontakt för båda, varningstid, vaktens begränsade förföljelse, flykt, skydd, väggar, paus, omladdning och ny återkomst efter faktisk repetitionssignal. Integrationsprovet använder den riktiga stadens vägnät, träd och kollisionskontroll samt den oförändrade återkallningsmotorn och ettans/tvåans faktiska belöningsfunktioner. Avbruten, felaktig och avslutad Rut-omgång provas efter båda typernas resursförlust. Alla fem kapitels befintliga hundmålare anropas med den nya posen. Det ersätter inte elevtest av tempo eller svårighetsgrad.
+`npm run test:apple-threats` provar fysisk kontakt för båda, varningstid, vaktens begränsade förföljelse, flykt, skydd, väggar, paus, omladdning och ny återkomst efter faktisk repetitionssignal. Integrationsprovet använder den riktiga stadens vägnät, träd och kollisionskontroll samt den oförändrade återkallningsmotorn och kapitel 3–5:s befintliga belöningsväg. Avbruten, felaktig och avslutad Rut-omgång provas efter båda typernas resursförlust. Alla fem kapitels befintliga hundmålare anropas med den nya posen. Det ersätter inte elevtest av tempo eller svårighetsgrad.
 
 ## Varför
 

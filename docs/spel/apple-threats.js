@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 const chapter=Number(window.__INTEGRATED_CHAPTER),stage=document.getElementById('stage');
-if(![1,2,3,4,5].includes(chapter)||!stage||window.UPPDRAG_APPLE_THREATS)return;
+if(![3,4,5].includes(chapter)||!stage||window.UPPDRAG_APPLE_THREATS)return;
 const teacher=new URLSearchParams(window.__UPPDRAG_QUERY||location.search).get('preview')==='1';
 const key='uppdrag1700.apple-threats.v1',pilot=()=>window['UPPDRAG_CH'+chapter+'_PILOT'];
 let store;try{store=JSON.parse(localStorage.getItem(key));}catch{}
@@ -33,6 +33,7 @@ function message(kind,outcome){
  live.replaceChildren();const title=document.createElement('strong');title.textContent=text[0];live.append(title,document.createTextNode(text[1]));rut.hidden=outcome!=='lost-apple';
 }
 const model=window.UPPDRAG_APPLE_THREAT_MODEL.create(store.chapters[chapter],{
+ kinds:chapter===3?['dog']:['dog','guard'],
  save(value){store.chapters[chapter]=value;try{localStorage.setItem(key,JSON.stringify(store));}catch{}},
  loseApple(){const p=pilot();if(teacher||!p?.state||p.state.apples<1)return false;p.state.apples--;p.persist();p.refresh?.();return true;},
  event(kind,outcome){if(outcome!=='no-apple'&&outcome!=='left')message(kind,outcome);}
@@ -98,6 +99,6 @@ life.tick=function(now,config){const result=oldTick.apply(this,arguments);tick(n
 life.draw=function(ctx,config){const result=oldDraw.apply(this,arguments);draw(ctx,config);return result;};
 window.UPPDRAG_APPLE_THREATS={get busy(){return model.busy;},get suppressesPickpocket(){return model.suppressesPickpocket;},get point(){return model.snapshot().active?.point||null;},get snapshot(){return model.snapshot();},
  people(r){const a=model.snapshot().active;return r?.id==='main'&&a?[{...a.point,id:'apple-'+a.kind,role:a.kind==='dog'?'dog':'passerby',radius:12,solid:false}]:[];},
- journalHTML(){return '<p><b>Äpplet på gatan:</b> Hunden och tjuven vid passagen kan ta ett äpple. Håll avstånd eller sök skydd. Ett nytt äpple tjänar du genom en hel repetitionsomgång hos Rut i Arkivet.</p>';}
+ journalHTML(){return '<p><b>Äpplet på gatan:</b> '+(chapter===3?'Hunden kan':'Hunden och tjuven vid passagen kan')+' ta ett äpple. Håll avstånd eller sök skydd. Ett nytt äpple tjänar du genom en hel repetitionsomgång hos Rut i Arkivet.</p>';}
 };
 })();
