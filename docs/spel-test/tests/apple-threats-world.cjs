@@ -28,7 +28,7 @@ function fixture(kind,chapter=1){
  const tasks=c.UPPDRAG_RECALL_BANK.filter(t=>t.chapter===chapter&&t.rank===0).slice(0,3);
  const state={v:2,apples:1,daler:17,step:1,index:0,trial:1,record:[],earned:{older:true},reviewPractice:{},encountered:tasks.map(t=>t.id)};
  const p=c['UPPDRAG_CH'+chapter+'_PILOT']={state,persist(){memory.set('pilot',JSON.stringify(state));},refresh(){},repetitionTaskIds:tasks.map(t=>t.id),goArchive(){room='archive';},studyBusy:false};
- memory.set('uppdrag1700.apple-threats.v1',JSON.stringify({v:1,chapters:{[chapter]:{quietMs:0,nextDistance:0,nextKind:kind}}}));
+ memory.set('uppdrag1700.apple-threats.v1',JSON.stringify({v:1,chapters:{[chapter]:{quietMs:0,nextDistance:0,nextKind:kind,encounters:kind?1:0}}}));
  for(const name of ['event-approach.js','apple-threats-model.js','apple-threats.js'])vm.runInContext(read(name),c);
  function tick(player,activeRoom=room){now+=80;c.UPPDRAG_WORLD_LIFE.tick(now,{region:c.testRegion,player,activeRoom});return copy(c.UPPDRAG_APPLE_THREATS.snapshot);}
  function spawn(){
@@ -92,4 +92,16 @@ for(const [kind,chapter] of [['dog',3],['dog',4],['guard',4],['dog',5],['guard',
 }
 for(const chapter of [1,2])assert.equal(fixture('dog',chapter).c.UPPDRAG_APPLE_THREATS,undefined,'no new threats in early chapter '+chapter);
 assert.equal(fixture('guard',3).spawn().encounter.kind,'dog','chapter three cannot load a saved guarding thief');
+assert.equal(fixture(null,4).spawn().encounter.kind,'guard','chapter four introduces its new guard first');
 console.log('PASS staged introduction: no dog/guard in 1–2, dog only in 3, both in 4–5');
+{
+ const h=fixture('guard',4),found=h.spawn();let player={...found.point},frames=0;
+ assert(Math.hypot(found.encounter.post.x-player.x,found.encounter.post.y-player.y)>=590,'passage lies beyond the normal three-second walking distance');
+ for(;frames<37;frames++){player.x+=14.4;h.tick(player);assert.equal(h.state.apples,1,'warning protects a normal walker for three seconds');}
+ for(;frames<120&&h.state.apples;frames++){player.x+=14.4;h.tick(player);}
+ assert.equal(h.state.apples,0,'walking straight into the guarded passage risks the apple');assert.equal(h.c.UPPDRAG_APPLE_THREATS.snapshot.state.losses,1);assert(frames*.08>=3);
+ const escape=fixture('guard',4),start=escape.spawn();let safe={...start.point};
+ for(let i=0;i<120;i++){safe.x-=14.4;escape.tick(safe);}
+ assert.equal(escape.state.apples,1,'turning back preserves the apple');assert.equal(escape.c.UPPDRAG_APPLE_THREATS.snapshot.state.losses,0);
+ console.log('PASS normal-speed passage: full three-second warning, actual loss when walking through, safe turn-back and one debit');
+}
