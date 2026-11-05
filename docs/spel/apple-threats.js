@@ -78,7 +78,7 @@ function tick(now,{region,player,activeRoom=null}={}){
  const paused=!!window.UPPDRAG_MENU_OPEN?.()||!!document.querySelector('dialog[open],#ch1Modal:not([hidden]),#meetingDialogue:not([hidden])')||document.body.classList.contains('ch1-open')||!!p?.studyBusy||!!window.UPPDRAG_STORY_WORK?.busy;
  const travelling=(typeof sailing!=='undefined'&&!!sailing)||(typeof voyage!=='undefined'&&!!voyage);
  const ordinaryThief=other?.approach?.point;
- model.tick(now,player,{region:region.id,hidden:document.hidden,paused:teacher||(!inRoom&&!talking&&paused),
+ model.tick(now,player,{region:region.id,hidden:document.hidden,paused:teacher||paused,
   shelter:inRoom||travelling?'house':talking?'conversation':'',otherThreat:!!other?.busy||!!ordinaryThief,
   apples:p?.state.apples||0,known:!!p?.repetitionTaskIds?.length,
   completedRound:p?.state.recallRutRewarded?p.state.archiveRounds||0:0,anchor,route,clear,

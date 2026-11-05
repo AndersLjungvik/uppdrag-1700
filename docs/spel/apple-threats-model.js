@@ -49,6 +49,8 @@ function create(raw={},hooks={}){
    }
    save();
   }
+  // Shelter ends pursuit even when the conversation or room pauses the clock.
+  if(config.shelter&&active)retire('shelter');
   if(config.hidden||config.paused){if(active)active.point.moving=false;return snapshot();}
   state.quietMs=Math.max(0,state.quietMs-dt*1000);
   if(config.region==='main'&&moved>.1&&moved<45&&!config.shelter)state.distance+=moved;
