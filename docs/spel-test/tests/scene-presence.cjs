@@ -71,6 +71,19 @@ assert(c.player.x>=580,'held arrows continue past the yielding resident beside t
 const host={id:'host',x:150,y:150};c.player={x:100,y:150};c.window.UPPDRAG_WORLD_KEYBOARD={buildingStep:()=>true};c.window.UPPDRAG_CH4_CITY_LIFE={people:()=>[host]};
 let arrived=false;for(let i=0;i<300&&!arrived;i++){clock+=20;const next=P.advance({id:'occupied-target'},c.player,host,3);c.player={x:next.x,y:next.y};arrived=next.arrived;}
 assert(arrived,'an occupied route node finishes beside the person without orbiting');assert(Math.hypot(c.player.x-host.x,c.player.y-host.y)>=11.9,'arrival keeps foot centres separate');
+// The child controls its own orientation until an actual conversation starts.
+c.region={id:'attention'};c.player={x:0,y:0};c.interior=null;let reduced=false,hostPoint={id:'book',x:60,y:60};
+c.window.matchMedia=()=>({matches:reduced});const city={teaser:'book',actor:null,find:()=>hostPoint};c.window.UPPDRAG_CH4_CITY_LIFE=city;
+let view=P.playerPose(c.player,[],0,0);
+for(let i=1;i<=100;i++){hostPoint={...hostPoint,x:Math.cos(i)*100,y:Math.sin(i)*100};view=P.playerPose(c.player,[],view.heading,i*80);assert.equal(view.baseHeading,0,'a nearby invitation cannot keep rotating the child');}
+assert.equal(view.moving,false);assert.equal(view.x,0);assert.equal(view.y,0);
+hostPoint={id:'book',x:60,y:60};city.actor='book';
+for(let i=101;i<=130;i++)view=P.playerPose(c.player,[],view.heading,i*80);
+assert(Math.abs(view.baseHeading-Math.PI/4)<.001,'turn toward the person when the conversation begins');
+hostPoint={...hostPoint,y:-60};for(let i=131;i<=160;i++)view=P.playerPose(c.player,[],view.heading,i*80);
+assert(Math.abs(view.baseHeading-Math.PI/4)<.001,'do not track every movement during a conversation');
+c.player={x:0,y:3};view=P.playerPose(c.player,[{x:0,y:100}],view.heading,12900);assert(Math.abs(view.heading-Math.PI/2)<.001,'walking direction takes priority');assert(view.moving);
+city.actor=null;reduced=true;for(let i=1;i<=100;i++)view=P.playerPose(c.player,[],view.heading,12900+i*80);assert.equal(view.heading,view.baseHeading,'reduced motion disables idle looks');
 const calls=[],ctx={globalAlpha:.77,getTransform:()=>({a:1,b:0,c:0,d:1,e:0,f:0}),save(){},restore(){},setTransform(){}};
 P.begin(ctx);P.enqueue(ctx,90,()=>calls.push('front'),'front');P.enqueue(ctx,30,()=>calls.push('player'),'player');P.enqueue(ctx,10,()=>calls.push('back'),'back');P.flush();assert.equal(calls.join(','),'back,player,front','player is drawn among people by ground depth');
 assert.equal(P.enqueue(ctx,0,()=>{},'outside'),false);

@@ -149,9 +149,22 @@ function playerPose(pos,route,heading,now){
  const attention=partner(),goal=route?.some(p=>dist(pos,p)>.5),previous=playerView;
  const moved=previous&&dist(pos,previous)>.01&&dist(pos,previous)<40;
  const dt=previous?Math.max(0,Math.min(.08,(now-previous.at)/1000)):.016;
- if(attention&&(attention.engaged||!goal))heading=turn(previous?.heading??heading,Math.atan2(attention.y-pos.y,attention.x-pos.x),window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?Math.PI*2:dt*7);
- else if(moved)heading=Math.atan2(pos.y-previous.y,pos.x-previous.x);
- playerView={x:pos.x,y:pos.y,heading,at:now,moving:!!goal&&!attention?.engaged};return playerView;
+ const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ const regionId=currentWorld()?.id,reset=!previous||previous.regionId!==regionId||dist(pos,previous)>80;
+ const engaged=attention?.engaged&&!moved&&!goal;
+ const attentionKey=engaged?(attention.id||attention.name||'conversation'):null;
+ // A greeting alone never takes control of the child's body. Once a real
+ // conversation starts, turn toward the partner once and hold that direction.
+ const attentionHeading=engaged?(previous?.attentionKey===attentionKey&&!reset?previous.attentionHeading:Math.atan2(attention.y-pos.y,attention.x-pos.x)):null;
+ if(moved)heading=Math.atan2(pos.y-previous.y,pos.x-previous.x);
+ else if(engaged)heading=turn(reset?heading:previous.baseHeading,attentionHeading,reduced?Math.PI*2:dt*5);
+ else if(!goal&&!reset)heading=previous.baseHeading;
+ const baseHeading=heading;
+ // Brief, quiet looks while waiting; no tracking of a passing person, no
+ // foot movement and no idle animation when reduced motion is requested.
+ const idleSince=moved||goal||engaged?now:previous?.idleSince??now,phase=(now-idleSince)%9000;
+ if(!reduced&&!engaged&&!goal&&!moved&&phase>4500&&phase<5700)heading+=Math.sin((phase-4500)/1200*Math.PI)*.1;
+ playerView={x:pos.x,y:pos.y,heading,baseHeading,attentionKey,attentionHeading,regionId,idleSince,at:now,moving:!!goal||!!moved};return playerView;
 }
 function sceneGeometry(){
  const sr=stage.getBoundingClientRect();
@@ -257,5 +270,5 @@ function source(name,text){
  }
  return text;
 }
-window.UPPDRAG_SCENE_PRESENCE={footRadius:FOOT_RADIUS,source,install,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get talking(){return !!(window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.active||window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_EVENT_ENGINE?.blocking);},get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.3.0'};
+window.UPPDRAG_SCENE_PRESENCE={footRadius:FOOT_RADIUS,source,install,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get talking(){return !!(window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.active||window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_EVENT_ENGINE?.blocking);},get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.4.0'};
 })();

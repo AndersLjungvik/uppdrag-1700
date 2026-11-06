@@ -61,7 +61,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await boot();await enter('trade','master');await mb('review');
   await mb('approve');assert.equal((await state()).m.state.areas.trade.master.status,'pending','must acknowledge teacher review');
   // Teacher asks for a revision; the learner writes a sufficient answer.
-  await mb('revise');await f.locator('[data-rc-field="0"]').fill('Det handlade med Asien, bland annat Kina, och importerade exempelvis te.');await f.locator('[data-action="rc-submit"]').click();
+  await f.evaluate(()=>{UPPDRAG_CH1_PILOT.state.apples=1;UPPDRAG_CH1_PILOT.persist();});await mb('revise');assert.equal((await state()).s.apples,0,'revision costs one apple');await f.locator('[data-rc-field="0"]').fill('Det handlade med Asien, bland annat Kina, och importerade exempelvis te.');await f.locator('[data-action="rc-submit"]').click();
   assert.equal((await state()).m.state.areas.trade.master.status,'pending','supported revision needs review');
   await mb('review');await f.locator('#mbTeacherCode').fill(teacherCode);await mb('approve');await f.locator('[data-action="rc-next"]').click();
   assert.equal((await state()).m.state.areas.trade.master.status,'clear');assert.equal((await state()).s.apples,apples);

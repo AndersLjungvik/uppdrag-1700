@@ -69,3 +69,7 @@ Vilans tid pausas även när spelaren läser Ruts återkoppling inne i Arkivet. 
 ## Första mötet på vanliga vägar · 2.12.0
 
 Första Rut-belöningen återställde tidigare 45 sekunders väntan och 700 kartenheters gång. Eftersom klockan pausade vid frågor och samtal kunde många normala arbetsbesök passera utan ett enda möte. De tidigare integrationstesterna nollställde väntan och sökte igenom alla vägar, vilket missade denna användarväg. Det nya synlighetsprovet använder standardvärden, signalen från den första Rut-belöningen och stadens riktiga ruttplanerare på vanliga resor mellan arbetsplatser. Det provar också att vakten ligger före målet på den valda vägen, att ett annat tjuvförsök inte kan skjuta upp mötet för alltid och att gamla sparningar blir spelbara utan radering.
+
+## Svarsalternativ hos ficktjuven · 2.13.0
+
+Svarsalternativen blandas nu med Fisher–Yates oberoende av valet av fråga. Den tidigare rotationen använde samma räknare som frågevalet och kunde koppla den valda frågan till rätt svar på första plats. Ordningen skapas en gång för jakten och behålls när frågan visas igen. Frågebank, facit och återbetalning ändras inte. `thief-choice-order.cjs` provar varierad rätt position för upprepade likadana frågor i kapitel 1–5 och oförändrade alternativ.

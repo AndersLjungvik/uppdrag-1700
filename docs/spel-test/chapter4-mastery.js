@@ -187,14 +187,14 @@ function renderStatus(){
  let h=top(area().name)+'<p>'+labels[current().r]+' · '+esc(area().place)+'</p>';
  if(st==='failed'){const entry=s.record.at(-1),t=bank.find(t=>t.id===entry?.id);if(t){h+='<p>'+esc(t.prompt)+'</p>'+window.UPPDRAG_RECALL_ASSESS.modelHTML(t);s.recallShown[t.id]=s.recallClock;persist();}}
  if(st==='failed')h+='<p>Provet behöver ett nytt försök. Ett äpple startar om hela det här områdesprovet. Dina andra stämplar och händelser i staden finns kvar.</p><div class="mb-actions"><button class="primary" data-mb="retry"'+(s.apples<1?' disabled':'')+'>Nytt försök · 1 äpple</button><button data-mb="rut">Öva gratis hos Rut</button></div>';
- else h+='<p>◷ Svaret är sparat och väntar på granskning. Det har inte gett en stämpel. Du kan visa det för din lärare eller bearbeta det gratis.</p><div class="mb-actions"><button data-mb="review">Visa svaret för läraren</button><button data-mb="revise">Bearbeta svaret</button></div>';
+ else h+='<p>◷ Svaret är sparat och väntar på granskning. Det har inte gett en stämpel. Du kan visa det för din lärare eller göra ett nytt försök för ett äpple. Saknar du ett äpple? Öva gratis hos Rut.</p><div class="mb-actions"><button data-mb="review">Visa svaret för läraren</button><button data-mb="revise"'+(s.apples<1?' disabled':'')+'>Ändra mitt svar · 1 äpple</button><button data-mb="rut">Öva gratis hos Rut</button></div>';
  h+='<button data-mb="book">Till minnesboken</button>';display(h,'status');return true;
 }
 function review(){
  const entry=s.reviewQueue.find(x=>x.step===s.step&&x.trial===s.trial&&mainReview(x));if(!entry)return;
  const t=bank.find(t=>t.id===entry.id);if(!t)return false;
  let h=top('Granska tillsammans med läraren')+'<p class="mb-note">Granskningen görs på den här enheten. Detta är ingen säker lärarinloggning.</p><p>'+esc(t.prompt)+'</p><blockquote>'+esc(entry.answer.join('\n'))+'</blockquote>';
- h+=window.UPPDRAG_RECALL_ASSESS.modelHTML(t)+'<label><input type="checkbox" id="mbTeacher"> Jag är lärare och har granskat elevens svar mot uppgiftens krav.</label><div class="mb-actions"><button class="primary" data-mb="approve">Godkänn innehållet</button><button data-mb="revise">Låt eleven bearbeta</button></div><button data-mb="book">Till minnesboken</button>';display(h,'review');
+ h+=window.UPPDRAG_RECALL_ASSESS.modelHTML(t)+'<label><input type="checkbox" id="mbTeacher"> Jag är lärare och har granskat elevens svar mot uppgiftens krav.</label><div class="mb-actions"><button class="primary" data-mb="approve">Godkänn innehållet</button><button data-mb="revise"'+(s.apples<1?' disabled':'')+'>Ändra mitt svar · 1 äpple</button><button data-mb="rut">Öva gratis hos Rut</button></div><button data-mb="book">Till minnesboken</button>';display(h,'review');
 }
 function approve(){
  if(!modal.querySelector('#mbTeacher')?.checked)return false;
@@ -205,15 +205,22 @@ function approve(){
  const u=recall.ui;u.phase='feedback';u.drafts=copy(entry.answer);u.result={status:'right',support:true};
  persist();display('','quiz');recall.render();return true;
 }
-function revise(){
- mastery.resumePending(area().id,level());
- for(const x of s.reviewQueue)if(x.step===s.step&&x.trial===s.trial&&!x.resolved)x.resolved='revising';
- const u=recall.ui;if(u){u.phase='question';u.error='';u.result=null;u.hint=true;}s.mode='question';persist();display('','quiz');recall.render();
+function revise(t=recall.current,u=recall.ui){
+ if(!area()||s.archiveActive||s.recallInterlude||s.apples<1)return false;
+ if(status()==='in-progress'){
+  if(!present()||u?.phase!=='review'||!current().f.includes(t?.id))return false;
+  pending(t,u);
+ }
+ if(status()!=='pending')return false;
+ return retry();
 }
 function retry(){
+ const oldTrial=s.trial;
  if(!mastery.retryWithApple(area().id,level()).ok)return false;
- // The whole selected area is retried; other runs, world flags and history survive.
- s.sessions[s.step]=null;s.index=0;s.mode='intro';s.recallUI=null;s.recallInterlude=null;persist();
+ for(const x of s.reviewQueue)if(x.step===s.step&&x.trial===oldTrial&&mainReview(x)){x.resolved='apple-retry';x.retriedAt=new Date().toISOString();}
+ if(s.reviewPractice)delete s.reviewPractice[s.step];
+ // Restart the whole selected area; keep other stamps and previous answers.
+ s.sessions[s.step]=null;s.index=0;s.mode='intro';s.recallUI=null;s.recallInterlude=null;s.hint=false;persist();
  if(present())begin();else goPlace(area().p);return true;
 }
 const materialTerms=['hattar-mossor','katekesen','kolt','tryckfrihet','aga','offentlighet','oakta','censur','skampale','budkavle'].map(id=>'material4-sos-'+id).concat('material4-tsar');
@@ -243,7 +250,7 @@ let hudKey='';
 function tick(){window.UPPDRAG_CH4_SCENES?.tick();const key=JSON.stringify([mastery.summary(),s.daler,s.apples]);if(view==='closed'&&hudKey!==key){hudKey=key;drawHud();}}
 recall=window.UPPDRAG_RECALL_ENGINE.attach({chapter:4,state:()=>s,runs,facts,modal,storage,current,location:locationKey,present,previousKeys:{1:previousOneKey,2:previousTwoKey,3:previousKey},persist,drawHud,paint:paintCloseup,
  openArchive(){display('','quiz');},finished,close,goRut:goArchive,
- mastery:{hasPassed,available,renderStatus,recorded,pending,encountered,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();return false;}}
+ mastery:{hasPassed,available,renderStatus,recorded,pending,encountered,revise,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();return false;}}
 });
 // Import only complete, evidenced area attempts, in prerequisite order. Never infer
 // stamps from old chapter completion or from reading a model answer.

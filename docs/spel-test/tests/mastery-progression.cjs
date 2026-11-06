@@ -20,7 +20,7 @@ assert.equal(m.levelUnlocked('journeyman'),true);
 assert.equal(m.buyHint('start','journeyman').reason,'learner-only');assert.equal(daler,2);
 m.begin('law','journeyman');m.pending('law','journeyman');
 assert.equal(m.begin('law','journeyman').reason,'pending');
-assert.equal(m.retryWithApple('law','journeyman').ok,false);assert.equal(apples,1);
+assert.equal(apples,1,'pending review itself is free');
 m=load();assert.equal(m.snapshot().state.areas.law.journeyman.status,'pending');
 m.resumePending('law','journeyman');m.pass('law','journeyman');
 for(const id of ['trade','start']){m.begin(id,'journeyman');m.pass(id,'journeyman');}
@@ -31,7 +31,7 @@ assert.equal(m.chapterComplete(),true);m=load();assert.equal(m.chapterComplete()
 mem.set('uppdrag1700.side-adventures.v1','{"wagon":"cleared"}');m.reset();assert.equal(mem.get('uppdrag1700.side-adventures.v1'),'{"wagon":"cleared"}');
 mem.set('uppdrag1700.mastery.v1.ch1','{"v":1,"chapter":1,"areas":null}');m=load();assert.equal(m.summary().done,0);
 // A chapter may reopen a pending review only after it verifies fresh practice.
-// This allocates no stamp and consumes no resource; begin creates a new attempt.
+// The new attempt consumes one apple and allocates no stamp; begin gives it a new identity.
 const json=v=>JSON.parse(JSON.stringify(v));
 const historyBeforeBlocked=JSON.stringify(m.snapshot().state.history);
 assert.equal(m.reopenPending('start','learner').ok,false,'available is not a review');
@@ -43,18 +43,19 @@ m.begin('start','learner');
 assert.equal(m.reopenPending('start','learner').ok,false,'in-progress cannot restart for free');
 m.pending('start','learner');
 const beforePracticeRetry=json(m.snapshot().state),applesBeforePracticeRetry=apples,dalerBeforePracticeRetry=daler;
+apples=0;assert.equal(m.reopenPending('start','learner').reason,'no-apples');assert.deepEqual(json(m.snapshot().state),beforePracticeRetry);apples=applesBeforePracticeRetry;
 assert.equal(m.reopenPending('start','learner').ok,true);
 const afterPracticeRetry=json(m.snapshot().state);
 assert.equal(afterPracticeRetry.areas.start.learner.status,'available');
 assert.equal(afterPracticeRetry.areas.start.learner.attempt,1);
 assert.deepEqual(afterPracticeRetry.areas.trade,beforePracticeRetry.areas.trade,'other clear stamps are retained');
 assert.deepEqual(afterPracticeRetry.areas.law,beforePracticeRetry.areas.law,'other failed areas remain failed');
-assert.equal(apples,applesBeforePracticeRetry);assert.equal(daler,dalerBeforePracticeRetry);
+assert.equal(apples,applesBeforePracticeRetry-1);assert.equal(daler,dalerBeforePracticeRetry);
 assert.deepEqual(afterPracticeRetry.history.slice(0,-1),beforePracticeRetry.history,'all previous events are preserved');
-assert.equal(afterPracticeRetry.history.at(-1).type,'practice-retry');
+assert.equal(afterPracticeRetry.history.at(-1).type,'apple-retry');
 assert.equal(afterPracticeRetry.history.at(-1).area,'start');
 assert.equal(afterPracticeRetry.history.at(-1).level,'learner');
-assert.equal(afterPracticeRetry.history.at(-1).attempt,1);
+assert.equal(afterPracticeRetry.history.at(-1).remaining,apples);
 assert.equal(m.pass('start','learner').ok,false,'reopening alone cannot award a stamp');
 assert.equal(m.reopenPending('start','learner').ok,false,'the same pending review cannot be reopened twice');
 assert.equal(m.reopenPending('law','learner').ok,false,'actual failures still require an apple');

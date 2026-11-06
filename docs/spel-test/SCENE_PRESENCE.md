@@ -21,3 +21,7 @@ Alla källändringar har kontrollerade textankare i den frysta spelkoden. Module
 Socialprovet använder vanlig klickning från fyra håll, väntan medan spelaren går fram, båda talarnas riktning och avbruten kontakt. Kamerans läge och valt följningsläge måste vara oförändrade när samtalet öppnas och replikerna växlar. I gränden mellan Vetenskapens hus och Kyrkan krävs ett litet sidosteg, kort väntan och fri passage utan att personen backar till en öppning. Bildrutorna ska få överlappa under passagen. Samma passage och frivilliga hälsningar kontrolleras med minskad rörelse. Händelseprovet kontrollerar även kamerans läge vid ett första möte med en ursprunglig gatuperson.
 
 De befintliga händelseproven täcker vagnen/smeden/barnet, jakt och återbetalning. Treans världstest kontrollerar fysisk resa till Carlsten och återkomst via kajen. Dessa kontroller kompletterar den riktade geometrikontrollen.
+
+## Barnets riktning · 2.13.0
+
+Barnet följer sin faktiska gångriktning. En närliggande persons hälsning vrider inte längre barnets kropp. När ett riktigt samtal börjar vänder barnet sig lugnt en gång mot personen och behåller sedan riktningen; små lägesändringar hos personen ger ingen ständig spårning. När barnet väntar kan det göra en kort, liten blick åt sidan, med fötterna kvar. Minskad rörelse stänger av den blickanimationen. Kameran, kollisionerna och stadsbornas sidosteg ändras inte.
