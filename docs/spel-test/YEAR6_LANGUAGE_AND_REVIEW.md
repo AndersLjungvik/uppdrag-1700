@@ -1,4 +1,4 @@
-# Kapitel 1: elevspråk och granskning · 2.13.0
+# Kapitel 1: elevspråk och granskning · 2.14.0
 
 Instruktioner, knappar och återkoppling ska fungera för en elev i årskurs 6 som repeterar på egen hand. Frågornas innehåll och typer, ämnesbegrepp, exempelsvar, källor och kunskapskrav behålls. En kort text ska säga vad eleven kan göra härnäst.
 
@@ -43,3 +43,13 @@ Samma regel gäller i kapitel 1–5 och både frågans ändraknapp och minnesbok
 Lokala tester använder en särskild testkod genom att ersätta kontrollsumman i testets nätverkssvar. Med `GAME_TEACHER_CODE` verifieras den publicerade modulen direkt, utan ersättning. Produktionskoden får aldrig skrivas in i testfiler eller publicerade dokument.
 
 Publicering: endast `docs/spel-test/` på main. Ordinarie `docs/spel/` på main behålls, PR 4 förblir draft och befintliga sparnycklar används.
+
+## Riktad repetition hos Rut · 2.14.0
+
+Felaktiga svar, ”Jag minns inte”, ofärdiga förklaringar och osäkert bedömda svar följer med som prioriterade övningsfrågor. Nästa vanliga Rut-omgång börjar med den senaste frågan eleven behöver öva mer på. Samma fråge-id och alla fält i en förklaring behålls, i stället för att ämnets första lärlingsfråga ersätter dem. Sant/falskt repeteras som en fråga ur minnet om samma kunskap. Eleven får veta: ”Vi börjar med det du vill öva mer på.”
+
+Därefter blandas tidigare kända ämnen in. Ett missat svar hos Rut återkommer efter en annan känd fråga när det finns fler att välja på, och prioriteringen tas bort först när eleven besvarat just den uppgiften rätt. Att öppna, avbryta eller ladda om räcker inte. Äldre behovslistor och väntande granskningar prioriteras också; en färdig riktad övning ska inte skapa en evig förstafråga för att huvudsvaret fortfarande väntar på granskning. Framtida kapitel är uteslutna. De särskilda begreppsomgångarna i kapitel 4–5 behåller sin uttryckliga inriktning.
+
+Rut ger aldrig huvudprovsstämpeln och ändrar inte det ursprungliga svaret. Hela Rut-omgången måste slutföras för äpplet; det nya områdesprovet kostar fortsatt ett äpple. Frågebank, bedömningskrav, lärarkod och elevlänkens kapitelgränser behålls.
+
+`rut-targeted-practice.cjs` kör de riktiga kapitelmodulerna och återkallningsmotorn för alla 15 kombinationer av kapitel och nivå, inklusive hela förklaringar, omförsök med mellanliggande fråga, sparad prioritering, belöning, oförändrade huvudresultat, äldre sparningar och framtidsspärren.

@@ -9,10 +9,11 @@ class Element{
 function fixture(ch,prior=new Map()){
  const memory=new Map(prior),stage=new Element(),document={head:new Element(),body:new Element(),createElement:()=>new Element(),getElementById:()=>null};
  const c={document,stage,roomView:new Element(),roomFooter:new Element(),interior:null,region:{id:'main',buildings:[]},console,
-  __UPPDRAG_LESSON_ONLY:ch<=2?2:0,addEventListener(){},setMessage(){},leaveInterior(){c.interior=null;},requestInterior(){},requestHarbour(){},
+  __INTEGRATED_CHAPTER:ch,__UPPDRAG_LESSON_ONLY:ch<=2?2:0,addEventListener(){},setMessage(){},leaveInterior(){c.interior=null;},requestInterior(){},requestHarbour(){},
   localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v))}};c.window=c;vm.createContext(c);
  for(const name of ['recall-bank.js','recall-assessment.js'])vm.runInContext(scripts[name],c);
  for(const name of ['questions/fixes.js','questions/alignment.js','questions/power-language.js','mastery-recall-adapter.js','mastery-progression.js','mastery-review-recovery.js'])vm.runInContext(read(name),c);
+ if(ch>=4)for(const suffix of ['material','review'])vm.runInContext(read('questions/chapter'+ch+'-'+suffix+'.js'),c);
  vm.runInContext(c.UPPDRAG_MASTERY_RECALL.source(scripts['recall-flow.js']),c);
  vm.runInContext(read('chapter'+ch+'-mastery.js'),c);
  const p=c['UPPDRAG_CH'+ch+'_PILOT'],modal=stage.children.find(x=>x.id==='ch1Modal');
@@ -20,6 +21,8 @@ function fixture(ch,prior=new Map()){
  function room(place){c.interior={kind:place,name:({archive:'Arkivet',church:'Kyrkan',barnhus:'Barnhuset',palace:'Slottet',riksdag:'Riksdagshuset',cafe:'Kaffehuset'})[place]||place};}
  return {c,p,modal,memory,action,room,m:c.UPPDRAG_MASTERY};
 }
+module.exports={fixture};
+if(require.main===module){
 for(const ch of [1,2,3,4,5]){
  let h=fixture(ch),{p,m}=h;
  const area=m.snapshot().config.areas[0];h.room(area.p);p.selectArea(area.id,'learner');p.enterMemory();
@@ -65,3 +68,5 @@ for(const ch of [1,2,3,4,5]){
  p.recall.action('rc-revise');assert.equal(p.state.trial,trial+1);assert.equal(p.state.apples,0);
 }
 console.log('PASS paid edit directly from the real recall engine in all five chapters');
+
+}
