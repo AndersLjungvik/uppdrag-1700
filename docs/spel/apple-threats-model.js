@@ -8,13 +8,16 @@ function create(raw={},hooks={}){
  if(!raw||typeof raw!=='object'||Array.isArray(raw))raw={};
  const kinds=Array.isArray(hooks.kinds)&&hooks.kinds.length?Array.from(new Set(hooks.kinds.filter(k=>['dog','guard'].includes(k)))):['dog','guard'];
  if(!kinds.length)kinds.push('dog');
- const state={v:1,distance:bounded(raw.distance,1e8),nextDistance:bounded(raw.nextDistance,1e8,650),quietMs:bounded(raw.quietMs,60000,20000),
+ const seenKinds=Array.from(new Set((Array.isArray(raw.seenKinds)?raw.seenKinds:[]).filter(k=>['dog','guard'].includes(k))));
+ for(const entry of Array.isArray(raw.history)?raw.history:[])if(entry.outcome==='lost-apple'&&['dog','guard'].includes(entry.kind)&&!seenKinds.includes(entry.kind))seenKinds.push(entry.kind);
+ const state={v:1,pacing:2,seenKinds,distance:bounded(raw.distance,1e8),nextDistance:bounded(raw.nextDistance,1e8,240),quietMs:bounded(raw.quietMs,60000),
   nextKind:kinds.includes(raw.nextKind)?raw.nextKind:kinds[0],encounters:bounded(raw.encounters,1e6),losses:bounded(raw.losses,1e6),
   needsRut:raw.needsRut===true,lossRound:bounded(raw.lossRound,1e6),lastCompletedRound:bounded(raw.lastCompletedRound,1e6),history:Array.isArray(raw.history)?raw.history.slice(-20):[]};
- let active=null,lastTime=null,lastPlayer=null,lastRegion=null,saveAt=0;
+ if(raw.pacing!==2){state.nextDistance=Math.min(state.nextDistance,state.distance+(seenKinds.includes(state.nextKind)?450:240));state.quietMs=Math.min(state.quietMs,seenKinds.includes(state.nextKind)?15000:0);}
+ let active=null,lastTime=null,lastPlayer=null,lastRegion=null,saveAt=0,otherWasActive=false;
  const save=()=>hooks.save?.(JSON.parse(JSON.stringify(state)));
  function record(kind,outcome){state.history.push({kind,outcome});state.history=state.history.slice(-20);save();hooks.event?.(kind,outcome);}
- function rest(){state.nextDistance=state.distance+700;state.quietMs=45000;save();}
+ function rest(introduction=false){state.nextDistance=state.distance+(introduction?240:450);state.quietMs=introduction?0:15000;save();}
  function retire(outcome){
   if(!active||active.phase==='retreat')return;
   active.phase='retreat';active.route=[];active.routeAt=0;active.phaseTime=0;active.outcome=outcome;
@@ -36,7 +39,7 @@ function create(raw={},hooks={}){
  }
  function tick(now,player,config={}){
   if(!player||!Number.isFinite(player.x)||!Number.isFinite(player.y))return snapshot();
-  const dt=lastTime===null?0:bounded((now-lastTime)/1000,.08);lastTime=now;
+  const elapsed=lastTime===null?0:bounded(now-lastTime,250),dt=Math.min(.08,elapsed/1000);lastTime=now;
   const previous=lastPlayer,same=lastRegion===config.region;lastPlayer=copy(player);lastRegion=config.region;
   const moved=previous&&same?distance(previous,player):0;
   const completed=bounded(config.completedRound,1e6);
@@ -45,16 +48,19 @@ function create(raw={},hooks={}){
    if(config.apples>0){
     const recovered=state.needsRut&&completed>state.lossRound;
     if(recovered)state.needsRut=false;
-    rest();if(recovered)hooks.event?.('rut','recovered');
+    rest(!state.seenKinds.includes(state.nextKind));if(recovered)hooks.event?.('rut','recovered');
    }
    save();
   }
   // Shelter ends pursuit even when the conversation or room pauses the clock.
   if(config.shelter&&active)retire('shelter');
   if(config.hidden||config.paused){if(active)active.point.moving=false;return snapshot();}
-  state.quietMs=Math.max(0,state.quietMs-dt*1000);
+  state.quietMs=Math.max(0,state.quietMs-elapsed);
   if(config.region==='main'&&moved>.1&&moved<45&&!config.shelter)state.distance+=moved;
-  if(config.otherThreat&&!active){state.quietMs=Math.max(state.quietMs,20000);state.nextDistance=Math.max(state.nextDistance,state.distance+450);}
+  // Give one short gap after another event. Repeated peeks must not continually
+  // restart a longer delay and permanently starve the apple encounter.
+  if(!active&&otherWasActive&&!config.otherThreat){state.quietMs=Math.max(state.quietMs,3000);state.nextDistance=Math.max(state.nextDistance,state.distance+120);save();}
+  otherWasActive=!!config.otherThreat;
   if(config.region!=='main'||!same||moved>80){if(active){retire('left');active=null;}return snapshot();}
   if(now-saveAt>=1000){saveAt=now;save();}
   if(!active){
@@ -74,8 +80,8 @@ function create(raw={},hooks={}){
   if(config.apples<1){retire('no-apple');return snapshot();}
   if(distance(a.point,player)>(a.kind==='guard'?1050:420)||a.age>24){retire('evaded');return snapshot();}
   if(a.phase==='warning'){
-   move(a.post,dt,config,72);
-   if(a.phaseTime>=3){a.phase=a.kind==='dog'?'following':'guarding';a.phaseTime=0;hooks.event?.(a.kind,'active');}
+   move(a.post,dt,config,a.kind==='guard'?120:72);
+   if(a.phaseTime>=(a.kind==='guard'?2:3)){a.phase=a.kind==='dog'?'following':'guarding';a.phaseTime=0;if(!state.seenKinds.includes(a.kind)){state.seenKinds.push(a.kind);save();}hooks.event?.(a.kind,'active');}
    return snapshot();
   }
   const visible=config.canSee?.(a.point,player,a.home)??true;

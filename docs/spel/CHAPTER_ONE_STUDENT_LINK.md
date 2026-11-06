@@ -27,6 +27,6 @@ Elevomgångens gräns på ett äpple, lärarkoden och vägen via en ny Rut-omgå
 
 `chapter-two-student-browser.cjs` provar övergången från gammal elevlänk och verkligt sista prov i ettan till tvåan, bevarad sparning, spärr före klar etta, äppelgräns och granskning i tvåan, ett riktigt sista områdesprov i tvåan, spärr till kapitel 3–10, import, omspelning/återgång och mobil.
 
-## Stegvis fler hot · 2.11.3
+## Stegvis fler hot · 2.12.0
 
-Aktuell elevlänk: `?only=2&chapter=2&v=2.11.3`. Samma sparning, äppelgräns och kapitelspärrar används. Kapitel 1–2 behåller den befintliga ficktjuven. Hunden introduceras i kapitel 3 och den vaktande tjuven i kapitel 4, när dessa kapitel senare blir aktuella för eleverna. De nya hoten tar ett äpple vid kontakt; ett nytt tjänas genom en hel vanlig repetitionsomgång hos Rut. Inga klarade frågor eller stämplar försvinner. Se `EVENT_SYSTEM.md`.
+Aktuell elevlänk: `?only=2&chapter=2&v=2.12.0`. Samma sparning, äppelgräns och kapitelspärrar används. Kapitel 1–2 behåller den befintliga ficktjuven. Hunden introduceras i kapitel 3 och den vaktande tjuven i kapitel 4, när dessa kapitel senare blir aktuella för eleverna. De nya hoten tar ett äpple vid kontakt; ett nytt tjänas genom en hel vanlig repetitionsomgång hos Rut. Inga klarade frågor eller stämplar försvinner. Se `EVENT_SYSTEM.md`.

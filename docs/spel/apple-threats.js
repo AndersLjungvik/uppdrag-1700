@@ -11,7 +11,7 @@ if(!store||store.v!==1||!store.chapters||typeof store.chapters!=='object'||Array
 // A fresh fourth chapter introduces its new guard before the familiar dog.
 if(chapter===4&&store.chapters[4]&&!store.chapters[4].encounters&&!store.chapters[4].history?.length)store.chapters[4].nextKind='guard';
 let currentWorld=null,noticeUntil=0,noticeOutcome='',lastNow=0,inRoom=true,anchorCheckAt=0;
-const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),treeCache=new WeakMap();
+const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),treeCache=new WeakMap(),entranceCache=new WeakMap();
 const clear=(a,b)=>!!currentWorld&&!!window.UPPDRAG_WORLD_KEYBOARD?.clearSegment?.(currentWorld,a,b,12);
 const route=(a,b)=>window.UPPDRAG_EVENT_APPROACH.routeBetween(currentWorld,a,b,id=>navigationPoint(currentWorld,id),clear);
 const trees=()=>{
@@ -19,6 +19,24 @@ const trees=()=>{
  if(!treeCache.has(currentWorld))treeCache.set(currentWorld,(window.UPPDRAG_PAPER?.getTrees?.(currentWorld)||[]).filter(t=>clear({x:t.x+12,y:t.y},{x:t.x+12,y:t.y})));
  return treeCache.get(currentWorld);
 };
+function dogHomes(){
+ if(!entranceCache.has(currentWorld)){
+  const homes=[];
+  for(const building of currentWorld.buildings){
+   if(building.name==='Arkivet')continue;
+   const entry=navigationPoint(currentWorld,window.UPPDRAG_STORY_WORLD?.entryFor?.(currentWorld,building)||building.entry);
+   const door=entry&&window.UPPDRAG_TOWN_LAYOUT?.door?.(building,entry);if(!door)continue;
+   const center=building.paperPose?{x:building.paperPose.cx,y:building.paperPose.cy}:{x:building.x+building.w/2,y:building.y+building.h/2};
+   const dx=door.x-center.x,dy=door.y-center.y,length=Math.hypot(dx,dy)||1;
+   for(const offset of [30,48,70]){
+    const home={x:door.x+dx/length*offset,y:door.y+dy/length*offset,id:'door-'+building.entry};
+    if(clear(home,home)){homes.push(home);break;}
+   }
+  }
+  entranceCache.set(currentWorld,homes);
+ }
+ return [...trees().map(t=>({x:t.x+12,y:t.y,id:t.id})),...entranceCache.get(currentWorld)];
+}
 const notice=document.createElement('section');notice.id='appleThreatNotice';notice.hidden=true;notice.setAttribute('aria-label','På gatan');
 const live=document.createElement('div');live.setAttribute('role','status');live.setAttribute('aria-live','polite');live.setAttribute('aria-atomic','true');notice.append(live);
 const rut=document.createElement('button');rut.type='button';rut.textContent='Till Rut i Arkivet';rut.hidden=true;rut.onclick=()=>pilot()?.goArchive?.();notice.append(rut);stage.append(notice);
@@ -46,21 +64,50 @@ function anchor(kind,p,previous){
  const archive=currentWorld.buildings.find(b=>b.name==='Arkivet');
  const door=archive&&navigationPoint(currentWorld,window.UPPDRAG_STORY_WORLD?.entryFor?.(currentWorld,archive)||archive.entry);
  const forward=q=>((q.x-p.x)*dx+(q.y-p.y)*dy)/travel;
+ const chosen=typeof path!=='undefined'&&Array.isArray(path)&&path.length;
+ const planned=chosen?[p,...path]:[p,{x:p.x+dx/travel*700,y:p.y+dy/travel*700}];
+ const plannedLength=planned.slice(1).reduce((sum,q,i)=>sum+distance(planned[i],q),0);
+ const maxAhead=chosen?Math.min(560,Math.max(0,plannedLength-50)):560,minAhead=maxAhead<440?Math.max(180,maxAhead*.65):440;
+ const plannedPosts=[];let covered=0;
+ for(let i=1;i<planned.length&&covered<maxAhead;i++){
+  const a=planned[i-1],b=planned[i],len=distance(a,b);if(len<.01)continue;
+  for(const at of [minAhead,(minAhead+maxAhead)/2,maxAhead])if(at>=covered&&at<=covered+len&&maxAhead>=minAhead){const t=(at-covered)/len;plannedPosts.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});}
+  covered+=len;
+ }
+ function aheadOnRoute(q){
+  let travelled=0,best=null;
+  for(let i=1;i<planned.length&&travelled<900;i++){
+   const a=planned[i-1],b=planned[i],vx=b.x-a.x,vy=b.y-a.y,len=Math.hypot(vx,vy);if(len<.01)continue;
+   const t=Math.max(0,Math.min(1,((q.x-a.x)*vx+(q.y-a.y)*vy)/(len*len))),off=Math.hypot(q.x-a.x-vx*t,q.y-a.y-vy*t),along=travelled+t*len;
+   if(off<=35&&along>=minAhead-.01&&along<=maxAhead+.01&&(!best||off<best.off))best={off,along};travelled+=len;
+  }
+  return best;
+ }
  const candidates=[];
- for(const tree of trees()){
-  const home={x:tree.x+12,y:tree.y,id:tree.id};
+ for(const home of dogHomes()){
   const gap=distance(home,p);
-  if(kind==='dog'?(gap<125||gap>330||forward(home)<70):(gap<500||gap>900||forward(home)<470))continue;
+  if(kind==='dog'?(gap<125||gap>330||forward(home)<70):(gap<200||gap>700))continue;
   if(kind==='dog'){
-   const post={x:home.x+dx/travel*22,y:home.y+dy/travel*22};
-   if(clear(home,post)&&route(home,p)?.length)candidates.push({home,post,score:distance(home,p)});
-  }else for(const edge of currentWorld.edges){
-   const a=navigationPoint(currentWorld,edge.a),b=navigationPoint(currentWorld,edge.b),vx=b.x-a.x,vy=b.y-a.y,len=vx*vx+vy*vy||1;
-   const t=Math.max(.08,Math.min(.92,((home.x-a.x)*vx+(home.y-a.y)*vy)/len)),post={x:a.x+t*vx,y:a.y+t*vy};
-   // A normal walker covers 540 map units during the three-second warning.
-   // Put the guarded passage beyond that distance, before it is crossed.
-   if(distance(home,post)>140||distance(p,post)<590||distance(p,post)>800||forward(post)<570||door&&distance(post,door)<190)continue;
-   if(clear(post,post)&&route(home,post)?.length&&route(post,p)?.length)candidates.push({home,post,score:distance(post,p)+distance(home,post)});
+   if(door&&distance(home,door)<140)continue;
+   const out={x:home.x+(p.x-home.x)/gap*22,y:home.y+(p.y-home.y)/gap*22},post=clear(home,out)?out:{x:home.x,y:home.y};
+   if(route(home,p)?.length)candidates.push({home,post,score:distance(home,p)});
+  }else{
+   const posts=[...plannedPosts];
+   for(const edge of currentWorld.edges){
+    const a=navigationPoint(currentWorld,edge.a),b=navigationPoint(currentWorld,edge.b),vx=b.x-a.x,vy=b.y-a.y,len=vx*vx+vy*vy||1;
+    const t=Math.max(.08,Math.min(.92,((home.x-a.x)*vx+(home.y-a.y)*vy)/len));posts.push({x:a.x+t*vx,y:a.y+t*vy});
+   }
+   for(const post of posts){
+   const ahead=aheadOnRoute(post);
+   // Stay on the actual selected route, inside the visible part of the street.
+   // A normal walker still has the full two-second warning before contact.
+   if(!ahead||distance(home,post)>220||distance(p,post)<160||distance(p,post)>600||door&&distance(post,door)<190)continue;
+   const onRoad=currentWorld.edges.some(edge=>{const a=navigationPoint(currentWorld,edge.a),b=navigationPoint(currentWorld,edge.b),vx=b.x-a.x,vy=b.y-a.y,len=vx*vx+vy*vy||1,t=Math.max(0,Math.min(1,((post.x-a.x)*vx+(post.y-a.y)*vy)/len));return Math.hypot(post.x-a.x-vx*t,post.y-a.y-vy*t)<=20;});
+   if(!onRoad)continue;
+   const arrival=clear(post,post)&&route(home,post);if(!arrival?.length)continue;
+   let length=0,previous=home;for(const next of arrival){length+=distance(previous,next);previous=next;}
+   if(length<=220&&route(post,p)?.length)candidates.push({home,post,score:ahead.along+length});
+   }
   }
  }
  candidates.sort((a,b)=>a.score-b.score);return candidates[0]||null;
@@ -93,6 +140,12 @@ function draw(ctx,{region,now=0}={}){
  const paint=()=>{
   if(a.kind==='dog')window.UPPDRAG_WORLD_LIFE.drawAppleDog?.(ctx,{...a.point,facing:Math.cos(a.point.heading)<0?-1:1},now,region);
   else window.UPPDRAG_MEETINGS.drawMapPerson(ctx,{...a.point,animationTime:now},{name:'En tjuv',role:'passerby',color:'#784e43'},now);
+  if(a.kind==='dog'){
+   ctx.save();ctx.translate(a.point.x,a.point.y);ctx.scale(Math.cos(a.point.heading)<0?-1:1,1);ctx.fillStyle='#a44836';ctx.beginPath();ctx.moveTo(7,-7);ctx.lineTo(14,-5);ctx.lineTo(10,4);ctx.closePath();ctx.fill();ctx.restore();
+  }
+  if(['warning','guarding','following'].includes(a.phase)){
+   ctx.save();ctx.translate(a.point.x,a.point.y-(a.kind==='dog'?29:35));ctx.fillStyle='#fff0c4';ctx.strokeStyle='#874b32';ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,8,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#7a3224';ctx.font='bold 13px Georgia';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('!',0,1);ctx.restore();
+  }
   if(a.phase==='retreat'&&noticeOutcome==='lost-apple'){
    ctx.save();const facing=Math.cos(a.point.heading)<0?-1:1;ctx.translate(a.point.x+(a.kind==='dog'?24*facing:13),a.point.y+(a.kind==='dog'?-3:3));ctx.fillStyle='#a44d36';ctx.strokeStyle='#5a3c28';ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();
   }
@@ -102,8 +155,8 @@ function draw(ctx,{region,now=0}={}){
 const life=window.UPPDRAG_WORLD_LIFE,oldTick=life.tick,oldDraw=life.draw;
 life.tick=function(now,config){const result=oldTick.apply(this,arguments);tick(now,config);return result;};
 life.draw=function(ctx,config){const result=oldDraw.apply(this,arguments);draw(ctx,config);return result;};
-window.UPPDRAG_APPLE_THREATS={get busy(){return model.busy;},get suppressesPickpocket(){return model.suppressesPickpocket;},get point(){return model.snapshot().active?.point||null;},get snapshot(){return model.snapshot();},
+window.UPPDRAG_APPLE_THREATS={get busy(){return model.busy;},get suppressesPickpocket(){const s=model.snapshot().state;return model.suppressesPickpocket||!teacher&&pilot()?.state.apples>0&&!!pilot()?.repetitionTaskIds?.length&&!s.seenKinds.includes(s.nextKind);},get point(){return model.snapshot().active?.point||null;},get snapshot(){return model.snapshot();},
  people(r){const a=model.snapshot().active;return r?.id==='main'&&a?[{...a.point,id:'apple-'+a.kind,role:a.kind==='dog'?'dog':'passerby',radius:12,solid:false}]:[];},
- journalHTML(){return '<p><b>Äpplet på gatan:</b> '+(chapter===3?'Hunden kan':'Hunden och tjuven vid passagen kan')+' ta ett äpple. Håll avstånd eller sök skydd. Ett nytt äpple tjänar du genom en hel repetitionsomgång hos Rut i Arkivet.</p>';}
+ journalHTML(){return '<p><b>Äpplet på gatan:</b> '+(chapter===3?'Hunden kan':'Hunden och tjuven vid passagen kan')+' ta ett äpple. '+(pilot()?.state.apples>0?'Första mötet kan komma efter en kort promenad i huvudstaden. Håll avstånd eller sök skydd.':'Du behöver ha ett äpple i fickan. Öva en hel omgång hos Rut i Arkivet för att få ett.')+' Ett förlorat äpple ersätts genom en hel repetitionsomgång hos Rut.</p>';}
 };
 })();
