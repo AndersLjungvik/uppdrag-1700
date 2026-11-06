@@ -105,8 +105,11 @@ function question(seed){const all=candidates();if(!all.length)return null;
  const norm=s=>String(s).toLocaleLowerCase('sv').replace(/[.!,\s]+/g,' ').trim();
  const answer=f.options.find(o=>f.answers.some(a=>norm(a)===norm(o)))||null;
  if(!answer)return null;
- const offset=seed%f.options.length;
- return{prompt:t.prompt,answer,choices:f.options.map((_,i)=>f.options[(i+offset)%f.options.length])};
+ // Shuffle independently of the question seed. The old rotation correlated
+ // the chosen question with the correct slot. Keep this order for the chase.
+ const choices=f.options.slice();
+ for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}
+ return{prompt:t.prompt,answer,choices};
 }
 const style=document.createElement('style');style.textContent=`
 #adventureTail[hidden],#adventureCalloutTail[hidden]{display:none!important}

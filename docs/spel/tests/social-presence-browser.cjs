@@ -73,8 +73,8 @@ const {launch,assert,fs,path}=require('./chapter4-test-utils.cjs');
   // In reduced motion the resident has no ambient walking. A quiet, nearby
   // invitation should still turn toward the player, without locking movement.
   await f.evaluate(()=>{UPPDRAG_CH4_CITY_LIFE.suspend();path=[];const a=UPPDRAG_CH4_CITY_LIFE.find(region,'book');player={x:a.x,y:a.y+54};camera={...player};follow=true;draw();});
-  await f.waitForFunction(()=>UPPDRAG_CH4_CITY_LIFE.teaser==='book',undefined,{timeout:14000});await waitFacing();
-  assert.equal(await f.evaluate(()=>UPPDRAG_CH4_CITY_LIFE.active),false);const invite=await facing();assert(invite.npc>.985&&invite.player>.985);
+  const idleHeading=await f.evaluate(()=>UPPDRAG_SCENE_PRESENCE.playerView.baseHeading);await f.waitForFunction(()=>UPPDRAG_CH4_CITY_LIFE.teaser==='book',undefined,{timeout:14000});await f.waitForFunction(()=>{const a=UPPDRAG_CH4_CITY_LIFE.find(region,'book');return Math.cos(a.heading-Math.atan2(player.y-a.y,player.x-a.x))>.985;});assert.equal(await f.evaluate(()=>UPPDRAG_SCENE_PRESENCE.playerView.baseHeading),idleHeading,'a passive invitation cannot turn the child');
+  assert.equal(await f.evaluate(()=>UPPDRAG_CH4_CITY_LIFE.active),false);const invite=await facing();assert(invite.npc>.985);
   await f.locator('#world').focus();await h.page.keyboard.down('ArrowLeft');await f.waitForTimeout(150);await h.page.keyboard.up('ArrowLeft');assert.equal(await f.evaluate(()=>UPPDRAG_CH4_CITY_LIFE.teaser),null);
   console.log('PASS a nearby invitation acknowledges the player, and walking away releases it');
   assert.equal(await f.evaluate(()=>localStorage.getItem('uppdrag1700.mastery.v1.ch4')),progress);assert.equal(await f.evaluate(()=>UPPDRAG_CH4_PILOT.state.daler),0);assert.deepEqual(h.errors,[]);

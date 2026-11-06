@@ -89,7 +89,7 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   await enter('women','master');await f.locator('[data-rc-field="0"]').fill('Det här vill jag granska tillsammans med min lärare.');await f.locator('[data-action="rc-submit"]').click();await f.locator('[data-action="rc-save-review"]').click();
   assert.equal((await state()).m.state.areas.women.master.status,'pending');
   await boot();await enter('women','master');await mb('review');await mb('approve');assert.equal((await state()).m.state.areas.women.master.status,'pending');
-  await mb('revise');const reviewed=await f.evaluate(()=>UPPDRAG_CH2_PILOT.recall.current);await f.locator('[data-rc-field="0"]').fill(reviewed.fields[0].sample);await f.locator('[data-action="rc-submit"]').click();
+  await f.evaluate(()=>{UPPDRAG_CH2_PILOT.state.apples=1;UPPDRAG_CH2_PILOT.persist();});await mb('revise');assert.equal((await state()).s.apples,0,'revision costs one apple');const reviewed=await f.evaluate(()=>UPPDRAG_CH2_PILOT.recall.current);await f.locator('[data-rc-field="0"]').fill(reviewed.fields[0].sample);await f.locator('[data-action="rc-submit"]').click();
   await mb('review');await f.locator('#mbTeacherCode').fill(teacherCode);await mb('approve');await f.locator('[data-action="rc-next"]').click();await finish('women','master');
   for(const area of ['children','power']){await enter(area,'master');await finish(area,'master');}
   assert.equal((await state()).m.summary.chapterComplete,true);assert.equal((await state()).s.complete,true);assert.equal((await state()).s.record.filter(r=>r.assessment==='teacher-approved').length,1);

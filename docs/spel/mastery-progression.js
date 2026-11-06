@@ -89,7 +89,7 @@ function fail(id,level){
 }
 function retryWithApple(id,level){
  const c=cell(id,level);
- if(c.status!=='failed')return {ok:false,reason:'not-failed'};
+ if(!['failed','pending'].includes(c.status))return {ok:false,reason:'not-retryable'};
  if(!resourceAdapter?.getApples||!resourceAdapter?.setApples)return {ok:false,reason:'no-resource-adapter'};
  const apples=Math.max(0,Number(resourceAdapter.getApples())||0);
  if(apples<1)return {ok:false,reason:'no-apples'};
@@ -115,10 +115,9 @@ function resumePending(id,level){
 function reopenPending(id,level){
  const c=cell(id,level);
  if(c.status!=='pending')return {ok:false,reason:'not-pending'};
- // The chapter verifies completed practice before calling this. Reopening
- // creates no credit: begin() must allocate a new whole-area attempt.
- c.status='available';record('practice-retry',{area:id,level,attempt:c.attempt||0});persist();
- return {ok:true,attempt:c.attempt||0};
+ // Compatibility for saved practice routes: every new test attempt costs
+ // one apple. Reading feedback and teacher approval remain free.
+ return retryWithApple(id,level);
 }
 function levelUnlocked(level){
  if(level==='learner')return true;

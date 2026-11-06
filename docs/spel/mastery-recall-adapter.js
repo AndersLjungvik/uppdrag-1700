@@ -15,7 +15,9 @@ function source(text){
  edit("  e?.preventDefault();const name=act.slice(3),s=state();ensure();", "  e?.preventDefault();const name=act.slice(3),s=state();ensure();\n  if(!isDrill()&&b.mastery?.action(name))return true;");
  edit("  }else if(name==='save-review'&&u.phase==='review'){", "  }else if(name==='save-review'&&u.phase==='review'){\n   if(b.mastery&&!isDrill()){b.mastery.pending(t,u);render();return true;}");
  edit("return h+'<div class=\"rc-actions\">'+btn('revise'", "return h+'<div class=\"rc-actions\">'+(b.mastery?.practiceRetry&&!isDrill()?btn('practice-review','Öva och prova igen',true):'')+btn('revise'");
- edit("btn('revise','Bearbeta mitt svar',true)","btn('revise','Bearbeta mitt svar',!b.mastery?.practiceRetry||isDrill())");
+ edit("btn('revise','Bearbeta mitt svar',true)","(b.mastery&&!isDrill()?'<button type=\"button\" data-action=\"rc-revise\"'+(state().apples<1?' disabled':'')+'>Ändra mitt svar · 1 äpple</button>':btn('revise','Bearbeta mitt svar',true))");
+ edit("  else if(name==='revise'&&u.phase==='review'){", "  else if(name==='revise'&&u.phase==='review'){\n    if(b.mastery&&!isDrill()){b.mastery.revise(t,u);return true;}");
+ edit("  return h+'<div class=\"rc-actions\">'", "  if(b.mastery&&!isDrill())h+='<p class=\"rc-note\">Ett nytt försök börjar från första frågan och kostar ett äpple. Du kan alltid öva gratis hos Rut.</p>';\n  return h+'<div class=\"rc-actions\">'");
  edit("  if(!isDrill()&&t.rank<2&&!u.hint)", "  if(!isDrill()&&t.rank===0&&!u.hint)");
  edit("!u.hint&&!isDrill()&&t.rank<2)", "!u.hint&&!isDrill()&&t.rank===0)");
  edit("   if(s.daler>=1){s.daler--;u.hint=true;s.hint=true;save();b.drawHud();render();}", "   if(b.mastery?b.mastery.hint():s.daler>=1){if(!b.mastery)s.daler--;u.hint=true;s.hint=true;save();b.drawHud();render();}");

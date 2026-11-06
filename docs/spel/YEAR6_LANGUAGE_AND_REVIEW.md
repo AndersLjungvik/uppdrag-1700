@@ -1,4 +1,4 @@
-# Kapitel 1: elevspråk och granskning · 2.8.0
+# Kapitel 1: elevspråk och granskning · 2.13.0
 
 Instruktioner, knappar och återkoppling ska fungera för en elev i årskurs 6 som repeterar på egen hand. Frågornas innehåll och typer, ämnesbegrepp, exempelsvar, källor och kunskapskrav behålls. En kort text ska säga vad eleven kan göra härnäst.
 
@@ -29,12 +29,14 @@ Efter ett osäkert svar kan eleven välja ”Öva och prova igen”. Svaret beva
 
 En avslutad Rut-omgång registreras även när eleven redan har sitt enda äpple. Dessutom måste minst två registrerade svar skilja senaste visningen av områdets exempelsvar från det nya provet. Visning av lärargranskning räknas också som att läsa exemplet. Ingen exponeringshistorik raderas för att få svaret att räknas som självständigt.
 
-Tillbaka på plats kan eleven välja ”Prova igen utan hjälp”. `reopenPending()` öppnar endast status `pending`; därefter skapar den vanliga provstarten ett nytt försöksnummer. Hela områdesprovet börjar från första frågan med tomma svarsfält. Tidigare granskning märks `practice-retry` och bevaras, men räknas inte som ett godkännande. Andra stämplar och världshändelser behålls. Detta förbrukar inget äpple eftersom ett osäkert svar inte är ett fastställt fel. Ett faktiskt misslyckat prov kräver fortfarande ett äpple för omstart.
+Tillbaka på plats kan eleven välja ”Prova igen utan hjälp · 1 äpple”. Alla nya provförsök kostar exakt ett äpple, även ”Ändra mitt svar” efter ett osäkert svar. Hela områdesprovet börjar från första frågan med tomma svarsfält och ett nytt försöksnummer. Tidigare granskning märks `apple-retry` och bevaras utan att räknas som ett godkännande. Andra stämplar, sparade svar och världshändelser behålls. Noll äpplen spärrar nya försök; en fullständig gratis Rut-omgång fyller på förrådet. Att läsa återkoppling, spara ett svar eller få ett riktigt svar godkänt av läraren kostar inget. Rut kan alltid besökas igen, även med ett äpple kvar.
+
+Samma regel gäller i kapitel 1–5 och både frågans ändraknapp och minnesbokens granskningsvy går genom samma resurskontroll. Dubbelklick och omladdning skapar varken ett extra avdrag eller ett gratis försök. Den tidigare gratis omstarten efter Rut är ersatt; repetitionen ger äpplet som används vid det nya försöket.
 
 ## Kontroller
 
 - Språkprov: unika textankare, giltig genererad kod, identiska data för alla 78 frågor och 234 oförändrade bedömningar; kriterier förenklas bara vid visning.
-- Progressionsprov: väntande prov kan öppnas en gång efter kapitelkodens kontroll; inget äpple eller stämpel tillkommer och andra områden bevaras.
+- Progressionsprov: väntande prov kan öppnas en gång efter kapitelkodens kontroll; ett äpple dras och ingen stämpel tillkommer; andra områden bevaras.
 - Kodprov: tom/felaktig kod, korrekt testkod, samtidiga verifieringar och avsaknad av kryptostöd.
 - Webbläsarprov: riktig granskningsväg, fel/rätt kod, ny Rut-omgång, omladdning/områdesbyte, nytt försöksnummer, två frågor från början utan stöd samt bevarade historikposter. Hela ettans tidigare prov, elevlänkens kapitelspärr och äppelgräns körs också.
 

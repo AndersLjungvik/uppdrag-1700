@@ -3,7 +3,7 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.12.0',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='2.13.0',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -59,13 +59,13 @@ function appleDogSource(text){
 }
 async function source(name){
  if(chapterTest&&chapter<=5&&available(chapter)&&name==='chapter-access-pilot.js')return '/* The isolated chapter round is authorized by the integration gate. */';
- if(chapter===5&&name==='chapter5-pilot.js')return get('chapter5-mastery.js?v=2.6.2');
+ if(chapter===5&&name==='chapter5-pilot.js')return get('chapter5-mastery.js?v=2.13.0');
  if(chapter===5&&name==='chapter5-marstrand-letter.js')return get('chapter5-letter.js?v=2.6.0');
- if(chapter===4&&name==='chapter4-pilot.js')return get('chapter4-mastery.js?v=2.6.2');
+ if(chapter===4&&name==='chapter4-pilot.js')return get('chapter4-mastery.js?v=2.13.0');
  if(chapter===4&&name==='chapter4-sidequest.js')return get('chapter4-cookbook.js?v=2.4.0');
- if(chapter===3&&name==='chapter3-pilot.js')return get('chapter3-mastery.js?v=2.6.2');
- if(chapter===2&&name==='chapter2-pilot.js')return get('chapter2-mastery.js?v=2.10.0');
- if(chapter===1&&name==='chapter1-pilot.js')return get('chapter1-mastery.js?v=2.10.0');
+ if(chapter===3&&name==='chapter3-pilot.js')return get('chapter3-mastery.js?v=2.13.0');
+ if(chapter===2&&name==='chapter2-pilot.js')return get('chapter2-mastery.js?v=2.13.0');
+ if(chapter===1&&name==='chapter1-pilot.js')return get('chapter1-mastery.js?v=2.13.0');
  let text;
  if(payload.extra[name]!==undefined)text=payload.extra[name];
  else if(payload.questions[name]!==undefined)text=payload.questions[name];
@@ -174,17 +174,17 @@ async function makePage(ch,id){
   return script(code,m[1]+m[3]);
  }));
  let index=0;page=page.replace(pattern,()=>scripts[index++]);page=query(page);
- const masteryModule=await get('mastery-progression.js?v=2.8.0');
+ const masteryModule=await get('mastery-progression.js?v=2.13.0');
  const reviewRecovery=[1,2,3,4,5].includes(ch)?await get('mastery-review-recovery.js?v=1.0.1'):'';
  const classroom=[1,2].includes(ch)?(await get('pupil-language.js?v=1.0.0'))+'\n'+(await get('teacher-review.js?v=1.0.1')):'';
- const presence=[1,2,3,4,5].includes(ch)?await get('scene-presence.js?v=1.3.0'):'';
+ const presence=[1,2,3,4,5].includes(ch)?await get('scene-presence.js?v=1.4.0'):'';
  const staging=(await source('room-staging.js'))+'\n'+(await source('room-life.js'));
  const styles=`<style>header small,header .chapterBack{display:none}header h1{font-size:clamp(13px,2.6vw,20px)}#ch1Modal textarea{min-height:100px}#ch1Modal .rc-tools button{min-height:44px}#ch1Modal .rc-own{overflow-wrap:anywhere}#ch1Modal .ch1Sheet{overscroll-behavior:contain}</style>`;
  page=page.replace('<head>','<head><base href="'+new URL('../demo3/',document.baseURI).href+'">'+script(bridge(id)+'\n'+classroom+'\n'+staging+'\n'+presence+([1,2,3,4,5].includes(ch)?'\n'+masteryModule+'\n'+reviewRecovery:''))+styles);
  // Shared mastery engine is loaded for every chapter during the rebuild. Chapters opt in by configuring areas.
  // Chapters 1 and 2 configure mastery before their pilots; later chapters opt in later.
  // Optional, save-compatible side adventures are installed after existing scripts.
- const eventModule=ch<=10?(await get('event-approach.js?v=1.7.0'))+'\n'+(await get('event-recurrence.js?v=1.1.0'))+'\n'+(await get('event-engine.js?v=1.14.1'))+([3,4,5].includes(ch)?'\n'+(await get('apple-threats-model.js?v=1.1.0'))+'\n'+(await get('apple-threats.js?v=1.1.0')):''):'';
+ const eventModule=ch<=10?(await get('event-approach.js?v=1.7.0'))+'\n'+(await get('event-recurrence.js?v=1.1.0'))+'\n'+(await get('event-engine.js?v=1.15.0'))+([3,4,5].includes(ch)?'\n'+(await get('apple-threats-model.js?v=1.1.0'))+'\n'+(await get('apple-threats.js?v=1.1.0')):''):'';
  const chapterPresentation=ch===5?(await get('chapter5-presentation.js?v=2.6.0'))+'\n'+(await get('chapter5-scenes.js?v=2.6.0'))+'\n'+(await get('chapter5-bookwork.js?v=2.6.0')):ch===4?(await get('chapter4-presentation.js?v=2.4.2'))+'\n'+(await get('chapter4-scenes.js?v=2.4.0'))+'\n'+(await get('chapter4-bookwork.js?v=2.4.0')):ch===3?(await get('chapter3-presentation.js?v=2.2.0'))+'\n'+(await get('chapter3-courtyard-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter3-scenes.js?v=2.2.0')):ch===2?(await get('chapter2-presentation.js?v=2.1.1'))+'\n'+(await get('chapter2-quilt-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter2-sidequest.js?v=1.0.0')):'';
  const ambientScene=await get('ambient-scene.js?v=1.1.0');
  const end=`window.UPPDRAG_SCENE_PRESENCE?.install();window.__ROOM_BOOTING=false;window.UPPDRAG_ROOM_LIFE?.cacheFurniture();requestAnimationFrame(()=>parent.integratedReady(${id},${ch}));`;

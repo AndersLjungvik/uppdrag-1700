@@ -4,7 +4,7 @@ Länken `?only=1&chapter=1&v=2.8.0` öppnar Frihetstiden i en elevvy med enbart 
 
 Elevvyn begränsar äppelförrådet till högst ett äpple. Ett äpple används till ett nytt försök på hela områdesprovet. Därefter behöver eleven avsluta en ny repetition hos Rut för att få ett nytt. Repetition med ett äpple kvar är fortfarande gratis men ger inget extra äpple och lovar ingen ny belöning. Sparade och importerade förråd över ett begränsas vid öppning; svar, stämplar, daler och historik behålls. Det vanliga spelets äppelförråd påverkas inte.
 
-Instruktioner, knappar och återkoppling i ettan är anpassade för elever som arbetar själva i årskurs 6. Frågornas formuleringar, ämnesbegrepp och bedömningskrav är bevarade. Manuell granskning kräver en sexsiffrig lärarkod, vars klartext aldrig publiceras eller sparas i spelet. Det är en lokal klassrumsspärr, ingen serverbaserad behörighet. Vid osäkert svar kan eleven i stället avsluta en ny repetitionsomgång hos Rut och göra om hela områdesprovet utan hjälp. Det kräver inget äpple och ger ingen stämpel förrän det nya provet är klart. Se YEAR6_LANGUAGE_AND_REVIEW.md.
+Instruktioner, knappar och återkoppling i ettan är anpassade för elever som arbetar själva i årskurs 6. Frågornas formuleringar, ämnesbegrepp och bedömningskrav är bevarade. Manuell granskning kräver en sexsiffrig lärarkod, vars klartext aldrig publiceras eller sparas i spelet. Det är en lokal klassrumsspärr, ingen serverbaserad behörighet. Vid osäkert svar kan eleven i stället avsluta en ny repetitionsomgång hos Rut och göra om hela områdesprovet utan hjälp. Det nya provförsöket kostar ett äpple och ger ingen stämpel förrän provet är klart. Se YEAR6_LANGUAGE_AND_REVIEW.md.
 
 Elevvyn använder en egen sparning under `lesson.1.` i appens befintliga namnrymd. Den blandas inte med lärarens testomgång eller det obegränsade spelet. Samma länk kan skickas till alla elever; varje webbläsare sparar sin egen omgång lokalt. Ljudinställningen hör fortfarande till enheten och går att använda även här.
 
@@ -27,6 +27,10 @@ Elevomgångens gräns på ett äpple, lärarkoden och vägen via en ny Rut-omgå
 
 `chapter-two-student-browser.cjs` provar övergången från gammal elevlänk och verkligt sista prov i ettan till tvåan, bevarad sparning, spärr före klar etta, äppelgräns och granskning i tvåan, ett riktigt sista områdesprov i tvåan, spärr till kapitel 3–10, import, omspelning/återgång och mobil.
 
-## Stegvis fler hot · 2.12.0
+## Stegvis fler hot · 2.13.0
 
-Aktuell elevlänk: `?only=2&chapter=2&v=2.12.0`. Samma sparning, äppelgräns och kapitelspärrar används. Kapitel 1–2 behåller den befintliga ficktjuven. Hunden introduceras i kapitel 3 och den vaktande tjuven i kapitel 4, när dessa kapitel senare blir aktuella för eleverna. De nya hoten tar ett äpple vid kontakt; ett nytt tjänas genom en hel vanlig repetitionsomgång hos Rut. Inga klarade frågor eller stämplar försvinner. Se `EVENT_SYSTEM.md`.
+Aktuell elevlänk: `?only=2&chapter=2&v=2.13.0`. Samma sparning, äppelgräns och kapitelspärrar används. Kapitel 1–2 behåller den befintliga ficktjuven. Hunden introduceras i kapitel 3 och den vaktande tjuven i kapitel 4, när dessa kapitel senare blir aktuella för eleverna. De nya hoten tar ett äpple vid kontakt; ett nytt tjänas genom en hel vanlig repetitionsomgång hos Rut. Inga klarade frågor eller stämplar försvinner. Se `EVENT_SYSTEM.md`.
+
+## Nya försök och Rut · 2.13.0
+
+”Ändra mitt svar” och omprov efter granskning kostar också exakt ett äpple och startar från första frågan. Utan äpple går eleven till Rut och gör en hel gratis repetitionsomgång. Rut går alltid att besöka; att läsa återkoppling och få lärarens godkännande är gratis. Elevlänkens kapitel 1–2, sparning och gräns på ett äpple behålls.
