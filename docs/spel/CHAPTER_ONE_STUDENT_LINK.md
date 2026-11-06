@@ -29,8 +29,12 @@ Elevomgångens gräns på ett äpple, lärarkoden och vägen via en ny Rut-omgå
 
 ## Stegvis fler hot · 2.13.0
 
-Aktuell elevlänk: `?only=2&chapter=2&v=2.13.0`. Samma sparning, äppelgräns och kapitelspärrar används. Kapitel 1–2 behåller den befintliga ficktjuven. Hunden introduceras i kapitel 3 och den vaktande tjuven i kapitel 4, när dessa kapitel senare blir aktuella för eleverna. De nya hoten tar ett äpple vid kontakt; ett nytt tjänas genom en hel vanlig repetitionsomgång hos Rut. Inga klarade frågor eller stämplar försvinner. Se `EVENT_SYSTEM.md`.
+Aktuell elevlänk: `?only=2&chapter=2&v=2.14.0`. Samma sparning, äppelgräns och kapitelspärrar används. Kapitel 1–2 behåller den befintliga ficktjuven. Hunden introduceras i kapitel 3 och den vaktande tjuven i kapitel 4, när dessa kapitel senare blir aktuella för eleverna. De nya hoten tar ett äpple vid kontakt; ett nytt tjänas genom en hel vanlig repetitionsomgång hos Rut. Inga klarade frågor eller stämplar försvinner. Se `EVENT_SYSTEM.md`.
 
 ## Nya försök och Rut · 2.13.0
 
 ”Ändra mitt svar” och omprov efter granskning kostar också exakt ett äpple och startar från första frågan. Utan äpple går eleven till Rut och gör en hel gratis repetitionsomgång. Rut går alltid att besöka; att läsa återkoppling och få lärarens godkännande är gratis. Elevlänkens kapitel 1–2, sparning och gräns på ett äpple behålls.
+
+## Rut börjar med frågan eleven behöver öva · 2.14.0
+
+Både felaktiga och osäkra huvudprovsvar följer med till Rut. Den aktuella frågan prioriteras före blandad repetition; förklaringar övas med sina ursprungliga delfrågor. Klarade stämplar och sparade svar påverkas inte. Samma elevlänk och sparning används. Se YEAR6_LANGUAGE_AND_REVIEW.md.
