@@ -27,9 +27,9 @@ for(const kind of ['dog','guard']){
  // Neither visiting Rut nor importing an apple is a completed retrieval round.
  h.apples=1;h.wait(2,{completedRound:0});assert.equal(h.model.snapshot().state.needsRut,true);
  h.apples=0;h.wait(2,{completedRound:1});assert.equal(h.model.snapshot().state.needsRut,true,'completion without a reward cannot clear recovery');
- h.apples=1;h.wait(2,{completedRound:2});assert.equal(h.model.snapshot().state.needsRut,false);assert(h.model.snapshot().state.quietMs>44000);assert(h.model.snapshot().state.nextDistance>=h.model.snapshot().state.distance+690);
+ h.apples=1;h.wait(2,{completedRound:2});assert.equal(h.model.snapshot().state.needsRut,false);assert(h.model.snapshot().state.nextDistance>=h.model.snapshot().state.distance+239);
  const n=h.model.snapshot().state.encounters;h.wait(700,{completedRound:2});assert.equal(h.model.snapshot().state.encounters,n,'standing cannot spend the safe walking distance');
- for(let i=0;i<75;i++)h.tick({completedRound:2},10);
+ for(let i=0;i<75&&!h.model.snapshot().active;i++)h.tick({completedRound:2},10);
  assert.equal(h.model.snapshot().active.kind,kind==='dog'?'guard':'dog','the other kind returns after a new apple, rest and walking');
 }
 for(const shelter of ['house','conversation']){
@@ -60,6 +60,23 @@ for(const extra of [{apples:0},{known:false},{otherThreat:true},{paused:true},{h
 for(const raw of [null,[],{quietMs:NaN,nextDistance:-100,nextKind:'unknown',history:{} }])assert.doesNotThrow(()=>create(raw));
 {
  const m=create({quietMs:0,nextDistance:0}),config={region:'main',apples:1,known:true,completedRound:1};
- m.tick(0,{x:10,y:0},config);assert.equal(m.snapshot().state.quietMs,45000,'the first earned Rut apple also gives a safe journey');assert.equal(m.snapshot().state.nextDistance,700);
+ m.tick(0,{x:10,y:0},config);assert.equal(m.snapshot().state.quietMs,0,'a first earned apple needs a short walk instead of a hidden timer');assert.equal(m.snapshot().state.nextDistance,240);
+}
+{
+ const m=create({quietMs:45000,nextDistance:1800,distance:1100,encounters:1,nextKind:'dog',history:[{kind:'dog',outcome:'warning'},{kind:'dog',outcome:'shelter'}]});
+ const s=m.snapshot().state;assert.equal(s.nextDistance,1340);assert.equal(s.quietMs,0);assert.deepEqual(copy(s.seenKinds),[],'a brief aborted warning is not a confirmed sighting');
+ const saved=create({quietMs:45000,nextDistance:1800,distance:1100,needsRut:true,lossRound:4,losses:1,history:[{kind:'dog',outcome:'lost-apple'}]}).snapshot().state;
+ assert.equal(saved.needsRut,true);assert.equal(saved.lossRound,4);assert.equal(saved.losses,1);assert.deepEqual(copy(saved.seenKinds),['dog']);assert.equal(saved.quietMs,15000,'migration preserves a real loss and only shortens pacing');
+}
+{
+ const m=create({pacing:2,distance:1000,nextDistance:1000,quietMs:0,seenKinds:['dog']},{kinds:['dog']});
+ const config={region:'main',apples:1,known:true,completedRound:0,clear:()=>true,route:(a,b)=>[{x:b.x,y:b.y}],anchor:(kind,p)=>({home:{x:p.x+155,y:0,id:'tree-1'},post:{x:p.x+135,y:0}})};
+ let result;
+ for(let i=0;i<900;i++){
+  const otherThreat=i%400<225;
+  result=m.tick(i*80,{x:i*10,y:0},{...config,otherThreat});
+  if(result.active){assert.equal(otherThreat,false);break;}
+ }
+ assert(result.active,'repeated ordinary-thief peeks cannot perpetually restart a longer apple delay');
 }
 console.log('PASS apple threats: both physical losses, warnings and stationary guard, shelter/cover/escape, no walls or teleports, study/hidden/other-threat pause, one debit and saved recovery, actual completion signal required, safe rest and walk, alternating return, unchanged progress');
