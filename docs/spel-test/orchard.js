@@ -21,14 +21,17 @@ const cache=new WeakMap();let matrix=null,pendingRoute=null,task=null,noticeUnti
 function geometry(r=world()){
  if(r?.id!=='main')return null;if(cache.has(r))return cache.get(r);
  const entry=navigationPoint(r,'manor'),trees=window.UPPDRAG_PAPER?.getTrees(r)||[];let found=null;
- for(const [dx,dy] of [[-130,95],[-95,110],[-180,85],[90,100]]){
-  const tree={x:entry.x+dx,y:entry.y+dy},pick={x:tree.x-33,y:tree.y+22},home={x:entry.x+8,y:entry.y+45};
-  if(!clear(r,pick,pick,24)||!clear(r,home,home,18)||!clear(r,tree,tree,30)||!route(r,home,pick)?.length)continue;
+ // The existing pasture is x=3157..3426, y=439..608. Keep the whole
+ // apple tree north of its fence, on the estate side of the manor road.
+ for(const [dx,dy] of [[-200,-40],[-250,-40],[-230,-70]]){
+  const tree={x:entry.x+dx,y:entry.y+dy},pick={x:tree.x-33,y:tree.y+22},home={x:entry.x+8,y:entry.y+50};
+  const patrol=[{x:entry.x-80,y:entry.y+50},{x:entry.x-290,y:entry.y+50},{x:entry.x-290,y:entry.y+10},{x:entry.x-100,y:entry.y+10},home];
+  if(tree.y+48>=439||!clear(r,pick,pick,24)||!clear(r,home,home,18)||!clear(r,tree,tree,40)||!route(r,home,pick)?.length||patrol.some((p,i)=>!clear(r,patrol[(i+patrol.length-1)%patrol.length],p,18)))continue;
   const covers=trees.filter(t=>gap(t,tree)>=120&&gap(t,tree)<=330).sort((a,b)=>gap(a,tree)-gap(b,tree));
   for(const cover of covers){
    const d=gap(cover,home),safe={x:cover.x+(cover.x-home.x)/d*58,y:cover.y+(cover.y-home.y)/d*58,radius:38};
    if(safe.y<90||safe.y>r.h-90||gap(safe,pick)<170||gap(safe,pick)>360||!clear(r,safe,safe,24)||!route(r,pick,safe,24)?.length||!window.UPPDRAG_EVENT_APPROACH.blockedByCover(home,safe,[cover]))continue;
-   found={tree,pick,home,safe,cover,trees};break;
+   found={tree,pick,home,patrol,safe,cover,trees};break;
   }if(found)break;
  }
  cache.set(r,found);return found;
@@ -47,23 +50,27 @@ const model=window.UPPDRAG_ORCHARD_MODEL.create(store.chapters[chapter],{
  event(outcome){const text={warning:'”Hallå där! Låt mina äpplen vara!” Spring och göm dig bakom träden.',chasing:'Adelsmannen följer efter dig. Bryt sikten bakom trädet eller gå in i ett hus.',caught:'Du blev upphunnen och fick lämna tillbaka äpplet. Du kan försöka igen.', 'returned-apple':'Äpplet är tillbaka vid herrgården.',left:'Du lämnade äpplet vid herrgården.',escaped:'Du kom undan! Nu väntar en kort minnesfråga.',earned:'Du har ett äpple i fickan. Kapitelns bonus är hämtad.',practice:'Öva på frågan hos Rut. Du kan försöka igen senare.',full:'Du har redan ett äpple. Bonuschansen finns kvar.',cancelled:'Du lämnade äpplet vid herrgården.'}[outcome];if(text)notify(text);}
 });
 const style=document.createElement('style');style.textContent=`
-#orchardNotice{position:absolute;left:10px;bottom:12px;z-index:28;max-width:min(370px,calc(100% - 20px));padding:12px 15px;background:#fff6e4ed;color:#382f25;border:1px solid #9b835c;border-radius:9px;font:14px/1.45 system-ui}#orchardNotice strong{display:block;font:600 18px Georgia;margin-bottom:5px}#orchardNotice button{margin-top:9px;min-height:44px;padding:8px 12px;border:1px solid #867154;border-radius:6px;background:#e3eadb;color:#352e24;font:14px system-ui;cursor:pointer}
-#orchardQuestion{width:min(570px,calc(100% - 24px));max-height:88dvh;overflow:auto;padding:24px;border:1px solid #967f5b;border-radius:12px;background:#fff7e9;color:#382f25;font:16px/1.5 system-ui}#orchardQuestion::backdrop{background:#28251b80}#orchardQuestion h2{font:600 27px Georgia;margin:0 0 12px}#orchardQuestion label{display:block;margin:16px 0 6px;font-weight:600}#orchardQuestion input{width:100%;box-sizing:border-box;padding:12px;font:18px system-ui;border:1px solid #9b835c;border-radius:6px}#orchardQuestion button{min-height:44px;padding:10px 15px;margin:13px 7px 0 0;background:#436b5c;color:white;border:1px solid #436b5c;border-radius:6px;font:16px system-ui;cursor:pointer}#orchardQuestion button.secondary{background:#fffaf0;color:#382f25}#orchardQuestion :focus-visible,#orchardNotice button:focus-visible{outline:3px solid #286472;outline-offset:2px}#orchardQuestion .orchard-note{font-size:14px;color:#665b49}
+#orchardNotice{position:absolute;left:10px;bottom:12px;z-index:28;max-width:min(370px,calc(100% - 20px));padding:12px 15px;background:#fff6e4ed;color:#382f25;border:1px solid #9b835c;border-radius:9px;font:14px/1.45 system-ui}#orchardNotice strong{display:block;font:600 18px Georgia;margin-bottom:5px}
+#orchardQuestion{width:min(570px,calc(100% - 24px));max-height:88dvh;overflow:auto;padding:24px;border:1px solid #967f5b;border-radius:12px;background:#fff7e9;color:#382f25;font:16px/1.5 system-ui}#orchardQuestion::backdrop{background:#28251b80}#orchardQuestion h2{font:600 27px Georgia;margin:0 0 12px}#orchardQuestion label{display:block;margin:16px 0 6px;font-weight:600}#orchardQuestion input{width:100%;box-sizing:border-box;padding:12px;font:18px system-ui;border:1px solid #9b835c;border-radius:6px}#orchardQuestion button{min-height:44px;padding:10px 15px;margin:13px 7px 0 0;background:#436b5c;color:white;border:1px solid #436b5c;border-radius:6px;font:16px system-ui;cursor:pointer}#orchardQuestion button.secondary{background:#fffaf0;color:#382f25}#orchardQuestion :focus-visible{outline:3px solid #286472;outline-offset:2px}#orchardQuestion .orchard-note{font-size:14px;color:#665b49}
 `;document.head.append(style);
 const notice=document.createElement('section');notice.id='orchardNotice';notice.hidden=true;notice.setAttribute('aria-label','Äppelträdet vid herrgården');
-const title=document.createElement('strong'),copy=document.createElement('div'),action=document.createElement('button'),hideButton=document.createElement('button');action.type=hideButton.type='button';hideButton.textContent='Sök skydd bakom trädet';hideButton.hidden=true;title.textContent='Äppelträdet';notice.append(title,copy,hideButton,action);stage.append(notice);
+const title=document.createElement('strong'),copy=document.createElement('div');title.textContent='Äppelträdet';notice.append(title,copy);stage.append(notice);
 const dialog=document.createElement('dialog');dialog.id='orchardQuestion';dialog.setAttribute('aria-labelledby','orchardTitle');document.body.append(dialog);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function stop(){window.UPPDRAG_WORLD_KEYBOARD?.clear();path=[];pendingRoute=null;if(typeof cancelPersonArrival==='function')cancelPersonArrival();if(typeof pendingRoom!=='undefined')pendingRoom=null;}
+function stop(cancelKeys=true){if(cancelKeys)window.UPPDRAG_WORLD_KEYBOARD?.clear();path=[];pendingRoute=null;if(typeof cancelPersonArrival==='function')cancelPersonArrival();if(typeof pendingRoom!=='undefined')pendingRoom=null;}
 function pick(){
  const g=geometry();if(!outside()||teacher||otherBusy()||!g||gap(playerPoint(),g.tree)>76||!clear(world(),playerPoint(),g.pick))return false;
  const s=model.snapshot();if(s.state.claimed){notify('Du har redan fått kapitelns bonusäpple. Rut kan ge fler efter repetition.');return true;}
  if(pilot().state.apples>0){notify('Du har redan ett äpple. Använd det innan du plockar ett nytt.');return true;}
  const tasks=pool().filter(t=>t.id!==s.state.lastTaskId),choices=tasks.length?tasks:pool();
  if(!choices.length){notify('Börja med en fråga i kapitlet. Här får du sedan repetera något du redan har mött.');return true;}
+ // The owner's patrol changes the viewing angle. Keep the hiding place on
+ // the far side of the real cover from his current, visible position.
+ const owner=s.actor||g.home,d=gap(g.cover,owner),safe={x:g.cover.x+(g.cover.x-owner.x)/d*58,y:g.cover.y+(g.cover.y-owner.y)/d*58,radius:38};
+ if(clear(world(),safe,safe,24)&&route(world(),playerPoint(),safe,24)?.length)g.safe=safe;
  task=choices[Math.floor(Math.random()*choices.length)];
  if(!model.begin(playerPoint(),g.home,task.id)){notify(s.retreat?'Vänta tills adelsmannen har gått tillbaka.':'Vänta en liten stund innan du försöker igen.');return true;}
- stop();return true;
+ stop(false);document.getElementById('world')?.focus?.({preventScroll:true});return true;
 }
 function travel(){
  if(!outside()||teacher||model.busy||otherBusy())return false;const g=geometry();if(!g)return false;
@@ -72,7 +79,7 @@ function travel(){
  if(!pool().length){notify('Börja med en fråga i minnesboken. Här får du sedan repetera sådant du redan har mött.');return false;}
  const next=route(world(),playerPoint(),g.pick,24);if(!next?.length)return false;
  stop();if(typeof pending!=='undefined')pending=null;if(typeof returnPending!=='undefined')returnPending=false;if(typeof pendingStreetChat!=='undefined')pendingStreetChat=null;
- window['UPPDRAG_CH'+chapter+'_CITY_LIFE']?.releaseHold?.();path=next;pendingRoute=next;follow=true;setMessage('Äppelträdet vid herrgården','Du följer vägen till trädgården. Ett bonusäpple per kapitel kan bli ditt efter en jakt och en minnesfråga.');return true;
+ window['UPPDRAG_CH'+chapter+'_CITY_LIFE']?.releaseHold?.();path=next;pendingRoute=next;follow=true;document.getElementById('world')?.focus?.({preventScroll:true});setMessage('Äppelträdet vid herrgården','Gå fram till trädet och tryck mellanslag för att plocka. Akta dig för herrgårdens ägare!');return true;
 }
 function hide(){
  if(!outside()||otherBusy()||!['warning','chasing'].includes(model.snapshot().phase))return false;
@@ -96,26 +103,21 @@ dialog.addEventListener('submit',event=>{
  dialog.querySelector('button')?.focus({preventScroll:true});
 });
 dialog.addEventListener('click',event=>{if(event.target.closest('[data-orchard-close]'))close();});dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
-action.addEventListener('click',()=>{if(model.busy)model.cancel();else pick();});
-hideButton.addEventListener('click',hide);
 function tick(now,cfg){
  lastNow=now;const g=geometry(cfg.region);if(!g){if(model.busy)model.cancel();notice.hidden=true;return;}
  const inRoom=!!cfg.activeRoom,city=window['UPPDRAG_CH'+chapter+'_CITY_LIFE'];
  const social=!!(window.UPPDRAG_LIVING_DIALOGUES?.active||city?.active||window.UPPDRAG_EVENT_ENGINE?.conversation);
- const paused=teacher||!!window.UPPDRAG_MENU_OPEN?.()||document.hidden||dialog.open||!!pilot()?.studyBusy||!!document.querySelector('dialog[open]:not(#orchardQuestion),#ch1Modal:not([hidden])');
- model.tick(now,cfg.player,{region:cfg.region.id,home:g.home,hidden:document.hidden,paused,shelter:inRoom||social,
+ const paused=teacher||inRoom||social||!!window.UPPDRAG_MENU_OPEN?.()||document.hidden||dialog.open||!!pilot()?.studyBusy||!!document.querySelector('dialog[open]:not(#orchardQuestion),#ch1Modal:not([hidden])');
+ model.tick(now,cfg.player,{region:cfg.region.id,home:g.home,patrol:g.patrol,hidden:document.hidden,paused,shelter:inRoom||social,
   route:(a,b)=>route(cfg.region,a,b),clear:(a,b)=>clear(cfg.region,a,b),inSafe:gap(cfg.player,g.safe)<=g.safe.radius,
   canSee:(a,b)=>clear(cfg.region,a,b)&&!window.UPPDRAG_EVENT_APPROACH.blockedByCover(a,b,g.trees)
  });
  const s=model.snapshot();if(s.phase==='question'&&!dialog.open)openQuestion();
  if(pendingRoute&&path!==pendingRoute)pendingRoute=null;
- if(pendingRoute&&!path.length){pendingRoute=null;notify('Ett bonusäpple per kapitel. Plocka, kom undan och svara rätt på en minnesfråga.');}
- const near=outside()&&gap(cfg.player,g.tree)<100;
+ if(pendingRoute&&!path.length){pendingRoute=null;notify('Tryck mellanslag för att plocka. Spring sedan undan och göm dig!');}
+ const near=outside()&&gap(cfg.player,g.tree)<76;
  notice.hidden=teacher||inRoom||dialog.open||otherBusy()||!(s.carrying||near||now<noticeUntil);
- if(!notice.hidden){copy.textContent=s.carrying?previousNotice:now<noticeUntil?previousNotice:s.state.claimed?'Du har redan fått kapitelns bonus.':pilot().state.apples?'Du har redan ett äpple.':'Plocka ett äpple, kom undan och svara på en minnesfråga. Ett bonusäpple per kapitel.';
-  action.hidden=!near&&!s.carrying;action.textContent=s.carrying?'Lämna tillbaka äpplet':'Plocka ett äpple';
-  hideButton.hidden=!['warning','chasing'].includes(s.phase);
- }
+ if(!notice.hidden)copy.textContent=s.carrying?previousNotice:now<noticeUntil?previousNotice:s.state.claimed?'Du har redan fått kapitelns bonus.':pilot().state.apples?'Du har redan ett äpple.':'Mellanslag: plocka ett äpple. Spring sedan undan och göm dig! Du får en minnesfråga när du kommit undan.';
 }
 function ellipse(ctx,x,y,rx,ry,color){ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
 function draw(ctx,{region,now=0}){
