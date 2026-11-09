@@ -1,0 +1,143 @@
+/* A physical garden detour in the existing paper city and animation loop. */
+(function(){
+'use strict';
+function source(name,text){
+ if(!/^world-keyboard(?:-ch\d+)?\.js$/.test(name))return text;
+ const edit=(a,b)=>{if(text.split(a).length!==2)throw Error('Äppelträdet: ankaret matchar inte '+name);text=text.replace(a,b);};
+ edit('  function activeDialogue(){\n    return !!(', '  function activeDialogue(){\n    return !!(window.UPPDRAG_ORCHARD?.blocking||');
+ edit('  function interact(){','  function interact(){\n    if(window.UPPDRAG_ORCHARD?.blocking)return false;\n    if(window.UPPDRAG_ORCHARD?.interact())return true;');return text;
+}
+const api={source};window.UPPDRAG_ORCHARD=api;
+const chapter=Number(window.__INTEGRATED_CHAPTER),stage=typeof document==='undefined'?null:document.getElementById('stage');
+if(!stage||![1,2,3,4,5].includes(chapter))return;
+const teacher=new URLSearchParams(window.__UPPDRAG_QUERY||location.search).get('preview')==='1',KEY='uppdrag1700.orchard.v1';
+let store;try{store=JSON.parse(localStorage.getItem(KEY)||'null');}catch{}
+if(!store||store.v!==1||!store.chapters||typeof store.chapters!=='object'||Array.isArray(store.chapters))store={v:1,chapters:{}};
+const pilot=()=>window['UPPDRAG_CH'+chapter+'_PILOT'],world=()=>typeof region==='undefined'?null:region,playerPoint=()=>typeof player==='undefined'?null:player;
+const gap=(a,b)=>a&&b?Math.hypot(a.x-b.x,a.y-b.y):Infinity;
+const clear=(r,a,b,radius=12)=>!!window.UPPDRAG_WORLD_KEYBOARD?.clearSegment?.(r,a,b,radius);
+const route=(r,a,b)=>window.UPPDRAG_EVENT_APPROACH.routeBetween(r,a,b,id=>navigationPoint(r,id),(p,q)=>clear(r,p,q));
+const cache=new WeakMap();let matrix=null,pendingRoute=null,task=null,noticeUntil=0,lastNow=0,previousNotice='',feedback='';
+function geometry(r=world()){
+ if(r?.id!=='main')return null;if(cache.has(r))return cache.get(r);
+ const entry=navigationPoint(r,'manor'),trees=window.UPPDRAG_PAPER?.getTrees(r)||[];let found=null;
+ for(const [dx,dy] of [[-130,95],[-95,110],[-180,85],[90,100]]){
+  const tree={x:entry.x+dx,y:entry.y+dy},pick={x:tree.x-33,y:tree.y+22},home={x:entry.x+8,y:entry.y+45};
+  if(!clear(r,pick,pick,24)||!clear(r,home,home,18)||!clear(r,tree,tree,30)||!route(r,home,pick)?.length)continue;
+  const covers=trees.filter(t=>gap(t,tree)>=120&&gap(t,tree)<=330).sort((a,b)=>gap(a,tree)-gap(b,tree));
+  for(const cover of covers){
+   const d=gap(cover,home),safe={x:cover.x+(cover.x-home.x)/d*58,y:cover.y+(cover.y-home.y)/d*58,radius:38};
+   if(safe.y<90||safe.y>r.h-90||gap(safe,pick)<170||gap(safe,pick)>360||!clear(r,safe,safe,24)||!route(r,pick,safe)?.length||!window.UPPDRAG_EVENT_APPROACH.blockedByCover(home,safe,[cover]))continue;
+   found={tree,pick,home,safe,cover,trees};break;
+  }if(found)break;
+ }
+ cache.set(r,found);return found;
+}
+const outside=()=>world()?.id==='main'&&!interior&&!sailing&&!voyage;
+const otherBusy=()=>!!(window.UPPDRAG_MENU_OPEN?.()||pilot()?.studyBusy||window.UPPDRAG_MEETINGS?.state?.talking||window.UPPDRAG_LIVING_DIALOGUES?.active||window['UPPDRAG_CH'+chapter+'_CITY_LIFE']?.active||window.UPPDRAG_STORY_WORK?.busy||window.UPPDRAG_EVENT_ENGINE?.busy||window.UPPDRAG_EVENT_ENGINE?.approach?.point||window.UPPDRAG_APPLE_THREATS?.point||window.UPPDRAG_HAT_SHOP?.busy||document.querySelector('dialog[open]:not(#orchardQuestion),#ch1Modal:not([hidden])'));
+function pool(){const ids=new Set(pilot()?.repetitionTaskIds||[]);return (window.UPPDRAG_RECALL_BANK||[]).filter(t=>ids.has(t.id)&&t.chapter<=chapter&&t.rank===0&&t.kind==='fields'&&t.fields?.length===1&&t.fields[0].answers?.length);}
+function notify(text){previousNotice=text;noticeUntil=lastNow+6500;}
+const model=window.UPPDRAG_ORCHARD_MODEL.create(store.chapters[chapter],{
+ save(s){store.chapters[chapter]=s;try{localStorage.setItem(KEY,JSON.stringify(store));}catch{}},
+ awardApple(){const p=pilot();if(teacher||!p?.state||p.state.apples!==0)return false;p.state.apples=1;p.persist();p.refresh?.();return p.state.apples===1;},
+ practice(id){const p=pilot(),bank=window.UPPDRAG_RECALL_BANK,t=bank.find(t=>t.id===id);if(!p||!t)return;
+  const ids=(p.state.recallRutFocus||[]).filter(x=>bank.some(t=>t.id===x));
+  if(!ids.some(id=>{const other=bank.find(t=>t.id===id);return other.chapter===t.chapter&&other.topic===t.topic;}))p.state.recallRutFocus=[id,...ids];p.persist();
+ },
+ event(outcome){const text={warning:'”Hallå där! Låt mina äpplen vara!” Spring och göm dig bakom träden.',chasing:'Adelsmannen följer efter dig. Bryt sikten bakom trädet eller gå in i ett hus.',caught:'Du blev upphunnen och fick lämna tillbaka äpplet. Du kan försöka igen.', 'returned-apple':'Äpplet är tillbaka vid herrgården.',left:'Du lämnade äpplet vid herrgården.',escaped:'Du kom undan! Nu väntar en kort minnesfråga.',earned:'Du har ett äpple i fickan. Kapitelns bonus är hämtad.',practice:'Öva på frågan hos Rut. Du kan försöka igen senare.',full:'Du har redan ett äpple. Bonuschansen finns kvar.',cancelled:'Du lämnade äpplet vid herrgården.'}[outcome];if(text)notify(text);}
+});
+const style=document.createElement('style');style.textContent=`
+#orchardNotice{position:absolute;left:10px;bottom:12px;z-index:28;max-width:min(370px,calc(100% - 20px));padding:12px 15px;background:#fff6e4ed;color:#382f25;border:1px solid #9b835c;border-radius:9px;font:14px/1.45 system-ui}#orchardNotice strong{display:block;font:600 18px Georgia;margin-bottom:5px}#orchardNotice button{margin-top:9px;min-height:44px;padding:8px 12px;border:1px solid #867154;border-radius:6px;background:#e3eadb;color:#352e24;font:14px system-ui;cursor:pointer}
+#orchardQuestion{width:min(570px,calc(100% - 24px));max-height:88dvh;overflow:auto;padding:24px;border:1px solid #967f5b;border-radius:12px;background:#fff7e9;color:#382f25;font:16px/1.5 system-ui}#orchardQuestion::backdrop{background:#28251b80}#orchardQuestion h2{font:600 27px Georgia;margin:0 0 12px}#orchardQuestion label{display:block;margin:16px 0 6px;font-weight:600}#orchardQuestion input{width:100%;box-sizing:border-box;padding:12px;font:18px system-ui;border:1px solid #9b835c;border-radius:6px}#orchardQuestion button{min-height:44px;padding:10px 15px;margin:13px 7px 0 0;background:#436b5c;color:white;border:1px solid #436b5c;border-radius:6px;font:16px system-ui;cursor:pointer}#orchardQuestion button.secondary{background:#fffaf0;color:#382f25}#orchardQuestion :focus-visible,#orchardNotice button:focus-visible{outline:3px solid #286472;outline-offset:2px}#orchardQuestion .orchard-note{font-size:14px;color:#665b49}
+`;document.head.append(style);
+const notice=document.createElement('section');notice.id='orchardNotice';notice.hidden=true;notice.setAttribute('aria-label','Äppelträdet vid herrgården');
+const title=document.createElement('strong'),copy=document.createElement('div'),action=document.createElement('button');action.type='button';title.textContent='Äppelträdet';notice.append(title,copy,action);stage.append(notice);
+const dialog=document.createElement('dialog');dialog.id='orchardQuestion';dialog.setAttribute('aria-labelledby','orchardTitle');document.body.append(dialog);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function stop(){window.UPPDRAG_WORLD_KEYBOARD?.clear();path=[];pendingRoute=null;if(typeof cancelPersonArrival==='function')cancelPersonArrival();if(typeof pendingRoom!=='undefined')pendingRoom=null;}
+function pick(){
+ const g=geometry();if(!outside()||teacher||otherBusy()||!g||gap(playerPoint(),g.tree)>76||!clear(world(),playerPoint(),g.pick))return false;
+ const s=model.snapshot();if(s.state.claimed){notify('Du har redan fått kapitelns bonusäpple. Rut kan ge fler efter repetition.');return true;}
+ if(pilot().state.apples>0){notify('Du har redan ett äpple. Använd det innan du plockar ett nytt.');return true;}
+ const tasks=pool().filter(t=>t.id!==s.state.lastTaskId),choices=tasks.length?tasks:pool();
+ if(!choices.length){notify('Börja med en fråga i kapitlet. Här får du sedan repetera något du redan har mött.');return true;}
+ task=choices[Math.floor(Math.random()*choices.length)];
+ if(!model.begin(playerPoint(),g.home,task.id)){notify(s.retreat?'Vänta tills adelsmannen har gått tillbaka.':'Vänta en liten stund innan du försöker igen.');return true;}
+ stop();return true;
+}
+function travel(){
+ if(!outside()||teacher||model.busy||otherBusy())return false;const g=geometry();if(!g)return false;
+ if(model.snapshot().state.claimed){notify('Du har redan hämtat kapitelns bonusäpple. Du kan alltid öva hos Rut för ett nytt.');return false;}
+ if(pilot().state.apples>0){notify('Du har redan ett äpple. Använd det innan du plockar ett nytt.');return false;}
+ if(!pool().length){notify('Börja med en fråga i minnesboken. Här får du sedan repetera sådant du redan har mött.');return false;}
+ const next=route(world(),playerPoint(),g.pick);if(!next?.length)return false;
+ stop();if(typeof pending!=='undefined')pending=null;if(typeof returnPending!=='undefined')returnPending=false;if(typeof pendingStreetChat!=='undefined')pendingStreetChat=null;
+ window['UPPDRAG_CH'+chapter+'_CITY_LIFE']?.releaseHold?.();path=next;pendingRoute=next;follow=true;setMessage('Äppelträdet vid herrgården','Du följer vägen till trädgården. Ett bonusäpple per kapitel kan bli ditt efter en jakt och en minnesfråga.');return true;
+}
+function close(){if(dialog.open)dialog.close();model.close();feedback='';document.getElementById('world')?.focus?.({preventScroll:true});}
+function openQuestion(){
+ if(dialog.open||!task||otherBusy()||document.hidden)return;stop();feedback='';
+ dialog.innerHTML='<h2 id="orchardTitle">Du kom undan!</h2><p>Svara på minnesfrågan för att få behålla äpplet.</p><form><label for="orchardAnswer">'+esc(task.prompt)+'</label><input id="orchardAnswer" name="answer" maxlength="240" autocomplete="off" required><p class="orchard-note">Du har mött frågan tidigare. Ett kort eget svar räcker.</p><button type="submit">Svara</button><button type="button" class="secondary" data-orchard-close>Lämna äpplet</button></form>';
+ dialog.showModal();dialog.querySelector('input')?.focus({preventScroll:true});
+}
+dialog.addEventListener('submit',event=>{
+ event.preventDefault();if(model.snapshot().phase!=='question'||!task)return;
+ const value=dialog.querySelector('input').value.trim();if(!value)return;
+ const field={...task.fields[0]};delete field.options;
+ const check=window.UPPDRAG_RECALL_ENGINE.checkField;
+ const verdict=window.UPPDRAG_PROMPT_ALIGNMENT.shortCheck(field,value,check),result=model.submit(verdict==='correct',value);
+ const success=result.ok,known=verdict==='correct';feedback=result.reason;
+ dialog.innerHTML='<h2 id="orchardTitle">'+(success?'Ett bonusäpple!':known?'Du har redan ett äpple':'Öva lite till')+'</h2><p>'+(success?'Rätt! Du får behålla äpplet. Det finns nu i din ficka.':known?'Du får ha ett äpple åt gången här. Kapitelns bonus finns kvar tills du kan ta emot den.':(verdict==='review'?'Jag kunde inte känna igen svaret.':'Inte riktigt.')+' Ett exempel på rätt svar är <strong>'+esc(field.sample||field.answers[0])+'</strong>. Öva på frågan hos Rut och försök igen senare.')+'</p><p class="orchard-note">'+(success?'Du kan få ett sådant här bonusäpple i varje kapitel. Rut kan alltid ge fler genom repetition.':'Inget äpple har lagts till och kapitelns bonus är kvar.')+'</p><button type="button" data-orchard-close>Till spelet</button>';
+ dialog.querySelector('button')?.focus({preventScroll:true});
+});
+dialog.addEventListener('click',event=>{if(event.target.closest('[data-orchard-close]'))close();});dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
+action.addEventListener('click',()=>{if(model.busy)model.cancel();else pick();});
+function tick(now,cfg){
+ lastNow=now;const g=geometry(cfg.region);if(!g){if(model.busy)model.cancel();notice.hidden=true;return;}
+ const inRoom=!!cfg.activeRoom,city=window['UPPDRAG_CH'+chapter+'_CITY_LIFE'];
+ const social=!!(window.UPPDRAG_LIVING_DIALOGUES?.active||city?.active||window.UPPDRAG_EVENT_ENGINE?.conversation);
+ const paused=teacher||!!window.UPPDRAG_MENU_OPEN?.()||document.hidden||dialog.open||!!pilot()?.studyBusy||!!document.querySelector('dialog[open]:not(#orchardQuestion),#ch1Modal:not([hidden])');
+ model.tick(now,cfg.player,{region:cfg.region.id,home:g.home,hidden:document.hidden,paused,shelter:inRoom||social,
+  route:(a,b)=>route(cfg.region,a,b),clear:(a,b)=>clear(cfg.region,a,b),inSafe:gap(cfg.player,g.safe)<=g.safe.radius,
+  canSee:(a,b)=>clear(cfg.region,a,b)&&!window.UPPDRAG_EVENT_APPROACH.blockedByCover(a,b,g.trees)
+ });
+ const s=model.snapshot();if(s.phase==='question'&&!dialog.open)openQuestion();
+ if(pendingRoute&&path!==pendingRoute)pendingRoute=null;
+ if(pendingRoute&&!path.length){pendingRoute=null;notify('Ett bonusäpple per kapitel. Plocka, kom undan och svara rätt på en minnesfråga.');}
+ const near=outside()&&gap(cfg.player,g.tree)<100;
+ notice.hidden=teacher||inRoom||dialog.open||otherBusy()||!(s.carrying||near||now<noticeUntil);
+ if(!notice.hidden){copy.textContent=s.carrying?previousNotice:now<noticeUntil?previousNotice:s.state.claimed?'Du har redan fått kapitelns bonus.':pilot().state.apples?'Du har redan ett äpple.':'Plocka ett äpple, kom undan och svara på en minnesfråga. Ett bonusäpple per kapitel.';
+  action.hidden=!near&&!s.carrying;action.textContent=s.carrying?'Lämna tillbaka äpplet':'Plocka ett äpple';
+ }
+}
+function ellipse(ctx,x,y,rx,ry,color){ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
+function draw(ctx,{region,now=0}){
+ const g=geometry(region);if(!g||teacher)return;matrix=ctx.getTransform();const s=model.snapshot();
+ const tree=()=>{window.UPPDRAG_PAPER?.drawTree?.(ctx,region,{treeX:g.tree.x,treeY:g.tree.y+12});if(!s.state.claimed){for(const [dx,dy] of [[-15,-15],[13,-20],[2,0]]){ellipse(ctx,g.tree.x+dx,g.tree.y+dy,4.5,4,'#a94d36');ctx.fillStyle='#655333';ctx.fillRect(g.tree.x+dx,g.tree.y+dy-6,1,3);}}};
+ if(!window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,g.tree.y,tree,'orchard-tree'))tree();
+ ctx.save();ctx.font='600 12px Georgia';ctx.textAlign='center';ctx.fillStyle='#fbf0d8';ctx.fillRect(g.tree.x-37,g.tree.y+42,74,20);ctx.fillStyle='#4b3b29';ctx.fillText('Äppelträd',g.tree.x,g.tree.y+56);ctx.restore();
+ if(['warning','chasing'].includes(s.phase)){
+  ctx.save();ctx.strokeStyle='#476f51';ctx.fillStyle='#e3ead94a';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.beginPath();ctx.ellipse(g.safe.x,g.safe.y,g.safe.radius,g.safe.radius*.65,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.font='600 13px Georgia';ctx.textAlign='center';ctx.fillStyle='#37533c';ctx.fillText('Skydd bakom trädet',g.safe.x,g.safe.y+g.safe.radius+16);ctx.restore();
+ }
+ const a=s.actor||{...g.home,heading:Math.atan2(g.tree.y-g.home.y,g.tree.x-g.home.x)};
+ window.UPPDRAG_MEETINGS.drawMapPerson(ctx,a,{id:'orchard-noble',name:'Herrgårdens ägare',color:'#7d4e55',woman:false},now);
+ const crop=()=>{ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.heading||0);ctx.strokeStyle='#6b4b32';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-5,-11);ctx.lineTo(s.phase==='chasing'?20:10,-19);ctx.stroke();ctx.restore();};
+ if(!window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,a.y,crop,'orchard-crop'))crop();
+ if(s.carrying){const p=playerPoint(),fruit=()=>{ellipse(ctx,p.x+16,p.y+9,4,4,'#ab4f36');};if(!window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,p.y+1,fruit,'orchard-carried-apple'))fruit();}
+}
+const life=window.UPPDRAG_WORLD_LIFE,oldTick=life.tick,oldDraw=life.draw;
+life.tick=function(now,cfg){const ret=oldTick.apply(this,arguments);tick(now,cfg);return ret;};
+life.draw=function(ctx,cfg){const ret=oldDraw.apply(this,arguments);draw(ctx,cfg);return ret;};
+const engine=window.UPPDRAG_EVENT_ENGINE,people=engine.people;
+engine.people=function(r){const g=geometry(r),a=model.snapshot().actor;return [...people.call(this,r),...(g?[{...(a||g.home),id:'orchard-noble',radius:12,solid:!model.busy}]:[])];};
+engine.register({id:'orchard-apple',type:'sidequest',region:'main',chapters:[1,2,3,4,5],usesRetrieval:true,chapterLimit:1});
+const canvas=document.getElementById('world');let hitDown=null;
+function hit(event){if(!matrix||!outside())return false;const rect=canvas.getBoundingClientRect(),m=matrix,x=(event.clientX-rect.left)*canvas.width/rect.width,y=(event.clientY-rect.top)*canvas.height/rect.height,d=m.a*m.d-m.b*m.c;
+ const p={x:(m.d*(x-m.e)-m.c*(y-m.f))/d,y:(-m.b*(x-m.e)+m.a*(y-m.f))/d};return gap(p,geometry()?.tree)<45;
+}
+canvas.addEventListener('pointerdown',event=>{if(model.busy||otherBusy()||!hit(event))return;hitDown={x:event.clientX,y:event.clientY};event.preventDefault();event.stopImmediatePropagation();},true);
+canvas.addEventListener('pointerup',event=>{if(!hitDown)return;const from=hitDown;hitDown=null;event.preventDefault();event.stopImmediatePropagation();if(gap(from,{x:event.clientX,y:event.clientY})<10&&hit(event)){if(gap(playerPoint(),geometry().tree)<76)pick();else travel();}},true);
+Object.defineProperties(api,{busy:{get:()=>model.busy},blocking:{get:()=>dialog.open},claimed:{get:()=>model.snapshot().state.claimed},snapshot:{get:()=>model.snapshot()}});
+Object.assign(api,{geometry,travel,pick,interact:()=>outside()&&!model.busy&&gap(playerPoint(),geometry()?.tree)<76?pick():false,
+ journalHTML:()=>'<p><b>Äppelträdet vid herrgården:</b> '+(model.snapshot().state.claimed?'Kapitelns bonusäpple är redan hämtat.':!pool().length?'Börja med frågorna i minnesboken. Sedan kan du få ett bonusäpple genom en jakt och en fråga om sådant du redan har mött.':'Kom undan herrgårdens ägare och svara på en känd minnesfråga för att få ett bonusäpple. Ett per kapitel, när fickan är tom.')+'</p>'});
+})();

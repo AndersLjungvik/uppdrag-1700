@@ -122,7 +122,7 @@ function book(){
  if(!q.chapterComplete){const needed=q.remaining.map(a=>a.name).join(', ');h+='<p class="mb-note">Återstår på '+q.label.toLowerCase()+'nivån: '+esc(needed)+'.</p>';}
  else if(!lessonEnd)h+='<p><a href="chapter2-pilot.html">Fortsätt till kapitel 2 →</a></p>';
  h+='<p class="mb-note">1 äpple ger ett nytt försök på hela områdesprovet efter en miss. 1 daler ger en ledtråd på lärlingsnivån. Rut hjälper dig gratis.</p>';
- if(pupilRound)h+='<p class="mb-note">Du kan ha högst ett äpple i fickan. När du har använt det behöver du repetera hos Rut för att få ett nytt.</p>';
+ if(pupilRound)h+='<p class="mb-note">Du kan ha högst ett äpple i fickan. När du har använt det kan du repetera hos Rut för att få ett nytt. Vid Herrgården finns också en bonuschans per kapitel.</p>';
  display(h,'book');
 }
 const sessionFields=['index','trial','mode','recallUI','recallAttempt','recallInterlude','hint','draft'];

@@ -47,7 +47,7 @@ const style=document.createElement('style');style.textContent=`
 `;document.head.append(style);
 function message(kind,outcome){
  noticeOutcome=outcome;noticeUntil=lastNow+(outcome==='lost-apple'?12000:outcome==='recovered'?5500:6000);
- const text=outcome==='lost-apple'?['Mitt äpple!','Öva en hel omgång hos Rut i Arkivet för att få ett nytt.']:outcome==='recovered'?['Ett nytt äpple','Du har repeterat hos Rut. Nu får du en lugn sträcka genom staden.']:outcome==='warning'||outcome==='active'?
+ const text=outcome==='lost-apple'?['Mitt äpple!','Öva en hel omgång hos Rut i Arkivet för att få ett nytt.']:outcome==='recovered'?['Ett nytt äpple',(kind==='orchard'?'Du klarade minnesfrågan vid Herrgården.':'Du har repeterat hos Rut.')+' Nu får du en lugn sträcka genom staden.']:outcome==='warning'||outcome==='active'?
   kind==='dog'?['Hunden nosar efter äpplet','Håll avstånd. Ett hus, ett samtal eller ett träd kan ge skydd.']:['En tjuv vaktar passagen','”Lämna hit påsen!” Håll avstånd, välj en annan väg eller sök skydd hos någon.']:
   ['Du kom undan',kind==='dog'?'Hunden gav upp. Du har äpplet kvar.':'Tjuven lämnade dig i fred. Du har äpplet kvar.'];
  live.replaceChildren();const title=document.createElement('strong');title.textContent=text[0];live.append(title,document.createTextNode(text[1]));rut.hidden=outcome!=='lost-apple';
@@ -126,9 +126,10 @@ function tick(now,{region,player,activeRoom=null}={}){
  const travelling=(typeof sailing!=='undefined'&&!!sailing)||(typeof voyage!=='undefined'&&!!voyage);
  const ordinaryThief=other?.approach?.point;
  model.tick(now,player,{region:region.id,hidden:document.hidden,paused:teacher||paused,
-  shelter:inRoom||travelling?'house':talking?'conversation':'',otherThreat:!!other?.busy||!!ordinaryThief,
+  shelter:inRoom||travelling?'house':talking?'conversation':'',otherThreat:!!other?.busy||!!ordinaryThief||!!window.UPPDRAG_ORCHARD?.busy,
   apples:p?.state.apples||0,known:!!p?.repetitionTaskIds?.length,
   completedRound:p?.state.recallRutRewarded?p.state.archiveRounds||0:0,anchor,route,clear,
+  bonusClaimed:window.UPPDRAG_ORCHARD?.claimed===true,
   canSee(a,b,home){return clear(a,b)&&!window.UPPDRAG_EVENT_APPROACH.blockedByCover(a,b,trees().filter(t=>!(t.id===home.id&&distance(a,home)<40)));}
  });
  const a=model.snapshot().active,show=!teacher&&!inRoom&&!talking&&!paused&&!document.hidden&&(!!a||now<noticeUntil);
@@ -157,6 +158,6 @@ life.tick=function(now,config){const result=oldTick.apply(this,arguments);tick(n
 life.draw=function(ctx,config){const result=oldDraw.apply(this,arguments);draw(ctx,config);return result;};
 window.UPPDRAG_APPLE_THREATS={get busy(){return model.busy;},get suppressesPickpocket(){const s=model.snapshot().state;return model.suppressesPickpocket||!teacher&&pilot()?.state.apples>0&&!!pilot()?.repetitionTaskIds?.length&&!s.seenKinds.includes(s.nextKind);},get point(){return model.snapshot().active?.point||null;},get snapshot(){return model.snapshot();},
  people(r){const a=model.snapshot().active;return r?.id==='main'&&a?[{...a.point,id:'apple-'+a.kind,role:a.kind==='dog'?'dog':'passerby',radius:12,solid:false}]:[];},
- journalHTML(){return '<p><b>Äpplet på gatan:</b> '+(chapter===3?'Hunden kan':'Hunden och tjuven vid passagen kan')+' ta ett äpple. '+(pilot()?.state.apples>0?'Första mötet kan komma efter en kort promenad i huvudstaden. Håll avstånd eller sök skydd.':'Du behöver ha ett äpple i fickan. Öva en hel omgång hos Rut i Arkivet för att få ett.')+' Ett förlorat äpple ersätts genom en hel repetitionsomgång hos Rut.</p>';}
+ journalHTML(){return '<p><b>Äpplet på gatan:</b> '+(chapter===3?'Hunden kan':'Hunden och tjuven vid passagen kan')+' ta ett äpple. '+(pilot()?.state.apples>0?'Första mötet kan komma efter en kort promenad i huvudstaden. Håll avstånd eller sök skydd.':'Du behöver ha ett äpple i fickan. Öva en hel omgång hos Rut i Arkivet för att få ett.')+' Rut kan alltid ge ett nytt äpple efter en hel repetitionsomgång. Vid Herrgården finns också en bonuschans per kapitel.</p>';}
 };
 })();
