@@ -55,6 +55,7 @@ const model=modelAPI.create(raw,{
 });
 const style=document.createElement('style');style.textContent=`
 #hatTools{position:absolute;top:60px;left:10px;z-index:27;display:grid;gap:5px;width:113px}
+#hatTools[data-room=true]{top:124px}
 #hatTools button{min-height:44px;padding:7px 8px;font:13px system-ui;color:#3c2e25;background:#fff7e7ed;border:1px solid #967f5b;border-radius:7px;cursor:pointer}
 body.ch1-open #hatTools,body[data-conversation] #hatTools,body[data-room-side-speech] #hatTools{display:none}
 #hatShopDialog{width:min(640px,calc(100% - 20px));max-height:88dvh;padding:22px;border:1px solid #8e7859;border-radius:12px;color:#382f25;background:#fbf2e2;font:15px/1.45 system-ui;box-shadow:0 12px 55px #241c1540;overscroll-behavior:contain}
@@ -152,7 +153,7 @@ function drawStall(ctx,p){
 }
 const life=window.UPPDRAG_WORLD_LIFE,oldTick=life.tick,oldDraw=life.draw;
 life.tick=function(now,config){
- const ret=oldTick.apply(this,arguments);travelButton.hidden=!outside();
+ const ret=oldTick.apply(this,arguments);travelButton.hidden=!outside();tools.dataset.room=String(!!(typeof interior!=='undefined'&&interior));
  if(view==='shop'&&!near())close();
  if(pendingRoute){
   if(!outside()||occupied()||path!==pendingRoute)pendingRoute=null;
