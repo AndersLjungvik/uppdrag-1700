@@ -1,4 +1,4 @@
-# Elevlänk – enbart kapitel 1 · 2.8.0
+# Elevlänkar · kapitel 1–2 · 2.15.0
 
 ## Klassernas delade länkar · bekräftade 2026-11-09
 
@@ -6,12 +6,12 @@ Anders har delat två olika elevlänkar, en till varje klass. Det är avsiktligt
 
 | Klass | Delad länk | Kapitelåtkomst |
 | --- | --- | --- |
-| 6A | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.7.1 | Enbart kapitel 1 |
-| 6B | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.9.0 | Enbart kapitel 1 |
+| 6A | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.7.1 | Kapitel 1–2; tvåan efter klar etta |
+| 6B | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.9.0 | Kapitel 1–2; tvåan efter klar etta |
 
-Skillnaden är `v`-parametern. Båda använder samma publicerade `spel-test/`-ingång och samma `only=1`-läge. `v` väljer inte ett historiskt kodpaket och ingår inte i sparningens prefix. Framsteg är lokala per webbläsare; versionssiffran skapar inte en ny sparning.
+Länkarna skiljer sig i `v`-parametern och använder samma publicerade `spel-test/`-ingång. På Anders uttryckliga begäran 2026-11-09 öppnar de två registrerade klasslänkarna nu kapitel 1–2, trots att deras ursprungliga adresser innehåller `only=1`. Kapitel 2 kräver fortfarande ettans nio stämplar; kapitel 3–10 är spärrade. Andra länkar för enbart kapitel 1 behåller sin gräns. `v` väljer inte ett historiskt kodpaket och ingår inte i sparningens prefix. Framsteg är lokala per webbläsare och finns kvar när klasslänkarna får tillgång till tvåan.
 
-Vid framtida uppdateringar: kontrollera båda klasslänkarna, deras kapitelgränser och sparningar. Dokumentets övriga länkar för kapitel 1–2 är tillgängliga alternativ, inte belägg för att de har delats med någon av klasserna. Byt inte ut klassernas länkar eller öppna fler kapitel automatiskt.
+Vid framtida uppdateringar: kontrollera båda klasslänkarna, deras kapitelgränser och sparningar. Dokumentets övriga länkar för kapitel 1–2 är tillgängliga alternativ, inte belägg för att de har delats med någon av klasserna. Behåll de delade adresserna. Fler kapitel än de godkända 1–2 öppnas först på uttrycklig begäran.
 
 Länken `?only=1&chapter=1&v=2.8.0` öppnar Frihetstiden i en elevvy med enbart kapitel 1. Menyn visar bara ettan. Senare kapitel förblir otillgängliga även när alla ettans nio stämplar är klara. Avslutningen och minnesboken erbjuder då ingen fortsättning till tvåan. Lärarvyn finns inte i denna elevvy.
 
@@ -42,7 +42,7 @@ Elevomgångens gräns på ett äpple, lärarkoden och vägen via en ny Rut-omgå
 
 ## Stegvis fler hot · 2.13.0
 
-Aktuell elevlänk: `?only=2&chapter=2&v=2.14.0`. Samma sparning, äppelgräns och kapitelspärrar används. Kapitel 1–2 behåller den befintliga ficktjuven. Hunden introduceras i kapitel 3 och den vaktande tjuven i kapitel 4, när dessa kapitel senare blir aktuella för eleverna. De nya hoten tar ett äpple vid kontakt; ett nytt tjänas genom en hel vanlig repetitionsomgång hos Rut. Inga klarade frågor eller stämplar försvinner. Se `EVENT_SYSTEM.md`.
+Alternativ direktlänk för elevläget: `?only=2&chapter=2&v=2.15.0`. Samma sparning, äppelgräns och kapitelspärrar används. Kapitel 1–2 behåller den befintliga ficktjuven. Hunden introduceras i kapitel 3 och den vaktande tjuven i kapitel 4, när dessa kapitel senare blir aktuella för eleverna. De nya hoten tar ett äpple vid kontakt; ett nytt tjänas genom en hel vanlig repetitionsomgång hos Rut. Inga klarade frågor eller stämplar försvinner. Se `EVENT_SYSTEM.md`.
 
 ## Nya försök och Rut · 2.13.0
 
@@ -51,3 +51,9 @@ Aktuell elevlänk: `?only=2&chapter=2&v=2.14.0`. Samma sparning, äppelgräns oc
 ## Rut börjar med frågan eleven behöver öva · 2.14.0
 
 Både felaktiga och osäkra huvudprovsvar följer med till Rut. Den aktuella frågan prioriteras före blandad repetition; förklaringar övas med sina ursprungliga delfrågor. Klarade stämplar och sparade svar påverkas inte. Samma elevlänk och sparning används. Se YEAR6_LANGUAGE_AND_REVIEW.md.
+
+## Båda klasslänkarna omfattar kapitel 2 · 2.15.0
+
+De redan delade adresserna för 6A (`v=2.7.1`) och 6B (`v=2.9.0`) känns igen vid öppning. I ett giltigt elevläge höjs kapitelgränsen till två; efter första öppningen kan adressfältet visa `only=2`. Eleverna behöver ladda om sin befintliga länk och behöver inte börja om eller få en ny länk. Båda använder den aktuella gemensamma spelkoden med samma Rut-repetition, äppelregler, frågor, ljud och animationer. Ingen klass får ett separat kodpaket.
+
+Samma `lesson.1.`-sparning och eventuella befintliga omspelningar används. Äppelförrådet begränsas fortfarande till ett och lärarvy/kapitelprov är avstängda. Tvåan visas i menyn, öppnas efter klar etta och ger ingen fortsättning till trean. Vanliga `only=1`-länkar med andra versionsmarkörer ändras inte. `class-links.cjs` provar båda exakta klasslänkarna, nio-stämpelskravet, resurs- och svarssparning, bryggan till kapitlet, omspelning, spärrar och oförändrad etta för andra länkar.
