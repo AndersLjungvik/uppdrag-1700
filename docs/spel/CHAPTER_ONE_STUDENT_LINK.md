@@ -1,4 +1,4 @@
-# Elevlänkar · kapitel 1–2 · 2.16.3
+# Elevlänkar · kapitel 1–2 · 2.17.0
 
 ## Klassernas delade länkar · bekräftade 2026-11-09
 
@@ -63,3 +63,7 @@ Samma `lesson.1.`-sparning och eventuella befintliga omspelningar används. Äpp
 Hatthandeln introduceras först i kapitel 3, när Hattarna och Mössorna ingår i innehållet. Båda klassernas befintliga länkar behåller kapitelgränsen 1–2 och visar ingen butik eller garderobsknapp. Tidigare inköp bevaras och kan användas när senare kapitel blir aktuella. Mössor kostar där 2 daler och en trekantshatt 4. Frågebank, Rut, ett äpple åt gången och lärargranskning behålls. Se HAT_SHOP.md.
 
 Barnets samtal återbetalar inte längre stulna daler (2.16.3). Pengarna återfås efter lyckad jakt och rätt svar på tjuvens minnesfråga. En tjuv som kommer undan behåller summan. Äldre sparningar och tidigare faktiska återbetalningar bevaras.
+
+## Bonusäpplet vid Herrgården · 2.17.0
+
+Båda klassernas befintliga länkar får ett frivilligt äppeläventyr. Tom ficka, fysisk plockning, flykt från herrgårdens ägare och rätt svar på en redan mött minnesfråga krävs. Ett bonusäpple per kapitel och omgång; högst ett i fickan. Ett felaktigt svar går vidare till övning hos Rut. Rut kan fortfarande ge fler genom hela repetitionsomgångar. Kapitlen 3–10 och hatthandeln är fortsatt stängda i klasslänkarna. Se ORCHARD.md.
