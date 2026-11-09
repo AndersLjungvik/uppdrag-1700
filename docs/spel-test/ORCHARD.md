@@ -12,6 +12,6 @@ Rut är fortsatt den obegränsade vägen till nya äpplen genom avslutade repeti
 
 Återkallning av fakta har stöd i studier med barn 8–12 år ([Ritchie m.fl., 2013](https://pubmed.ncbi.nlm.nih.gov/24265738/)). Det belägger frågedelen, inte att just en jakt förbättrar motivation eller lärande. Tempo och upplevd rättvisa behöver därför följas i elevtest.
 
-## Senare idé: fiske
+## Fiske från kapitel 4
 
-Planerad, inte implementerad: köp ett fiskespö vid Kajen i ett senare kapitel, välj en fysisk fiskeplats och få en redan mött minnesfråga när det nappar. Rätt svar ger fisk; annars slipper fisken undan och spelaren får återkoppling. Belöningstak och eventuell växling till äpplen ska bestämmas innan införandet. Ingen obegränsad äppel- eller pengakälla införs, och utrustningen ska följa kapitlens introduktion.
+Infört i 2.18.0: engångsköp av spö för 10 daler, napp med känd minnesfråga och högst tre betalda fiskleveranser per kapitel. Inga äpplen delas ut av fisket. Se FISHING.md.
