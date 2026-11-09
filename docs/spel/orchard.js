@@ -16,7 +16,7 @@ if(!store||store.v!==1||!store.chapters||typeof store.chapters!=='object'||Array
 const pilot=()=>window['UPPDRAG_CH'+chapter+'_PILOT'],world=()=>typeof region==='undefined'?null:region,playerPoint=()=>typeof player==='undefined'?null:player;
 const gap=(a,b)=>a&&b?Math.hypot(a.x-b.x,a.y-b.y):Infinity;
 const clear=(r,a,b,radius=12)=>!!window.UPPDRAG_WORLD_KEYBOARD?.clearSegment?.(r,a,b,radius);
-const route=(r,a,b)=>window.UPPDRAG_EVENT_APPROACH.routeBetween(r,a,b,id=>navigationPoint(r,id),(p,q)=>clear(r,p,q));
+const route=(r,a,b,radius=12)=>window.UPPDRAG_EVENT_APPROACH.routeBetween(r,a,b,id=>navigationPoint(r,id),(p,q)=>clear(r,p,q,radius));
 const cache=new WeakMap();let matrix=null,pendingRoute=null,task=null,noticeUntil=0,lastNow=0,previousNotice='',feedback='';
 function geometry(r=world()){
  if(r?.id!=='main')return null;if(cache.has(r))return cache.get(r);
@@ -27,7 +27,7 @@ function geometry(r=world()){
   const covers=trees.filter(t=>gap(t,tree)>=120&&gap(t,tree)<=330).sort((a,b)=>gap(a,tree)-gap(b,tree));
   for(const cover of covers){
    const d=gap(cover,home),safe={x:cover.x+(cover.x-home.x)/d*58,y:cover.y+(cover.y-home.y)/d*58,radius:38};
-   if(safe.y<90||safe.y>r.h-90||gap(safe,pick)<170||gap(safe,pick)>360||!clear(r,safe,safe,24)||!route(r,pick,safe)?.length||!window.UPPDRAG_EVENT_APPROACH.blockedByCover(home,safe,[cover]))continue;
+   if(safe.y<90||safe.y>r.h-90||gap(safe,pick)<170||gap(safe,pick)>360||!clear(r,safe,safe,24)||!route(r,pick,safe,24)?.length||!window.UPPDRAG_EVENT_APPROACH.blockedByCover(home,safe,[cover]))continue;
    found={tree,pick,home,safe,cover,trees};break;
   }if(found)break;
  }
@@ -51,7 +51,7 @@ const style=document.createElement('style');style.textContent=`
 #orchardQuestion{width:min(570px,calc(100% - 24px));max-height:88dvh;overflow:auto;padding:24px;border:1px solid #967f5b;border-radius:12px;background:#fff7e9;color:#382f25;font:16px/1.5 system-ui}#orchardQuestion::backdrop{background:#28251b80}#orchardQuestion h2{font:600 27px Georgia;margin:0 0 12px}#orchardQuestion label{display:block;margin:16px 0 6px;font-weight:600}#orchardQuestion input{width:100%;box-sizing:border-box;padding:12px;font:18px system-ui;border:1px solid #9b835c;border-radius:6px}#orchardQuestion button{min-height:44px;padding:10px 15px;margin:13px 7px 0 0;background:#436b5c;color:white;border:1px solid #436b5c;border-radius:6px;font:16px system-ui;cursor:pointer}#orchardQuestion button.secondary{background:#fffaf0;color:#382f25}#orchardQuestion :focus-visible,#orchardNotice button:focus-visible{outline:3px solid #286472;outline-offset:2px}#orchardQuestion .orchard-note{font-size:14px;color:#665b49}
 `;document.head.append(style);
 const notice=document.createElement('section');notice.id='orchardNotice';notice.hidden=true;notice.setAttribute('aria-label','Äppelträdet vid herrgården');
-const title=document.createElement('strong'),copy=document.createElement('div'),action=document.createElement('button');action.type='button';title.textContent='Äppelträdet';notice.append(title,copy,action);stage.append(notice);
+const title=document.createElement('strong'),copy=document.createElement('div'),action=document.createElement('button'),hideButton=document.createElement('button');action.type=hideButton.type='button';hideButton.textContent='Sök skydd bakom trädet';hideButton.hidden=true;title.textContent='Äppelträdet';notice.append(title,copy,hideButton,action);stage.append(notice);
 const dialog=document.createElement('dialog');dialog.id='orchardQuestion';dialog.setAttribute('aria-labelledby','orchardTitle');document.body.append(dialog);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function stop(){window.UPPDRAG_WORLD_KEYBOARD?.clear();path=[];pendingRoute=null;if(typeof cancelPersonArrival==='function')cancelPersonArrival();if(typeof pendingRoom!=='undefined')pendingRoom=null;}
@@ -70,9 +70,14 @@ function travel(){
  if(model.snapshot().state.claimed){notify('Du har redan hämtat kapitelns bonusäpple. Du kan alltid öva hos Rut för ett nytt.');return false;}
  if(pilot().state.apples>0){notify('Du har redan ett äpple. Använd det innan du plockar ett nytt.');return false;}
  if(!pool().length){notify('Börja med en fråga i minnesboken. Här får du sedan repetera sådant du redan har mött.');return false;}
- const next=route(world(),playerPoint(),g.pick);if(!next?.length)return false;
+ const next=route(world(),playerPoint(),g.pick,24);if(!next?.length)return false;
  stop();if(typeof pending!=='undefined')pending=null;if(typeof returnPending!=='undefined')returnPending=false;if(typeof pendingStreetChat!=='undefined')pendingStreetChat=null;
  window['UPPDRAG_CH'+chapter+'_CITY_LIFE']?.releaseHold?.();path=next;pendingRoute=next;follow=true;setMessage('Äppelträdet vid herrgården','Du följer vägen till trädgården. Ett bonusäpple per kapitel kan bli ditt efter en jakt och en minnesfråga.');return true;
+}
+function hide(){
+ if(!outside()||otherBusy()||!['warning','chasing'].includes(model.snapshot().phase))return false;
+ const g=geometry(),next=g&&route(world(),playerPoint(),g.safe,24);if(!next?.length)return false;
+ stop();path=next;follow=true;setMessage('Skydd bakom trädet','Du springer till gömstället.');return true;
 }
 function close(){if(dialog.open)dialog.close();model.close();feedback='';document.getElementById('world')?.focus?.({preventScroll:true});}
 function openQuestion(){
@@ -92,6 +97,7 @@ dialog.addEventListener('submit',event=>{
 });
 dialog.addEventListener('click',event=>{if(event.target.closest('[data-orchard-close]'))close();});dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
 action.addEventListener('click',()=>{if(model.busy)model.cancel();else pick();});
+hideButton.addEventListener('click',hide);
 function tick(now,cfg){
  lastNow=now;const g=geometry(cfg.region);if(!g){if(model.busy)model.cancel();notice.hidden=true;return;}
  const inRoom=!!cfg.activeRoom,city=window['UPPDRAG_CH'+chapter+'_CITY_LIFE'];
@@ -108,6 +114,7 @@ function tick(now,cfg){
  notice.hidden=teacher||inRoom||dialog.open||otherBusy()||!(s.carrying||near||now<noticeUntil);
  if(!notice.hidden){copy.textContent=s.carrying?previousNotice:now<noticeUntil?previousNotice:s.state.claimed?'Du har redan fått kapitelns bonus.':pilot().state.apples?'Du har redan ett äpple.':'Plocka ett äpple, kom undan och svara på en minnesfråga. Ett bonusäpple per kapitel.';
   action.hidden=!near&&!s.carrying;action.textContent=s.carrying?'Lämna tillbaka äpplet':'Plocka ett äpple';
+  hideButton.hidden=!['warning','chasing'].includes(s.phase);
  }
 }
 function ellipse(ctx,x,y,rx,ry,color){ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
@@ -132,12 +139,14 @@ const engine=window.UPPDRAG_EVENT_ENGINE,people=engine.people;
 engine.people=function(r){const g=geometry(r),a=model.snapshot().actor;return [...people.call(this,r),...(g?[{...(a||g.home),id:'orchard-noble',radius:12,solid:!model.busy}]:[])];};
 engine.register({id:'orchard-apple',type:'sidequest',region:'main',chapters:[1,2,3,4,5],usesRetrieval:true,chapterLimit:1});
 const canvas=document.getElementById('world');let hitDown=null;
-function hit(event){if(!matrix||!outside())return false;const rect=canvas.getBoundingClientRect(),m=matrix,x=(event.clientX-rect.left)*canvas.width/rect.width,y=(event.clientY-rect.top)*canvas.height/rect.height,d=m.a*m.d-m.b*m.c;
- const p={x:(m.d*(x-m.e)-m.c*(y-m.f))/d,y:(-m.b*(x-m.e)+m.a*(y-m.f))/d};return gap(p,geometry()?.tree)<45;
+function hit(event){if(!matrix||!outside())return null;const rect=canvas.getBoundingClientRect(),m=matrix,x=(event.clientX-rect.left)*canvas.width/rect.width,y=(event.clientY-rect.top)*canvas.height/rect.height,d=m.a*m.d-m.b*m.c;
+ const p={x:(m.d*(x-m.e)-m.c*(y-m.f))/d,y:(-m.b*(x-m.e)+m.a*(y-m.f))/d},g=geometry();
+ if(['warning','chasing'].includes(model.snapshot().phase))return gap(p,g?.safe)<55||gap(p,g?.cover)<42?'hide':null;
+ return !model.busy&&gap(p,g?.tree)<45?'pick':null;
 }
-canvas.addEventListener('pointerdown',event=>{if(model.busy||otherBusy()||!hit(event))return;hitDown={x:event.clientX,y:event.clientY};event.preventDefault();event.stopImmediatePropagation();},true);
-canvas.addEventListener('pointerup',event=>{if(!hitDown)return;const from=hitDown;hitDown=null;event.preventDefault();event.stopImmediatePropagation();if(gap(from,{x:event.clientX,y:event.clientY})<10&&hit(event)){if(gap(playerPoint(),geometry().tree)<76)pick();else travel();}},true);
+canvas.addEventListener('pointerdown',event=>{const kind=hit(event);if(otherBusy()||!kind)return;hitDown={kind,x:event.clientX,y:event.clientY};event.preventDefault();event.stopImmediatePropagation();},true);
+canvas.addEventListener('pointerup',event=>{if(!hitDown)return;const from=hitDown;hitDown=null;event.preventDefault();event.stopImmediatePropagation();if(gap(from,{x:event.clientX,y:event.clientY})<10&&hit(event)===from.kind){if(from.kind==='hide')hide();else if(gap(playerPoint(),geometry().tree)<76)pick();else travel();}},true);
 Object.defineProperties(api,{busy:{get:()=>model.busy},blocking:{get:()=>dialog.open},claimed:{get:()=>model.snapshot().state.claimed},snapshot:{get:()=>model.snapshot()}});
-Object.assign(api,{geometry,travel,pick,interact:()=>outside()&&!model.busy&&gap(playerPoint(),geometry()?.tree)<76?pick():false,
+Object.assign(api,{geometry,travel,pick,hide,interact:()=>outside()&&!model.busy&&gap(playerPoint(),geometry()?.tree)<76?pick():false,
  journalHTML:()=>'<p><b>Äppelträdet vid herrgården:</b> '+(model.snapshot().state.claimed?'Kapitelns bonusäpple är redan hämtat.':!pool().length?'Börja med frågorna i minnesboken. Sedan kan du få ett bonusäpple genom en jakt och en fråga om sådant du redan har mött.':'Kom undan herrgårdens ägare och svara på en känd minnesfråga för att få ett bonusäpple. Ett per kapitel, när fickan är tom.')+'</p>'});
 })();

@@ -27,7 +27,7 @@ function create(raw={},hooks={}){
  }
  function escaped(){phase='question';unseen=0;returning();hooks.event?.('escaped');save();}
  function tick(now,p,cfg={}){
-  const dt=lastTime===null?0:Math.max(0,Math.min(.08,(now-lastTime)/1000));lastTime=now;
+  const dt=lastTime===null?0:Math.max(0,Math.min(.05,(now-lastTime)/1000));lastTime=now;
   if(!actor&&cfg.home){home=point(cfg.home);actor={...home,heading:0,moving:false};}
   if(['warning','chasing'].includes(phase)&&cfg.shelter)escaped();
   if(cfg.hidden||cfg.paused){if(actor)actor.moving=false;return snapshot();}
