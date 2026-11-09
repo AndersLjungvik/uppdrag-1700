@@ -2,6 +2,15 @@
  * loop owns movement and drawing; purchases never alter learning progress. */
 (function(){
 'use strict';
+function stallGeometry(square,merchant){
+ const dx=merchant.x-square.x,dy=merchant.y-square.y,length=Math.hypot(dx,dy)||1;
+ return {x:merchant.x+dx/length*42,y:merchant.y+dy/length*42,angle:Math.atan2(dy,dx)-Math.PI/2};
+}
+function stallHit(stall,point){
+ const dx=point.x-stall.x,dy=point.y-stall.y,c=Math.cos(stall.angle),s=Math.sin(stall.angle);
+ const x=c*dx+s*dy,y=-s*dx+c*dy;
+ return Math.abs(x)<=57&&y>=-29&&y<=25;
+}
 function source(name,text){
  const edit=(a,b)=>{if(text.split(a).length!==2)throw Error('Hatthandeln: ankaret matchar inte '+name+': '+a.slice(0,50));text=text.replace(a,b);};
  if(/^meeting-ch[1-5]-pilot\.js$/.test(name)){
@@ -20,7 +29,7 @@ function source(name,text){
  }
  return text;
 }
-const api={source};window.UPPDRAG_HAT_SHOP=api;
+const api={source,stallGeometry,stallHit};window.UPPDRAG_HAT_SHOP=api;
 if(typeof document==='undefined'||!document.getElementById('stage')||![1,2,3,4,5].includes(window.__INTEGRATED_CHAPTER))return;
 const modelAPI=window.UPPDRAG_HAT_SHOP_MODEL;if(!modelAPI)throw Error('Hatthandelns varor kunde inte laddas.');
 const KEY='uppdrag1700.wardrobe.v1',chapter=window.__INTEGRATED_CHAPTER;
@@ -37,7 +46,7 @@ function position(r=world()){
   for(const [dx,dy] of [[75,54],[-75,54],[80,-60],[-80,-60],[120,35]]){
    const p={id:'hat-merchant',name:'Hatthandlaren',x:square.x+dx,y:square.y+dy,radius:12,solid:true};
    const arrival={x:p.x,y:p.y-48};
-   if(clear(r,p,p,40)&&clear(r,arrival,arrival)&&clear(r,square,arrival)){found={...p,arrival};break;}
+   if(clear(r,p,p,40)&&clear(r,arrival,arrival)&&clear(r,square,arrival)){found={...p,arrival,stall:stallGeometry(square,p)};break;}
   }
   positions.set(r,found);
  }
@@ -144,12 +153,16 @@ function drawMapHat(ctx){
  ctx.restore();
 }
 function drawStall(ctx,p){
- if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,p.y+35,()=>drawStall(ctx,p),'hat-stall'))return;
- ctx.save();ctx.translate(p.x+35,p.y+24);
+ const stall=p.stall;
+ if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,stall.y+18,()=>drawStall(ctx,p),'hat-stall'))return;
+ ctx.save();ctx.translate(stall.x,stall.y);ctx.rotate(stall.angle);
  ellipse(ctx,0,14,57,17,'#3f362c24');ctx.fillStyle='#6e5138';ctx.fillRect(-47,-6,6,27);ctx.fillRect(40,-6,6,27);
  polygon(ctx,[[-52,-25],[48,-25],[54,-6],[-48,-6]],'#a47d51');ctx.fillStyle='#7a593c';ctx.fillRect(-48,-6,102,8);
  for(const [x,color] of [[-28,'#62764b'],[0,'#9a5145'],[28,'#393b38']]){ellipse(ctx,x,-17,11,7,color);ellipse(ctx,x,-13,14,3,color);}
- ctx.font='600 13px Georgia';ctx.textAlign='center';ctx.fillStyle='#f7ebd1';ctx.fillRect(-52,23,111,22);ctx.fillStyle='#4a3a28';ctx.fillText('Hattar & mössor',3,39);ctx.restore();
+ ctx.restore();
+ // Keep the small map label readable while the table follows the plaza edge.
+ ctx.save();ctx.translate(stall.x-Math.sin(stall.angle)*44,stall.y+Math.cos(stall.angle)*44);
+ ctx.font='600 13px Georgia';ctx.textAlign='center';ctx.fillStyle='#f7ebd1';ctx.fillRect(-55,-10,111,22);ctx.fillStyle='#4a3a28';ctx.fillText('Hattar & mössor',0,6);ctx.restore();
 }
 const life=window.UPPDRAG_WORLD_LIFE,oldTick=life.tick,oldDraw=life.draw;
 life.tick=function(now,config){
@@ -177,7 +190,7 @@ function pointer(event){
  if(!matrix)return null;const rect=canvas.getBoundingClientRect(),m=matrix,x=(event.clientX-rect.left)*canvas.width/rect.width,y=(event.clientY-rect.top)*canvas.height/rect.height,den=m.a*m.d-m.b*m.c;
  return {x:(m.d*(x-m.e)-m.c*(y-m.f))/den,y:(-m.b*(x-m.e)+m.a*(y-m.f))/den};
 }
-function hit(event){const p=pointer(event),s=position();return outside()&&p&&s&&(distance(p,s)<28||Math.abs(p.x-s.x-35)<55&&Math.abs(p.y-s.y-24)<35);}
+function hit(event){const p=pointer(event),s=position();return outside()&&p&&s&&(distance(p,s)<28||stallHit(s.stall,p));}
 canvas.addEventListener('pointerdown',event=>{if(view!=='closed'||occupied()||!hit(event))return;hitDown={x:event.clientX,y:event.clientY};event.preventDefault();event.stopImmediatePropagation();},true);
 canvas.addEventListener('pointerup',event=>{if(!hitDown)return;const from=hitDown;hitDown=null;event.preventDefault();event.stopImmediatePropagation();if(Math.hypot(event.clientX-from.x,event.clientY-from.y)<10&&hit(event))travel();},true);
 canvas.addEventListener('pointercancel',()=>hitDown=null,true);
