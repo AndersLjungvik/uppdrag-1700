@@ -41,7 +41,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const say=text=>{lastHint=text;};
 function stop(){window.UPPDRAG_WORLD_KEYBOARD?.clear();if(typeof path!=='undefined')path=[];}
 function focusScene(){document.getElementById('interiorCanvas')?.focus?.({preventScroll:true});}
-function close(){if(dialog.open)dialog.close();view='';model.close();focusScene();}
+function close(){if(['waiting','question'].includes(model.snapshot().phase))say('Du släppte tillbaka fisken. Mellanslag: kasta ut igen.');if(dialog.open)dialog.close();view='';model.close();focusScene();}
 function show(html,mode){stop();view=mode;dialog.innerHTML=html;dialog.showModal();dialog.querySelector('input,button:not([disabled])')?.focus({preventScroll:true});}
 function shop(){
  if(!atQuay()||occupied()||dialog.open)return false;
@@ -65,7 +65,7 @@ function question(){
 function deliver(){
  if(!atKitchen()||occupied()||dialog.open)return false;const result=model.deliver(chapter);
  if(!result.ok){say(result.reason==='limit'?'Kökets tre fiskar är redan levererade i det här kapitlet.':'Fånga en fisk vid Kajen först.');return false;}
- const n=result.amount,speech='Tack! '+(n===1?'Fisken kommer':'Fiskarna kommer')+' till användning i köket. Här får du '+n+' daler.';
+ const n=result.amount,speech='Tack! '+(n===1?'Fisken kommer':'Fiskarna kommer')+' till användning i köket. Här får du '+(n===1?'en daler':n+' daler')+'.';
  const engine=window.UPPDRAG_EVENT_ENGINE;
  engine.speakRoom?.({room:'barnhus',title:'Fisk till köket',lines:[[chapter===4?'Cajsa Warg':'Siri',speech]],choices:[],pose(who,geo){return chapter===4&&geo.visitorPose?geo.visitorPose:geo.poses[1];}});
  say('Du lämnade '+n+' fisk'+(n===1?'':'ar')+' och fick '+n+' daler.');return true;
@@ -91,6 +91,7 @@ dialog.addEventListener('submit',event=>{
  event.preventDefault();if(view!=='question'||model.snapshot().phase!=='question'||!task)return;
  const answer=dialog.querySelector('input').value.trim();if(!answer)return;const field={...task.fields[0]};delete field.options;
  const verdict=window.UPPDRAG_PROMPT_ALIGNMENT.shortCheck(field,answer,window.UPPDRAG_RECALL_ENGINE.checkField),result=model.submit(verdict==='correct',answer),s=model.snapshot().state;
+ say(result.reason==='caught'?'Du har '+s.fish.length+' fisk'+(s.fish.length===1?'':'ar')+' i korgen. Lämna fångsten i Barnhusets kök, eller fiska igen med mellanslag.':result.reason==='released'?'Kökets beställning är klar. Du kan fortsätta fiska för att öva.':'Fisken slapp undan. Öva frågan hos Rut eller pröva ett nytt napp.');
  const text=result.reason==='caught'?'Rätt! Du fick upp fisken. Du har '+s.fish.length+' fisk'+(s.fish.length===1?'':'ar')+' i korgen. Lämna fångsten till '+receiver+' i Barnhusets kök.':result.reason==='released'?'Rätt! Kökets beställning är redan klar i det här kapitlet, så du släpper tillbaka fisken. Du har ändå tränat ditt minne.':(verdict==='review'?'Svaret kändes inte igen.':'Inte riktigt.')+' Fisken slapp undan. Ett exempel på rätt svar är <strong>'+esc(field.sample||field.answers[0])+'</strong>. Frågan finns att öva på hos Rut.';
  view='feedback';dialog.innerHTML='<h2 id="fishingTitle">'+(result.reason==='caught'?'En fisk!':result.reason==='released'?'Bra minne!':'Fisken slapp undan')+'</h2><p>'+text+'</p><small>Högst tre betalda fiskar per kapitel. Spöet behåller du.</small><button type="button" data-fishing="close">Till kajen</button>';dialog.querySelector('button')?.focus({preventScroll:true});
 });
@@ -136,5 +137,5 @@ const life=window.UPPDRAG_WORLD_LIFE,oldTick=life.tick;life.tick=function(t,cfg)
 window.UPPDRAG_EVENT_ENGINE?.register({id:'quay-fishing',type:'sidequest',region:'main',chapters:[4,5],usesRetrieval:true});
 Object.defineProperties(api,{busy:{get:()=>dialog.open||model.snapshot().phase==='waiting'},blocking:{get:()=>dialog.open},testProtection:{get:()=>!!window.__UPPDRAG_FISHING_TEST&&!model.snapshot().state.rod},snapshot:{get:()=>model.snapshot()},fishCount:{get:()=>model.snapshot().state.fish.length}});
 Object.assign(api,{shop,cast,deliver,travel:()=>travel(),travelKitchen:()=>travel(true),interact:()=>atQuay()&&!occupied()&&!dialog.open?cast():false,
- journalHTML:()=>{const s=model.snapshot().state;return '<p><b>Fisket vid Kajen:</b> '+(s.rod?'Spöet är ditt. '+s.fish.length+' fiskar i korgen. Köket har köpt '+s.chapters[chapter].delivered+' av 3 fiskar i kapitlet.':'Jo säljer ett spö för 10 daler. Rätt minnessvar vid napp ger fisk. Köket betalar en daler per fisk, högst tre per kapitel.')+'</p>';}});
+ journalHTML:()=>{const s=model.snapshot().state;return '<p><b>Fisket vid Kajen:</b> '+(s.rod?'Spöet är ditt. '+s.fish.length+' fisk'+(s.fish.length===1?'':'ar')+' i korgen. Köket har köpt '+s.chapters[chapter].delivered+' av 3 fiskar i kapitlet.':'Jo säljer ett spö för 10 daler. Rätt minnessvar vid napp ger fisk. Köket betalar en daler per fisk, högst tre per kapitel.')+'</p>';}});
 })();

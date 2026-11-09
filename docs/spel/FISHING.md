@@ -1,4 +1,4 @@
-# Fisket vid Kajen · 2.18.1
+# Fisket vid Kajen · 2.18.2
 
 Frivillig ny aktivitet från kapitel 4, spelbar i de färdiga kapitelpiloterna 4–5. Jo säljer ett spö i Kajens befintliga målade närbild för **10 daler**. Spöet är ett engångsköp som behålls över kapitel i samma spelomgång och ingår i sparfiler. Det stjäls inte av riskhändelserna. Ägda hattar, äpplen och kunskapsresultat berörs inte.
 
@@ -14,7 +14,7 @@ När beställningen är fylld kan spelaren fortsätta fiska för repetition och 
 
 ## Separat fisketest
 
-`?chapter=4&testChapter=4&replay=fisketest-2180&fiske=test&v=2.18.1` öppnar ett separat kapitelprov. En tydlig introduktion erbjuder **12 testdaler en gång** efter Starta fisketestet. Tre tidigare bokminnen visas först och begränsar testets nappfrågor. Spelaren går den riktiga vägen till Kajen. I just detta separata test väntar ficktjuven tills spöet är köpt, så att testbudgeten räcker till det avsedda köpet. Inga gamla stämplar, huvudprovsvar eller klarflaggor skapas. Vanliga omgångar och klasslänkar kan inte få testpengar genom fiske-parametern: en särskild fyrans-replay utan elevbegränsning krävs.
+`?chapter=4&testChapter=4&replay=fisketest-2180&fiske=test&v=2.18.2` öppnar ett separat kapitelprov. En tydlig introduktion erbjuder **12 testdaler en gång** efter Starta fisketestet. Tre tidigare bokminnen visas först och begränsar testets nappfrågor. Spelaren går den riktiga vägen till Kajen. I just detta separata test väntar ficktjuven tills spöet är köpt, så att testbudgeten räcker till det avsedda köpet. Inga gamla stämplar, huvudprovsvar eller klarflaggor skapas. Vanliga omgångar och klasslänkar kan inte få testpengar genom fiske-parametern: en särskild fyrans-replay utan elevbegränsning krävs.
 
 De befintliga 6A- och 6B-länkarna behåller kapitel 1–2 och visar inget fiske eller spö. Hatthandeln börjar fortsatt i trean. Fisketestet delar inte deras sparning.
 
