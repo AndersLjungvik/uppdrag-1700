@@ -1,4 +1,4 @@
-# Händelsesystem för Uppdrag 1700 · 2.17.0
+# Händelsesystem för Uppdrag 1700 · 2.17.1
 
 ## Ficktjuven och barnet · 2.16.3
 
@@ -10,7 +10,7 @@ Barnet återbetalar inte längre förlorade pengar. Pengarna återfås genom att
 
 Hunden tillkommer i kapitel 3. Den vaktande tjuven tillkommer i kapitel 4, och därefter kan båda förekomma i fyran och femman. Kapitel 1–2 behåller den befintliga ficktjuven utan nya äppelhot. En hund får vittring på det burna äpplet och följer efter. En annan tjuv går fram från ett verkligt träd till en passage och bevakar den; han följer bara en kort sträcka runt sin plats. I fyrans första nya möte introduceras vakten före den redan bekanta hunden. Från kapitel 4 växlar de mellan möten. Hundens varning varar tre sekunder, vaktens två. Båda har en liten pappersmarkering med utropstecken, och hunden har en röd halsduk. Skydd i hus eller samtal, bruten sikt bakom ett träd och att hålla avstånd kan avvärja dem. De använder samma vägkontroll, målade hund/personer och markdjup som staden, utan att flytta kameran eller öppna en frågedialog på gatan.
 
-Båda tar **ett faktiskt äpple** vid kontakt. Det finns ingen återbetalning från jakten, barnet eller en självrapport. Ett nytt tjänas normalt genom den befintliga, fullständiga repetitionsomgången hos Rut i Arkivet. Från 2.17.0 finns också ett bonusäpple per kapitel vid Herrgården, efter fysisk flykt och korrekt återkallning; se ORCHARD.md. Att öppna Rut, avbryta eller svara fel ger inget nytt äpple. Frågor och bedömning hos Rut är oförändrade och använder det redan tillgängliga repetitionsunderlaget. Daler, klarade frågor, stämplar och berättelseföremål ändras inte av dessa två risker. Den tidigare ficktjuvens penningjakt är kvar separat.
+Båda tar **ett faktiskt äpple** vid kontakt. Det finns ingen återbetalning från jakten, barnet eller en självrapport. Ett nytt tjänas normalt genom den befintliga, fullständiga repetitionsomgången hos Rut i Arkivet. Från 2.17.1 finns också ett bonusäpple per kapitel vid Herrgården, efter fysisk flykt och korrekt återkallning; se ORCHARD.md. Att öppna Rut, avbryta eller svara fel ger inget nytt äpple. Frågor och bedömning hos Rut är oförändrade och använder det redan tillgängliga repetitionsunderlaget. Daler, klarade frågor, stämplar och berättelseföremål ändras inte av dessa två risker. Den tidigare ficktjuvens penningjakt är kvar separat.
 
 Efter förlust väntar nya äppelhot tills en ny Rut-omgång verkligen har gett ett äpple, eller kapitelns ännu inte hämtade Herrgårdsbonus tjänas efter minnesfrågan. Ett ännu inte ordentligt visat hot kan därefter introduceras efter 240 kartenheters gång, utan extra väntetid. Ett redan visat hot får en lugn period på 15 aktiva sekunder och 450 kartenheter. Att kort kika fram innan spelaren går in räknas inte som en färdig introduktion. Äldre väntetider kortas när en sparning öppnas; verkliga förluster, behovet av repetition, turordning och historik behålls.
 

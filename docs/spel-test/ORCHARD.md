@@ -1,4 +1,4 @@
-# Äppelträdet vid herrgården · 2.17.0
+# Äppelträdet vid herrgården · 2.17.1
 
 Ett frivilligt sidoäventyr i kapitel 1–5. Spelaren går till ett äppelträd vid Herrgården och plockar när äppelfickan är tom. Herrgårdens ägare reagerar och följer efter. Han håller ett spö, men inga slag utdelas. Upphunnen spelare lämnar tillbaka det plockade äpplet; pengar, ordinarie äpplen, kunskapssvar och stämplar påverkas inte.
 
