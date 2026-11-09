@@ -4,12 +4,12 @@
 'use strict';
 function stallGeometry(square,merchant){
  const dx=merchant.x-square.x,dy=merchant.y-square.y,length=Math.hypot(dx,dy)||1;
- return {x:merchant.x+dx/length*42,y:merchant.y+dy/length*42,angle:Math.atan2(dy,dx)-Math.PI/2};
+ return {x:merchant.x-dx/length*36,y:merchant.y-dy/length*36,angle:Math.atan2(dy,dx)+Math.PI/2};
 }
 function stallHit(stall,point){
  const dx=point.x-stall.x,dy=point.y-stall.y,c=Math.cos(stall.angle),s=Math.sin(stall.angle);
  const x=c*dx+s*dy,y=-s*dx+c*dy;
- return Math.abs(x)<=57&&y>=-29&&y<=25;
+ return Math.abs(x)<=43&&Math.abs(y)<=22;
 }
 function source(name,text){
  const edit=(a,b)=>{if(text.split(a).length!==2)throw Error('Hatthandeln: ankaret matchar inte '+name+': '+a.slice(0,50));text=text.replace(a,b);};
@@ -30,7 +30,7 @@ function source(name,text){
  return text;
 }
 const api={source,stallGeometry,stallHit};window.UPPDRAG_HAT_SHOP=api;
-if(typeof document==='undefined'||!document.getElementById('stage')||![1,2,3,4,5].includes(window.__INTEGRATED_CHAPTER))return;
+if(typeof document==='undefined'||!document.getElementById('stage')||![3,4,5].includes(window.__INTEGRATED_CHAPTER))return;
 const modelAPI=window.UPPDRAG_HAT_SHOP_MODEL;if(!modelAPI)throw Error('Hatthandelns varor kunde inte laddas.');
 const KEY='uppdrag1700.wardrobe.v1',chapter=window.__INTEGRATED_CHAPTER;
 const pilot=()=>window['UPPDRAG_CH'+chapter+'_PILOT'];
@@ -43,10 +43,11 @@ function position(r=world()){
  if(r?.id!=='main')return null;
  if(!positions.has(r)){
   const square=navigationPoint(r,'square');let found=null;
-  for(const [dx,dy] of [[75,54],[-75,54],[80,-60],[-80,-60],[120,35]]){
+  for(const [dx,dy] of [[-96,-165],[-142,-130],[-155,105],[150,117],[172,-80]]){
    const p={id:'hat-merchant',name:'Hatthandlaren',x:square.x+dx,y:square.y+dy,radius:12,solid:true};
-   const arrival={x:p.x,y:p.y-48};
-   if(clear(r,p,p,40)&&clear(r,arrival,arrival)&&clear(r,square,arrival)){found={...p,arrival,stall:stallGeometry(square,p)};break;}
+   const length=Math.hypot(dx,dy),arrival={x:p.x-dx/length*72,y:p.y-dy/length*72},stall=stallGeometry(square,p);
+   const corners=[[-38,-16],[38,-16],[38,16],[-38,16]].map(([x,y])=>({x:stall.x+Math.cos(stall.angle)*x-Math.sin(stall.angle)*y,y:stall.y+Math.sin(stall.angle)*x+Math.cos(stall.angle)*y}));
+   if(clear(r,p,p,40)&&clear(r,arrival,arrival)&&clear(r,square,arrival)&&corners.every(c=>clear(r,c,c,10))){found={...p,arrival,stall};break;}
   }
   positions.set(r,found);
  }
@@ -154,15 +155,28 @@ function drawMapHat(ctx){
 }
 function drawStall(ctx,p){
  const stall=p.stall;
- if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,stall.y+18,()=>drawStall(ctx,p),'hat-stall'))return;
+ if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,stall.y,()=>drawStall(ctx,p),'hat-stall'))return;
  ctx.save();ctx.translate(stall.x,stall.y);ctx.rotate(stall.angle);
- ellipse(ctx,0,14,57,17,'#3f362c24');ctx.fillStyle='#6e5138';ctx.fillRect(-47,-6,6,27);ctx.fillRect(40,-6,6,27);
- polygon(ctx,[[-52,-25],[48,-25],[54,-6],[-48,-6]],'#a47d51');ctx.fillStyle='#7a593c';ctx.fillRect(-48,-6,102,8);
- for(const [x,color] of [[-28,'#62764b'],[0,'#9a5145'],[28,'#393b38']]){ellipse(ctx,x,-17,11,7,color);ellipse(ctx,x,-13,14,3,color);}
+ // Orthographic paper tabletop: a small footprint, planks and hats seen above.
+ polygon(ctx,[[-37,-13],[39,-12],[40,18],[-36,19]],'#49392320');
+ polygon(ctx,[[-38,-16],[36,-15],[38,15],[-37,16]],'#a88760');
+ ctx.strokeStyle='#6b523c';ctx.lineWidth=1;ctx.stroke();
+ ctx.strokeStyle='#72583d66';ctx.lineWidth=.7;ctx.beginPath();
+ for(const y of [-5,5]){ctx.moveTo(-36,y);ctx.lineTo(36,y+.5);}ctx.stroke();
+ ctx.strokeStyle='#f5e2bb55';ctx.beginPath();
+ for(let i=0;i<11;i++){const x=-33+(i*19)%59,y=-12+(i*7)%25;ctx.moveTo(x,y);ctx.lineTo(x+5+i%5,y+.3);}ctx.stroke();
+ for(const [x,color] of [[-24,'#62764b'],[0,'#9a5145']]){
+  ellipse(ctx,x+.7,1.2,9,8.5,'#49392322');ellipse(ctx,x,0,8.5,8,color);
+  ctx.strokeStyle='#f6edd344';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x,-6);ctx.quadraticCurveTo(x+2,0,x,6);ctx.stroke();
+ }
+ ellipse(ctx,24.7,1.2,10,9,'#49392322');
+ polygon(ctx,[[15,-9],[34,0],[15,9]],'#393b38');ellipse(ctx,22,0,5,5,'#494b43');
+ ctx.strokeStyle='#b99d63';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(16,-7);ctx.lineTo(31,0);ctx.lineTo(16,7);ctx.stroke();
  ctx.restore();
- // Keep the small map label readable while the table follows the plaza edge.
- ctx.save();ctx.translate(stall.x-Math.sin(stall.angle)*44,stall.y+Math.cos(stall.angle)*44);
- ctx.font='600 13px Georgia';ctx.textAlign='center';ctx.fillStyle='#f7ebd1';ctx.fillRect(-55,-10,111,22);ctx.fillStyle='#4a3a28';ctx.fillText('Hattar & mössor',0,6);ctx.restore();
+ // A compact caption beside one end leaves both sides free for people.
+ ctx.save();ctx.translate(stall.x-Math.cos(stall.angle)*62,stall.y-Math.sin(stall.angle)*62);
+ polygon(ctx,[[-25,-9],[24,-8],[25,9],[-24,9]],'#f7ebd1');
+ ctx.font='600 12px Georgia';ctx.textAlign='center';ctx.fillStyle='#4a3a28';ctx.fillText('Hattar',0,4);ctx.restore();
 }
 const life=window.UPPDRAG_WORLD_LIFE,oldTick=life.tick,oldDraw=life.draw;
 life.tick=function(now,config){
@@ -177,14 +191,14 @@ life.tick=function(now,config){
 life.draw=function(ctx,config){
  const ret=oldDraw.apply(this,arguments),p=position(config?.region);if(!p)return ret;
  matrix=ctx.getTransform();drawStall(ctx,p);
- const facing=api.talking?Math.atan2(point().y-p.y,point().x-p.x):-Math.PI/2;
+ const facing=api.talking?Math.atan2(point().y-p.y,point().x-p.x):Math.atan2(p.arrival.y-p.y,p.arrival.x-p.x);
  window.UPPDRAG_MEETINGS.drawMapPerson(ctx,{...p,heading:facing,moving:false},{id:p.id,name:p.name,color:'#86654e',woman:false},config.now);
  return ret;
 };
 const engine=window.UPPDRAG_EVENT_ENGINE,people=engine.people,conversation=Object.getOwnPropertyDescriptor(engine,'conversation');
 engine.people=function(r){return [...people.call(this,r),...(position(r)?[position(r)]:[])];};
 Object.defineProperty(engine,'conversation',{configurable:true,get:()=>api.talking?position():conversation?.get?.call(engine)});
-engine.register({id:'hat-merchant',type:'shop',region:'main',chapters:[1,2,3,4,5],cosmetic:true});
+engine.register({id:'hat-merchant',type:'shop',region:'main',chapters:[3,4,5],cosmetic:true});
 const canvas=document.getElementById('world');let hitDown=null;
 function pointer(event){
  if(!matrix)return null;const rect=canvas.getBoundingClientRect(),m=matrix,x=(event.clientX-rect.left)*canvas.width/rect.width,y=(event.clientY-rect.top)*canvas.height/rect.height,den=m.a*m.d-m.b*m.c;

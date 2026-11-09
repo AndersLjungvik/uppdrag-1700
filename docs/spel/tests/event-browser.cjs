@@ -93,18 +93,18 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   const bounds=await f.locator('#adventureDialog').boundingBox();assert(bounds.x>=0&&bounds.x+bounds.width<=391);
   const replyBounds=await f.locator('#adventureReplies').boundingBox();assert(replyBounds.x>=0&&replyBounds.x+replyBounds.width<=391);assert(replyBounds.y>=bounds.y+bounds.height+8,'the child bubble and player replies remain separate on mobile');
   assert.equal(await f.locator('#adventureDialog [data-adventure]').count(),0);
-  assert.match(await f.locator('#adventureReplies').innerText(),/Ja, tack! Var hittade du den/);
+  assert.match(await f.locator('#adventureReplies').innerText(),/En tjuv tog mina pengar/);
   await f.locator('[data-adventure="kind"]').click();
   assert.equal(await f.locator('#adventureReplies').isVisible(),false,'replies disappear when the child answers');
   assert.equal(await f.locator('[data-adventure="next"]').count(),0);
-  await f.locator('.ad-utterance').click();await f.locator('#adventureDialog').press('Enter');assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money);
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.witness),'recovered');
+  await f.locator('.ad-utterance').click();assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-Math.ceil(money/2));
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.witness),'heard');
   assert.doesNotMatch(await f.locator('#adventureDialog').innerText(),/kunskapsstämplar|mer straff/);
   await p.reload();f=await(await p.waitForSelector('#game',{timeout:30000})).contentFrame();await f.waitForSelector('#ch1Hud');
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.witness),'recovered');
+  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.witness),'heard');
   // The actual world animation and the chase button move the player to the thief.
   await p.setViewportSize({width:1200,height:850});
-  await f.evaluate(()=>{UPPDRAG_CH1_PILOT.close();UPPDRAG_MEETINGS.close(false);interior=null;path=[];player={x:1350,y:713};camera={...player};UPPDRAG_WORLD_LIFE.tick(performance.now(),{region,player,activeRoom:null});UPPDRAG_EVENT_ENGINE.resetChapterEvents();UPPDRAG_EVENT_ENGINE.openThief();});
+  await f.evaluate(money=>{UPPDRAG_CH1_PILOT.close();UPPDRAG_MEETINGS.close(false);UPPDRAG_CH1_PILOT.state.daler=money;UPPDRAG_CH1_PILOT.persist();interior=null;path=[];player={x:1350,y:713};camera={...player};UPPDRAG_WORLD_LIFE.tick(performance.now(),{region,player,activeRoom:null});UPPDRAG_EVENT_ENGINE.resetChapterEvents();UPPDRAG_EVENT_ENGINE.openThief();},money);
   assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.thief),'chasing');
   assert.equal(await f.evaluate(()=>UPPDRAG_CH1_PILOT.state.daler),money-Math.ceil(money/2));
   await f.locator('#adventureChase').click();
@@ -154,6 +154,6 @@ const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?process.
   assert.equal(await f.locator('#adventureTail').isVisible(),false);
   assert.equal(await f.locator('#adventureCalloutTail').isVisible(),false);
   assert.equal(await p.locator('#error').innerText(),'');assert.deepEqual(errors,[]);
-  console.log('PASS browser: natural thief approach, pause, player cry, escape, real pursuit plus memory question, expiring bubbles and on-site wagon/smith quest, wagon, smith, witness recovery, shared speech style, mobile and reload');
+  console.log('PASS browser: natural thief approach, pause, player cry, escape, real pursuit plus memory question, expiring bubbles and on-site wagon/smith quest, wagon, smith, witness conversation without refund, shared speech style, mobile and reload');
  }catch(e){console.error('parent',await p.locator('#error').textContent().catch(()=>''));console.error(await f?.evaluate(()=>({dialog:document.querySelector('#adventureDialog').outerHTML,tailHidden:document.querySelector('#adventureTail').hasAttribute('hidden'),focus:document.activeElement?.id,state:UPPDRAG_EVENT_ENGINE.state,player,path})));throw e;}finally{await b.close();server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
