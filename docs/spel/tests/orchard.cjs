@@ -28,6 +28,16 @@ function escape(h){assert(h.model.begin(start,home,'known-task'));for(let i=0;i<
 }
 console.log('PASS orchard state: warning, physical capture, cover/house escape, required answer, wrong-answer practice/cooldown, single reward, full inventory and interrupted/reloaded saves');
 {
+ const h=model(),patrol=[{x:100,y:160},{x:260,y:160},home];
+ for(let i=0;i<70;i++)h.tick({x:500,y:500},{patrol});
+ const before=h.model.snapshot().actor;assert(Math.hypot(before.x-home.x,before.y-home.y)>35,'owner visibly patrols before any theft');
+ assert.equal(h.model.snapshot().phase,'idle');assert.equal(h.awards,0);
+ for(let i=0;i<20;i++)h.tick({x:500,y:500},{patrol,paused:true});assert.deepEqual(copy(h.model.snapshot().actor),{...copy(before),moving:false},'reading pauses patrol');
+ assert(h.model.begin(start,home,'known-task'));assert.deepEqual({x:h.model.snapshot().actor.x,y:h.model.snapshot().actor.y},{x:before.x,y:before.y},'pursuit starts at the patrol position, without teleporting');
+ for(let i=0;i<15;i++)h.tick({x:30,y:100});assert.equal(h.model.snapshot().phase,'chasing','theft triggers a short warning then pursuit');
+ console.log('PASS estate patrol: visible idle movement, reading pause and pursuit from the actual current position');
+}
+{
  vm.runInContext(read('apple-threats-model.js'),c);const events=[];
  const threats=c.window.UPPDRAG_APPLE_THREAT_MODEL.create({needsRut:true,nextKind:'dog'},{event:(kind,outcome)=>events.push([kind,outcome])});
  const cfg={region:'main',paused:true,apples:0,known:true,bonusClaimed:false};threats.tick(100,start,cfg);assert(threats.snapshot().state.needsRut);
@@ -41,7 +51,7 @@ console.log('PASS orchard state: warning, physical capture, cover/house escape, 
 const {fixture:worldFixture}=require('./apple-threats-world.cjs'),{fixture:pilotFixture}=require('./mastery-apple-retry.cjs');
 class Element{
  constructor(tag='div'){this.tag=tag;this.children=[];this.events={};this.dataset={};this.hidden=true;this.open=false;this.innerHTML='';this.input={value:'',focus(){}};this.button={focus(){}};}
- append(...x){this.children.push(...x);}setAttribute(){}addEventListener(n,f){(this.events[n]??=[]).push(f);}focus(){}
+ append(...x){this.children.push(...x);}setAttribute(){}addEventListener(n,f){(this.events[n]??=[]).push(f);}focus(){}closest(){return null;}
  querySelector(q){return q==='input'?this.input:q==='button'?this.button:null;}showModal(){this.open=true;}close(){this.open=false;}
  getBoundingClientRect(){return {left:0,top:0,width:1200,height:850};}
 }
@@ -55,19 +65,33 @@ for(const [chapter,mode] of [[1,'wrong'],...[1,2,3,4,5].map(ch=>[ch,'right'])]){
  assert(known);real.p.state.encountered.push(known.id);assert(real.p.repetitionTaskIds.includes(known.id));
  vm.runInContext(read('orchard-model.js'),c);vm.runInContext(read('orchard.js'),c);const api=c.UPPDRAG_ORCHARD,g=api.geometry(),dialog=elements.find(e=>e.tag==='dialog');
  assert(g,'real town has an orchard and hiding place');assert(c.UPPDRAG_WORLD_KEYBOARD.clearSegment(c.region,g.pick,g.pick,24));assert(c.UPPDRAG_WORLD_KEYBOARD.clearSegment(c.region,g.safe,g.safe,24));
+ assert(g.tree.y+48<439,'entire apple tree stands north of the real pasture fence');
+ assert(g.patrol.every(p=>p.y+18<439),'patrol stays outside the animal pasture');
+ assert(!elements.filter(e=>e.tag==='section').some(e=>e.children.some(child=>child.tag==='button')),'no choice buttons for picking or running away');
  assert(c.UPPDRAG_EVENT_APPROACH.blockedByCover(g.home,g.safe,[g.cover]),'actual existing tree blocks sight');
  const clear=(a,b)=>c.UPPDRAG_WORLD_KEYBOARD.clearSegment(c.region,a,b,12),route=c.UPPDRAG_EVENT_APPROACH.routeBetween(c.region,g.pick,g.safe,id=>c.testNavigation(c.region,id),clear);assert(route?.length);
  assert.equal(api.pick(),false,'cannot pick remotely');c.player={...g.pick};
+ const patrolFrames=mode==='wrong'?72:chapter*16;
+ for(let i=0;i<patrolFrames;i++)c.UPPDRAG_WORLD_LIFE.tick(10000+i*80,{region:c.region,player:c.player,activeRoom:null});
+ const patrolPosition=api.snapshot.actor;assert.equal(api.snapshot.phase,'idle','patrolling alone never starts a chase');assert(Math.hypot(patrolPosition.x-g.home.x,patrolPosition.y-g.home.y)>30);
+ const keys={};c.addEventListener=(type,fn)=>(keys[type]??=[]).push(fn);c.canvas=canvas;c.pending=null;c.pendingRoom=null;c.returnPending=false;c.drag=null;c.cancelPersonArrival=()=>{};c.getComputedStyle=()=>({display:'block',visibility:'visible'});doc.activeElement=canvas;canvas.hidden=false;
+ vm.runInContext(api.source('world-keyboard.js',read('_decoded/world-keyboard.js')),c);
+ const key=(type,value,repeat=false)=>{const event={key:value,code:value===' '?'Space':value,target:canvas,repeat,preventDefault(){this.defaultPrevented=true;},stopImmediatePropagation(){}};for(const fn of keys[type]||[])fn(event);};
  const kept=copy({daler:real.p.state.daler,record:real.p.state.record,earned:real.p.state.earned,review:real.p.state.reviewQueue});
- assert.equal(api.pick(),true);assert.equal(api.snapshot.phase,'warning');assert.equal(real.p.state.apples,0);
+ key('keydown','ArrowLeft');key('keydown',' ');assert.equal(api.snapshot.phase,'warning');assert.equal(real.p.state.apples,0);
+ assert.deepEqual({x:api.snapshot.actor.x,y:api.snapshot.actor.y},{x:patrolPosition.x,y:patrolPosition.y},'Space starts pursuit from the visible patrol position');
+ key('keydown',' ',true);assert.equal(api.snapshot.state.attempts,1,'holding Space cannot pick repeatedly');
+ assert(c.UPPDRAG_WORLD_KEYBOARD.state.held.includes('ArrowLeft'),'Space picks while the running arrow stays held');
+ const beforeRun=c.player.x;c.UPPDRAG_WORLD_KEYBOARD.tick(.05);assert(c.player.x<beforeRun,'player continues running immediately after picking');
+ key('keyup',' ');key('keyup','ArrowLeft');
  assert.equal(api.hide(),true,'a click/touch action starts a real route to the safe tree');assert(c.path.length>0);assert.equal(api.snapshot.phase,'warning','hiding is walking, not an instant escape');
- let now=20000,prev=api.snapshot.actor;const walk=route.map(p=>({...p}));
+ let now=20000,prev=api.snapshot.actor;const walk=c.path.map(p=>({...p}));
  for(let i=0;i<180&&api.snapshot.phase!=='question';i++){
   if(walk.length){const p=walk[0],d=Math.hypot(p.x-c.player.x,p.y-c.player.y),n=Math.min(d,9);if(d){c.player.x+=(p.x-c.player.x)*n/d;c.player.y+=(p.y-c.player.y)*n/d;}if(d<=9)walk.shift();}
   now+=80;c.UPPDRAG_WORLD_LIFE.tick(now,{region:c.region,player:c.player,activeRoom:null});
   const a=api.snapshot.actor;if(a&&prev)assert(Math.hypot(a.x-prev.x,a.y-prev.y)<=8.21,'noble uses the same frame cap as the player and cannot gain speed on a slow screen');prev=a;
  }
- assert.equal(api.snapshot.phase,'question','actual cover and real paths permit escape');assert(dialog.open);assert.equal(real.p.state.apples,0);
+ assert.equal(api.snapshot.phase,'question','actual cover and real paths permit escape: '+JSON.stringify({tree:g.tree,pick:g.pick,home:g.home,safe:g.safe,player:c.player,state:api.snapshot}));assert(dialog.open);assert.equal(real.p.state.apples,0);
  const selected=c.UPPDRAG_RECALL_BANK.find(t=>t.id===api.snapshot.taskId);assert(real.p.repetitionTaskIds.includes(selected.id));assert(selected.chapter<=chapter);
  if(mode==='wrong'){
   const higher=c.UPPDRAG_RECALL_BANK.find(t=>t.chapter===selected.chapter&&t.topic===selected.topic&&t.rank===2);assert(higher);

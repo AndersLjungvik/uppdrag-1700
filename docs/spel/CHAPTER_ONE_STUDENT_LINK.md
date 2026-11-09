@@ -1,4 +1,4 @@
-# Elevlänkar · kapitel 1–2 · 2.17.1
+# Elevlänkar · kapitel 1–2 · 2.17.2
 
 ## Klassernas delade länkar · bekräftade 2026-11-09
 
@@ -64,6 +64,11 @@ Hatthandeln introduceras först i kapitel 3, när Hattarna och Mössorna ingår 
 
 Barnets samtal återbetalar inte längre stulna daler (2.16.3). Pengarna återfås efter lyckad jakt och rätt svar på tjuvens minnesfråga. En tjuv som kommer undan behåller summan. Äldre sparningar och tidigare faktiska återbetalningar bevaras.
 
-## Bonusäpplet vid Herrgården · 2.17.1
+## Bonusäpplet vid Herrgården · 2.17.2
 
 Båda klassernas befintliga länkar får ett frivilligt äppeläventyr. Tom ficka, fysisk plockning, flykt från herrgårdens ägare och rätt svar på en redan mött minnesfråga krävs. Ett bonusäpple per kapitel och omgång; högst ett i fickan. Ett felaktigt svar går vidare till övning hos Rut. Rut kan fortfarande ge fler genom hela repetitionsomgångar. Kapitlen 3–10 och hatthandeln är fortsatt stängda i klasslänkarna. Se ORCHARD.md.
+
+
+### Direkt plockning och patrullerande ägare · 2.17.2
+
+Äppelträdet är flyttat helt utanför djurhagen till gräset norr om herrgårdsvägen. Ägaren går en patrullrunda före plockningen. Mellanslag nära trädet tar äpplet direkt, även under pågående gång, utan valmenyer. Jakten börjar efter ett kort rop från ägarens faktiska plats. Spelaren springer själv med piltangenterna eller klickar en plats i världen. Gömställe, minnesfråga, tom ficka och sparat tak på ett bonusäpple per kapitel behålls. Båda klasslänkarna använder samma ändring.
