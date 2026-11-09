@@ -1,4 +1,4 @@
-# Elevlänkar · kapitel 1–2 · 2.15.0
+# Elevlänkar · kapitel 1–2 · 2.16.0
 
 ## Klassernas delade länkar · bekräftade 2026-11-09
 
@@ -57,3 +57,7 @@ Både felaktiga och osäkra huvudprovsvar följer med till Rut. Den aktuella fr�
 De redan delade adresserna för 6A (`v=2.7.1`) och 6B (`v=2.9.0`) känns igen vid öppning. I ett giltigt elevläge höjs kapitelgränsen till två; efter första öppningen kan adressfältet visa `only=2`. Eleverna behöver ladda om sin befintliga länk och behöver inte börja om eller få en ny länk. Båda använder den aktuella gemensamma spelkoden med samma Rut-repetition, äppelregler, frågor, ljud och animationer. Ingen klass får ett separat kodpaket.
 
 Samma `lesson.1.`-sparning och eventuella befintliga omspelningar används. Äppelförrådet begränsas fortfarande till ett och lärarvy/kapitelprov är avstängda. Tvåan visas i menyn, öppnas efter klar etta och ger ingen fortsättning till trean. Vanliga `only=1`-länkar med andra versionsmarkörer ändras inte. `class-links.cjs` provar båda exakta klasslänkarna, nio-stämpelskravet, resurs- och svarssparning, bryggan till kapitlet, omspelning, spärrar och oförändrad etta för andra länkar.
+
+## Hatthandeln · 2.16.0
+
+Båda klassernas befintliga länkar får samma hatthandel vid torget. Mössor kostar 2 daler och en trekantshatt 4. Köpen är kosmetiska och sparas tillsammans med elevens omgång. Ägda hattar byts gratis via Mina hattar. Ett nytt köp kräver att eleven står hos handlaren. Frågebank, Rut, ett äpple åt gången, lärargranskning och kapitelgränsen 1–2 behålls. Se HAT_SHOP.md.

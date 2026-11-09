@@ -23,6 +23,7 @@
     "test:ambient": "node docs/spel/tests/ambient-audio.cjs && node docs/spel/tests/ambient-scene.cjs && node docs/spel/tests/ambient-browser.cjs",
     "test:chapter-one-review": "node docs/spel/tests/teacher-review.cjs && node docs/spel/tests/chapter-one-review-browser.cjs",
     "test:chapter-two-student": "node docs/spel/tests/class-links.cjs && node docs/spel/tests/chapter-two-student-browser.cjs",
+    "test:hat-shop": "node docs/spel/tests/hat-shop.cjs",
     "test:class-links": "node docs/spel/tests/class-links.cjs",
     "test:chapter-one-only": "node docs/spel/tests/chapter-one-only-browser.cjs && node docs/spel/tests/chapter-one-apple-browser.cjs",
     "test:apple-threats": "node docs/spel/tests/apple-threats.cjs && node docs/spel/tests/apple-threats-world.cjs && node docs/spel/tests/apple-threats-visibility.cjs"
