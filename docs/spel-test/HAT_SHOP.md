@@ -1,6 +1,6 @@
-# Hatthandeln · 2.16.2
+# Hatthandeln · 2.16.3
 
-Hatthandlaren har ett litet bord vid torget i kapitel 1–5. Bordet följer torgets rundning och har en klickyta som roteras med det; kartskylten hålls vågrät för läsbarhet. Klicka på handlaren eller bordet, välj Hatthandeln eller tryck mellanslag nära handlaren. Från en annan plats går spelaren dit längs en gångbar väg innan butiken öppnas. Köp kräver fysisk närvaro; från ett rum går det inte att handla på distans.
+Hatthandlaren har ett litet bord vid torget i kapitel 3–5. Bordet är en liten bordsskiva sedd rakt uppifrån, intill torgets nordvästra kant. Träets ådring, mössornas ovansidor och trekantshattens brätte följer kartans perspektiv. En liten skylt sitter vid bordets kortända. Handlaren står utanför torget och spelaren stannar på insidan, med bordet mellan dem. Klickytan följer bordsskivans storlek och vinkel. Klicka på handlaren eller bordet, välj Hatthandeln eller tryck mellanslag nära handlaren. Från en annan plats går spelaren dit längs en gångbar väg innan butiken öppnas. Köp kräver fysisk närvaro; från ett rum går det inte att handla på distans.
 
 | Hatt | Pris |
 | --- | --- |
@@ -15,4 +15,4 @@ Garderoben sparas i `uppdrag1700.wardrobe.v1` genom integrationens vanliga spara
 
 Butiken använder en vanlig dialog för varuval. Den befintliga världsmotorn styr förflyttning och ritordning. Köp pausas under annan interaktion. Ett faktiskt samtal med handlaren ger samma sociala skydd mot tjuven som andra stadssamtal; garderoben på distans är inget sådant skydd.
 
-`node docs/spel/tests/hat-shop.cjs` kontrollerar köp, dubbelklick, återinträde, ägarvalidering, kostnadsfria byten, sparning, källankare för alla fem kapitel, verkligt gångbara butikslägen och vägar, fysisk närvaro, socialt skydd och bevarade kunskapsresultat. Båda tidigare delade klasslänkarna använder samma butik och behåller tillgång enbart till kapitel 1–2.
+`node docs/spel/tests/hat-shop.cjs` kontrollerar köp, dubbelklick, återinträde, ägarvalidering, kostnadsfria byten, sparning, källankare för kapitel 3–5, verkligt gångbara butikslägen och vägar, fysisk närvaro, socialt skydd och bevarade kunskapsresultat. Butiken introduceras först i kapitel 3, där Hattarna och Mössorna behandlas i innehållet. Varorna är kosmetiska huvudbonader och ges inga politiska partiegenskaper. Båda tidigare delade klasslänkarna behåller tillgång enbart till kapitel 1–2 och visar ingen butik. Äldre inköp finns kvar i sparningen och blir tillgängliga i senare kapitel.

@@ -1,4 +1,10 @@
-# Händelsesystem för Uppdrag 1700 · 1.5.2
+# Händelsesystem för Uppdrag 1700 · 2.16.3
+
+## Ficktjuven och barnet · 2.16.3
+
+Barnet återbetalar inte längre förlorade pengar. Pengarna återfås genom att spelaren hinner ikapp ficktjuven och svarar rätt på minnesfrågan. Om tjuven kommer undan, svaret blir fel eller jakten avbryts är summan förlorad. Den befintliga gränsen på halva plånboken och minst 3 daler före stölden lämnar pengar kvar. Barnet har ett vanligt samtal om vad som hände och kan hålla utkik; det finns ingen dold kö av återbetalningar via vänliga svar. Äldre förlustposter behålls som historik och betalas inte ut vid återbesök eller omladdning. Redan återlämnade pengar i äldre sparningar tas inte tillbaka. Huvudfrågor, äpplen och stämplar påverkas inte.
+
+`tests/witness-consequences.cjs` provar riktiga plånboks-, jakt- och vittnesfunktioner: lyckad jakt återbetalar exakt en gång, flykt bevarar förlusten, båda samtalsvalen och återbesök/omladdning ger ingen återbetalning, äldre poster kan inte användas som pengakälla och samtal kräver närvaro.
 
 ## Äppelrisker · 2.12.0
 
@@ -27,7 +33,7 @@ Det här systemet kompletterar den **befintliga** berättelsen och de tre återk
 
 **Ficktjuven:** Efter en längre sträcka av verklig förflyttning kan en tjuv synas nära spelaren på gatan. Spelaren väljer att jaga eller avstå. En enda kort repetitionsfråga från det befintliga materialet kan rädda en daler. Fel svar eller att avstå kan kosta **högst en daler**, aldrig ett helt kapitel eller en kunskapsstämpel. Händelsen inträffar högst en gång per relevant kapitel och sker inte automatiskt i lärarvyn. I kapitel 6 används den *tidigare* ficktjuvshändelsen, inte en andra tjuv.
 
-**Barnets vittnesmål:** Om ficktjuven har synts dyker ett vittne upp vid torget. Spelaren kan fråga lugnt eller kräva ett svar. Barnet minns bemötandet; en otrevlig första replik kan repareras vid återbesök. Vid vänligt samtal kan en tidigare förlorad daler hittas vid gränden och återlämnas. Dialogen är dramatik, inte en historisk källa och inte automatisk kunskapsbedömning.
+**Barnets vittnesmål:** Om ficktjuven har synts dyker ett vittne upp vid torget. Spelaren kan fråga lugnt eller kräva ett svar. Barnet minns bemötandet; en otrevlig första replik kan repareras vid återbesök. Ett vänligt samtal ger ett naturligt svar, utan att barnet hittar och återlämnar pengarna. Dialogen är dramatik, inte en historisk källa och inte automatisk kunskapsbedömning.
 
 ## Spelregler och tillgänglighet
 

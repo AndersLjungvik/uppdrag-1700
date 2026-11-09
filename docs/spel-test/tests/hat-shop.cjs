@@ -3,11 +3,11 @@ const fs=require('fs'),vm=require('vm'),path=require('path'),assert=require('nod
 const root=path.resolve(__dirname,'..'),read=n=>fs.readFileSync(path.join(root,n),'utf8'),copy=v=>JSON.parse(JSON.stringify(v));
 const c={window:{}};vm.createContext(c);vm.runInContext(read('hat-shop-model.js'),c);vm.runInContext(read('hat-shop.js'),c);
 const M=c.window.UPPDRAG_HAT_SHOP_MODEL,S=c.window.UPPDRAG_HAT_SHOP.source;
-for(const [dx,dy] of [[75,54],[-75,54],[80,-60],[-80,-60],[120,35]]){
+for(const [dx,dy] of [[-96,-165],[-142,-130],[-155,105],[150,117],[172,-80]]){
  const square={x:1010,y:705},merchant={x:square.x+dx,y:square.y+dy},stall=c.window.UPPDRAG_HAT_SHOP.stallGeometry(square,merchant);
  assert(Math.abs(dx*Math.cos(stall.angle)+dy*Math.sin(stall.angle))<1e-8,'table follows the tangent of the round plaza');
- const onTable={x:stall.x+Math.cos(stall.angle)*50,y:stall.y+Math.sin(stall.angle)*50};
- const offTable={x:stall.x+Math.cos(stall.angle)*70,y:stall.y+Math.sin(stall.angle)*70};
+ const onTable={x:stall.x+Math.cos(stall.angle)*34,y:stall.y+Math.sin(stall.angle)*34};
+ const offTable={x:stall.x+Math.cos(stall.angle)*52,y:stall.y+Math.sin(stall.angle)*52};
  assert(c.window.UPPDRAG_HAT_SHOP.stallHit(stall,onTable));assert(!c.window.UPPDRAG_HAT_SHOP.stallHit(stall,offTable),'click target uses the rotated rectangle');
 }
 console.log('PASS plaza alignment: tangential table and matching rotated click target in every candidate position');
@@ -24,7 +24,7 @@ assert.equal(M.create(saved).wear.id,'green-cap','selected hat survives reload')
 assert.equal(M.create(null).wear.id,'plain');assert.equal(M.create({owned:['plain'],equipped:'tricorn'}).wear.id,'plain');
 console.log('PASS cosmetic transactions: physical presence, exact prices, insufficient funds, reentrant/repeated clicks, free outfit changes, validated saves');
 
-for(const chapter of [1,2,3,4,5]){
+for(const chapter of [3,4,5]){
  const name='meeting-ch'+chapter+'-pilot.js',s=presence.source(name,S(name,read('_decoded/'+name)));new Function(s);
  assert(s.includes('who===CAST.player?window.UPPDRAG_HAT_SHOP?.wear:null'));
  assert(s.includes('if(who===CAST.player)window.UPPDRAG_HAT_SHOP?.drawMapHat(ctx)'));
@@ -35,7 +35,7 @@ for(const name of ['world-street-pilot.js','world-classic-pilot.js']){
  new Function(presence.source(name,S(name,original)));
 }
 assert.throws(()=>S('meeting-ch1-pilot.js','changed source'),'source anchors fail closed');
-console.log('PASS player-only room/map headwear and movement blockers in all five rebuilt chapters');
+console.log('PASS player-only room/map headwear and movement blockers in chapters 3–5');
 
 const {fixture}=require('./apple-threats-world.cjs');
 class Element{
@@ -54,10 +54,21 @@ for(const chapter of [1,2,3,4,5]){
  doc.activeElement=canvas;doc.body.append=()=>{};
  c.region=c.testRegion;c.player={...c.testNavigation(c.testRegion,'quay')};c.path=[];c.follow=true;c.setMessage=()=>{};
  c.UPPDRAG_EVENT_ENGINE.people=()=>[];c.UPPDRAG_EVENT_ENGINE.register=()=>true;
+ if(chapter<3){
+  const wardrobe=JSON.stringify({v:1,owned:['plain','red-cap'],equipped:'red-cap'});h.memory.set('uppdrag1700.wardrobe.v1',wardrobe);
+  vm.runInContext(read('hat-shop-model.js'),c);vm.runInContext(read('hat-shop.js'),c);
+  assert.equal(elements.length,0,'no merchant, wardrobe buttons or dialogue before chapter three');
+  assert.equal(c.UPPDRAG_HAT_SHOP.position,undefined);assert.equal(c.UPPDRAG_HAT_SHOP.wear,undefined);
+  assert.equal(h.memory.get('uppdrag1700.wardrobe.v1'),wardrobe,'already owned hats remain saved for later');
+  console.log('PASS chapter '+chapter+': no early shop or hat introduction; existing wardrobe preserved');continue;
+ }
  const before=copy({apples:h.state.apples,record:h.state.record,earned:h.state.earned,step:h.state.step,index:h.state.index,trial:h.state.trial});
  vm.runInContext(read('hat-shop-model.js'),c);vm.runInContext(read('hat-shop.js'),c);
  const api=c.UPPDRAG_HAT_SHOP,merchant=api.position(),dialog=elements.find(e=>e.tag==='dialog');
  assert(merchant,'shop fits actual town '+chapter);assert(c.UPPDRAG_WORLD_KEYBOARD.clearSegment(c.region,merchant,merchant,40),'stall fits outside buildings/water');
+ const square=c.testNavigation(c.region,'square'),tableDistance=Math.hypot(merchant.stall.x-square.x,merchant.stall.y-square.y);
+ assert(tableDistance>=145&&tableDistance<=160,'small tabletop sits beside the round plaza');
+ assert(Math.abs(Math.hypot(merchant.x-merchant.arrival.x,merchant.y-merchant.arrival.y)-72)<.01,'player and merchant stand on opposite sides of the table');
  const cityRoute=c.UPPDRAG_EVENT_APPROACH.routeBetween(c.region,c.testNavigation(c.region,'quay'),merchant.arrival,id=>c.testNavigation(c.region,id),(a,b)=>c.UPPDRAG_WORLD_KEYBOARD.clearSegment(c.region,a,b,24),true);
  assert(cityRoute?.length,'shop is reachable from actual quay');
  assert.equal(api.interact(),false,'space cannot open a distant shop');assert.equal(api.travel(),true);assert(c.path.length>0,'travel sets a real walking route');assert.equal(dialog.open,false,'route does not open shop remotely');
@@ -80,6 +91,8 @@ for(const chapter of [1,2,3,4,5]){
  console.log('PASS real chapter '+chapter+': reachable stall, physical buy, saved wardrobe, social shelter, exact debit, remote purchase blocked, preserved questions/apples/stamps');
 }
 const integration=read('integration.js'),index=read('index.html');
-assert(index.includes('hat-shop.js?v=1.0.2'));assert(integration.includes("await get('hat-shop-model.js?v=1.0.0')"));
+assert(index.includes('hat-shop.js?v=1.0.3'));assert(integration.includes("await get('hat-shop-model.js?v=1.0.0')"));
+assert(integration.includes('const hatShop=[3,4,5].includes(ch)?'),'integration only installs the shop from chapter three');
+assert(integration.includes('if([3,4,5].includes(chapter))text=window.UPPDRAG_HAT_SHOP.source(name,text);'),'early chapters retain their original people renderers');
 assert(integration.includes("+hatShop+'\\n'"));assert(read('event-engine.js').includes('if(window.UPPDRAG_HAT_SHOP?.talking)return true;'));
 console.log('PASS integrated shop loading and pickpocket shelter');
