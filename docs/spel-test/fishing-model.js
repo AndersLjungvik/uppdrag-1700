@@ -2,6 +2,36 @@
 (function(root){
 'use strict';
 const PRICE=10,LIMIT=3,MAX_FISH=3,copy=v=>JSON.parse(JSON.stringify(v));
+// Query the same water and building geometry used by walking. A cast needs
+// reachable dry ground and a clear line to water, rather than a named hotspot.
+function shoreSpot(r,p,{water,walkable,clear}={}){
+ if(!r||!p||!water||!walkable||!clear||!walkable(r,p.x,p.y,24))return null;
+ let best=null;
+ for(let i=0;i<32;i++){
+  const a=i*Math.PI/16,dx=Math.cos(a),dy=Math.sin(a);let dry={x:p.x,y:p.y};
+  for(let d=8;d<=100;d+=4){
+   const q={x:p.x+dx*d,y:p.y+dy*d};if(q.x<8||q.y<8||q.x>r.w-8||q.y>r.h-8)break;
+   if(water(r,q.x,q.y)){
+    const float={x:q.x+dx*20,y:q.y+dy*20};
+    if(float.x>=8&&float.y>=8&&float.x<r.w-8&&float.y<r.h-8&&clear(r,p,dry,0)&&[[0,0],[-5,0],[5,0],[0,-5],[0,5]].every(([x,y])=>water(r,float.x+x,float.y+y))&&(!best||d<best.distance))best={origin:{x:p.x,y:p.y},water:float,distance:d,heading:a,region:r.id};
+    break;
+   }
+   dry=q;
+  }
+ }
+ return best;
+}
+function shores(r,geometry){
+ if(!r)return [];const result=[],seen=new Set(),polygons=r.island?[r.island]:r.water||[];
+ for(const polygon of polygons)for(let i=0;i<polygon.length;i++){
+  const a=polygon[i],b=polygon[(i+1)%polygon.length],dx=b[0]-a[0],dy=b[1]-a[1],length=Math.hypot(dx,dy);if(!length)continue;
+  for(let j=0,n=Math.ceil(length/48);j<=n;j++)for(const side of [-1,1]){
+   const p={x:a[0]+dx*j/n-dy/length*38*side,y:a[1]+dy*j/n+dx/length*38*side},id=Math.round(p.x/12)+':'+Math.round(p.y/12);
+   if(seen.has(id))continue;seen.add(id);const spot=shoreSpot(r,p,geometry);if(spot)result.push(spot);
+  }
+ }
+ return result;
+}
 function create(raw={},hooks={}){
  if(!raw||typeof raw!=='object')raw={};
  const chapters={};for(const ch of [4,5]){const s=raw.chapters?.[ch]||{};chapters[ch]={delivered:Math.max(0,Math.min(LIMIT,Math.floor(Number(s.delivered)||0))),attempts:Math.max(0,Math.floor(Number(s.attempts)||0)),lastTaskId:typeof s.lastTaskId==='string'?s.lastTaskId:''};}
@@ -44,5 +74,5 @@ function create(raw={},hooks={}){
  const snapshot=()=>({state:copy(state),phase,taskId,chapter,waitMs});
  return {buy,cast,tick,submit,deliver,cancel,close,snapshot};
 }
-root.UPPDRAG_FISHING_MODEL={create,price:PRICE,limit:LIMIT,maxFish:MAX_FISH};
+root.UPPDRAG_FISHING_MODEL={create,shoreSpot,shores,price:PRICE,limit:LIMIT,maxFish:MAX_FISH};
 })(window);

@@ -1,4 +1,4 @@
-# Händelsesystem för Uppdrag 1700 · 2.18.0
+# Händelsesystem för Uppdrag 1700 · 2.19.0
 
 ## Ficktjuven och barnet · 2.16.3
 
@@ -84,3 +84,8 @@ Svarsalternativen blandas nu med Fisher–Yates oberoende av valet av fråga. De
 ## Fisket från kapitel 4 · 2.18.0
 
 Jo säljer ett bestående fiskespö för 10 daler vid Kajen från kapitel 4. Napp ger en redan tillgänglig minnesfråga med kort skrivsvar. Rätt svar ger fisk; fel svar ger återkoppling och övning hos Rut. Barnhusets kök betalar en daler per fisk för högst tre fiskar per kapitel. Därefter kan man fiska för repetition utan extra belöning. Inga äpplen eller stämplar delas ut. Båda klasslänkarna behåller kapitel 1–2 och visar inget fiske. Ett separat fyrans-replay erbjuder 12 testdaler en gång efter tydlig testintroduktion; det ändrar inga vanliga framsteg. Se FISHING.md.
+
+
+### Fiske på världskartan · 2.19.0
+
+Spöet köps hos Jo. Själva fisket är flyttat till tillgängliga stränder och kanalbankar på kartan. Klick på vatten ger en verklig gångväg till kanten; mellanslag eller Fiska kastar ut. Förflyttning avbryter kastet utan fisk. Befintligt spö, korg och leveranstak behålls. Äppelträdets stam och skylt är också flyttade helt norr om herrgårdsvägen. Elevlänkarnas kapitelgränser är oförändrade.

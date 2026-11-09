@@ -81,4 +81,4 @@ Speltest kontrollerar funktion och synligt beteende. Det är ingen mätning av e
 
 ## Frivilligt fiske · 2.18.0
 
-Spö för 10 daler hos Jo, fiske med mellanslag vid den målade Kajen och redan tillgänglig kortsvarsfråga vid napp. Rätt svar ger fisk, fel ger återkoppling och Rut-övning. Cajsa tar emot högst tre fiskar per kapitel i Barnhusets kök för en daler styck. Spöet och korgen följer med till femman, där Siri tar emot fångsten. Kokboksberättelsen och Karins grannmåltid förändras inte. Separat fisketest och detaljer: FISHING.md.
+Spö för 10 daler hos Jo, fiske med mellanslag vid nåbara stränder och kanalbankar på världskartan och redan tillgänglig kortsvarsfråga vid napp. Rätt svar ger fisk, fel ger återkoppling och Rut-övning. Cajsa tar emot högst tre fiskar per kapitel i Barnhusets kök för en daler styck. Spöet och korgen följer med till femman, där Siri tar emot fångsten. Kokboksberättelsen och Karins grannmåltid förändras inte. Separat fisketest och detaljer: FISHING.md.

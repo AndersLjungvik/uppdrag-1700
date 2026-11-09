@@ -23,14 +23,14 @@ function geometry(r=world()){
  const entry=navigationPoint(r,'manor'),trees=window.UPPDRAG_PAPER?.getTrees(r)||[];let found=null;
  // The existing pasture is x=3157..3426, y=439..608. Keep the whole
  // apple tree north of its fence, on the estate side of the manor road.
- for(const [dx,dy] of [[-200,-40],[-250,-40],[-230,-70]]){
+ for(const [dx,dy] of [[-200,-90],[-250,-90],[-230,-115]]){
   const tree={x:entry.x+dx,y:entry.y+dy},pick={x:tree.x-33,y:tree.y+22},home={x:entry.x+8,y:entry.y+50};
   const patrol=[{x:entry.x-80,y:entry.y+50},{x:entry.x-290,y:entry.y+50},{x:entry.x-290,y:entry.y+10},{x:entry.x-100,y:entry.y+10},home];
-  if(tree.y+48>=439||!clear(r,pick,pick,24)||!clear(r,home,home,18)||!clear(r,tree,tree,40)||!route(r,home,pick)?.length||patrol.some((p,i)=>!clear(r,patrol[(i+patrol.length-1)%patrol.length],p,18)))continue;
-  const covers=trees.filter(t=>gap(t,tree)>=120&&gap(t,tree)<=330).sort((a,b)=>gap(a,tree)-gap(b,tree));
+  if(tree.y+64>=entry.y-24||!clear(r,pick,pick,24)||!clear(r,home,home,18)||!clear(r,tree,tree,40)||!route(r,home,pick)?.length||patrol.some((p,i)=>!clear(r,patrol[(i+patrol.length-1)%patrol.length],p,18)))continue;
+  const covers=trees.filter(t=>gap(t,tree)>=120&&gap(t,tree)<=430).sort((a,b)=>gap(a,tree)-gap(b,tree));
   for(const cover of covers){
    const d=gap(cover,home),safe={x:cover.x+(cover.x-home.x)/d*58,y:cover.y+(cover.y-home.y)/d*58,radius:38};
-   if(safe.y<90||safe.y>r.h-90||gap(safe,pick)<170||gap(safe,pick)>360||!clear(r,safe,safe,24)||!route(r,pick,safe,24)?.length||!window.UPPDRAG_EVENT_APPROACH.blockedByCover(home,safe,[cover]))continue;
+   if(safe.y<90||safe.y>r.h-90||gap(safe,pick)<170||gap(safe,pick)>450||!clear(r,safe,safe,24)||!route(r,pick,safe,24)?.length||!window.UPPDRAG_EVENT_APPROACH.blockedByCover(home,safe,[cover]))continue;
    found={tree,pick,home,patrol,safe,cover,trees};break;
   }if(found)break;
  }

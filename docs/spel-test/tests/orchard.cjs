@@ -66,6 +66,7 @@ for(const [chapter,mode] of [[1,'wrong'],...[1,2,3,4,5].map(ch=>[ch,'right'])]){
  vm.runInContext(read('orchard-model.js'),c);vm.runInContext(read('orchard.js'),c);const api=c.UPPDRAG_ORCHARD,g=api.geometry(),dialog=elements.find(e=>e.tag==='dialog');
  assert(g,'real town has an orchard and hiding place');assert(c.UPPDRAG_WORLD_KEYBOARD.clearSegment(c.region,g.pick,g.pick,24));assert(c.UPPDRAG_WORLD_KEYBOARD.clearSegment(c.region,g.safe,g.safe,24));
  assert(g.tree.y+48<439,'entire apple tree stands north of the real pasture fence');
+ assert(g.tree.y+64<c.testNavigation(c.region,'manor').y-24,'tree trunk, crown and sign stay wholly outside the manor road');
  assert(g.patrol.every(p=>p.y+18<439),'patrol stays outside the animal pasture');
  assert(!elements.filter(e=>e.tag==='section').some(e=>e.children.some(child=>child.tag==='button')),'no choice buttons for picking or running away');
  assert(c.UPPDRAG_EVENT_APPROACH.blockedByCover(g.home,g.safe,[g.cover]),'actual existing tree blocks sight');
