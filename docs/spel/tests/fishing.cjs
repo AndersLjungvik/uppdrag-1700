@@ -24,15 +24,29 @@ function harness(raw={},balance=12){let saved,near=true,kitchen=false,payments=0
  console.log('PASS fishing economy: 10-daler permanent rod, physical trades, insufficient funds, no double debit, bounded delivery, correct/wrong/released catches, interruption, pause and reload');
 }
 const {fixture:worldFixture}=require('./apple-threats-world.cjs'),{fixture:pilotFixture}=require('./mastery-apple-retry.cjs');
+{
+ const h=worldFixture(null,4),c=h.c,geometry={water:(r,x,y)=>c.waterAt(r,x,y),walkable:(r,x,y,n)=>c.UPPDRAG_WORLD_KEYBOARD.walkablePoint(r,x,y,n),clear:(r,a,b,n)=>c.UPPDRAG_WORLD_KEYBOARD.clearSegment(r,a,b,n)};
+ for(const r of vm.runInContext('Object.values(REGIONS)',c)){
+  const shores=M.shores(r,geometry);assert(shores.length>20,'many real banks in '+r.id);
+  assert(shores.some(a=>shores.some(b=>Math.hypot(a.origin.x-b.origin.x,a.origin.y-b.origin.y)>700)),'fishing is spread across '+r.id);
+  for(const s of shores){assert(geometry.walkable(r,s.origin.x,s.origin.y,24));assert(geometry.water(r,s.water.x,s.water.y));assert(s.distance<=100);assert(M.shoreSpot(r,s.origin,geometry));}
+ }
+ assert.equal(M.shoreSpot(c.testRegion,c.testNavigation(c.testRegion,'square'),geometry),null,'no fishing on the inland plaza');
+ const lake={id:'lake',w:640,h:480,water:[[[500,0],[640,0],[640,480],[500,480]]],bridges:[],buildings:[]};
+ assert(M.shoreSpot(lake,{x:430,y:240},geometry),'new shorelines work without hand-authored spots');lake.buildings.push({x:460,y:0,w:20,h:480});assert.equal(M.shoreSpot(lake,{x:430,y:240},geometry),null,'a rod cannot cast through a house to reach water');
+ console.log('PASS shoreline geometry: many real banks across all three maps, dry standing ground, water floats, no inland casts or casts through buildings');
+}
 class Element{
  constructor(tag='div'){this.tag=tag;this.children=[];this.events={};this.dataset={};this.style={};this.hidden=false;this.open=false;this.innerHTML='';this.input={value:'',focus(){}};this.button={focus(){}};}
  append(...n){this.children.push(...n);}setAttribute(){}addEventListener(n,f){(this.events[n]??=[]).push(f);}focus(){}closest(){return null;}
  querySelector(q){return q==='input'?this.input:q==='button'||q==='input,button:not([disabled])'?this.button:null;}showModal(){this.open=true;}close(){this.open=false;}
+ getBoundingClientRect(){return {left:0,top:0,width:3600,height:1500};}
 }
 function adapter(ch,demo=false){
  const h=worldFixture(null,ch),real=pilotFixture(ch),c=h.c,els=[],canvas=new Element('canvas'),doc=c.document,oldGet=doc.getElementById;
  doc.createElement=tag=>{const e=new Element(tag);els.push(e);return e;};doc.getElementById=id=>['world','interiorCanvas'].includes(id)?canvas:oldGet(id);
- c.roomView=new Element();c.roomFooter=new Element();c.region=c.testRegion;c.player={...c.testNavigation(c.region,'square')};c.path=[];c.voyage=null;c.interior=null;c.__UPPDRAG_FISHING_TEST=demo;
+ c.roomView=new Element();c.roomFooter=new Element();c.region=c.testRegion;c.player={...c.testNavigation(c.region,'square')};c.path=[];c.follow=true;c.voyage=null;c.interior=null;c.__UPPDRAG_FISHING_TEST=demo;canvas.width=3600;canvas.height=1500;
+ doc.querySelectorAll=()=>[];c.UPPDRAG_WORLD_LIFE.people=()=>[];c.roomKind=()=>null;c.setMessage=()=>{};
  for(const key of ['UPPDRAG_RECALL_BANK','UPPDRAG_RECALL_ENGINE','UPPDRAG_PROMPT_ALIGNMENT'])c[key]=real.c[key];
  c['UPPDRAG_CH'+ch+'_PILOT']=real.p;real.p.state.daler=12;c.UPPDRAG_MEETINGS.geometryForRoom=()=>null;
  let harbourRequests=0,roomRequests=0,speech=null;c.requestHarbour=()=>{harbourRequests++;return true;};c.requestInterior=()=>{roomRequests++;return true;};
@@ -44,7 +58,7 @@ function adapter(ch,demo=false){
  const click=code=>{for(const f of dialog.events.click)f({target:{closest:()=>({dataset:{fishing:code}})}});};
  const room=kind=>{c.interior=kind==='quay'?{kind:'waterfront',outdoor:true,regionId:'main'}:kind?{kind}:null;};
  const answer=value=>{dialog.input.value=value;for(const f of dialog.events.submit)f({preventDefault(){}});};
- return {c,h,real,api,dialog,els,click,room,tick,answer,key,get harbourRequests(){return harbourRequests;},get roomRequests(){return roomRequests;},get speech(){return speech;}};
+ return {c,h,real,api,dialog,els,canvas,click,room,tick,answer,key,get harbourRequests(){return harbourRequests;},get roomRequests(){return roomRequests;},get speech(){return speech;}};
 }
 for(const ch of [1,2,3]){const h=adapter(ch);assert.equal(h.api.cast,undefined);assert(!h.els.length,'no early fishing controls, money or questions');}
 for(const ch of [4,5]){
@@ -53,10 +67,21 @@ for(const ch of [4,5]){
  const kept=copy({record:p.state.record,earned:p.state.earned,apples:p.state.apples,review:p.state.reviewQueue,mastery:h.real.m.snapshot().state});
  assert.equal(api.shop(),false);assert(api.travel());assert.equal(h.harbourRequests,1);assert.equal(h.c.interior,null,'a travel request does not teleport or open the shop');
  h.room('quay');h.key('keydown',' ');h.key('keyup',' ');assert(h.dialog.open,'real Space opens the physical rod purchase');h.click('buy');assert.equal(p.state.daler,2);assert(api.snapshot.state.rod);assert.equal(h.dialog.open,false);
+ assert.equal(api.cast(),false,'fishing is no longer performed in the harbour close-up');
+ h.room(null);const from=copy(h.c.player);assert(api.travel());assert(h.c.path.length);assert.deepEqual(copy(h.c.player),from,'finding a bank sets a walking route, without teleporting');
+ let last=from;for(const point of h.c.path){assert(h.c.UPPDRAG_WORLD_KEYBOARD.clearSegment(h.c.region,last,point,24),'every step to the bank is walkable');last=point;}
+ h.c.player={...last};h.c.path=[];h.tick();assert(api.spot());assert.equal(api.snapshot.phase,'idle','arrival waits for the player to cast');
+ const painter={getTransform:()=>({a:1,b:0,c:0,d:1,e:0,f:0})};h.c.UPPDRAG_WORLD_LIFE.draw(painter,{region:h.c.region});
+ let consumed=false;const water=api.spot().water,pointer=(type,x,y)=>{for(const f of h.canvas.events[type]||[])f({clientX:x,clientY:y,preventDefault(){consumed=true;},stopImmediatePropagation(){}});};
+ pointer('pointerdown',water.x,water.y);pointer('pointerup',water.x,water.y);assert(consumed);assert(h.c.path.length,'a water click creates a physical walking route');
+ const clickRoute=h.c.path;consumed=false;pointer('pointerdown',water.x,water.y);pointer('pointerup',water.x+40,water.y+40);assert.equal(consumed,false,'dragging across water keeps normal map panning');assert.equal(h.c.path,clickRoute);
+ let talked=0;h.c.UPPDRAG_WORLD_LIFE.people=()=>[{id:'nearby-person',x:h.c.player.x+8,y:h.c.player.y}];h.c.requestPerson=()=>{talked++;return true;};h.key('keydown',' ');h.key('keyup',' ');assert.equal(talked,1,'a nearby person retains the normal Space interaction');assert.equal(api.snapshot.phase,'idle');h.c.UPPDRAG_WORLD_LIFE.people=()=>[];
  const available=new Set(p.repetitionTaskIds),eligible=h.c.UPPDRAG_RECALL_BANK.filter(t=>available.has(t.id)&&t.chapter<=ch&&t.rank===0&&t.kind==='fields'&&t.fields?.length===1&&t.fields[0].answers?.length),target=eligible.findIndex(t=>h.c.UPPDRAG_RECALL_BANK.some(x=>x.chapter===t.chapter&&x.topic===t.topic&&x.rank===2));assert(target>=0);h.c.Math=Object.create(Math);h.c.Math.random=()=>(target+.1)/eligible.length;
  h.key('keydown',' ');assert.equal(api.snapshot.phase,'waiting');h.key('keydown',' ',true);assert.equal(api.snapshot.phase,'waiting','held Space cannot immediately reel in');h.key('keyup',' ');for(let i=0;i<60&&api.snapshot.phase==='waiting';i++)h.tick();assert.equal(api.snapshot.phase,'question');assert(h.dialog.open);assert(h.dialog.innerHTML.includes('fishingAnswer'));assert(!h.dialog.innerHTML.includes('<select'));
  const selected=h.c.UPPDRAG_RECALL_BANK.find(t=>t.id===api.snapshot.taskId);assert(p.repetitionTaskIds.includes(selected.id));assert(selected.chapter<=ch);
  const higher=h.c.UPPDRAG_RECALL_BANK.find(t=>t.chapter===selected.chapter&&t.topic===selected.topic&&t.rank===2);assert(higher);p.state.recallRutFocus=[higher.id];h.answer('Jag minns inte');assert.equal(api.fishCount,0);assert.deepEqual(copy(p.state.recallRutFocus),[higher.id]);assert(h.dialog.innerHTML.includes('Ett exempel på rätt svar'));h.click('close');
+ assert(api.cast());const shore=api.spot();h.c.player.x-=Math.cos(shore.heading)*18;h.c.player.y-=Math.sin(shore.heading)*18;h.tick();assert.equal(api.snapshot.phase,'idle','walking away reels in without a free catch');assert.equal(api.fishCount,0);
+ h.c.player={...last};
  assert(api.cast());for(let i=0;i<60&&api.snapshot.phase==='waiting';i++)h.tick();const t=h.c.UPPDRAG_RECALL_BANK.find(t=>t.id===api.snapshot.taskId);h.answer(t.fields[0].sample);assert.equal(api.fishCount,1);h.answer(t.fields[0].sample);assert.equal(api.fishCount,1);h.click('close');
  h.tick();assert(h.els.find(e=>e.id==='fishingHint').textContent.includes('1 fisk i korgen'),'the waiting hint is replaced after a successful catch');assert(api.journalHTML().includes('1 fisk i korgen'));
  assert.equal(api.deliver(),false);h.room('barnhus');assert(api.deliver());assert.equal(p.state.daler,3);assert.equal(api.fishCount,0);assert.equal(api.deliver(),false);assert.equal(p.state.daler,3);assert(h.speech.lines[0][1].includes('Här får du en daler'));
