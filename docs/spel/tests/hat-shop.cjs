@@ -3,6 +3,14 @@ const fs=require('fs'),vm=require('vm'),path=require('path'),assert=require('nod
 const root=path.resolve(__dirname,'..'),read=n=>fs.readFileSync(path.join(root,n),'utf8'),copy=v=>JSON.parse(JSON.stringify(v));
 const c={window:{}};vm.createContext(c);vm.runInContext(read('hat-shop-model.js'),c);vm.runInContext(read('hat-shop.js'),c);
 const M=c.window.UPPDRAG_HAT_SHOP_MODEL,S=c.window.UPPDRAG_HAT_SHOP.source;
+for(const [dx,dy] of [[75,54],[-75,54],[80,-60],[-80,-60],[120,35]]){
+ const square={x:1010,y:705},merchant={x:square.x+dx,y:square.y+dy},stall=c.window.UPPDRAG_HAT_SHOP.stallGeometry(square,merchant);
+ assert(Math.abs(dx*Math.cos(stall.angle)+dy*Math.sin(stall.angle))<1e-8,'table follows the tangent of the round plaza');
+ const onTable={x:stall.x+Math.cos(stall.angle)*50,y:stall.y+Math.sin(stall.angle)*50};
+ const offTable={x:stall.x+Math.cos(stall.angle)*70,y:stall.y+Math.sin(stall.angle)*70};
+ assert(c.window.UPPDRAG_HAT_SHOP.stallHit(stall,onTable));assert(!c.window.UPPDRAG_HAT_SHOP.stallHit(stall,offTable),'click target uses the rotated rectangle');
+}
+console.log('PASS plaza alignment: tangential table and matching rotated click target in every candidate position');
 vm.runInContext(read('scene-presence.js'),c);const presence=c.window.UPPDRAG_SCENE_PRESENCE;
 let balance=3,near=false,saved=null,debits=0,shop;
 shop=M.create({owned:['not-a-hat'],equipped:'not-a-hat'},{wallet:()=>balance,canBuy:()=>near,debit:(amount,expected)=>{assert.equal(expected,balance);debits++;assert.equal(shop.buy('red-cap').reason,'busy','a reentrant click is blocked');balance-=amount;return true;},save:s=>saved=copy(s)});
@@ -72,6 +80,6 @@ for(const chapter of [1,2,3,4,5]){
  console.log('PASS real chapter '+chapter+': reachable stall, physical buy, saved wardrobe, social shelter, exact debit, remote purchase blocked, preserved questions/apples/stamps');
 }
 const integration=read('integration.js'),index=read('index.html');
-assert(index.includes('hat-shop.js?v=1.0.1'));assert(integration.includes("await get('hat-shop-model.js?v=1.0.0')"));
+assert(index.includes('hat-shop.js?v=1.0.2'));assert(integration.includes("await get('hat-shop-model.js?v=1.0.0')"));
 assert(integration.includes("+hatShop+'\\n'"));assert(read('event-engine.js').includes('if(window.UPPDRAG_HAT_SHOP?.talking)return true;'));
 console.log('PASS integrated shop loading and pickpocket shelter');

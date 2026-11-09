@@ -1,6 +1,6 @@
-# Hatthandeln · 2.16.1
+# Hatthandeln · 2.16.2
 
-Hatthandlaren har ett litet bord vid torget i kapitel 1–5. Klicka på handlaren eller bordet, välj Hatthandeln eller tryck mellanslag nära handlaren. Från en annan plats går spelaren dit längs en gångbar väg innan butiken öppnas. Köp kräver fysisk närvaro; från ett rum går det inte att handla på distans.
+Hatthandlaren har ett litet bord vid torget i kapitel 1–5. Bordet följer torgets rundning och har en klickyta som roteras med det; kartskylten hålls vågrät för läsbarhet. Klicka på handlaren eller bordet, välj Hatthandeln eller tryck mellanslag nära handlaren. Från en annan plats går spelaren dit längs en gångbar väg innan butiken öppnas. Köp kräver fysisk närvaro; från ett rum går det inte att handla på distans.
 
 | Hatt | Pris |
 | --- | --- |
