@@ -68,8 +68,8 @@ for(const ch of [4,5]){
  console.log('PASS isolated demonstration: explicit 12 testdaler once, visible memory recap, actual known-question pool, no manufactured stamps or answers');
 }
 for(const name of ['world-keyboard-ch4.js','world-keyboard-ch5.js','meeting-ch4-pilot.js','meeting-ch5-pilot.js']){
- const ctx={window:{}};vm.createContext(ctx);for(const n of ['hat-shop.js','orchard.js','fishing.js','scene-presence.js'])vm.runInContext(read(n),ctx);
- let text=read('_decoded/'+name);for(const api of ['UPPDRAG_HAT_SHOP','UPPDRAG_FISHING','UPPDRAG_ORCHARD','UPPDRAG_SCENE_PRESENCE'])text=ctx.window[api].source(name,text);new Function(text);
+ const ctx={window:{}};vm.createContext(ctx);for(const n of ['chapter4-presentation.js','chapter5-presentation.js','hat-shop.js','orchard.js','fishing.js','scene-presence.js'])vm.runInContext(read(n),ctx);
+ let text=ctx.window['UPPDRAG_CH'+(name.includes('ch4')?4:5)+'_PRESENTATION'].source(name,read('_decoded/'+name));for(const api of ['UPPDRAG_HAT_SHOP','UPPDRAG_FISHING','UPPDRAG_ORCHARD','UPPDRAG_SCENE_PRESENCE'])text=ctx.window[api].source(name,text);new Function(text);
 }
 const integration=read('integration.js');assert(integration.includes('const fishing=[4,5].includes(ch)?'));assert(integration.includes("+fishing+'\\n'"));assert(integration.includes("!lessonLimit&&chapterTest===4&&params.get('fiske')==='test'"));
 console.log('PASS integration: fishing starts in four, keyboard adapters compose and test funding is excluded from class links');

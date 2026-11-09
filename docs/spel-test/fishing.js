@@ -2,9 +2,8 @@
 (function(){
 'use strict';
 function source(name,text){
- if(!/^world-keyboard(?:-ch\d+)?\.js$/.test(name)&&!/^meeting-ch[45]-pilot\.js$/.test(name))return text;
+ if(!/^world-keyboard(?:-ch\d+)?\.js$/.test(name))return text;
  const edit=(a,b)=>{if(text.split(a).length!==2)throw Error('Fisket: tangentbordets ankare saknas i '+name);text=text.replace(a,b);};
- if(/^meeting-ch[45]-pilot\.js$/.test(name)){edit('if(!dialogue&&(!task||task.hidden)&&window.UPPDRAG_ROOM_STAGING?.greetingDue','if(!window.UPPDRAG_FISHING?.busy&&!dialogue&&(!task||task.hidden)&&window.UPPDRAG_ROOM_STAGING?.greetingDue');return text;}
  edit('  function activeDialogue(){\n    return !!(','  function activeDialogue(){\n    return !!(window.UPPDRAG_FISHING?.blocking||');
  edit('  function interact(){','  function interact(){\n    if(window.UPPDRAG_FISHING?.blocking)return false;\n    if(window.UPPDRAG_FISHING?.interact())return true;');return text;
 }
