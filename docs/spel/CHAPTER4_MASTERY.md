@@ -77,3 +77,8 @@ Normal spelgång kräver tidigare kapitelstämplar. Ett giltigt replay-id med te
 npm run test:chapter4 täcker källankare, samtliga 15 huvuduppgifter med kompletterade krav, 45 källkort, elva begrepp, åtta skrivblad, parafraser och motsägelser, tolv stämplar, valfri ordning, nivå- och kapitelspärrar, ledtråd, helt omförsök, Rut, lokal granskning, äldre försök, migrering, verklig kokboksleverans och återbesök, export/import, mobilbredd samt återkommande större stölder utan förlust av uppdragsföremål.
 
 Speltest kontrollerar funktion och synligt beteende. Det är ingen mätning av elevernas lärande. Fysisk iPhone/Safari ingår inte i Chromium-proven.
+
+
+## Frivilligt fiske · 2.18.0
+
+Spö för 10 daler hos Jo, fiske med mellanslag vid den målade Kajen och redan tillgänglig kortsvarsfråga vid napp. Rätt svar ger fisk, fel ger återkoppling och Rut-övning. Cajsa tar emot högst tre fiskar per kapitel i Barnhusets kök för en daler styck. Spöet och korgen följer med till femman, där Siri tar emot fångsten. Kokboksberättelsen och Karins grannmåltid förändras inte. Separat fisketest och detaljer: FISHING.md.

@@ -23,6 +23,7 @@
     "test:ambient": "node docs/spel/tests/ambient-audio.cjs && node docs/spel/tests/ambient-scene.cjs && node docs/spel/tests/ambient-browser.cjs",
     "test:chapter-one-review": "node docs/spel/tests/teacher-review.cjs && node docs/spel/tests/chapter-one-review-browser.cjs",
     "test:chapter-two-student": "node docs/spel/tests/class-links.cjs && node docs/spel/tests/chapter-two-student-browser.cjs",
+    "test:fishing": "node docs/spel/tests/fishing.cjs",
     "test:orchard": "node docs/spel/tests/orchard.cjs",
     "test:hat-shop": "node docs/spel/tests/hat-shop.cjs",
     "test:class-links": "node docs/spel/tests/class-links.cjs",

@@ -1,4 +1,4 @@
-# Händelsesystem för Uppdrag 1700 · 2.17.2
+# Händelsesystem för Uppdrag 1700 · 2.18.0
 
 ## Ficktjuven och barnet · 2.16.3
 
@@ -79,3 +79,8 @@ Första Rut-belöningen återställde tidigare 45 sekunders väntan och 700 kart
 ## Svarsalternativ hos ficktjuven · 2.13.0
 
 Svarsalternativen blandas nu med Fisher–Yates oberoende av valet av fråga. Den tidigare rotationen använde samma räknare som frågevalet och kunde koppla den valda frågan till rätt svar på första plats. Ordningen skapas en gång för jakten och behålls när frågan visas igen. Frågebank, facit och återbetalning ändras inte. `thief-choice-order.cjs` provar varierad rätt position för upprepade likadana frågor i kapitel 1–5 och oförändrade alternativ.
+
+
+## Fisket från kapitel 4 · 2.18.0
+
+Jo säljer ett bestående fiskespö för 10 daler vid Kajen från kapitel 4. Napp ger en redan tillgänglig minnesfråga med kort skrivsvar. Rätt svar ger fisk; fel svar ger återkoppling och övning hos Rut. Barnhusets kök betalar en daler per fisk för högst tre fiskar per kapitel. Därefter kan man fiska för repetition utan extra belöning. Inga äpplen eller stämplar delas ut. Båda klasslänkarna behåller kapitel 1–2 och visar inget fiske. Ett separat fyrans-replay erbjuder 12 testdaler en gång efter tydlig testintroduktion; det ändrar inga vanliga framsteg. Se FISHING.md.

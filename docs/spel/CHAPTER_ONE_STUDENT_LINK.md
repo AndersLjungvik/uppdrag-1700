@@ -1,4 +1,4 @@
-# Elevlänkar · kapitel 1–2 · 2.17.2
+# Elevlänkar · kapitel 1–2 · 2.18.0
 
 ## Klassernas delade länkar · bekräftade 2026-11-09
 
@@ -72,3 +72,8 @@ Båda klassernas befintliga länkar får ett frivilligt äppeläventyr. Tom fick
 ### Direkt plockning och patrullerande ägare · 2.17.2
 
 Äppelträdet är flyttat helt utanför djurhagen till gräset norr om herrgårdsvägen. Ägaren går en patrullrunda före plockningen. Mellanslag nära trädet tar äpplet direkt, även under pågående gång, utan valmenyer. Jakten börjar efter ett kort rop från ägarens faktiska plats. Spelaren springer själv med piltangenterna eller klickar en plats i världen. Gömställe, minnesfråga, tom ficka och sparat tak på ett bonusäpple per kapitel behålls. Båda klasslänkarna använder samma ändring.
+
+
+## Fisket från kapitel 4 · 2.18.0
+
+Jo säljer ett bestående fiskespö för 10 daler vid Kajen från kapitel 4. Napp ger en redan tillgänglig minnesfråga med kort skrivsvar. Rätt svar ger fisk; fel svar ger återkoppling och övning hos Rut. Barnhusets kök betalar en daler per fisk för högst tre fiskar per kapitel. Därefter kan man fiska för repetition utan extra belöning. Inga äpplen eller stämplar delas ut. Båda klasslänkarna behåller kapitel 1–2 och visar inget fiske. Ett separat fyrans-replay erbjuder 12 testdaler en gång efter tydlig testintroduktion; det ändrar inga vanliga framsteg. Se FISHING.md.
