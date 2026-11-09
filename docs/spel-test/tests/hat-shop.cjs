@@ -72,6 +72,6 @@ for(const chapter of [1,2,3,4,5]){
  console.log('PASS real chapter '+chapter+': reachable stall, physical buy, saved wardrobe, social shelter, exact debit, remote purchase blocked, preserved questions/apples/stamps');
 }
 const integration=read('integration.js'),index=read('index.html');
-assert(index.includes('hat-shop.js?v=1.0.0'));assert(integration.includes("await get('hat-shop-model.js?v=1.0.0')"));
+assert(index.includes('hat-shop.js?v=1.0.1'));assert(integration.includes("await get('hat-shop-model.js?v=1.0.0')"));
 assert(integration.includes("+hatShop+'\\n'"));assert(read('event-engine.js').includes('if(window.UPPDRAG_HAT_SHOP?.talking)return true;'));
 console.log('PASS integrated shop loading and pickpocket shelter');
