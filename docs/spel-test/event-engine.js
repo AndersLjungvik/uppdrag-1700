@@ -54,6 +54,7 @@ let scene=null,blocking=false,last=null,thiefPoint=null,matrix=null,lastRegion=n
  function coversFor(world){if(!world)return [];if(!coverCache.has(world))coverCache.set(world,(window.UPPDRAG_PAPER?.getTrees?.(world)||[]).filter(c=>clearPath(world,{x:c.x+12,y:c.y},{x:c.x+12,y:c.y})));return coverCache.get(world);}
  function pathBetween(world,a,b){return window.UPPDRAG_EVENT_APPROACH.routeBetween(world,a,b,id=>navigationPoint(world,id),(p,q)=>clearPath(world,p,q));}
  function socialShelter(){
+  if(window.UPPDRAG_HAT_SHOP?.talking)return true;
   if(scene&&speaker==='passerby'&&passerby&&last&&Math.hypot(last.x-passerby.x,last.y-passerby.y)<=80&&clearPath(activeWorld,last,passerby))return true;
   if(scene&&['wagon','smith','witness'].includes(speaker)&&nearActor(speaker))return true;
   const city=window['UPPDRAG_CH'+chapter+'_CITY_LIFE'];
