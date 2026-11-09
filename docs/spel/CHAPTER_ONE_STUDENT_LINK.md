@@ -1,5 +1,18 @@
 # Elevlänk – enbart kapitel 1 · 2.8.0
 
+## Klassernas delade länkar · bekräftade 2026-11-09
+
+Anders har delat två olika elevlänkar, en till varje klass. Det är avsiktligt accepterat att länkarna skiljer sig; håll reda på båda vid framtida ändringar.
+
+| Klass | Delad länk | Kapitelåtkomst |
+| --- | --- | --- |
+| 6A | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.7.1 | Enbart kapitel 1 |
+| 6B | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.9.0 | Enbart kapitel 1 |
+
+Skillnaden är `v`-parametern. Båda använder samma publicerade `spel-test/`-ingång och samma `only=1`-läge. `v` väljer inte ett historiskt kodpaket och ingår inte i sparningens prefix. Framsteg är lokala per webbläsare; versionssiffran skapar inte en ny sparning.
+
+Vid framtida uppdateringar: kontrollera båda klasslänkarna, deras kapitelgränser och sparningar. Dokumentets övriga länkar för kapitel 1–2 är tillgängliga alternativ, inte belägg för att de har delats med någon av klasserna. Byt inte ut klassernas länkar eller öppna fler kapitel automatiskt.
+
 Länken `?only=1&chapter=1&v=2.8.0` öppnar Frihetstiden i en elevvy med enbart kapitel 1. Menyn visar bara ettan. Senare kapitel förblir otillgängliga även när alla ettans nio stämplar är klara. Avslutningen och minnesboken erbjuder då ingen fortsättning till tvåan. Lärarvyn finns inte i denna elevvy.
 
 Elevvyn begränsar äppelförrådet till högst ett äpple. Ett äpple används till ett nytt försök på hela områdesprovet. Därefter behöver eleven avsluta en ny repetition hos Rut för att få ett nytt. Repetition med ett äpple kvar är fortfarande gratis men ger inget extra äpple och lovar ingen ny belöning. Sparade och importerade förråd över ett begränsas vid öppning; svar, stämplar, daler och historik behålls. Det vanliga spelets äppelförråd påverkas inte.
