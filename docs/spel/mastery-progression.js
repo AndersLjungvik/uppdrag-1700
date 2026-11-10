@@ -88,6 +88,7 @@ function fail(id,level){
  record('failed',{area:id,level,attempt:c.attempt||0});persist();return snapshot();
 }
 function retryWithApple(id,level){
+ if(!progressAllowed())return {ok:false,reason:'previous-chapter'};
  const c=cell(id,level);
  if(!['failed','pending'].includes(c.status))return {ok:false,reason:'not-retryable'};
  if(!resourceAdapter?.getApples||!resourceAdapter?.setApples)return {ok:false,reason:'no-resource-adapter'};
@@ -98,6 +99,7 @@ function retryWithApple(id,level){
  return {ok:true,remaining:apples-1};
 }
 function buyHint(id,level){
+ if(!progressAllowed())return {ok:false,reason:'previous-chapter'};
  const c=cell(id,level);
  if(level!=='learner')return {ok:false,reason:'learner-only'};
  if(c.status!=='in-progress')return {ok:false,reason:'not-in-progress'};
@@ -119,7 +121,9 @@ function reopenPending(id,level){
  // one apple. Reading feedback and teacher approval remain free.
  return retryWithApple(id,level);
 }
+function progressAllowed(){return window.UPPDRAG_CHAPTER_PROGRESS_ALLOWED?.()!==false;}
 function levelUnlocked(level){
+ if(!progressAllowed())return false;
  if(level==='learner')return true;
  if(level==='journeyman')return allClear('learner');
  if(level==='master')return allClear('learner')&&allClear('journeyman');
@@ -136,6 +140,6 @@ function summary(){
 }
 function snapshot(){return {chapter,config:clone(config),state:clone(state),summary:summary()}}
 function reset(){state=blank();recompute();persist();return snapshot()}
-const api={configure,begin,pass,pending,resumePending,reopenPending,fail,retryWithApple,buyHint,levelUnlocked,chapterComplete,summary,snapshot,reset,LEVELS:[...LEVELS],LABELS:{...LABELS}};
+const api={configure,begin,pass,progressAllowed,pending,resumePending,reopenPending,fail,retryWithApple,buyHint,levelUnlocked,chapterComplete,summary,snapshot,reset,LEVELS:[...LEVELS],LABELS:{...LABELS}};
 window.UPPDRAG_MASTERY=api;
 })();

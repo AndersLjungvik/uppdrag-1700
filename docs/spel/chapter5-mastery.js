@@ -112,10 +112,11 @@ function book(){
  if(s.masteryMigrationNotice)h+='<p class="mb-note">Dina tidigare svar och resurser är bevarade. Stämplar har bara förts över där hela områdets prov kan styrkas. Övriga områden behöver kompletteras.</p>';
  h+='<p class="mb-note">Alla fyra lärlingsstämplar öppnar gesällproven. Alla fyra gesällstämplar öppnar mästarproven. Sidoäventyr ger inga provstämplar.</p>';
  const review=materialReviewProgress();h+='<p class="mb-note">Hos Rut: '+review.done+' av '+review.total+' ord och årtal från bok- och bedömningsmaterialet repeterade. Hos Amira och Rut kan du skriva bokens resonemang.</p>';
+ if(!mastery.progressAllowed())h+='<p class="mb-note" role="status">Du kan besöka staden, men proven är låsta. Klara alla stämplar i kapitel 4 och tidigare kapitel först.</p>';
  for(const a of areas){
   h+='<section class="mb-area"><h3>'+esc(a.name)+'</h3><p class="mb-note">'+esc(a.place+' · '+a.who)+'</p><div class="mb-stamps">';
   for(let r=0;r<3;r++){
-   const st=status(a,levels[r]);
+   const st=!mastery.progressAllowed()&&status(a,levels[r])!=='clear'?'locked':status(a,levels[r]);
    h+='<button data-mb="select" data-area="'+a.id+'" data-level="'+levels[r]+'" class="mb-'+st+'"'+(st==='locked'?' disabled':'')+'><span>'+labels[r]+'</span>'+statusLabel[st]+'</button>';
   }
   h+='</div></section>';
@@ -251,7 +252,7 @@ let hudKey='';
 function tick(){window.UPPDRAG_CH5_SCENES?.tick();const key=JSON.stringify([mastery.summary(),s.daler,s.apples]);if(view==='closed'&&hudKey!==key){hudKey=key;drawHud();}}
 recall=window.UPPDRAG_RECALL_ENGINE.attach({chapter:5,state:()=>s,runs,facts,modal,storage,current,location:locationKey,present,previousKeys:{1:previousOneKey,2:previousTwoKey,3:previousThreeKey,4:previousKey},persist,drawHud,paint:paintCloseup,
  openArchive(){display('','quiz');},finished,close,goRut:goArchive,
- mastery:{hasPassed,available,renderStatus,recorded,pending,review,encountered,revise,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();return false;}}
+ mastery:{progressAllowed:mastery.progressAllowed,showProgressLock:book,hasPassed,available,renderStatus,recorded,pending,review,encountered,revise,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();return false;}}
 });
 // Import only complete, evidenced area attempts, in prerequisite order. Never infer
 // stamps from old chapter completion or from reading a model answer.
