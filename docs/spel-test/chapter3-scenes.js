@@ -43,10 +43,25 @@ function redraw(){if(interior){renderInterior();UPPDRAG_MEETINGS.redraw();}posit
 // A supporting speaker must never be snapped onto the primary room NPC.
 function supportingActors(p,tall){
  const actor=(name,pos,color,role)=>({name,pos,color,role});
- if(p==='square')return [actor('Soldaten',tall?[568,931,.51]:[900,621,.53],'#496b80','soldier-guard')];
+ if(p==='square')return [
+  {...actor('Bonden med staven',tall?[318,957,.51]:[560,651,.54],'#79715a','farmer-staff'),label:false},
+  {...actor('Bonden med lien',tall?[365,866,.43]:[610,586,.47],'#927b5d','farmer-scythe'),label:false},
+  {...actor('Bonden i grått',tall?[465,858,.43]:[760,584,.46],'#6f7561','farmer-staff'),label:false},
+  {...actor('Bonden med piken',tall?[515,1006,.50]:[825,658,.53],'#9b8260','farmer-pike'),label:false},
+  {...actor('Soldaten till höger',tall?[687,956,.47]:[1144,659,.51],'#496b80','soldier-guard'),label:false},
+  {...actor('Soldaten längre bak',tall?[646,837,.42]:[1110,569,.44],'#405f76','soldier-guard'),label:false},
+  {...actor('Soldaten vid ledet',tall?[580,847,.42]:[990,558,.43],'#536f7c','soldier-guard'),label:false},
+  actor('Soldaten',tall?[615,935,.51]:[1010,639,.55],'#496b80','soldier-guard')
+ ];
  if(p==='riksdag')return [actor('Hatten',tall?[210,960,.7]:[410,680,.75],'#75604b','hat-party'),actor('Mössan',tall?[395,950,.7]:[590,675,.75],'#7b866b','cap-party')];
  if(p==='fort')return [actor('Fästningsvakten',tall?[365,965,.64]:[815,675,.85],'#687b82','soldier-guard')];
- if(p==='courtyard')return [actor('Bonden',court.phase==='open'?(tall?[440,825,.57]:[850,535,.61]):(tall?[510,975,.67]:[395,690,.75]),'#8d7656','farmer'),...(court.phase==='open'&&!timeline.afterUprising?[actor('En resande',tall?[570,910,.57]:[1085,650,.62],'#7b806b','traveller')]:[])];
+ if(p==='courtyard'){
+  const open=court.phase==='open';return [
+   actor('Bonden',open?(tall?[485,795,.54]:[875,535,.57]):(tall?[510,975,.67]:[395,690,.75]),'#8d7656','farmer-pike'),
+   actor('Den äldre bonden',open?(tall?[322,562,.70]:[760,440,.62]):(tall?[395,890,.50]:[630,695,.62]),'#79715a',open?'farmer-rest':'farmer-staff'),
+   actor('Den yngre bonden',open?(tall?[623,925,.50]:[1080,650,.62]):(tall?[640,920,.50]:[805,700,.61]),'#8b7960','farmer-scythe')
+  ];
+ }
  return [];
 }
 function roomActors(geo){return supportingActors(geo.c?.key||room(),geo.w/geo.h<1.02);}
@@ -123,17 +138,17 @@ function openCourtyard(){
  if(room()!=='courtyard'||!idle())return false;
  if(court.phase==='arranging')return startArrangement();
  if(court.phase==='open'){
-  const line=court.revisited?(timeline.afterUprising?'Det är lugnare på gatan nu. Här går det fortfarande bra att vila.':'Några åt gången fungerar bra. Nu kommer vi fram till dörren.'):'Han berättade om gården han lämnat. Förut såg jag bara en hel folkmassa.';
+  const line=court.revisited?(timeline.afterUprising?'Det är lugnare på gatan nu. Här går det fortfarande bra att vila.':'Några åt gången fungerar bra. Nu kommer vi fram till dörren.'):'Nu kan de vila en stund. Och min dörr är fortfarande fri.';
   court.revisited=true;saveCourt();return speak([['Karin',line]]);
  }
- if(court.phase==='agreed')return speak([['Karin','Några åt gången, då. Men tunnorna står framför bänken.']],[['arrange','Jag hjälper dig att flytta dem.'],['later','Jag fortsätter senare.']],id=>{if(id==='arrange')startArrangement();});
+ if(court.phase==='agreed')return speak([['Karin','Några åt gången, då. Flytta tunnorna så att både bänken och gången blir fria.']],[['arrange','Jag hjälper dig att flytta dem.'],['later','Jag fortsätter senare.']],id=>{if(id==='arrange')startArrangement();});
  if(court.phase==='talked')return negotiate();
  const helped=read('uppdrag1700.ch2-window-bed.v1',{}).phase==='delivered';
- const line=timeline.afterUprising?'Det har lugnat sig på gatan, men jag måste kunna komma åt min egen dörr.':'De blir fler och fler. Jag tänker inte släppa in någon.';
- return speak([['Karin',helped?'Du kom tillbaka. Det var du som hjälpte mig med barnets täcke.':'Vad vill du?'],['Karin',line],['Bonden','Jag vill inte ha hennes hus. Bara någonstans att sitta en stund.']],
-  [['talk','Jag lyssnar på er båda.'],['later','Jag kommer förbi senare.']],id=>{if(id==='talk'){court.phase='talked';saveCourt();negotiate();}});
+ const line=timeline.afterUprising?'Det har lugnat sig på gatan, men jag måste kunna komma åt min egen dörr.':'Ni kan inte bara tränga er in. Jag måste kunna komma åt min dörr.';
+ return speak([['Karin',helped?'Du kom tillbaka. Det var du som hjälpte mig med barnets täcke.':'Vad vill du?'],['Karin',line],['Bonden','Vi har gått långt. Vi söker bara en plats att vila på.'],['Den äldre bonden','Mina ben orkar snart inte mer. Kan vi få sitta en stund?']],
+  [['talk','Jag lyssnar på vad ni behöver.'],['later','Jag kommer förbi senare.']],id=>{if(id==='talk'){court.phase='talked';saveCourt();negotiate();}});
 }
-function negotiate(){return speak([['Du','Vad är du rädd ska hända?'],['Karin','Att alla tränger sig in. Jag måste kunna komma åt min egen dörr.'],['Du','Kan några vila här om dörren lämnas fri?'],['Bonden','Vi kan turas om. Alla behöver inte gå in samtidigt.']],
+function negotiate(){return speak([['Du','Vad behöver ni för att det ska fungera?'],['Karin','Dörren och gången måste hållas fria. Och alla kan inte gå in samtidigt.'],['Bonden','Vi kan gå in några åt gången. De andra väntar vid grinden.'],['Den äldre bonden','Jag vill bara vila benen. Sedan lämnar jag plats åt nästa.'],['Du','Och om vi flyttar tunnorna så att ni kommer fram?'],['Karin','Då kan jag öppna grinden.']],
  [['agree','Föreslå några åt gången.'],['later','Vi kan prata vidare senare.']],id=>{if(id==='agree'){court.phase='agreed';saveCourt();openCourtyard();}});}
 function startArrangement(){
  if(room()!=='courtyard'||!idle()||!['agreed','arranging'].includes(court.phase))return false;
@@ -150,7 +165,7 @@ function startArrangement(){
   if(a==='a'||a==='b'){selected=a;updateSelection();}
   if(a==='close')closeArrangement();
   if(a==='guide'){court.layout={...Q.example};saveCourt();redraw();controls.querySelector('#ch3CourtMessage').textContent='Här är en placering. Det finns fler sätt. Visa Karin när du är klar.';}
-  if(a==='check'){const result=Q.check(court.layout);if(!result.ok){controls.querySelector('#ch3CourtMessage').textContent='Karin: '+result.reason;return;}court.phase='open';saveCourt();closeArrangement();redraw();speak([['Karin','Nu går det. Jag öppnar grinden.'],['Bonden','Tack. Mina ben tänker inte gå en meter till just nu.']]);}
+  if(a==='check'){const result=Q.check(court.layout);if(!result.ok){controls.querySelector('#ch3CourtMessage').textContent='Karin: '+result.reason;return;}court.phase='open';saveCourt();closeArrangement();redraw();speak([['Karin','Nu går det. Jag öppnar grinden.'],['Bonden','Tack. Vi turas om så att gången hålls fri.'],['Den äldre bonden','Äntligen en stunds vila.']]);}
  });redraw();controls.querySelector('button').focus();return true;
 }
 function place(id){if(!controls||!Q.slots[id])return false;court.layout[selected]=id;selectedSlot=id;saveCourt();redraw();controls.querySelector('#ch3CourtMessage').textContent='Prova en annan plats om du vill. När det finns rum kan du visa Karin.';return true;}
@@ -185,11 +200,10 @@ function continueTravel(){
 }
 function drawProps(g,p,tall,now,puppets){
  const speaking=engine.roomSpeaker;
- for(const actor of supportingActors(p,tall))puppets.side(...actor.pos,actor,false,now,speaking===actor.name,false,false,0,0,null);
  if(p!=='square')return;
  const geo=UPPDRAG_MEETINGS.geometryForRoom();if(!geo)return;
  // Quiet labels make the three speaking roles unambiguous at a glance.
- for(const [name,pos]of [['Du',geo.poses[0]],['Bonden',geo.poses[1]],...roomActors(geo).map(a=>[a.name,a.pos])]){
+ for(const [name,pos]of [['Du',geo.poses[0]],['Bonden',geo.poses[1]],...roomActors(geo).filter(a=>a.label!==false).map(a=>[a.name,a.pos])]){
   if(!pos)continue;const active=speaking===name,k=Math.max(1,Math.min(1.9,1/geo.p.scale));g.save();g.font=(active?'700':'600')+' '+(13*k)+'px Georgia';
   const width=g.measureText(name).width+18*k;g.fillStyle=UPPDRAG_PAPER_FIBRES.material(g,active?'#f0dc9d':'#e8ddc3','paper');
   g.beginPath();g.roundRect(pos[0]-width/2,pos[1]+7*k,width,21*k,3*k);g.fill();g.textAlign='center';g.fillStyle=active?'#352e20':'#5c523e';g.fillText(name,pos[0],pos[1]+21*k);g.restore();
@@ -216,12 +230,15 @@ function tick(){
  }
  lastPlayer={x:player.x,y:player.y,region:region.id};
 }
+function shuffledPatrolOptions(options,random=Math.random){
+ const shuffled=options.slice();for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}return shuffled;
+}
 function maybePatrol(){
  const city=UPPDRAG_CH3_CITY_LIFE,actor=city.find(region,'soldiers');
  if(!actor||Math.hypot(actor.x-player.x,actor.y-player.y)>100)return false;
  const known=new Set(pilot.repetitionTaskIds),bank=UPPDRAG_RECALL_BANK.filter(t=>known.has(t.id)&&t.rank===0&&t.fields.length===1&&t.fields[0].options?.length>=3&&t.fields[0].answers?.length);
  if(!bank.length)return false;
- const t=bank[(timeline.patrolCount||0)%bank.length],field=t.fields[0];challenge={actor,t,options:field.options.slice(),answer:field.answers[0]};
+ const t=bank[(timeline.patrolCount||0)%bank.length],field=t.fields[0];challenge={actor,t,options:shuffledPatrolOptions(field.options),answer:field.answers[0]};
  timeline.patrolCount=(timeline.patrolCount||0)+1;timeline.lastPatrol=Date.now();timeline.nextPatrol=timeline.distance+750+(timeline.patrolCount%3)*130;saveStory();path=[];UPPDRAG_WORLD_KEYBOARD.clear();
  if(!city.open(actor,[['Soldaten','Ett ögonblick. Jag vill höra vad du har fått veta.'],['Soldaten',t.prompt]])){challenge=null;return false;}return true;
 }

@@ -12,9 +12,9 @@ function fixture(ch,prior=new Map(),lessonLimit=ch<=2?2:0){
   __INTEGRATED_CHAPTER:ch,__UPPDRAG_LESSON_ONLY:lessonLimit,addEventListener(){},setMessage(){},leaveInterior(){c.interior=null;},requestInterior(){},requestHarbour(){},
   localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v))}};c.window=c;vm.createContext(c);
  for(const name of ['recall-bank.js','recall-assessment.js'])vm.runInContext(scripts[name],c);
- for(const name of ['questions/fixes.js','questions/alignment.js','questions/power-language.js','mastery-recall-adapter.js','mastery-progression.js','mastery-review-recovery.js'])vm.runInContext(read(name),c);
+ for(const name of ['questions/fixes.js','questions/alignment.js','questions/power-language.js','gameplay-tuning.js','mastery-recall-adapter.js','mastery-progression.js','mastery-review-recovery.js'])vm.runInContext(read(name),c);
  if(ch>=4)for(const suffix of ['material','review'])vm.runInContext(read('questions/chapter'+ch+'-'+suffix+'.js'),c);
- vm.runInContext(c.UPPDRAG_MASTERY_RECALL.source(scripts['recall-flow.js']),c);
+ vm.runInContext(c.UPPDRAG_MASTERY_RECALL.source(c.UPPDRAG_GAMEPLAY_TUNING.source('recall-flow.js',scripts['recall-flow.js'])),c);
  vm.runInContext(read('chapter'+ch+'-mastery.js'),c);
  const p=c['UPPDRAG_CH'+ch+'_PILOT'],modal=stage.children.find(x=>x.id==='ch1Modal');
  function action(name){modal.events.click({target:{closest:sel=>sel==='[data-mb]'?{dataset:{mb:name}}:null}});}
