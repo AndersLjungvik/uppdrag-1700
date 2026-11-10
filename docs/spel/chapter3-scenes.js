@@ -43,7 +43,7 @@ function personPose(who,geo){
  const tall=geo.w/geo.h<1.02;
  const special={
   Hatten:tall?[210,960,.7]:[410,680,.75],Mössan:tall?[395,950,.7]:[590,675,.75],
-  Soldaten:tall?[380,952,.67]:[780,670,.82],Fästningsvakten:tall?[365,965,.64]:[815,675,.85],
+  Soldaten:tall?[568,931,.51]:[900,621,.53],Fästningsvakten:tall?[365,965,.64]:[815,675,.85],
   Bonden:room()==='courtyard'?(court.phase==='open'?(tall?[440,825,.57]:[850,535,.61]):(tall?[510,975,.67]:[395,690,.75])):geo.poses[1]
  };
  return who==='Du'?geo.poses[0]:special[who]||geo.poses[1]||geo.poses[0];
@@ -64,7 +64,7 @@ function study(p){if(room()!==p)return false;pilot.enterMemory(aid[p]);return tr
 function offerStudy(p,lines){
  const a=aid[p],q=UPPDRAG_MASTERY.summary(),l=q.label.toLocaleLowerCase('sv');
  const complete=UPPDRAG_MASTERY.snapshot().state.areas[a]&&Object.values(UPPDRAG_MASTERY.snapshot().state.areas[a]).every(x=>x.status==='clear');
- if(complete)return speak([[p==='fort'?'Fästningsvakten':p==='palace'?'Amira':p==='square'?'Bonden':'Elin',p==='fort'?'David arbetar fortfarande här. Vill du repetera kan Rut hjälpa dig.':'Välkommen tillbaka. Vi kan fortsätta prata en annan gång.']]);
+ if(complete)return speak([[p==='fort'?'David':p==='palace'?'Amira':p==='square'?'Bonden':'Elin',p==='fort'?'Du har redan visat vad du vet om min vägran och mitt straff. Vill du repetera kan Rut hjälpa dig.':'Välkommen tillbaka. Vi kan fortsätta prata en annan gång.']]);
  return speak(lines,[['study','Pröva '+l+'frågorna.'],['later','Vi ses senare.']],id=>{if(id==='study')study(p);});
 }
 function openRoom(p){
@@ -99,8 +99,8 @@ function openRoom(p){
    });
  }
  if(p==='fort'){
-  if(!first)return offerStudy(p,[['Fästningsvakten','Här finns minnesprovet om Davids vägran och straff.']]);
-  return speak([['Du','Jag har hört att du vägrade skjuta.'],['David','Mot bönderna, ja.'],['Du','Vad hände sedan?'],['David','Jag dömdes till döden. Straffet ändrades. Nu är jag här och arbetar.']],
+  if(!first)return offerStudy(p,[['David','Vad minns du om min vägran och straffet jag fick?']]);
+  return speak([['Du','Jag har hört att du vägrade skjuta.'],['David','Jag heter David Hedenquist. Ja, jag vägrade skjuta mot bönderna.'],['Du','Vad hände sedan?'],['David','Jag dömdes till döden. Straffet ändrades. Nu är jag här och arbetar.']],
    [['hard','Det måste ha varit svårt att vägra.'],['obey','De andra säger att en soldat måste lyda.']],id=>offerStudy(p,[['David',id==='hard'?'Det gjorde inte följderna lättare. Men jag ville inte skjuta mot dem.':'Det var också vad jag fick höra. Ändå vägrade jag.'],['Fästningsvakten','Dödsstraffet ändrades till straffarbete här på Marstrand. Minnesprovet gäller handlingen och straffet.']]));
  }
  return false;
@@ -180,8 +180,8 @@ function continueTravel(){
 function drawProps(g,p,tall,now,puppets){
  const speaking=engine.roomSpeaker;
  const person=(name,pos,color,extra={})=>puppets.side(...pos,{name,color,...extra},false,now,speaking===name,false,false,0,0,null);
- if(p==='riksdag'){person('Hatten',tall?[210,960,.7]:[410,680,.75],'#75604b');person('Mössan',tall?[395,950,.7]:[590,675,.75],'#7b866b');}
- if(p==='square'){person('Soldaten',tall?[380,952,.67]:[780,670,.82],'#687b82');if(!timeline.afterUprising)person('En bonde',tall?[260,880,.57]:[550,630,.65],'#8e795c');}
+ if(p==='riksdag'){person('Hatten',tall?[210,960,.7]:[410,680,.75],'#75604b',{role:'hat-party'});person('Mössan',tall?[395,950,.7]:[590,675,.75],'#7b866b',{role:'cap-party'});}
+ if(p==='square'){person('Soldaten',tall?[568,931,.51]:[900,621,.53],'#687b82');if(!timeline.afterUprising)person('En bonde',tall?[337,797,.35]:[641,494,.32],'#8e795c');}
  if(p==='fort')person('Fästningsvakten',tall?[365,965,.64]:[815,675,.85],'#687b82');
  if(p==='courtyard'){
   person('Bonden',court.phase==='open'?(tall?[440,825,.57]:[850,535,.61]):(tall?[510,975,.67]:[395,690,.75]),'#8d7656');

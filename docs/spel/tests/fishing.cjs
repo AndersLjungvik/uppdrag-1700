@@ -2,12 +2,13 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..'),read=n=>fs.readFileSync(path.join(root,n),'utf8'),copy=v=>JSON.parse(JSON.stringify(v));
 const c={window:{}};vm.createContext(c);vm.runInContext(read('fishing-model.js'),c);vm.runInContext(read('fishing.js'),c);const M=c.window.UPPDRAG_FISHING_MODEL;
-function harness(raw={},balance=12){let saved,near=true,kitchen=false,payments=0,debits=0,now=0;const practice=[];
+function harness(raw={},balance=12){let saved,near=true,kitchen=false,payments=0,debits=0,apples=0,now=0;const practice=[];
  const model=M.create(raw,{save:s=>saved=copy(s),wallet:()=>balance,atShop:()=>near,atWater:()=>near,atKitchen:()=>kitchen,random:()=>0,
- debit(n,expected){assert.equal(balance,expected);debits++;assert.equal(model.buy().reason,'busy');balance-=n;return true;},credit(n){payments++;balance+=n;return true;},practice:id=>practice.push(id)});
+ debit(n,expected){assert.equal(balance,expected);debits++;assert.equal(model.buy().reason,'busy');balance-=n;return true;},credit(n){payments++;apples+=n;return true;},practice:id=>practice.push(id)});
  const tick=(cfg={})=>{now+=100;return model.tick(now,cfg);};
  const bite=(ch=4,id='known')=>{assert(model.cast(ch,id).ok);for(let i=0;i<40&&model.snapshot().phase==='waiting';i++)tick();assert.equal(model.snapshot().phase,'question');};
- return {model,tick,bite,practice,set near(v){near=v;},set kitchen(v){kitchen=v;},get saved(){return saved;},get balance(){return balance;},get payments(){return payments;},get debits(){return debits;}};
+ const reel=()=>{assert.equal(model.submit(true,'rätt').reason,'reel');assert.equal(model.pull().reason,'pull');assert.equal(model.pull().reason,'landing');for(let i=0;i<8;i++)tick();return model.snapshot().outcome;};
+ return {model,tick,bite,reel,practice,set near(v){near=v;},set kitchen(v){kitchen=v;},get saved(){return saved;},get balance(){return balance;},get apples(){return apples;},get payments(){return payments;},get debits(){return debits;}};
 }
 {
  const poor=harness({},9);assert.equal(poor.model.buy().reason,'funds');assert.equal(poor.balance,9);
@@ -15,13 +16,25 @@ function harness(raw={},balance=12){let saved,near=true,kitchen=false,payments=0
  h.bite();assert.equal(h.model.submit(false,'minns inte').reason,'practice');assert.deepEqual(h.practice,['known']);assert.equal(h.saved.fish.length,0);h.model.close();
  assert(h.model.cast(4,'known').ok);for(let i=0;i<50;i++)h.tick({paused:true});assert.equal(h.model.snapshot().phase,'waiting');h.tick({present:false});assert.equal(h.model.snapshot().phase,'idle');assert.equal(h.model.submit(true).reason,'inactive');
  h.bite();const restored=harness(h.saved);assert(restored.model.snapshot().state.rod);assert.equal(restored.model.snapshot().phase,'idle');assert.equal(restored.model.submit(true).reason,'inactive','reload cannot turn waiting into a catch');
- h.model.submit(true,'rätt');assert.equal(h.model.snapshot().state.fish.length,1);assert.equal(h.model.submit(true).reason,'inactive');h.model.close();
- assert.equal(h.model.deliver(4).reason,'away');h.kitchen=true;assert.equal(h.model.deliver(4).amount,1);assert.equal(h.balance,3);assert.equal(h.model.deliver(4).reason,'empty');assert.equal(h.payments,1);
- for(let i=0;i<2;i++){h.bite();h.model.submit(true);h.model.close();assert.equal(h.model.deliver(4).amount,1);}
- assert.equal(h.model.snapshot().state.chapters[4].delivered,3);assert.equal(h.balance,5);
- h.bite();assert.equal(h.model.submit(true).reason,'released');assert.equal(h.model.snapshot().state.fish.length,0);h.model.close();assert.equal(h.model.deliver(4).reason,'limit');assert.equal(h.payments,3);
- const next=harness(h.saved,5);next.bite(5);assert.equal(next.model.submit(true).reason,'caught');assert(next.model.snapshot().state.rod);assert.equal(next.debits,0,'equipment is retained across chapters');
+ h.reel();assert.equal(h.model.snapshot().state.fish.length,1);assert.equal(h.model.submit(true).reason,'inactive');assert.equal(h.model.pull().reason,'inactive');h.model.close();
+ assert.equal(h.model.deliver(4).reason,'away');h.kitchen=true;assert.equal(h.model.deliver(4).amount,1);assert.equal(h.balance,2);assert.equal(h.apples,1);assert.equal(h.model.deliver(4).reason,'empty');assert.equal(h.payments,1);
+ for(let i=0;i<2;i++){h.bite();h.reel();h.model.close();assert.equal(h.model.deliver(4).amount,1);}
+ assert.equal(h.model.snapshot().state.chapters[4].delivered,3);assert.equal(h.balance,2);assert.equal(h.apples,3);
+ h.bite();assert.equal(h.reel(),'released');assert.equal(h.model.snapshot().state.fish.length,0);h.model.close();assert.equal(h.model.deliver(4).reason,'limit');assert.equal(h.payments,3);
+ const next=harness(h.saved,5);next.bite(5);assert.equal(next.reel(),'caught');assert(next.model.snapshot().state.rod);assert.equal(next.debits,0,'equipment is retained across chapters');
  console.log('PASS fishing economy: 10-daler permanent rod, physical trades, insufficient funds, no double debit, bounded delivery, correct/wrong/released catches, interruption, pause and reload');
+}
+{
+ const h=harness({rod:true});assert.equal(h.model.pull().reason,'inactive');h.bite();assert.equal(h.model.submit(true).reason,'reel');assert.equal(h.model.snapshot().state.fish.length,0,'a correct answer alone is not a catch');
+ for(let i=0;i<60;i++)h.tick();assert.equal(h.model.snapshot().phase,'reeling','no rush to start pulling');
+ assert.equal(h.model.pull().reason,'pull');for(let i=0;i<60;i++)h.tick({paused:true});assert.equal(h.model.snapshot().pullMs,900,'menus pause the double-tap window');
+ for(let i=0;i<10;i++)h.tick();assert.equal(h.model.snapshot().pullMs,0);assert.equal(h.model.snapshot().phase,'reeling','slow taps keep the fish');
+ assert.equal(h.model.pull().reason,'pull');assert.equal(h.model.pull().reason,'landing');assert.equal(h.model.snapshot().state.fish.length,0,'two taps start the landing animation');
+ for(let i=0;i<60;i++)h.tick({paused:true});assert.equal(h.model.snapshot().landingProgress,0,'hidden tabs and other activities pause the landing');
+ h.tick();assert(h.model.snapshot().landingProgress>0);h.tick({present:false});assert.equal(h.model.snapshot().phase,'idle');assert.equal(h.model.snapshot().state.fish.length,0,'interrupting the landing cannot award a fish');
+ h.bite();h.model.submit(true);h.model.pull();const reload=harness(h.saved);assert.equal(reload.model.snapshot().phase,'idle');assert.equal(reload.model.snapshot().state.fish.length,0,'reload during pulling does not award a fish');
+ const legacy=harness({rod:true,chapters:{4:{delivered:3}}});legacy.kitchen=true;assert.equal(legacy.model.deliver(4).reason,'limit');assert.equal(legacy.apples,0,'old paid orders cannot be claimed again as apples');
+ console.log('PASS active landing: no automatic catch, forgiving two-tap window, pause, cancellation, reload and legacy delivery limit');
 }
 const {fixture:worldFixture}=require('./apple-threats-world.cjs'),{fixture:pilotFixture}=require('./mastery-apple-retry.cjs');
 {
@@ -82,12 +95,22 @@ for(const ch of [4,5]){
  const higher=h.c.UPPDRAG_RECALL_BANK.find(t=>t.chapter===selected.chapter&&t.topic===selected.topic&&t.rank===2);assert(higher);p.state.recallRutFocus=[higher.id];h.answer('Jag minns inte');assert.equal(api.fishCount,0);assert.deepEqual(copy(p.state.recallRutFocus),[higher.id]);assert(h.dialog.innerHTML.includes('Ett exempel på rätt svar'));h.click('close');
  assert(api.cast());const shore=api.spot();h.c.player.x-=Math.cos(shore.heading)*18;h.c.player.y-=Math.sin(shore.heading)*18;h.tick();assert.equal(api.snapshot.phase,'idle','walking away reels in without a free catch');assert.equal(api.fishCount,0);
  h.c.player={...last};
- assert(api.cast());for(let i=0;i<60&&api.snapshot.phase==='waiting';i++)h.tick();const t=h.c.UPPDRAG_RECALL_BANK.find(t=>t.id===api.snapshot.taskId);h.answer(t.fields[0].sample);assert.equal(api.fishCount,1);h.answer(t.fields[0].sample);assert.equal(api.fishCount,1);h.click('close');
+ assert(api.cast());for(let i=0;i<60&&api.snapshot.phase==='waiting';i++)h.tick();const t=h.c.UPPDRAG_RECALL_BANK.find(t=>t.id===api.snapshot.taskId);h.answer(t.fields[0].sample);assert.equal(api.fishCount,0);assert.equal(api.snapshot.phase,'reeling');assert.equal(h.dialog.open,false,'the answer closes so the real map and pulling animation are visible');h.answer(t.fields[0].sample);assert.equal(api.snapshot.phase,'reeling');
+ h.tick();assert(h.els.find(e=>e.id==='fishingHint').textContent.includes('Helt rätt!'));assert(api.blocking);
+ h.key('keydown',' ');assert(api.snapshot.pullMs>0);h.key('keydown',' ',true);assert.equal(api.snapshot.phase,'reeling','holding Space cannot count as two pulls');h.key('keyup',' ');
+ for(let i=0;i<12;i++)h.tick();assert.equal(api.snapshot.phase,'reeling');assert.equal(api.snapshot.pullMs,0);assert(h.els.find(e=>e.id==='fishingHint').textContent.includes('Fisken är kvar'));
+ h.key('keydown',' ');h.key('keyup',' ');h.key('keydown',' ');h.key('keyup',' ');assert.equal(api.snapshot.phase,'landing');assert.equal(api.fishCount,0);h.tick();
+ const calls=[],draw=new Proxy({getTransform:()=>({a:1,b:0,c:0,d:1,e:0,f:0})},{get:(o,k)=>k in o?o[k]:(...a)=>calls.push([k,...a]),set:(o,k,v)=>(o[k]=v,true)});
+ h.c.UPPDRAG_WORLD_LIFE.draw(draw,{region:h.c.region});assert(calls.some(a=>a[0]==='ellipse'&&a[3]===11),'the landed fish body is drawn');assert(calls.some(a=>a[0]==='quadraticCurveTo'),'the rod and line are drawn during landing');
+ for(let i=0;i<8;i++)h.tick();assert.equal(api.fishCount,1);assert(h.dialog.open);assert(h.dialog.innerHTML.includes('ett äpple per fisk'));h.key('keydown',' ');h.key('keyup',' ');assert.equal(api.fishCount,1,'more taps cannot duplicate a landed fish');h.click('close');
  h.tick();assert(h.els.find(e=>e.id==='fishingHint').textContent.includes('1 fisk i korgen'),'the waiting hint is replaced after a successful catch');assert(api.journalHTML().includes('1 fisk i korgen'));
- assert.equal(api.deliver(),false);h.room('barnhus');assert(api.deliver());assert.equal(p.state.daler,3);assert.equal(api.fishCount,0);assert.equal(api.deliver(),false);assert.equal(p.state.daler,3);assert(h.speech.lines[0][1].includes('Här får du en daler'));
- assert.deepEqual(copy({record:p.state.record,earned:p.state.earned,apples:p.state.apples,review:p.state.reviewQueue,mastery:h.real.m.snapshot().state}),kept,'fishing never awards a stamp or changes main answers/apples');
+ assert.equal(api.deliver(),false);h.room('barnhus');assert(api.deliver());assert.equal(p.state.daler,2);assert.equal(p.state.apples,kept.apples+1);assert.equal(api.fishCount,0);assert.equal(api.deliver(),false);assert.equal(p.state.daler,2);assert.equal(p.state.apples,kept.apples+1);assert(h.speech.lines[0][1].includes('Här får du ett äpple'));
+ assert.deepEqual(copy({record:p.state.record,earned:p.state.earned,apples:p.state.apples-1,review:p.state.reviewQueue,mastery:h.real.m.snapshot().state}),kept,'delivery gives exactly one apple and preserves knowledge progress');
  assert(JSON.parse(h.h.memory.get('uppdrag1700.fishing.v1')).rod);assert(p.state.fishingRodReceipt);assert.equal(Object.keys(p.state.fishingPayments).length,1);
  console.log('PASS real chapter '+ch+': real known bank question, short written recall, failed-answer Rut priority, exact currency, physical kitchen, saved equipment and preserved mastery');
+ h.room(null);assert(api.cast());for(let i=0;i<60&&api.snapshot.phase==='waiting';i++)h.tick();h.answer(h.c.UPPDRAG_RECALL_BANK.find(t=>t.id===api.snapshot.taskId).fields[0].sample);
+ const button=h.els.find(e=>e.id==='fishingAction');h.tick();assert(!button.hidden);for(const f of button.events.click)f();assert.equal(api.snapshot.phase,'reeling');for(const f of button.events.click)f();assert.equal(api.snapshot.phase,'landing','touch/click uses the same two-pull mechanic');
+ h.c.document.hidden=true;for(let i=0;i<20;i++)h.tick();assert.equal(api.fishCount,0,'hidden document cannot finish landing');h.c.document.hidden=false;for(let i=0;i<8;i++)h.tick();assert.equal(api.fishCount,1);h.click('close');
 }
 {
  const h=adapter(4,true),p=h.real.p;p.state.daler=3;h.tick();assert(h.dialog.open);assert(h.dialog.innerHTML.includes('12 testdaler'));assert.equal(p.state.daler,3,'test credit waits for explicit start');h.click('demo');assert.equal(p.state.daler,12);assert(p.state.fishingDemoGranted);assert.equal(h.harbourRequests,1);assert(p.repetitionTaskIds.length>=3,'the three visibly introduced test memories enter the genuine available pool');h.click('demo');assert.equal(p.state.daler,12);assert.equal(p.state.record.length,0);assert(!h.real.m.chapterComplete());
