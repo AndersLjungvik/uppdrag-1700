@@ -111,10 +111,11 @@ function book(){
  if(!story.introduced&&!q.chapterComplete)h+='<p class="mb-note">Maja på Kaffehuset visar hur minnesboken fungerar. Du kan också gå direkt till ett område.</p><button data-mb="maja">Besök Maja</button>';
  if(s.masteryMigrationNotice)h+='<p class="mb-note">Dina svar, pengar och äpplen finns kvar. Stämplar som spelet kunde kontrollera finns också kvar. Gör de prov som återstår i minnesboken.</p>';
  h+='<p class="mb-note">Klara de tre lärlingsproven för att öppna gesällproven. Klara sedan gesällproven för att öppna mästarproven. Sidoäventyren ger inga stämplar.</p>';
+ if(!mastery.progressAllowed())h+='<p class="mb-note" role="status">Du kan besöka staden, men proven är låsta. Klara alla stämplar i kapitel 0 och tidigare kapitel först.</p>';
  for(const a of areas){
   h+='<section class="mb-area"><h3>'+esc(a.name)+'</h3><p class="mb-note">'+esc(a.place+' · '+a.who)+'</p><div class="mb-stamps">';
   for(let r=0;r<3;r++){
-   const st=status(a,levels[r]);
+   const st=!mastery.progressAllowed()&&status(a,levels[r])!=='clear'?'locked':status(a,levels[r]);
    h+='<button data-mb="select" data-area="'+a.id+'" data-level="'+levels[r]+'" class="mb-'+st+'"'+(st==='locked'?' disabled':'')+'><span>'+labels[r]+'</span>'+statusLabel[st]+'</button>';
   }
   h+='</div></section>';
@@ -290,7 +291,7 @@ const reviewRewards={
 };
 recall=window.UPPDRAG_RECALL_ENGINE.attach({chapter:1,state:()=>s,runs,facts,modal,storage,current,location:locationKey,present,previousKeys:{},persist,drawHud,paint:paintCloseup,
  openArchive(){display('','quiz');},finished,close,goRut:goArchive,
- mastery:{hasPassed,available,renderStatus,recorded,pending,review,encountered,...reviewRewards,revise,practiceRetry:true,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();if(name==='practice-review'){practice();return true;}return false;}}
+ mastery:{progressAllowed:mastery.progressAllowed,showProgressLock:book,hasPassed,available,renderStatus,recorded,pending,review,encountered,...reviewRewards,revise,practiceRetry:true,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();if(name==='practice-review'){practice();return true;}return false;}}
 });
 // Import only complete, evidenced area attempts, in prerequisite order. Never infer
 // stamps from old chapter completion or from reading a model answer.
