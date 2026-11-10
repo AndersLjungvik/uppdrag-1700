@@ -95,7 +95,7 @@ function close(){view='closed';if(dialog.open)dialog.close();(returnFocus?.isCon
 function render(message=''){
  const buying=view==='shop',items=modelAPI.catalog.filter(h=>buying||model.owns(h.id)),balance=pilot()?.state?.daler??0;
  dialog.innerHTML='<div class="hat-top"><h2 id="hatShopTitle">'+(buying?'Hatthandlaren':'Mina hattar')+'</h2><button type="button" data-hat-close>Till spelet</button></div>'+
-  '<p>'+(buying?'En ny hatt? Här finns mössor och trekantshattar.':'Välj vilken hatt du vill ha på dig.')+'</p>'+
+  '<p>'+(buying?'En ny hatt? En del stadsbor hälsar olika beroende på vad du bär. En trekantshatt kan reta upp de ryska lägervakterna; en mössa kan lugna dem. Men kläder visar inte säkert vad någon tycker.':'Välj vilken hatt du vill ha på dig.')+'</p>'+
   '<p class="hat-balance">Du har '+balance+' daler.</p><div class="hat-grid">'+items.map(h=>{
    const owned=model.owns(h.id),worn=model.wear.id===h.id;
    return '<article class="hat-card" data-worn="'+worn+'"><canvas width="224" height="138" data-hat-picture="'+h.id+'" aria-hidden="true"></canvas><strong>'+h.name+'</strong><span class="hat-price">'+(owned?'Din hatt':h.price+' daler')+'</span><button type="button" data-hat="'+h.id+'" '+(worn?'disabled':'')+'>'+ (worn?'På dig':owned?'Ta på':balance<h.price?'Saknar daler':'Köp · '+h.price+' daler')+'</button></article>';
