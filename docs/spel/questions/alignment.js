@@ -62,6 +62,17 @@ function shortCheck(f,value,original){
  return 'review';
 }
 const prompts={
+ 'rc1-law-0':'Vad innehöll grundlagen regler om, och vilka måste vara överens för att ändra den?',
+ 'rc1-trade-0':'Vilken del av världen handlade Ostindiska kompaniet med, och till vilket land fördes varorna?',
+ 'rc2-barnhus-0':'Varför behövde en del barn bo på barnhus?',
+ 'rc3-parties-0':'Vilket land stödde hattarna, och vilket land stödde mössorna?',
+ 'rc3-war-0':'Hur gick kriget mot Ryssland för Sverige, och var låg områdena som Sverige fick lämna?',
+ 'rc3-war-1':'Vilket land krigade Sverige mot, och var låg områdena som Sverige fick lämna efter förlusten?',
+ 'rc3-uprising-0':'Varifrån och vart marscherade bönderna under Stora daldansen, och vilket år var det?',
+ 'rc3-david-0':'Vad vägrade David Hedenquist göra mot bönderna?',
+ 'rc4-reading-0':'Vem ansvarade för läsundervisningen, och vilken bok användes?',
+ 'rc5-coup-1':'Vem tog makten i statskuppen, vilket år skedde det och vilken grupp förlorade sin politiska makt?',
+ 'rc5-reforms-0':'Vad hände med tortyren respektive dödsstraffet under Gustav III?',
  'rc1-power-1':'Avsluta förklaringen. Beskriv både hur regentens makt ändrades och vilka som fick mer inflytande.',
  'rc1-trade-1':'Fyll i landet och en vara i varsin ruta. Ett varunamn räcker; du får ange flera. Ingen förklaring av handeln behövs här.',
  'rc1-trade-2':'Beskriv Ostindiska kompaniets uppgift: vilken del av världen handlade det med, och nämn en vara som fördes till Sverige.',
@@ -75,7 +86,9 @@ const prompts={
  'rc5-reforms-2':'Vad hände med tortyren respektive dödsstraffet? Beskriv skillnaden mellan förändringarna.',
  'rc5-rights-2':'Beskriv förändringen för judar och katoliker och en förändring för ogifta kvinnor eller deras barn. Ange också att begränsningar fanns kvar.'
 };
+let decoratedBank=[];
 A.decorate=function(bank){
+ decoratedBank=bank;
  previousDecorate(bank);
  for(const t of bank){
   if(prompts[t.id])t.prompt=prompts[t.id];
@@ -99,9 +112,57 @@ function status(details){
  if(details.some(d=>d.status==='review'))return 'review';
  return 'sufficient';
 }
+// Multiple-choice answers can combine several facts in one option. For open
+// retrieval, name each required fact and reuse only its own existing rubric.
+const ref=(id,index)=>({ref:id,index});
+const fact=(label,sample,answers)=>({label,sample,answers});
+const openFields={
+ 'rc1-law-0':[ref('rc1-law-1',0),ref('rc1-law-1',1)],
+ 'rc1-trade-0':[fact('Del av världen','Asien',['Asien','Kina']),fact('Varornas destination','Sverige',['Sverige','till Sverige'])],
+ 'rc2-barnhus-0':[ref('rc2-barnhus-1',0)],
+ 'rc3-parties-0':[ref('rc3-parties-1',1),ref('rc3-parties-1',2)],
+ 'rc3-war-0':[fact('Hur gick kriget för Sverige?','Sverige förlorade',['Sverige förlorade','förlorade','förlust','Sverige förlorade kriget']),fact('Var låg områdena?','Finland',['Finland','i Finland','områden i Finland','delar av Finland'])],
+ 'rc3-uprising-0':[ref('rc3-uprising-1',0)],
+ 'rc3-david-0':[ref('rc3-david-1',0)],
+ 'rc4-reading-0':[fact('Ansvarig för undervisningen','Kyrkan',['Kyrkan','prästerna','prästen']),fact('Bok som användes','Katekesen',['katekesen','Luthers katekes','Luthers lilla katekes'])],
+ 'rc5-reforms-0':[ref('rc5-reforms-2',0)],
+ 'rc5-press-0':[ref('rc5-press-1',0)]
+};
+function canonical(id){return decoratedBank.find(t=>t.id===id);}
+function openTask(t){
+ // Chapter 5 has its own book-based fields and assessment rules. Preserve
+ // every added fact and carry its matching rule into the open view.
+ if(t.chapter===5&&t.materialVersion&&t.rank===0){
+  const replacements={support:{1:0},reforms:{2:2},press:{0:0,1:1}};
+  const mapping=replacements[t.topic]||{},sibling=canonical('rc5-'+t.topic+'-1');
+  const fields=t.fields.map((f,i)=>{const field={...(mapping[i]!==undefined?sibling.fields[mapping[i]]:f)};delete field.options;return field;});
+  return {...t,kind:'fields',fields};
+ }
+ const specs=t.rank===0?openFields[t.id]:null;
+ const fields=specs?specs.map(f=>f.ref?{...canonical(f.ref).fields[f.index]}:{...f}):t.fields.map(f=>({...f}));
+ for(const f of fields)delete f.options;
+ return {...t,kind:'fields',fields,openResponse:!!specs};
+}
+function assessOpen(t,drafts,check){
+ const details=[];
+ openFields[t.id].forEach((spec,i)=>{
+  if(spec.ref){
+   const source=canonical(spec.ref),values=source.fields.map((f,j)=>j===spec.index?drafts[i]:f.sample);
+   const result=previousAssess(source,values,check);
+   const selected=result.details.filter(d=>d.field===spec.index);
+   if(selected.length)details.push(...selected.map(d=>({...d,field:i})));
+   else details.push({field:i,status:'review',label:t.fields[i].label});
+  }else{
+   const value=drafts[i],answer=A.isMeaningful(value)?check(t.fields[i],value):'empty';
+   details.push({field:i,status:answer,label:t.fields[i].label});
+  }
+ });
+ return {status:status(details),details};
+}
 A.assess=function(t,drafts,original){
  drafts=drafts.map(spelling);
  const check=(f,v)=>shortCheck(f,v,original);
+ if(t.openResponse&&openFields[t.id])return assessOpen(t,drafts,check);
  if(t.id==='rc3-david-2'&&!t.fields[0].answers){
   const details=[];const value=String(drafts[0]??''),s=norm(value);
   if(!A.isMeaningful(value))details.push({field:0,status:'empty',label:'Ange vad David vägrade göra.'});
@@ -143,6 +204,6 @@ function flow(source){
  for(const [a,b] of edits){if(!source.includes(a))throw Error('Frågeanpassningen passar inte denna version av motorn.');source=source.replace(a,b);}
  return source;
 }
-A.version+='-scope-3.1';window.UPPDRAG_PROMPT_ALIGNMENT={flow,shortCheck,spelling,version:'3.1.0'};
+A.version+='-scope-3.1';window.UPPDRAG_PROMPT_ALIGNMENT={flow,shortCheck,spelling,openTask,version:'3.1.0'};
 window.UPPDRAG_FRAGTEST_VERSION='3.1.0';
 })();

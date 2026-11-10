@@ -245,7 +245,7 @@ let hudKey='';
 function tick(){window.UPPDRAG_CH3_SCENES?.tick();const key=JSON.stringify([mastery.summary(),s.daler,s.apples]);if(view==='closed'&&hudKey!==key){hudKey=key;drawHud();}}
 recall=window.UPPDRAG_RECALL_ENGINE.attach({chapter:3,state:()=>s,runs,facts,modal,storage,current,location:locationKey,present,previousKeys:{1:previousOneKey,2:previousKey},persist,drawHud,paint:paintCloseup,
  openArchive(){display('','quiz');},finished,close,goRut:goArchive,
- mastery:{hasPassed,available,renderStatus,recorded,pending,encountered,revise,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();return false;}}
+ mastery:{hasPassed,available,renderStatus,recorded,pending,review,encountered,revise,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();return false;}}
 });
 // Import only complete, evidenced area attempts, in prerequisite order. Never infer
 // stamps from old chapter completion or from reading a model answer.
