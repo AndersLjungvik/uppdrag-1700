@@ -39,14 +39,20 @@ function placeKey(){return interior?.outdoor?(region.id==='main'?'quay':region.i
 function busy(){return !!controls||!!summary;}
 function idle(){return !busy()&&!engine.busy&&!pilot.studyBusy&&!UPPDRAG_MEETINGS.state.talking&&!UPPDRAG_CH3_CITY_LIFE.active&&!voyage;}
 function redraw(){if(interior){renderInterior();UPPDRAG_MEETINGS.redraw();}positionTargets();}
+// These actors are shared by painting, dialogue anchors and bubble avoidance.
+// A supporting speaker must never be snapped onto the primary room NPC.
+function supportingActors(p,tall){
+ const actor=(name,pos,color,role)=>({name,pos,color,role});
+ if(p==='square')return [actor('Soldaten',tall?[568,931,.51]:[900,621,.53],'#496b80','soldier-guard')];
+ if(p==='riksdag')return [actor('Hatten',tall?[210,960,.7]:[410,680,.75],'#75604b','hat-party'),actor('Mössan',tall?[395,950,.7]:[590,675,.75],'#7b866b','cap-party')];
+ if(p==='fort')return [actor('Fästningsvakten',tall?[365,965,.64]:[815,675,.85],'#687b82','soldier-guard')];
+ if(p==='courtyard')return [actor('Bonden',court.phase==='open'?(tall?[440,825,.57]:[850,535,.61]):(tall?[510,975,.67]:[395,690,.75]),'#8d7656','farmer'),...(court.phase==='open'&&!timeline.afterUprising?[actor('En resande',tall?[570,910,.57]:[1085,650,.62],'#7b806b','traveller')]:[])];
+ return [];
+}
+function roomActors(geo){return supportingActors(geo.c?.key||room(),geo.w/geo.h<1.02);}
 function personPose(who,geo){
- const tall=geo.w/geo.h<1.02;
- const special={
-  Hatten:tall?[210,960,.7]:[410,680,.75],Mössan:tall?[395,950,.7]:[590,675,.75],
-  Soldaten:tall?[568,931,.51]:[900,621,.53],Fästningsvakten:tall?[365,965,.64]:[815,675,.85],
-  Bonden:room()==='courtyard'?(court.phase==='open'?(tall?[440,825,.57]:[850,535,.61]):(tall?[510,975,.67]:[395,690,.75])):geo.poses[1]
- };
- return who==='Du'?geo.poses[0]:special[who]||geo.poses[1]||geo.poses[0];
+ if(who==='Du')return geo.poses[0];
+ return roomActors(geo).find(a=>a.name===who)?.pos||geo.poses[1]||geo.poses[0];
 }
 function speak(lines,choices=[],action=()=>{}){
  if(!interior)return false;
@@ -179,13 +185,14 @@ function continueTravel(){
 }
 function drawProps(g,p,tall,now,puppets){
  const speaking=engine.roomSpeaker;
- const person=(name,pos,color,extra={})=>puppets.side(...pos,{name,color,...extra},false,now,speaking===name,false,false,0,0,null);
- if(p==='riksdag'){person('Hatten',tall?[210,960,.7]:[410,680,.75],'#75604b',{role:'hat-party'});person('Mössan',tall?[395,950,.7]:[590,675,.75],'#7b866b',{role:'cap-party'});}
- if(p==='square'){person('Soldaten',tall?[568,931,.51]:[900,621,.53],'#687b82');if(!timeline.afterUprising)person('En bonde',tall?[337,797,.35]:[641,494,.32],'#8e795c',{role:'farmer-scythe'});}
- if(p==='fort')person('Fästningsvakten',tall?[365,965,.64]:[815,675,.85],'#687b82');
- if(p==='courtyard'){
-  person('Bonden',court.phase==='open'?(tall?[440,825,.57]:[850,535,.61]):(tall?[510,975,.67]:[395,690,.75]),'#8d7656');
-  if(court.phase==='open'&&!timeline.afterUprising)person('En resande',tall?[570,910,.57]:[1085,650,.62],'#7b806b');
+ for(const actor of supportingActors(p,tall))puppets.side(...actor.pos,actor,false,now,speaking===actor.name,false,false,0,0,null);
+ if(p!=='square')return;
+ const geo=UPPDRAG_MEETINGS.geometryForRoom();if(!geo)return;
+ // Quiet labels make the three speaking roles unambiguous at a glance.
+ for(const [name,pos]of [['Du',geo.poses[0]],['Bonden',geo.poses[1]],...roomActors(geo).map(a=>[a.name,a.pos])]){
+  if(!pos)continue;const active=speaking===name,k=Math.max(1,Math.min(1.9,1/geo.p.scale));g.save();g.font=(active?'700':'600')+' '+(13*k)+'px Georgia';
+  const width=g.measureText(name).width+18*k;g.fillStyle=UPPDRAG_PAPER_FIBRES.material(g,active?'#f0dc9d':'#e8ddc3','paper');
+  g.beginPath();g.roundRect(pos[0]-width/2,pos[1]+7*k,width,21*k,3*k);g.fill();g.textAlign='center';g.fillStyle=active?'#352e20':'#5c523e';g.fillText(name,pos[0],pos[1]+21*k);g.restore();
  }
 }
 function drawInheritedBed(g,x,feet,w){
@@ -242,7 +249,7 @@ function handleKeydown(e){
 }
 const goal=()=>({available:'Besök Karin vid den stängda gården i Bostadskvarteren.',talked:'Hjälp Karin och bonden att hitta en överenskommelse.',agreed:'Flytta tunnorna så att bänken och dörrvägen blir fria.',arranging:'Fortsätt ordna plats vid bänken. Alla försök är fria.',open:'Gården är öppen. Tunnorna står där du placerade dem.'})[court.phase];
 window.addEventListener('resize',positionTargets);
-window.UPPDRAG_CH3_SCENES={openRoom,travel,tick,drawProps,drawInheritedBed,handleKeydown,goal,patrolReplies,closePatrol,
+window.UPPDRAG_CH3_SCENES={openRoom,travel,tick,drawProps,roomActors,personPose,drawInheritedBed,handleKeydown,goal,patrolReplies,closePatrol,
  get busy(){return busy();},get story(){return copy(timeline);},get courtyard(){return copy(court);},
  get streetStep(){return timeline.seen.palace||timeline.seen.fort?9:timeline.afterUprising?7:timeline.phase>=1?3:1;},
  get patrolReplyHeight(){return patrolBar?.getBoundingClientRect().height||0;},
