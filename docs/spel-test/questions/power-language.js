@@ -27,6 +27,7 @@ function limited(c){
  if(test(c,royal+' (?:bestamde|styrde|bestammer|styr|var|ar) (?:inte|ej) (?:langre )?(?:helt )?(?:ensam|sjalv|allt|allting|envaldig)'))return true;
  if(negated(c))return false;
  return test(c,royal+' (?:fick|hade|har) (?:nu |da )?(?:mindre|begransad) '+power)
+  ||test(c,poss+' (?:ratt|mojlighet) att (?:styra|bestamma) (?:ensam|sjalv) (?:forsvann|upphorde)')
   ||test(c,royal+' (?:forlorade|misste|miste|tappade) (?:en del av |lite av |sin |sitt )*'+power)
   ||test(c,poss+' makt (?:hade |har )?(?:minskade|minskat|begransades|begransats)')
   ||test(c,poss+' makt (?:blev|var|ar) (?:mindre|begransad)')
@@ -39,6 +40,8 @@ function gained(c){
   ||test(c,institution+' (?:fick|kunde|far|kan) (?:vara med och )?(?:bestamma|paverka|styra) (?:mer|mera)')
   ||test(c,institution+' (?:bestamde|bestammer|paverkade|styrde) (?:mer|mera)')
   ||test(c,institution+' fick (?:mer|mera) att saga till om')
+  ||test(c,institution+' som (?:fick )?(?:bestamde|styrde|bestamma|styra) (?:det mesta|mer|mera)')
+  ||test(c,institution+' som fick (?:mer|mera|mest) att saga till om')
   ||test(c,institution+'(?:s)? '+power+' (?:okade|vaxte|starktes|blev storre)')
   ||test(c,'(?:mer|mera|storre|okat|okad) '+power+' (?:gavs |gick |overfordes )?(?:at|till) '+institution)
   ||shared(c);
@@ -52,12 +55,13 @@ function contradiction(c){
 }
 A.assess=function(t,drafts,shortCheck){
  if(t.chapter!==1||t.topic!=='power'||t.rank===0||t.fields[0].answers)return previous(t,drafts,shortCheck);
- const value=String(drafts[0]??'');
+ const value=window.UPPDRAG_PROMPT_ALIGNMENT.spelling(drafts[0]);
  if(!A.isMeaningful(value))return previous(t,drafts,shortCheck);
  const s=clean(value),clauses=parts(s);
  const coupled=clauses.some(shared)||shared(s);
  const ellipse=!negated(s)&&(test(s,royal+' fick mindre makt och '+institution+' (?:fick )?mer')||test(s,'mindre makt (?:at|till) '+royal+' och mer (?:at|till) '+institution));
- const hasLimit=coupled||ellipse||clauses.some(limited),hasGain=coupled||ellipse||clauses.some(gained);
+ const shortContrast=!negated(s)&&(test(s,royal+' (?:bestamde|styrde) mindre och '+institution+' (?:(?:bestamde|styrde) )?mer')||test(s,institution+' (?:bestamde|styrde) mer och '+royal+' (?:(?:bestamde|styrde) )?mindre'));
+ const hasLimit=coupled||ellipse||shortContrast||clauses.some(limited),hasGain=coupled||ellipse||shortContrast||clauses.some(gained);
  const details=[
   {field:0,status:hasLimit?'met':'missing',label:'Beskriv att regenten inte längre bestämde ensam eller fick mindre makt.'},
   {field:0,status:hasGain?'met':'missing',label:'Beskriv att riksdagen eller riksrådet fick mer att bestämma om.'}
