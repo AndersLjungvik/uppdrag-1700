@@ -211,6 +211,12 @@ function speech(target,{box,tip,round}){
  const paperRound=Math.min(round??.62,.38);
  target.dataset.presenceFaces=String(Math.round(placed.faceOverlap));return {box:placed,tip:flap,round:paperRound,speaker:anchor.name};
 }
+// Only the controller the pupil is already using may continue a conversation.
+function conversationBusy(owner){
+ const city=window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE'];
+ const event=window.UPPDRAG_EVENT_ENGINE,eventTalking=event?.blocking||event?.busy&&event?.state?.thief!=='chasing';
+ return !!((owner!=='city'&&city?.active)||(owner!=='living'&&window.UPPDRAG_LIVING_DIALOGUES?.active)||(owner!=='meeting'&&window.UPPDRAG_MEETINGS?.state?.talking)||(owner!=='event'&&eventTalking)||window.UPPDRAG_CH3_PROVISIONS?.busy||window.UPPDRAG_CH3_SCENES?.busy||window.UPPDRAG_STORY_WORK?.busy||window.UPPDRAG_HAT_SHOP?.busy||window.UPPDRAG_ORCHARD?.busy||window.UPPDRAG_APPLE_THREATS?.busy||window.UPPDRAG_FISHING?.busy||window.UPPDRAG_MENU_OPEN?.()||window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_PILOT']?.studyBusy);
+}
 function install(){
  if(installed)return;installed=true;const meetings=window.UPPDRAG_MEETINGS;if(!meetings)return;
  const original=meetings.drawMapPerson;
@@ -223,6 +229,8 @@ function source(name,text){
   edit("    const thoughts=mode==='thoughts',anchor=", "    tail.__presenceBubble=bubble;\n    const thoughts=mode==='thoughts',anchor=");
  }
  if(name==='living-dialogues.js'){
+  edit('  function openWorld(person){', "  function openWorld(person){\n    if(window.UPPDRAG_SCENE_PRESENCE?.conversationBusy?.('living'))return false;");
+  edit("    if(context.mode==='greeting'&&clock-context.phaseAt>=850)showPhase('speech',clock);", "    // The greeting stays until the pupil advances it.");
   edit('    camera.x=(player.x+stopped.x)/2;camera.y=(player.y+stopped.y)/2;clamp();','');
   edit('    path=[];pendingPerson=null;drag=null;follow=true;','    path=[];pendingPerson=null;drag=null;');
  }
@@ -243,12 +251,15 @@ function source(name,text){
   edit(poseEnd,poseEnd+'\n    if(state.frozen&&state.presenceStopped){state.pose.x=state.presenceStopped.x;state.pose.y=state.presenceStopped.y;if(Number.isFinite(state.playerX)&&Number.isFinite(state.playerY))state.pose.heading=Math.atan2(state.playerY-state.pose.y,state.playerX-state.pose.x);state.pose.facing=Math.cos(state.pose.heading)<0?-1:1;}');
  }
  if(/chapter[345]-street-life\.js$/.test(name)){
+  edit(' const real=find(viewport.region,actor.id);', " if(window.UPPDRAG_SCENE_PRESENCE?.conversationBusy?.('city'))return false;\n const real=find(viewport.region,actor.id);");
+  edit("   if(active.mode==='greeting'&&now-openedAt>=850){\n     active.mode='lines';showLine();\n   }else{root.hidden=false;putSpeech(active,speaker.textContent);}", "   root.hidden=false;putSpeech(active,speaker.textContent);");
   edit('function position(actor,now=performance.now()){','function nativePosition(actor,now=performance.now()){');
   edit('function people(region){',"function position(actor,now=performance.now()){const p=nativePosition(actor,now);return window.UPPDRAG_SCENE_PRESENCE?.cityPose(p,REGIONS[actor.region],now,active?.id===actor.id||teaser?.id===actor.id||pendingHold?.id===actor.id)||p;}\nfunction people(region){");
   edit('function drawGroup(ctx,a,now){','function drawGroup(ctx,a,now){\n if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,a.y,()=>drawGroup(ctx,a,now),a.id))return;');
-  edit('function updateNearby(region,player,now){\n if(!region||!player||active)return;','function updateNearby(region,player,now){\n if(!region||!player||active)return;\n if(window.UPPDRAG_SCENE_PRESENCE?.walking){stopTeaser(now);arrivalCandidate=null;hideBubble();return;}');
+  edit('function updateNearby(region,player,now){\n if(!region||!player||active)return;','function updateNearby(region,player,now){\n if(!region||!player||active)return;\n if(window.UPPDRAG_SCENE_PRESENCE?.walking||window.UPPDRAG_SCENE_PRESENCE?.conversationBusy?.("city")){stopTeaser(now);arrivalCandidate=null;hideBubble();return;}');
  }
  if(/^meeting-ch[1-5]-pilot\.js$/.test(name)){
+  edit('  function startTalk(){', "  function startTalk(){\n    if(window.UPPDRAG_SCENE_PRESENCE?.conversationBusy?.('meeting'))return false;");
   edit('  function drawMapPlayer(g,pos,route,now){','  function drawMapPlayer(g,pos,route,now){\n    if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(g,pos.y,()=>drawMapPlayer(g,pos,route,now),"player"))return;');
   edit('    puppets(g).map(pos.x,pos.y,mapHeading,!!goal,now,CAST.player);','    const view=window.UPPDRAG_SCENE_PRESENCE?.playerPose(pos,route,mapHeading,now);if(view)mapHeading=view.heading;\n    puppets(g).map(pos.x,pos.y,mapHeading,view?view.moving:!!goal,now,CAST.player);');
  }
@@ -270,5 +281,5 @@ function source(name,text){
  }
  return text;
 }
-window.UPPDRAG_SCENE_PRESENCE={footRadius:FOOT_RADIUS,source,install,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get talking(){return !!(window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.active||window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_EVENT_ENGINE?.blocking);},get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.4.1'};
+window.UPPDRAG_SCENE_PRESENCE={footRadius:FOOT_RADIUS,source,install,conversationBusy,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get talking(){return !!(window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.active||window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_EVENT_ENGINE?.blocking);},get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.4.2'};
 })();

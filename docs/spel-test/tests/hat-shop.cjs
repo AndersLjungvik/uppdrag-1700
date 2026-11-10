@@ -2,7 +2,7 @@
 const fs=require('fs'),vm=require('vm'),path=require('path'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..'),read=n=>fs.readFileSync(path.join(root,n),'utf8'),copy=v=>JSON.parse(JSON.stringify(v));
 const c={window:{}};vm.createContext(c);vm.runInContext(read('hat-shop-model.js'),c);vm.runInContext(read('hat-shop.js'),c);
-const M=c.window.UPPDRAG_HAT_SHOP_MODEL,S=c.window.UPPDRAG_HAT_SHOP.source;
+const M=c.window.UPPDRAG_HAT_SHOP_MODEL;assert.equal(M.catalog.find(h=>h.id==='green-cap').price,10);assert.equal(M.catalog.find(h=>h.id==='red-cap').price,10);assert.equal(M.catalog.find(h=>h.id==='tricorn').price,20);const S=c.window.UPPDRAG_HAT_SHOP.source;
 for(const [dx,dy] of [[-96,-165],[-142,-130],[-155,105],[150,117],[172,-80]]){
  const square={x:1010,y:705},merchant={x:square.x+dx,y:square.y+dy},stall=c.window.UPPDRAG_HAT_SHOP.stallGeometry(square,merchant);
  assert(Math.abs(dx*Math.cos(stall.angle)+dy*Math.sin(stall.angle))<1e-8,'table follows the tangent of the round plaza');
@@ -12,14 +12,14 @@ for(const [dx,dy] of [[-96,-165],[-142,-130],[-155,105],[150,117],[172,-80]]){
 }
 console.log('PASS plaza alignment: tangential table and matching rotated click target in every candidate position');
 vm.runInContext(read('scene-presence.js'),c);const presence=c.window.UPPDRAG_SCENE_PRESENCE;
-let balance=3,near=false,saved=null,debits=0,shop;
+let balance=13,near=false,saved=null,debits=0,shop;
 shop=M.create({owned:['not-a-hat'],equipped:'not-a-hat'},{wallet:()=>balance,canBuy:()=>near,debit:(amount,expected)=>{assert.equal(expected,balance);debits++;assert.equal(shop.buy('red-cap').reason,'busy','a reentrant click is blocked');balance-=amount;return true;},save:s=>saved=copy(s)});
 assert.deepEqual(copy(shop.snapshot()),{v:1,owned:['plain'],equipped:'plain'});
-assert.equal(shop.buy('green-cap').reason,'away');assert.equal(balance,3);
-near=true;assert.equal(shop.buy('green-cap').paid,2);assert.equal(balance,1);assert.equal(debits,1);
-assert.equal(shop.buy('green-cap').paid,0);assert.equal(balance,1);assert.equal(debits,1,'owned hats cannot be charged twice');
+assert.equal(shop.buy('green-cap').reason,'away');assert.equal(balance,13);
+near=true;assert.equal(shop.buy('green-cap').paid,10);assert.equal(balance,3);assert.equal(debits,1);
+assert.equal(shop.buy('green-cap').paid,0);assert.equal(balance,3);assert.equal(debits,1,'owned hats cannot be charged twice');
 assert.equal(shop.buy('tricorn').reason,'funds');assert.equal(shop.equip('tricorn').reason,'unowned');
-assert.equal(shop.equip('plain').ok,true);assert.equal(balance,1);assert.equal(shop.equip('green-cap').ok,true);
+assert.equal(shop.equip('plain').ok,true);assert.equal(balance,3);assert.equal(shop.equip('green-cap').ok,true);
 assert.equal(M.create(saved).wear.id,'green-cap','selected hat survives reload');
 assert.equal(M.create(null).wear.id,'plain');assert.equal(M.create({owned:['plain'],equipped:'tricorn'}).wear.id,'plain');
 console.log('PASS cosmetic transactions: physical presence, exact prices, insufficient funds, reentrant/repeated clicks, free outfit changes, validated saves');
@@ -78,21 +78,21 @@ for(const chapter of [1,2,3,4,5]){
  assert(c.UPPDRAG_EVENT_ENGINE.people(c.region).some(p=>p.id==='hat-merchant'&&p.solid),'merchant joins physical collision actors');
  assert.equal(c.UPPDRAG_EVENT_ENGINE.conversation.id,'hat-merchant','talking is a real social shelter');
  const choose=id=>{const target={dataset:{hat:id},closest(){return this;},hasAttribute(){return false;}};for(const fn of dialog.events.click)fn({target});};
- const oldBalance=h.state.daler;choose('red-cap');assert.equal(h.state.daler,oldBalance-2);assert.equal(api.wear.id,'red-cap');
- choose('red-cap');assert.equal(h.state.daler,oldBalance-2,'double click never buys twice');
- choose('plain');assert.equal(api.wear.id,'plain');assert.equal(h.state.daler,oldBalance-2);
- c.player={x:200,y:700};choose('tricorn');assert.equal(h.state.daler,oldBalance-2,'moving away prevents any further purchase');
+ const oldBalance=h.state.daler;choose('red-cap');assert.equal(h.state.daler,oldBalance-10);assert.equal(api.wear.id,'red-cap');
+ choose('red-cap');assert.equal(h.state.daler,oldBalance-10,'double click never buys twice');
+ choose('plain');assert.equal(api.wear.id,'plain');assert.equal(h.state.daler,oldBalance-10);
+ c.player={x:200,y:700};choose('tricorn');assert.equal(h.state.daler,oldBalance-10,'moving away prevents any further purchase');
  assert.deepEqual(copy({apples:h.state.apples,record:h.state.record,earned:h.state.earned,step:h.state.step,index:h.state.index,trial:h.state.trial}),before,'shop does not change learning progress');
  assert(h.memory.has('uppdrag1700.wardrobe.v1'),'wardrobe uses a chapter-independent key inside integrated scope');
  dialog.close();assert.equal(api.openWardrobe(),true);assert.equal(api.talking,false,'wardrobe is not a remote social shelter');
- choose('red-cap');assert.equal(api.wear.id,'red-cap');choose('tricorn');assert.equal(h.state.daler,oldBalance-2,'wardrobe cannot buy remotely');
+ choose('red-cap');assert.equal(api.wear.id,'red-cap');choose('tricorn');assert.equal(h.state.daler,oldBalance-10,'wardrobe cannot buy remotely');
  const painter=new Proxy({},{get:(o,k)=>k in o?o[k]:(()=>{}),set:(o,k,v)=>(o[k]=v,true)});
  api.drawMapHat(painter);for(const hat of c.UPPDRAG_HAT_SHOP_MODEL.catalog)api.drawSideHat(painter,hat);
  c.interior={kind:'archive'};dialog.close();assert.equal(api.travel(),false,'cannot solve a trip to the shop from a room');
  console.log('PASS real chapter '+chapter+': reachable stall, physical buy, saved wardrobe, social shelter, exact debit, remote purchase blocked, preserved questions/apples/stamps');
 }
 const integration=read('integration.js'),index=read('index.html');
-assert(index.includes('hat-shop.js?v=2.24.1'));assert(integration.includes("await get('hat-shop-model.js?v=1.0.0')"));
+assert(index.includes('hat-shop.js?v=2.24.1'));assert(integration.includes("await get('hat-shop-model.js?v=1.1.0')"));
 assert(integration.includes('const hatShop=[3,4,5].includes(ch)?'),'integration only installs the shop from chapter three');
 assert(integration.includes('if([3,4,5].includes(chapter))text=window.UPPDRAG_HAT_SHOP.source(name,text);'),'early chapters retain their original people renderers');
 assert(integration.includes("+hatShop+'\\n'"));assert(read('event-engine.js').includes('if(window.UPPDRAG_HAT_SHOP?.talking)return true;'));

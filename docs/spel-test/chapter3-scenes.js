@@ -30,7 +30,7 @@ const style=document.createElement('style');style.textContent=`
 #ch3CourtyardControls{position:relative;flex:0 0 auto;z-index:25;width:100%;max-height:38%;overflow:auto;padding:12px;background:#fff9e9;border:1px solid #998564;color:#352b20;font:15px/1.4 Georgia;box-sizing:border-box}
 #ch3CourtyardControls p{margin:4px 0 9px}#ch3CourtyardControls .courtActions{display:flex;gap:7px;flex-wrap:wrap}#ch3CourtyardControls button{min-height:44px;padding:8px 12px;font:14px Georgia;border:1px solid #9e8969;background:#f2e8d4;color:#352b20;cursor:pointer}#ch3CourtyardControls [aria-pressed=true]{outline:2px solid #436b5c}#ch3CourtyardTargets{position:absolute;inset:0;pointer-events:none;z-index:24}.courtTarget{position:absolute;transform:translate(-50%,-50%);min-width:44px;min-height:44px;border:2px dashed #625942;border-radius:50%;background:#fff8e83f;color:#352b20;text-shadow:0 1px #fff8e8;font:bold 16px Georgia;pointer-events:auto;cursor:pointer}.courtTarget[data-selected=true]{outline:3px solid #436b5c;outline-offset:1px}.courtTarget:focus-visible,#ch3CourtyardControls button:focus-visible{outline:3px solid #286472;outline-offset:3px}
 #ch3Summary{position:absolute;inset:0;z-index:42;display:grid;align-items:center;justify-items:center;background:#e6dcc699;padding:16px;box-sizing:border-box}#ch3Summary article{width:min(600px,100%);max-height:90%;overflow:auto;padding:24px;background:#fff8e9;border:1px solid #a48e69;color:#352b20;font:18px/1.5 Georgia}#ch3Summary h2{font:600 26px Georgia}#ch3Summary button{min-height:44px;padding:10px 15px;font:16px Georgia;background:#e6eadb;border:1px solid #8a795d;color:#352b20;margin:5px 7px 5px 0}
-#ch3PatrolReplies{position:absolute;z-index:31;left:50%;bottom:12px;transform:translateX(-50%);width:min(570px,calc(100% - 24px));max-height:40%;overflow:auto;padding:10px;background:#fff8e9;border:1px solid #9e8967;box-sizing:border-box}#ch3PatrolReplies p{margin:0 0 7px;font:600 13px system-ui}#ch3PatrolReplies button{width:100%;min-height:44px;margin:3px 0;padding:9px 12px;text-align:left;font:15px Georgia;background:#e9ebdf;border:1px solid #9d8967;color:#352b20;cursor:pointer}
+#ch3PatrolReplies{position:absolute;z-index:31;left:50%;bottom:12px;transform:translateX(-50%);width:min(620px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;padding:18px;background:#fff8e9;border:1px solid #9e8967;border-radius:8px;box-sizing:border-box}#ch3PatrolReplies p{margin:0 0 10px;font:16px/1.5 system-ui}#ch3PatrolReplies #ch3PatrolQuestion{font:600 19px/1.5 Georgia}#ch3PatrolReplies h2{font:600 20px Georgia;margin:0 0 10px}body[data-patrol-question] #ch3StreetRoot{visibility:hidden!important}#ch3PatrolReplies button{width:100%;min-height:44px;margin:3px 0;padding:9px 12px;text-align:left;font:15px Georgia;background:#e9ebdf;border:1px solid #9d8967;color:#352b20;cursor:pointer}
 body[data-room-side-speech] #ch1Hud,body[data-ch3-arranging] #ch1Hud,body[data-ch3-summary] #ch1Hud{display:none!important}body[data-ch3-summary] #meetingPerson{display:none}
 @media(max-width:620px){#ch3TimeCard{font-size:11px}#ch3CourtyardControls{padding:9px;font-size:13px}#ch3CourtyardControls button{padding:6px 9px;font-size:13px}#ch3Summary article{padding:18px;font-size:16px}}
 `;document.head.append(style);
@@ -227,10 +227,13 @@ function maybePatrol(){
 }
 function patrolReplies(actor,last){
  if(!challenge||actor.id!==challenge.actor.id||!last){patrolBar?.remove();patrolBar=null;return;}
- if(patrolBar)return;patrolBar=document.createElement('section');patrolBar.id='ch3PatrolReplies';patrolBar.setAttribute('role','group');patrolBar.setAttribute('aria-label','Du svarar patrullen');patrolBar.innerHTML='<p>Du svarar</p>';
+ if(patrolBar)return;patrolBar=document.createElement('section');patrolBar.id='ch3PatrolReplies';patrolBar.setAttribute('role','group');patrolBar.setAttribute('aria-label','Du svarar patrullen');patrolBar.setAttribute('aria-labelledby','ch3PatrolHeading');patrolBar.tabIndex=-1;patrolBar.innerHTML='<h2 id="ch3PatrolHeading">Soldatens fråga</h2><p id="ch3PatrolQuestion"></p><p>Du har gott om tid. Välj ett svar när du är redo.</p><p id="ch3PatrolReadStatus" role="status"></p>';
+ patrolBar.querySelector('#ch3PatrolQuestion').textContent=challenge.t.prompt;
+ const listen=document.createElement('button');listen.type='button';listen.textContent='Lyssna på frågan och svaren';listen.dataset.patrolListen='true';listen.onclick=()=>readPatrol();patrolBar.append(listen);
+ document.body.dataset.patrolQuestion='true';
  for(const [i,text]of [...challenge.options,'Jag behöver gå vidare.'].entries()){
   const b=document.createElement('button');b.type='button';b.textContent=text;b.dataset.patrolAnswer=String(i);b.onclick=()=>answerPatrol(i);patrolBar.append(b);
- }stage.append(patrolBar);
+ }stage.append(patrolBar);patrolBar.focus({preventScroll:true});
 }
 function answerPatrol(index){
  if(!challenge)return;const q=challenge,skip=index===q.options.length,right=q.options[index]===q.answer;
@@ -238,7 +241,15 @@ function answerPatrol(index){
  const text=skip?'Gå vidare, då. Ta det lugnt på gatan.':right?'Det stämmer med vad jag har hört. Du kan gå vidare.':'Jag har fått den här uppgiften: '+q.answer.replace(/[.!?]+$/,'')+'. Du kan gå vidare.';
  UPPDRAG_CH3_CITY_LIFE.open(q.actor,[['Soldaten',text]]);
 }
-function closePatrol(){patrolBar?.remove();patrolBar=null;challenge=null;}
+function readPatrol(){
+ if(!challenge)return false;const text=challenge.t.prompt+'. '+challenge.options.map((s,i)=>'Alternativ '+(i+1)+': '+s).join('. ');
+ const api=window.UPPDRAG_CH3_READING;
+ if(api?.canSpeak)api.say(text);
+ else if(window.speechSynthesis){window.speechSynthesis.cancel();const utter=new SpeechSynthesisUtterance(text);utter.lang='sv-SE';utter.rate=.85;window.speechSynthesis.speak(utter);}
+ else if(patrolBar)patrolBar.querySelector('#ch3PatrolReadStatus').textContent='Uppläsning saknas här. Frågan ligger kvar så länge du behöver.';
+ return true;
+}
+function closePatrol(){window.speechSynthesis?.cancel();patrolBar?.remove();patrolBar=null;challenge=null;delete document.body.dataset.patrolQuestion;}
 function handleKeydown(e){
  if(e.defaultPrevented||e.isComposing||e.altKey||e.ctrlKey||e.metaKey)return;
  const surface=controls||summary||patrolBar;if(!surface)return;
@@ -250,7 +261,7 @@ function handleKeydown(e){
 const goal=()=>({available:'Besök Karin vid den stängda gården i Bostadskvarteren.',talked:'Hjälp Karin och bonden att hitta en överenskommelse.',agreed:'Flytta tunnorna så att bänken och dörrvägen blir fria.',arranging:'Fortsätt ordna plats vid bänken. Alla försök är fria.',open:'Gården är öppen. Tunnorna står där du placerade dem.'})[court.phase];
 window.addEventListener('resize',positionTargets);
 window.UPPDRAG_CH3_SCENES={openRoom,travel,tick,drawProps,roomActors,personPose,drawInheritedBed,handleKeydown,goal,patrolReplies,closePatrol,
- get busy(){return busy();},get story(){return copy(timeline);},get courtyard(){return copy(court);},
+ get patrolQuestionActive(){return !!challenge&&!!patrolBar;},get busy(){return busy();},get story(){return copy(timeline);},get courtyard(){return copy(court);},
  get streetStep(){return timeline.seen.palace||timeline.seen.fort?9:timeline.afterUprising?7:timeline.phase>=1?3:1;},
  get patrolReplyHeight(){return patrolBar?.getBoundingClientRect().height||0;},
  journalHTML:()=>'<p><b>Den stängda gården:</b> '+goal()+'</p><p>Patruller och människor på gatan pratar med dig på plats. Deras minnesfrågor ger inga stämplar och kostar inget.</p>'};
