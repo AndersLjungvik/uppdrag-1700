@@ -68,17 +68,17 @@ const {launch,assert,fs,path}=require('./chapter4-test-utils.cjs');
   await boot();assert.equal((await state()).s.apples,1,'the one apple survives reload');
   const migrationBefore=await state();
   await h.page.evaluate(({scope,key})=>{const saved=JSON.parse(localStorage.getItem(scope+key));saved.apples=5;localStorage.setItem(scope+key,JSON.stringify(saved));},{scope,key:pilotKey});
-  await boot();assert.equal((await state()).s.apples,1,'old lesson stock is capped on load');assert.deepEqual(preserved(await state()),preserved(migrationBefore));
-  assert.equal(await h.page.evaluate(({scope,key})=>JSON.parse(localStorage.getItem(scope+key)).apples,{scope,key:pilotKey}),1,'the normalized quantity is persisted');
+  await boot();assert.equal((await state()).s.apples,3,'old lesson stock is capped at the new three-apple limit on load');assert.deepEqual(preserved(await state()),preserved(migrationBefore));
+  assert.equal(await h.page.evaluate(({scope,key})=>JSON.parse(localStorage.getItem(scope+key)).apples,{scope,key:pilotKey}),3,'the normalized quantity is persisted');
   // Import uses the real save UI, with an older file containing excess stock.
   await menu();await h.page.getByText('Sparning och version',{exact:true}).click();
   const downloading=h.page.waitForEvent('download');await h.page.locator('#exportSave').click();
   fs.mkdirSync(path.join(h.root,'qa'),{recursive:true});const file=path.join(h.root,'qa/chapter-one-apple-save.json');await(await downloading).saveAs(file);
   const exported=JSON.parse(fs.readFileSync(file,'utf8')),imported=JSON.parse(exported.entries[pilotKey]);imported.apples=9;exported.entries[pilotKey]=JSON.stringify(imported);fs.writeFileSync(file,JSON.stringify(exported));
   h.page.once('dialog',dialog=>dialog.accept());const navigation=h.page.waitForNavigation({waitUntil:'domcontentloaded'});await h.page.locator('#saveFile').setInputFiles(file);await navigation;await loaded();
-  assert.equal((await state()).s.apples,1,'imported old lesson stock is capped');assert.deepEqual(preserved(await state()),preserved(migrationBefore));
+  assert.equal((await state()).s.apples,3,'imported old lesson stock is capped at three');assert.deepEqual(preserved(await state()),preserved(migrationBefore));
   const ordinaryAfter=await h.page.evaluate(ROOT=>Object.fromEntries(Object.entries(localStorage).filter(([k])=>k.startsWith(ROOT+'play.')||k.startsWith(ROOT+'teacher.'))),ROOT);assert.deepEqual(ordinaryAfter,ordinaryBefore,'lesson play/import leaves ordinary and teacher saves unchanged');
   assert.deepEqual(h.errors,[]);
-  console.log('PASS chapter-one apple limit: two real Rut rounds cap stock at one, truthful full-pocket feedback, whole-area retry consumes one, next failure needs fresh practice, reload/import cap old stock without changing stamps/history/money, ordinary stock preserved');
+  console.log('PASS chapter-one apples: normal Rut still tops up only an empty pocket; the reserve limit is three, truthful full-pocket feedback, whole-area retry consumes one, next failure needs fresh practice, reload/import cap old stock without changing stamps/history/money, ordinary stock preserved');
  }catch(e){console.error('Parent',await h.page.locator('#error').textContent().catch(()=>''));if(f)console.error(await state().catch(()=>''));throw e;}finally{await h.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

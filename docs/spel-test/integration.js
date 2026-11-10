@@ -3,7 +3,7 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.20.2',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='2.21.0',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -63,13 +63,13 @@ function appleDogSource(text){
 }
 async function source(name){
  if(chapterTest&&chapter<=5&&available(chapter)&&name==='chapter-access-pilot.js')return '/* The isolated chapter round is authorized by the integration gate. */';
- if(chapter===5&&name==='chapter5-pilot.js')return get('chapter5-mastery.js?v=2.14.0');
+ if(chapter===5&&name==='chapter5-pilot.js')return get('chapter5-mastery.js?v=2.21.0');
  if(chapter===5&&name==='chapter5-marstrand-letter.js')return get('chapter5-letter.js?v=2.6.0');
- if(chapter===4&&name==='chapter4-pilot.js')return get('chapter4-mastery.js?v=2.14.0');
+ if(chapter===4&&name==='chapter4-pilot.js')return get('chapter4-mastery.js?v=2.21.0');
  if(chapter===4&&name==='chapter4-sidequest.js')return get('chapter4-cookbook.js?v=2.4.0');
- if(chapter===3&&name==='chapter3-pilot.js')return get('chapter3-mastery.js?v=2.14.0');
- if(chapter===2&&name==='chapter2-pilot.js')return get('chapter2-mastery.js?v=2.19.0');
- if(chapter===1&&name==='chapter1-pilot.js')return get('chapter1-mastery.js?v=2.19.0');
+ if(chapter===3&&name==='chapter3-pilot.js')return get('chapter3-mastery.js?v=2.21.0');
+ if(chapter===2&&name==='chapter2-pilot.js')return get('chapter2-mastery.js?v=2.21.0');
+ if(chapter===1&&name==='chapter1-pilot.js')return get('chapter1-mastery.js?v=2.21.0');
  let text;
  if(payload.extra[name]!==undefined)text=payload.extra[name];
  else if(payload.questions[name]!==undefined)text=payload.questions[name];

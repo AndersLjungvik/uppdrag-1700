@@ -30,8 +30,8 @@ s.daler=Math.max(0,Number(s.daler)||0);s.apples=Math.max(0,Number(s.apples)||0);
 // The classroom round has room for one apple. Keep the limit at the resource
 // boundary so restored saves and the frozen Rut reward cannot build a reserve.
 if(pupilRound){
- let apples=Number.isFinite(s.apples)?Math.min(1,Math.floor(s.apples)):0;
- Object.defineProperty(s,'apples',{enumerable:true,get:()=>apples,set(v){const n=Number(v);apples=Number.isFinite(n)?Math.min(1,Math.max(0,Math.floor(n))):0;}});
+ let apples=Number.isFinite(s.apples)?Math.min(3,Math.floor(s.apples)):0;
+ Object.defineProperty(s,'apples',{enumerable:true,get:()=>apples,set(v){const n=Number(v);apples=Number.isFinite(n)?Math.min(3,Math.max(0,Math.floor(n))):0;}});
 }
 if(!s.chapter2AreasPrepared){for(const entry of s.record)entry.beforeChapter2Mastery=true;s.sessions={};s.step=0;s.index=0;s.mode='intro';s.recallUI=null;s.chapter2AreasPrepared=true;}
 s.archiveActive=false;s.step=Number.isInteger(s.step)&&runs[s.step]?s.step:0;
@@ -295,10 +295,11 @@ function tick(){const key=JSON.stringify([mastery.summary(),s.daler,s.apples]);i
 const reviewRewards={
  awardRutApple(){
   for(const ticket of Object.values(s.reviewPractice))if(s.archiveRounds>ticket.roundBefore&&(s.recallRutLog?.length||0)>ticket.logBefore)ticket.completedRound=s.archiveRounds;
-  if(pupilRound){s.lessonRutAppleAdded=s.apples<1;if(s.lessonRutAppleAdded)s.apples++;}else s.apples++;
+  const added=s.archiveChallenge?Math.max(0,3-s.apples):pupilRound?Number(s.apples<1):1;
+  s.lessonRutAppleAdded=added>0;s.rutChallengeApplesAdded=s.archiveChallenge?added:0;s.apples+=added;
  },
  ...(pupilRound?{
- rutRewardHTML(){return s.lessonRutAppleAdded?'<h2 class="rc-prompt">Ett äpple för repetitionen</h2><p>Du svarade rätt på övningsfrågorna. Du får ett äpple.</p><p class="rc-note">Du kan ha ett äpple i fickan. Använd det till ett nytt försök innan du tjänar ett nytt.</p>':'<h2 class="rc-prompt">Repetitionen är klar</h2><p>Du har redan ett äpple i fickan. Använd det till ett nytt försök innan du kan få ett nytt hos Rut. Du kan fortsätta öva gratis.</p>';}
+ rutRewardHTML(){return s.lessonRutAppleAdded?'<h2 class="rc-prompt">Ett äpple för repetitionen</h2><p>Du svarade rätt på övningsfrågorna. Du får ett äpple.</p><p class="rc-note">Den stora utmaningen kan fylla på fickan till tre äpplen.</p>':'<h2 class="rc-prompt">Repetitionen är klar</h2><p>Du har redan äpplen i fickan. Den korta omgången ger ett nytt när fickan är tom. Välj den stora utmaningen för att fylla på till tre äpplen. Du kan fortsätta öva gratis.</p>';}
  }:{})
 };
 recall=window.UPPDRAG_RECALL_ENGINE.attach({chapter:2,state:()=>s,runs,facts,modal,storage,current,location:locationKey,present,previousKeys:{1:previousKey},persist,drawHud,paint:paintCloseup,
@@ -332,7 +333,7 @@ window.UPPDRAG_CH2_PILOT={tick,go:book,close,scenes:runs,saveKey:storage,persist
  memoryChoices(){const l=mastery.summary().level;return areas.filter(a=>a.p===locationKey()&&status(a,l)!=='clear').map(a=>({id:a.id,label:a.id==='women'?'Läs anteckningen om kvinnor':a.id==='power'?'Granska kyrkoboken':'Läs barnhusets anteckningar'}));},
  memoryChoice:()=> 'Läs '+(hereArea()?.document||'anteckningen'),
  enterMemory(aid){if(chooseHere(locationKey(),aid))begin();},wantsMemoryThanks:()=>false,memoryThanks:()=>'',finishMemory:finished,
- wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> pupilRound?(s.apples?'Vi kan öva på sådant du redan mött. Du har redan ett äpple. Använd det till ett nytt försök, så kan du få ett nytt när du repeterar hos mig.':'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple. Du kan ha ett i fickan åt gången.'):'Vi övar på sådant du redan mött. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,goArchive,
+ wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> 'Vi övar gratis på sådant du redan har mött. En kort omgång kan ge ett äpple. Den stora utmaningen har sex uppgifter och kan fylla på fickan till tre äpplen.',enterArchive,goArchive,
  idleLine:p=>p==='barnhus'?(window.UPPDRAG_CH2_BED?.siriLine?.()||'Välkommen tillbaka!'):'Välkommen tillbaka!',
  openBook:book,selectArea:select,
  get encounteredTaskIds(){return s.encountered.slice();},
