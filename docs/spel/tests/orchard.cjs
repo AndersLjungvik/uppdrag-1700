@@ -17,16 +17,25 @@ function escape(h){assert(h.model.begin(start,home,'known-task'));for(let i=0;i<
 }
 {
  const h=model();escape(h);assert.equal(h.model.submit(true,'mitt svar').ok,true);assert.equal(h.awards,1);assert.equal(h.saved.claimed,true);
+ assert.equal(h.saved.harvests,1);assert.equal(h.saved.cooldownMs,20000);
  assert.equal(h.model.submit(true,'mitt svar').ok,false);assert.equal(h.awards,1);h.model.close();assert.equal(h.model.begin(start,home,'known-task'),false);
  const reload=model(h.saved);assert.equal(reload.model.begin(start,home,'known-task'),false);assert.equal(reload.awards,0,'reload cannot award again');
+ for(let i=0;i<450;i++)reload.tick({x:500,y:500});
+ escape(reload);assert.equal(reload.model.submit(true,'ett nytt svar').ok,true);assert.equal(reload.awards,1);assert.equal(reload.saved.harvests,2,'a new chase and answer earn a new harvest after the pause');
+ const legacy=model({claimed:true,attempts:3,history:[{outcome:'earned'}]});assert.equal(legacy.saved.harvests,1);assert.equal(legacy.saved.attempts,3);escape(legacy);assert(legacy.model.submit(true,'rätt').ok);assert.equal(legacy.saved.harvests,2,'old completed saves can play again');
 }
 {
  const h=model();assert(h.model.begin(start,home,'known-task'));for(let i=0;i<100&&h.model.snapshot().phase!=='idle';i++)h.tick();assert.equal(h.model.snapshot().phase,'idle');assert(h.saved.history.some(h=>h.outcome==='caught'));assert.equal(h.awards,0);
  const active=model();assert(active.model.begin(start,home,'known-task'));const reload=model(active.saved);assert.equal(reload.model.snapshot().phase,'idle');assert.equal(reload.awards,0,'interrupted chase gives no reward');
- const full=model({},()=>false);escape(full);assert.equal(full.model.submit(true,'rätt').reason,'full');assert.equal(full.saved.claimed,false,'full inventory does not consume the chapter bonus');
+ const full=model({},()=>false);escape(full);assert.equal(full.model.submit(true,'rätt').reason,'full');assert.equal(full.saved.claimed,false);assert.equal(full.saved.harvests,0,'full inventory cannot create a harvest');
+ const previouslyEarned=model({claimed:true,harvests:2},()=>false);escape(previouslyEarned);assert.equal(previouslyEarned.model.submit(true,'rätt').reason,'full');assert.equal(previouslyEarned.saved.harvests,2);assert.equal(previouslyEarned.saved.claimed,true,'full inventory preserves previous harvest history');
  const house=model();assert(house.model.begin(start,home,'known-task'));house.tick(start,{shelter:true,paused:true});assert.equal(house.model.snapshot().phase,'question','house or conversation gives real shelter');
 }
-console.log('PASS orchard state: warning, physical capture, cover/house escape, required answer, wrong-answer practice/cooldown, single reward, full inventory and interrupted/reloaded saves');
+{
+ let h;h=model({},()=>{assert.equal(h.model.submit(true,'dubbelklick').reason,'inactive');assert.equal(h.model.begin(start,home,'reentrant'),false);return true;});
+ escape(h);assert(h.model.submit(true,'rätt').ok);assert.equal(h.awards,1);assert.equal(h.saved.harvests,1,'reentrant reward cannot start or award another run');
+}
+console.log('PASS orchard state: repeatable harvests after20s, old-save migration, duplicate/reentrant protection, required answer, wrong-answer cooldown, full inventory and interrupted/reloaded saves');
 {
  const h=model(),patrol=[{x:100,y:160},{x:260,y:160},home];
  for(let i=0;i<70;i++)h.tick({x:500,y:500},{patrol});
@@ -109,7 +118,23 @@ for(const [chapter,mode] of [[1,'wrong'],...[1,2,3,4,5].map(ch=>[ch,'right'])]){
  for(const fn of dialog.events.submit)fn({preventDefault(){}});assert.equal(real.p.state.apples,1);
  assert.deepEqual(copy({daler:real.p.state.daler,record:real.p.state.record,earned:real.p.state.earned,review:real.p.state.reviewQueue}),kept,'no main answer, coin, stamp or review changes');
  assert(JSON.parse(h.memory.get('uppdrag1700.orchard.v1')).chapters[chapter].claimed);
- console.log('PASS real chapter '+chapter+': actual tree cover and walkable paths, physical pick, bounded pursuit, blank short answer from encountered book material, one apple in actual pilot, saved chapter quota and preserved mastery');
+ assert.equal(api.harvests,1);for(const fn of dialog.events.cancel)fn({preventDefault(){}});c.player={...g.pick};
+ const attempts=api.snapshot.state.attempts;assert(api.pick());assert.equal(api.snapshot.state.attempts,attempts,'a full pocket cannot start another chase');
+ real.p.state.apples=0;real.p.persist();assert(api.pick());assert.equal(api.snapshot.state.attempts,attempts,'using the apple cannot skip the pause');
+ for(let i=0;i<450;i++){now+=80;c.UPPDRAG_WORLD_LIFE.tick(now,{region:c.region,player:c.player,activeRoom:null});}
+ assert.equal(api.snapshot.state.cooldownMs,0);assert.equal(api.snapshot.retreat,false);assert(api.pick());assert.equal(api.snapshot.phase,'warning');assert(api.hide());
+ const again=c.path.map(p=>({...p}));
+ for(let i=0;i<180&&api.snapshot.phase!=='question';i++){
+  if(again.length){const p=again[0],d=Math.hypot(p.x-c.player.x,p.y-c.player.y),n=Math.min(d,9);if(d){c.player.x+=(p.x-c.player.x)*n/d;c.player.y+=(p.y-c.player.y)*n/d;}if(d<=9)again.shift();}
+  now+=80;c.UPPDRAG_WORLD_LIFE.tick(now,{region:c.region,player:c.player,activeRoom:null});
+ }
+ assert.equal(api.snapshot.phase,'question','a later physical chase can also be escaped');assert.equal(real.p.state.apples,0,'a second escape still needs its own answer');
+ const nextTask=c.UPPDRAG_RECALL_BANK.find(t=>t.id===api.snapshot.taskId);if(real.p.repetitionTaskIds.length>1)assert.notEqual(nextTask.id,selected.id,'vary the question when known alternatives exist');
+ dialog.input.value=nextTask.fields[0].sample;for(const fn of dialog.events.submit)fn({preventDefault(){}});
+ assert.equal(real.p.state.apples,1);assert.equal(api.harvests,2);assert.equal(JSON.parse(h.memory.get('uppdrag1700.orchard.v1')).chapters[chapter].harvests,2);
+ assert.deepEqual(copy({daler:real.p.state.daler,record:real.p.state.record,earned:real.p.state.earned,review:real.p.state.reviewQueue}),kept,'repeated mischief preserves answers, coins, stamps and reviews');
+ assert(!/ett per kapitel|bonusäpple är redan/i.test(api.journalHTML()));
+ console.log('PASS real chapter '+chapter+': two physical chases and required answers, full-pocket/cooldown gates, saved harvest count and preserved mastery');
 }
 for(const name of ['world-keyboard.js','world-keyboard-ch3.js','world-keyboard-ch4.js','world-keyboard-ch5.js']){
  let text=read('_decoded/'+name);const context={window:{}};vm.createContext(context);vm.runInContext(read('hat-shop.js'),context);vm.runInContext(read('scene-presence.js'),context);

@@ -47,7 +47,7 @@ const model=window.UPPDRAG_ORCHARD_MODEL.create(store.chapters[chapter],{
   const ids=(p.state.recallRutFocus||[]).filter(x=>bank.some(t=>t.id===x));
   if(!ids.some(id=>{const other=bank.find(t=>t.id===id);return other.chapter===t.chapter&&other.topic===t.topic;}))p.state.recallRutFocus=[id,...ids];p.persist();
  },
- event(outcome){const text={warning:'”Hallå där! Låt mina äpplen vara!” Spring och göm dig bakom träden.',chasing:'Adelsmannen följer efter dig. Bryt sikten bakom trädet eller gå in i ett hus.',caught:'Du blev upphunnen och fick lämna tillbaka äpplet. Du kan försöka igen.', 'returned-apple':'Äpplet är tillbaka vid herrgården.',left:'Du lämnade äpplet vid herrgården.',escaped:'Du kom undan! Nu väntar en kort minnesfråga.',earned:'Du har ett äpple i fickan. Kapitelns bonus är hämtad.',practice:'Öva på frågan hos Rut. Du kan försöka igen senare.',full:'Du har redan ett äpple. Bonuschansen finns kvar.',cancelled:'Du lämnade äpplet vid herrgården.'}[outcome];if(text)notify(text);}
+ event(outcome){const text={warning:'”Hallå där! Låt mina äpplen vara!” Spring och göm dig bakom träden.',chasing:'Adelsmannen följer efter dig. Bryt sikten bakom trädet eller gå in i ett hus.',caught:'Du blev upphunnen och fick lämna tillbaka äpplet. Du kan försöka igen.', 'returned-apple':'Äpplet är tillbaka vid herrgården.',left:'Du lämnade äpplet vid herrgården.',escaped:'Du kom undan! Nu väntar en kort minnesfråga.',earned:'Du har ett äpple i fickan! När du har använt det kan du komma tillbaka och busa igen.',practice:'Öva på frågan hos Rut. Du kan försöka igen senare.',full:'Du har redan ett äpple. Kom tillbaka när fickan är tom.',cancelled:'Du lämnade äpplet vid herrgården.'}[outcome];if(text)notify(text);}
 });
 const style=document.createElement('style');style.textContent=`
 #orchardNotice{position:absolute;left:10px;bottom:12px;z-index:28;max-width:min(370px,calc(100% - 20px));padding:12px 15px;background:#fff6e4ed;color:#382f25;border:1px solid #9b835c;border-radius:9px;font:14px/1.45 system-ui}#orchardNotice strong{display:block;font:600 18px Georgia;margin-bottom:5px}
@@ -60,7 +60,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 function stop(cancelKeys=true){if(cancelKeys)window.UPPDRAG_WORLD_KEYBOARD?.clear();path=[];pendingRoute=null;if(typeof cancelPersonArrival==='function')cancelPersonArrival();if(typeof pendingRoom!=='undefined')pendingRoom=null;}
 function pick(){
  const g=geometry();if(!outside()||teacher||otherBusy()||!g||gap(playerPoint(),g.tree)>76||!clear(world(),playerPoint(),g.pick))return false;
- const s=model.snapshot();if(s.state.claimed){notify('Du har redan fått kapitelns bonusäpple. Rut kan ge fler efter repetition.');return true;}
+ const s=model.snapshot();
  if(pilot().state.apples>0){notify('Du har redan ett äpple. Använd det innan du plockar ett nytt.');return true;}
  const tasks=pool().filter(t=>t.id!==s.state.lastTaskId),choices=tasks.length?tasks:pool();
  if(!choices.length){notify('Börja med en fråga i kapitlet. Här får du sedan repetera något du redan har mött.');return true;}
@@ -69,12 +69,11 @@ function pick(){
  const owner=s.actor||g.home,d=gap(g.cover,owner),safe={x:g.cover.x+(g.cover.x-owner.x)/d*58,y:g.cover.y+(g.cover.y-owner.y)/d*58,radius:38};
  if(clear(world(),safe,safe,24)&&route(world(),playerPoint(),safe,24)?.length)g.safe=safe;
  task=choices[Math.floor(Math.random()*choices.length)];
- if(!model.begin(playerPoint(),g.home,task.id)){notify(s.retreat?'Vänta tills adelsmannen har gått tillbaka.':'Vänta en liten stund innan du försöker igen.');return true;}
+ if(!model.begin(playerPoint(),g.home,task.id)){notify(s.retreat?'Vänta tills adelsmannen har gått tillbaka.':'Vänta '+Math.max(1,Math.ceil(s.state.cooldownMs/1000))+' sekunder innan du försöker igen.');return true;}
  stop(false);document.getElementById('world')?.focus?.({preventScroll:true});return true;
 }
 function travel(){
  if(!outside()||teacher||model.busy||otherBusy())return false;const g=geometry();if(!g)return false;
- if(model.snapshot().state.claimed){notify('Du har redan hämtat kapitelns bonusäpple. Du kan alltid öva hos Rut för ett nytt.');return false;}
  if(pilot().state.apples>0){notify('Du har redan ett äpple. Använd det innan du plockar ett nytt.');return false;}
  if(!pool().length){notify('Börja med en fråga i minnesboken. Här får du sedan repetera sådant du redan har mött.');return false;}
  const next=route(world(),playerPoint(),g.pick,24);if(!next?.length)return false;
@@ -99,7 +98,7 @@ dialog.addEventListener('submit',event=>{
  const check=window.UPPDRAG_RECALL_ENGINE.checkField;
  const verdict=window.UPPDRAG_PROMPT_ALIGNMENT.shortCheck(field,value,check),result=model.submit(verdict==='correct',value);
  const success=result.ok,known=verdict==='correct';feedback=result.reason;
- dialog.innerHTML='<h2 id="orchardTitle">'+(success?'Ett bonusäpple!':known?'Du har redan ett äpple':'Öva lite till')+'</h2><p>'+(success?'Rätt! Du får behålla äpplet. Det finns nu i din ficka.':known?'Du får ha ett äpple åt gången här. Kapitelns bonus finns kvar tills du kan ta emot den.':(verdict==='review'?'Jag kunde inte känna igen svaret.':'Inte riktigt.')+' Ett exempel på rätt svar är <strong>'+esc(field.sample||field.answers[0])+'</strong>. Öva på frågan hos Rut och försök igen senare.')+'</p><p class="orchard-note">'+(success?'Du kan få ett sådant här bonusäpple i varje kapitel. Rut kan alltid ge fler genom repetition.':'Inget äpple har lagts till och kapitelns bonus är kvar.')+'</p><button type="button" data-orchard-close>Till spelet</button>';
+ dialog.innerHTML='<h2 id="orchardTitle">'+(success?'Ett äpple!':known?'Du har redan ett äpple':'Öva lite till')+'</h2><p>'+(success?'Rätt! Du får behålla äpplet. Det finns nu i din ficka.':known?'Du får ha ett äpple åt gången här. Kom tillbaka när fickan är tom.':(verdict==='review'?'Jag kunde inte känna igen svaret.':'Inte riktigt.')+' Ett exempel på rätt svar är <strong>'+esc(field.sample||field.answers[0])+'</strong>. Öva på frågan hos Rut och försök igen senare.')+'</p><p class="orchard-note">'+(success?'Du kan busa igen när fickan är tom. Vänta minst 20 sekunder och låt adelsmannen gå tillbaka. Varje nytt äpple kräver en ny jakt och en minnesfråga.':'Inget äpple har lagts till. Du kan försöka igen senare.')+'</p><button type="button" data-orchard-close>Till spelet</button>';
  dialog.querySelector('button')?.focus({preventScroll:true});
 });
 dialog.addEventListener('click',event=>{if(event.target.closest('[data-orchard-close]'))close();});dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
@@ -118,12 +117,12 @@ function tick(now,cfg){
  if(pendingRoute&&!path.length){pendingRoute=null;notify('Tryck mellanslag för att plocka. Spring sedan undan och göm dig!');}
  const near=outside()&&gap(cfg.player,g.tree)<76;
  notice.hidden=teacher||inRoom||dialog.open||otherBusy()||!(s.carrying||near||now<noticeUntil);
- if(!notice.hidden)copy.textContent=s.carrying?previousNotice:now<noticeUntil?previousNotice:s.state.claimed?'Du har redan fått kapitelns bonus.':pilot().state.apples?'Du har redan ett äpple.':'Mellanslag: plocka ett äpple. Spring sedan undan och göm dig! Du får en minnesfråga när du kommit undan.';
+ if(!notice.hidden)copy.textContent=s.carrying?previousNotice:now<noticeUntil?previousNotice:pilot().state.apples?'Du har redan ett äpple.':s.retreat?'Vänta tills adelsmannen har gått tillbaka.':s.state.cooldownMs>0?'Vänta '+Math.ceil(s.state.cooldownMs/1000)+' sekunder innan du plockar igen.':'Mellanslag: plocka ett äpple. Spring sedan undan och göm dig! Du får en minnesfråga när du kommit undan.';
 }
 function ellipse(ctx,x,y,rx,ry,color){ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
 function draw(ctx,{region,now=0}){
  const g=geometry(region);if(!g||teacher)return;matrix=ctx.getTransform();const s=model.snapshot();
- const tree=()=>{window.UPPDRAG_PAPER?.drawTree?.(ctx,region,{treeX:g.tree.x,treeY:g.tree.y+12});if(!s.state.claimed){for(const [dx,dy] of [[-15,-15],[13,-20],[2,0]]){ellipse(ctx,g.tree.x+dx,g.tree.y+dy,4.5,4,'#a94d36');ctx.fillStyle='#655333';ctx.fillRect(g.tree.x+dx,g.tree.y+dy-6,1,3);}}};
+ const tree=()=>{window.UPPDRAG_PAPER?.drawTree?.(ctx,region,{treeX:g.tree.x,treeY:g.tree.y+12});for(const [dx,dy] of [[-15,-15],[13,-20],[2,0]]){ellipse(ctx,g.tree.x+dx,g.tree.y+dy,4.5,4,'#a94d36');ctx.fillStyle='#655333';ctx.fillRect(g.tree.x+dx,g.tree.y+dy-6,1,3);}};
  if(!window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,g.tree.y,tree,'orchard-tree'))tree();
  ctx.save();ctx.font='600 12px Georgia';ctx.textAlign='center';ctx.fillStyle='#fbf0d8';ctx.fillRect(g.tree.x-37,g.tree.y+42,74,20);ctx.fillStyle='#4b3b29';ctx.fillText('Äppelträd',g.tree.x,g.tree.y+56);ctx.restore();
  if(['warning','chasing'].includes(s.phase)){
@@ -140,7 +139,7 @@ life.tick=function(now,cfg){const ret=oldTick.apply(this,arguments);tick(now,cfg
 life.draw=function(ctx,cfg){const ret=oldDraw.apply(this,arguments);draw(ctx,cfg);return ret;};
 const engine=window.UPPDRAG_EVENT_ENGINE,people=engine.people;
 engine.people=function(r){const g=geometry(r),a=model.snapshot().actor;return [...people.call(this,r),...(g?[{...(a||g.home),id:'orchard-noble',radius:12,solid:!model.busy}]:[])];};
-engine.register({id:'orchard-apple',type:'sidequest',region:'main',chapters:[1,2,3,4,5],usesRetrieval:true,chapterLimit:1});
+engine.register({id:'orchard-apple',type:'sidequest',region:'main',chapters:[1,2,3,4,5],usesRetrieval:true,repeatable:true});
 const canvas=document.getElementById('world');let hitDown=null;
 function hit(event){if(!matrix||!outside())return null;const rect=canvas.getBoundingClientRect(),m=matrix,x=(event.clientX-rect.left)*canvas.width/rect.width,y=(event.clientY-rect.top)*canvas.height/rect.height,d=m.a*m.d-m.b*m.c;
  const p={x:(m.d*(x-m.e)-m.c*(y-m.f))/d,y:(-m.b*(x-m.e)+m.a*(y-m.f))/d},g=geometry();
@@ -149,7 +148,7 @@ function hit(event){if(!matrix||!outside())return null;const rect=canvas.getBoun
 }
 canvas.addEventListener('pointerdown',event=>{const kind=hit(event);if(otherBusy()||!kind)return;hitDown={kind,x:event.clientX,y:event.clientY};event.preventDefault();event.stopImmediatePropagation();},true);
 canvas.addEventListener('pointerup',event=>{if(!hitDown)return;const from=hitDown;hitDown=null;event.preventDefault();event.stopImmediatePropagation();if(gap(from,{x:event.clientX,y:event.clientY})<10&&hit(event)===from.kind){if(from.kind==='hide')hide();else if(gap(playerPoint(),geometry().tree)<76)pick();else travel();}},true);
-Object.defineProperties(api,{busy:{get:()=>model.busy},blocking:{get:()=>dialog.open},claimed:{get:()=>model.snapshot().state.claimed},snapshot:{get:()=>model.snapshot()}});
+Object.defineProperties(api,{busy:{get:()=>model.busy},blocking:{get:()=>dialog.open},claimed:{get:()=>model.snapshot().state.claimed},harvests:{get:()=>model.snapshot().state.harvests},snapshot:{get:()=>model.snapshot()}});
 Object.assign(api,{geometry,travel,pick,hide,interact:()=>outside()&&!model.busy&&gap(playerPoint(),geometry()?.tree)<76?pick():false,
- journalHTML:()=>'<p><b>Äppelträdet vid herrgården:</b> '+(model.snapshot().state.claimed?'Kapitelns bonusäpple är redan hämtat.':!pool().length?'Börja med frågorna i minnesboken. Sedan kan du få ett bonusäpple genom en jakt och en fråga om sådant du redan har mött.':'Kom undan herrgårdens ägare och svara på en känd minnesfråga för att få ett bonusäpple. Ett per kapitel, när fickan är tom.')+'</p>'});
+ journalHTML:()=>'<p><b>Äppelträdet vid herrgården:</b> '+(!pool().length?'Börja med frågorna i minnesboken. Sedan kan du få äpplen genom jakt och minnesfrågor om sådant du redan har mött.':'Du kan busa flera gånger när fickan är tom! Kom undan herrgårdens ägare och svara på en känd minnesfråga för varje äpple. Vänta minst 20 sekunder mellan lyckade försök och låt honom gå tillbaka.')+'</p>'});
 })();

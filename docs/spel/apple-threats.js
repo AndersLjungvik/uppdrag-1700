@@ -47,7 +47,7 @@ const style=document.createElement('style');style.textContent=`
 `;document.head.append(style);
 function message(kind,outcome){
  noticeOutcome=outcome;noticeUntil=lastNow+(outcome==='lost-apple'?12000:outcome==='recovered'?5500:6000);
- const text=outcome==='lost-apple'?['Mitt äpple!','Öva en hel omgång hos Rut i Arkivet för att få ett nytt.']:outcome==='recovered'?['Ett nytt äpple',(kind==='orchard'?'Du klarade minnesfrågan vid Herrgården.':'Du har repeterat hos Rut.')+' Nu får du en lugn sträcka genom staden.']:outcome==='warning'||outcome==='active'?
+ const text=outcome==='lost-apple'?['Mitt äpple!','Öva en hel omgång hos Rut i Arkivet eller palla ett nytt äpple vid Herrgården och klara minnesfrågan.']:outcome==='recovered'?['Ett nytt äpple',(kind==='orchard'?'Du klarade minnesfrågan vid Herrgården.':'Du har repeterat hos Rut.')+' Nu får du en lugn sträcka genom staden.']:outcome==='warning'||outcome==='active'?
   kind==='dog'?['Hunden nosar efter äpplet','Håll avstånd. Ett hus, ett samtal eller ett träd kan ge skydd.']:['En tjuv vaktar passagen','”Lämna hit påsen!” Håll avstånd, välj en annan väg eller sök skydd hos någon.']:
   ['Du kom undan',kind==='dog'?'Hunden gav upp. Du har äpplet kvar.':'Tjuven lämnade dig i fred. Du har äpplet kvar.'];
  live.replaceChildren();const title=document.createElement('strong');title.textContent=text[0];live.append(title,document.createTextNode(text[1]));rut.hidden=outcome!=='lost-apple';
@@ -130,6 +130,7 @@ function tick(now,{region,player,activeRoom=null}={}){
   apples:p?.state.apples||0,known:!!p?.repetitionTaskIds?.length,
   completedRound:p?.state.recallRutRewarded?p.state.archiveRounds||0:0,anchor,route,clear,
   bonusClaimed:window.UPPDRAG_ORCHARD?.claimed===true,
+  orchardHarvests:window.UPPDRAG_ORCHARD?.harvests,
   canSee(a,b,home){return clear(a,b)&&!window.UPPDRAG_EVENT_APPROACH.blockedByCover(a,b,trees().filter(t=>!(t.id===home.id&&distance(a,home)<40)));}
  });
  const a=model.snapshot().active,show=!teacher&&!inRoom&&!talking&&!paused&&!document.hidden&&(!!a||now<noticeUntil);

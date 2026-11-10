@@ -79,4 +79,20 @@ for(const raw of [null,[],{quietMs:NaN,nextDistance:-100,nextKind:'unknown',hist
  }
  assert(result.active,'repeated ordinary-thief peeks cannot perpetually restart a longer apple delay');
 }
+{
+ let saved;const events=[],config={region:'main',paused:true,apples:1,known:true,bonusClaimed:true};
+ const first=create({pacing:2,needsRut:true,orchardClaimed:true,seenKinds:['dog'],nextKind:'dog'},{save:s=>saved=copy(s),event:(...event)=>events.push(event)});
+ assert.equal(first.snapshot().state.orchardHarvests,1,'legacy consumed bonus migrates as an already-seen first harvest');
+ first.tick(0,{x:0,y:0},{...config,orchardHarvests:1});assert(first.snapshot().state.needsRut,'old reward does not repay a later loss');
+ first.tick(80,{x:0,y:0},{...config,orchardHarvests:2});assert.equal(first.snapshot().state.needsRut,false);assert.equal(saved.orchardHarvests,2);assert.equal(saved.quietMs,15000);assert.deepEqual(events,[['orchard','recovered']]);
+ first.tick(160,{x:0,y:0},{...config,orchardHarvests:2});assert.equal(events.length,1,'same completed harvest is processed only once');
+ const restored=create({...saved,needsRut:true,losses:2},{save:s=>saved=copy(s),event:(...event)=>events.push(event)});
+ for(const orchardHarvests of [2,1,undefined])restored.tick(240,{x:0,y:0},{...config,orchardHarvests});
+ assert(restored.snapshot().state.needsRut,'reload, older counts and legacy flag cannot clear a subsequent loss');
+ restored.tick(320,{x:0,y:0},{...config,apples:0,orchardHarvests:3});assert(restored.snapshot().state.needsRut,'completion without a real apple is not recovery');
+ restored.tick(400,{x:0,y:0},{...config,orchardHarvests:3});assert(restored.snapshot().state.needsRut,'repeating a rewardless signal cannot clear recovery');
+ restored.tick(480,{x:0,y:0},{...config,orchardHarvests:4});assert.equal(restored.snapshot().state.needsRut,false);assert.equal(saved.orchardHarvests,4);assert.equal(events.length,2);
+ for(const raw of [{orchardHarvests:-2},{orchardHarvests:NaN},{orchardHarvests:'4'}])assert.equal(create(raw).snapshot().state.orchardHarvests,0);
+ console.log('PASS repeatable orchard recovery: legacy migration, new completed harvest with real apple, one safe period, saved counters and no replay of old or rewardless harvests');
+}
 console.log('PASS apple threats: both physical losses, warnings and stationary guard, shelter/cover/escape, no walls or teleports, study/hidden/other-threat pause, one debit and saved recovery, actual completion signal required, safe rest and walk, alternating return, unchanged progress');
