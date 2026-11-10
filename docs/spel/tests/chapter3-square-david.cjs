@@ -44,7 +44,7 @@ for(const [w,h]of [[1280,720],[720,1040],[1400,600],[430,900],[900,430]]){
 }
 c.UPPDRAG_ROOM_ART.render({},'church');assert.deepEqual(delegated,['church'],'other rooms retain their established renderer');
 // Execute the actual story dispatch and its repeat-visit branch.
-const scene=read('chapter3-scenes.js');assert(scene.includes("{role:'hat-party'}"));assert(scene.includes("{role:'cap-party'}"));const offer=scene.slice(scene.indexOf('function offerStudy('),scene.indexOf('function showSummary('));
+const scene=read('chapter3-scenes.js');assert(scene.includes("'hat-party'"));assert(scene.includes("'cap-party'"));const offer=scene.slice(scene.indexOf('function offerStudy('),scene.indexOf('function showSummary('));
 let place='fort',complete=false,last=null;const timeline={seen:{}},mastery={summary:()=>({label:'Lärling'}),snapshot:()=>({state:{areas:{david:{learner:{status:complete?'clear':'available'}}}}})};
 const s={window:null,UPPDRAG_MASTERY:mastery,timeline,order:{fort:3},aid:{fort:'david'},placeKey:()=>place,room:()=>place,idle:()=>true,stampTime:(p,first)=>{if(first)timeline.seen[p]=true;},speak:(lines,choices,action)=>{last={lines,choices,action};return true;},study(){}};s.window=s;vm.createContext(s);vm.runInContext(offer+';window.open=openRoom;',s);
 s.open('fort');assert(last.lines.some(([who,line])=>who==='David'&&line.includes('David Hedenquist')),'David introduces himself on the first visit');

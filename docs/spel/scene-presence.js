@@ -170,8 +170,8 @@ function sceneGeometry(){
  const sr=stage.getBoundingClientRect();
  if(typeof interior!=='undefined'&&interior){
   const g=window.UPPDRAG_MEETINGS?.geometryForRoom?.();if(!g)return null;
-  const poses=[...(g.poses||[]),...(g.visitorPose?[g.visitorPose]:[])];
-  const heads=poses.map(p=>({x:g.left+g.p.x+p[0]*g.p.scale,y:g.top+g.p.y+(p[1]-305*p[2])*g.p.scale,s:p[2]*g.p.scale}));
+  const actors=[...(g.poses||[]).map((pos,i)=>({name:i===0?'Du':g.c?.cast?.name,pos})),...(g.visitorPose?[{name:'visitor',pos:g.visitorPose}]:[]),...(window.UPPDRAG_CH3_SCENES?.roomActors?.(g)||[])];
+  const heads=actors.filter(a=>a.pos?.length>=3).map(({name,pos:p})=>({name,x:g.left+g.p.x+p[0]*g.p.scale,y:g.top+g.p.y+(p[1]-305*p[2])*g.p.scale,s:p[2]*g.p.scale}));
   return {bounds:{x:g.left+8,y:g.top+8,w:g.w-16,h:g.h-16},heads,faces:heads.map(a=>({x:a.x-48*a.s-7,y:a.y-26*a.s-7,w:96*a.s+14,h:87*a.s+14})),bodies:heads.map(a=>({x:a.x-65*a.s-7,y:a.y-26*a.s-7,w:130*a.s+14,h:330*a.s+14}))};
  }
  if(typeof layout==='undefined'||typeof camera==='undefined')return null;
@@ -209,7 +209,7 @@ function speech(target,{box,tip,round}){
  const edge={x:clamp(anchor.x,placed.x+8,placed.x+placed.w-8),y:clamp(anchor.y,placed.y+8,placed.y+placed.h-8)},d=dist(edge,anchor),reach=Math.min(25,Math.max(0,d-12));
  const flap={x:edge.x+(anchor.x-edge.x)/(d||1)*reach,y:edge.y+(anchor.y-edge.y)/(d||1)*reach};
  const paperRound=Math.min(round??.62,.38);
- target.dataset.presenceFaces=String(Math.round(placed.faceOverlap));return {box:placed,tip:flap,round:paperRound};
+ target.dataset.presenceFaces=String(Math.round(placed.faceOverlap));return {box:placed,tip:flap,round:paperRound,speaker:anchor.name};
 }
 function install(){
  if(installed)return;installed=true;const meetings=window.UPPDRAG_MEETINGS;if(!meetings)return;
@@ -270,5 +270,5 @@ function source(name,text){
  }
  return text;
 }
-window.UPPDRAG_SCENE_PRESENCE={footRadius:FOOT_RADIUS,source,install,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get talking(){return !!(window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.active||window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_EVENT_ENGINE?.blocking);},get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.4.0'};
+window.UPPDRAG_SCENE_PRESENCE={footRadius:FOOT_RADIUS,source,install,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get talking(){return !!(window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.active||window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_EVENT_ENGINE?.blocking);},get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.4.1'};
 })();
