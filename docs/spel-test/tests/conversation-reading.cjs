@@ -47,6 +47,7 @@ const citySource=c.UPPDRAG_CH3_PRESENTATION.source('chapter3-street-life.js',rea
 vm.runInContext(between(citySource,'function next(){','function suspend(){')+';window.advanceCity=next;',c);
 vm.runInContext("window.UPPDRAG_CH3_SCENES={get patrolQuestionActive(){return !!challenge&&!!patrolBar;}}",c);
 for(const answer of [0,1,3]){
+ c.pilot={state:{daler:5},persist(){},refresh(){}};
  c.patrolBar=null;c.challenge={actor:{id:'soldiers'},t:{prompt:'Varför hade riksdagen mer makt?'},options:['Kungen var enväldig.','Ständerna fattade besluten.','Ingen bestämde.'],answer:'Ständerna fattade besluten.'};
  c.active={mode:'lines'};c.lineIndex=1;c.showLine=()=>assert.fail('the question was advanced without an answer');
  let feedback=null;c.UPPDRAG_CH3_CITY_LIFE={close:()=>c.closeCard(),open:(actor,lines)=>{feedback=lines;return true;}};

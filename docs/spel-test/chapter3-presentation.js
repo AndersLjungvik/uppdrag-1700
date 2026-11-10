@@ -44,6 +44,8 @@ function source(name,text){
  if(name==='more-room-ch3-pilot.js')edit('bed(g,bx,feet,188);bed(g,bx+222,feet,188);','bed(g,bx,feet,188);window.UPPDRAG_CH3_SCENES?.drawInheritedBed(g,bx,feet,188);bed(g,bx+222,feet,188);');
  return text;
 }
+// One uniform paper stage for furniture, people and the barrel hit targets.
+function yardFrame(tall){return tall?{x:35,y:330,sx:1,sy:1}:{x:440,y:205,sx:1.05,sy:1.05};}
 function install(){
  const approved=window.UPPDRAG_ROOM_ART;
  const project=(canvas)=>{const r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2),tall=r.width/r.height<1.02,D=tall?{w:720,h:1040}:{w:1280,h:720},scale=Math.min(r.width/D.w,r.height/D.h);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);const g=canvas.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,r.width,r.height);g.translate((r.width-D.w*scale)/2,(r.height-D.h*scale)/2);g.scale(scale,scale);return {g,tall,D,scale,left:(r.width-D.w*scale)/2,top:(r.height-D.h*scale)/2};};
@@ -87,9 +89,9 @@ function install(){
  function line(g,points,color,width=1){g.save();g.strokeStyle=color;g.lineWidth=width;g.lineCap='round';g.beginPath();points.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke();g.restore();}
  function field(g,x,y,w,h,color){const pigment=material(g,color);pigment?.setTransform?.({a:1,b:0,c:0,d:1,e:0,f:0});g.fillStyle=pigment;g.fillRect(x,y,w,h);}
  function limits(D,view){return {left:-view.left/view.scale-8,right:D.w+view.left/view.scale+8,top:-view.top/view.scale-8,bottom:D.h+view.top/view.scale+8};}
- function yardFrame(tall){return tall?{x:50,y:255,sx:.97,sy:1.34}:{x:425,y:200,sx:1.2,sy:1};}
+ function groundShadow(g,x,y,rx,ry=7){g.save();g.fillStyle='#4f40292d';g.beginPath();g.ellipse(x,y,rx,ry,0,0,Math.PI*2);g.fill();g.restore();}
  // Barrel centres and footprint (70 x 85) match the saved puzzle slots.
- function barrel(g,x,y){g.save();g.translate(x,y);
+ function barrel(g,x,y){g.save();g.translate(x,y);groundShadow(g,0,43,36,6);
   poly(g,[[-24,-40],[23,-42],[33,-28],[35,15],[24,40],[-23,42],[-35,19],[-34,-23]],'#886b4a',true);
   for(const [xx,shift]of [[-17,0],[-1,-1],[17,1]])line(g,[[xx,-34],[xx+shift,33]],'#544737',1.6);
   poly(g,[[-33,-23],[33,-25],[34,-15],[-34,-13]],'#5a5c51');poly(g,[[-33,18],[33,16],[29,26],[-29,28]],'#5a5c51');
@@ -102,38 +104,38 @@ function install(){
  }
  function courtyard(g,tall,D,view){
   const B=limits(D,view);field(g,B.left,B.top,B.right-B.left,B.bottom-B.top,'#82959e');
-  field(g,B.left,tall?470:345,B.right-B.left,B.bottom,'#b7a58a');
+  const Y=yardFrame(tall),backFloor=Y.y+40*Y.sy;
+  field(g,B.left,backFloor,B.right-B.left,B.bottom,'#b7a58a');
   // Neighbouring gables and side wings frame the yard as a little paper stage.
-  poly(g,[[B.left,84],[tall?22:137,30],[tall?168:343,173],[tall?164:346,tall?750:538],[B.left,tall?768:551]],'#955a45',true);
-  poly(g,[[B.left,83],[tall?20:138,20],[tall?179:357,167],[tall?163:341,179],[tall?20:136,42],[B.left,104]],'#645e51',true);
+  poly(g,[[B.left,84],[tall?-12:137,30],[tall?65:343,173],[tall?62:346,tall?760:538],[B.left,tall?768:551]],'#955a45',true);
+  poly(g,[[B.left,83],[tall?-14:138,20],[tall?75:357,167],[tall?61:341,179],[tall?-14:136,42],[B.left,104]],'#645e51',true);
   if(!tall){windowPiece(g,51,206,70,111);windowPiece(g,200,233,61,95);cut(g,45,445,99,103,'#514a3b');}
-  else windowPiece(g,-24,290,73,118);
-  const Y=yardFrame(tall),s=window.UPPDRAG_CH3_SCENES?.courtyard||{phase:'available',layout:{a:'bench',b:'path'}};
+  else windowPiece(g,-32,290,55,118);
+  const s=window.UPPDRAG_CH3_SCENES?.courtyard||{phase:'available',layout:{a:'bench',b:'path'}};
   g.save();g.translate(Y.x,Y.y);g.scale(Y.sx,Y.sy);
-  poly(g,[[-73,79],[650,78],[684,428],[-77,431]],'#ad9b7c',false,false);
-  poly(g,[[-72,-101],[241,-176],[647,-91],[650,80],[547,81],[515,165],[378,165],[344,80],[-72,81]],'#c4ac82',true);
-  poly(g,[[344,80],[379,55],[378,165]],'#a18b67',false,false);poly(g,[[515,65],[547,81],[515,165]],'#a18b67',false,false);
+  poly(g,[[-73,40],[650,40],[684,428],[-77,431]],'#ad9b7c',false,false);
+  poly(g,[[-72,-101],[241,-176],[647,-91],[650,40],[-72,40]],'#c4ac82',true);
   poly(g,[[-93,-103],[241,-180],[670,-91],[655,-74],[245,-157],[-80,-84]],'#6d7568',true);
   cut(g,242,-184,30,52,'#925b43');cut(g,235,-188,43,11,'#67574a');
   // One large window and a planked door, each assembled from separate pieces.
-  windowPiece(g,35,-46,105,112);cut(g,24,68,127,12,'#ded0af');
-  cut(g,390,-27,113,195,'#e0ccaa');cut(g,399,-20,95,185,'#4e493d');cut(g,406,-15,81,179,'#846647');
-  for(const xx of [425,446,467])line(g,[[xx,-9],[xx+1,157]],'#544838',2);
-  cut(g,404,146,85,10,'#67533e');cut(g,470,70,8,17,'#d1b276');
-  poly(g,[[385,163],[508,162],[520,180],[374,181]],'#a2957c',true);
+  windowPiece(g,35,-100,105,110);cut(g,24,13,127,12,'#ded0af');
+  cut(g,390,-137,113,177,'#e0ccaa');cut(g,399,-130,95,170,'#4e493d');cut(g,406,-124,81,164,'#846647');
+  for(const xx of [425,446,467])line(g,[[xx,-118],[xx+1,31]],'#544838',2);
+  cut(g,404,25,85,10,'#67533e');cut(g,470,-48,8,17,'#d1b276');
+  poly(g,[[385,39],[508,39],[520,53],[374,55]],'#a2957c',true);
   // The path still denotes exactly the same free passage as the puzzle model.
-  poly(g,[[397,178],[495,179],[506,427],[387,427]],'#ccbea0',false);
-  for(const [x,y,w,h]of [[401,209,39,19],[450,239,40,21],[399,286,43,22],[448,332,42,25],[400,380,46,25]])poly(g,[[x,y],[x+w,y+1],[x+w-2,y+h],[x+1,y+h]],'#b3a58b',false,false);
+  poly(g,[[397,48],[495,48],[506,427],[387,427]],'#ccbea0',false);
+  for(const [x,y,w,h]of [[401,85,39,19],[450,145,40,21],[399,220,43,22],[448,300,42,25],[400,380,46,25]])poly(g,[[x,y],[x+w,y+1],[x+w-2,y+h],[x+1,y+h]],'#b3a58b',false,false);
   // A substantial seat and backrest make the blocked bench easy to recognise.
-  cut(g,183,126,14,111,'#5e503d');cut(g,345,124,15,112,'#5e503d');
+  groundShadow(g,273,242,99,8);cut(g,183,126,14,111,'#5e503d');cut(g,345,124,15,112,'#5e503d');
   poly(g,[[171,128],[368,124],[369,144],[173,149]],'#8d6b48',true);
   poly(g,[[174,170],[362,167],[378,181],[166,186]],'#92744e',true);cut(g,172,183,198,13,'#745a3e');
   cut(g,181,195,16,45,'#5c4c38');cut(g,345,194,16,44,'#5c4c38');
   // Washing and a pot are quiet, broad shapes, not repeated facade ornaments.
-  line(g,[[164,-33],[239,-18],[341,-34]],'#645644',2);
-  poly(g,[[191,-27],[232,-23],[234,27],[193,23]],'#e4d7b8',true);poly(g,[[255,-24],[294,-28],[300,12],[258,18]],'#7d8a7b',true);
-  cut(g,199,-31,5,11,'#735c40');cut(g,277,-32,5,11,'#735c40');
-  poly(g,[[548,227],[587,227],[579,268],[554,267]],'#975b46',true);
+  line(g,[[164,-105],[239,-90],[341,-106]],'#645644',2);
+  poly(g,[[191,-99],[232,-95],[234,-45],[193,-49]],'#e4d7b8',true);poly(g,[[255,-96],[294,-100],[300,-60],[258,-54]],'#7d8a7b',true);
+  cut(g,199,-103,5,11,'#735c40');cut(g,277,-104,5,11,'#735c40');
+  groundShadow(g,569,269,23,5);poly(g,[[548,227],[587,227],[579,268],[554,267]],'#975b46',true);
   for(const pts of [[[564,233],[544,207],[548,186],[566,212]],[[566,231],[572,199],[588,187],[582,216]],[[563,231],[529,217],[517,201],[547,207]]])poly(g,pts,'#718369');
   const slots=window.UPPDRAG_CH3_COURTYARD_PUZZLE.slots;
   ['a','b'].map(id=>slots[s.layout?.[id]]||slots[id==='a'?'bench':'path']).sort((a,b)=>a.y-b.y).forEach(p=>barrel(g,p.x,p.y));
@@ -211,11 +213,11 @@ function install(){
   }
   churchExterior(g,tall?80:255,horizon+96,tall?.96:1.08);
   poly(g,[[tall?55:218,horizon+104],[tall?312:529,horizon+100],[tall?332:551,horizon+123],[tall?44:201,horizon+129]],'#938e76',true);
-  stall(g,tall?513:979,horizon+(tall?185:180),tall?.56:.67);
+  stall(g,tall?513:875,horizon+(tall?185:180),tall?.56:.55);
   townhouse(g,tall?-131:-106,tall?770:560,tall?226:290,tall?405:387,'#965c47',.78);
   townhouse(g,tall?660:1150,tall?755:575,tall?219:271,tall?379:374,'#b7a27d',.05);
   stall(g,tall?-66:-45,H-6,tall?.96:1.35);
-  g.save();g.translate(tall?679:1248,H+3);g.scale(tall?.78:1.13,tall?.78:1.13);barrel(g,0,-37);barrel(g,69,-24);g.restore();
+  if(!tall){g.save();g.translate(1248,H+3);g.scale(1.13,1.13);barrel(g,0,-37);barrel(g,69,-24);g.restore();}
   poly(g,[[B.left,H-12],[W*.15,H-20],[W*.25,B.bottom],[B.left,B.bottom]],'#9a896d',false,false);
  }
  function render(canvas,kind){if(!['square','courtyard'].includes(kind))return approved.render(canvas,kind);const p=project(canvas);if(kind==='square')square(p.g,p.tall,p.D,p);else courtyard(p.g,p.tall,p.D,p);return {x:p.left+15*p.scale,y:p.top+(p.D.h-85)*p.scale,w:90*p.scale,h:75*p.scale};}
@@ -232,5 +234,5 @@ function install(){
  ROOM_BY_REGION.main.Torget='square';ROOM_BY_REGION.main.Bostadskvarteren='courtyard';
  return {yardFrame};
 }
-window.UPPDRAG_CH3_PRESENTATION={source,install};
+window.UPPDRAG_CH3_PRESENTATION={source,install,yardFrame};
 })();

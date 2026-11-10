@@ -23,8 +23,9 @@ assert.equal(positions.size,3);assert.equal(opened,60);assert.equal(saves,60);
 // the answer text, including when the correct option is last.
 vm.runInContext(section('function answerPatrol(index){','function readPatrol(){')+';window.answer=answerPatrol;',c);
 for(const order of [['Rätt svar','Fel ett','Fel två'],['Fel ett','Rätt svar','Fel två'],['Fel ett','Fel två','Rätt svar']])for(const chosen of [0,1,2,3]){
- c.challenge={actor,t:task,options:order,answer:'Rätt svar'};let feedback;
+ c.pilot={state:{daler:5},persist(){},refresh(){}};c.challenge={actor,t:task,options:order,answer:'Rätt svar'};let feedback;
  c.UPPDRAG_CH3_CITY_LIFE={close(){c.challenge=null;},open(a,lines){feedback=lines[0][1];}};c.answer(chosen);
+ assert.equal(c.pilot.state.daler,chosen===3||order[chosen]==='Rätt svar'?5:3);
  assert.match(feedback,chosen===3?/Gå vidare, då/:order[chosen]==='Rätt svar'?/Det stämmer/:/Jag har fått den här uppgiften: Rätt svar/);
 }
 console.log('PASS patrol answer order: all 6/24 permutations, every answer position equally likely, real repeated known-question encounters, untouched bank and text-based correct/wrong/skip grading');
