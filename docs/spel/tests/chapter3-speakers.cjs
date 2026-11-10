@@ -39,5 +39,5 @@ for(const speaking of ['Bonden','Soldaten','Du']){
  c.drawProps(g,'square',true,0,{side(...args){painted.push({actor:args[3],speaking:args[6]});}});
  assert.equal(painted.length,1);assert.equal(painted[0].actor.name,'Soldaten');assert.equal(painted[0].actor.role,'soldier-guard');assert.equal(painted[0].speaking,speaking==='Soldaten');assert.deepEqual(labels,['Du','Bonden','Soldaten']);
 }
-assert(read('index.html').includes('scene-presence.js?v=1.4.1'));assert(read('integration.js').includes('scene-presence.js?v=1.4.1'));
+assert(read('index.html').includes('scene-presence.js?v=1.4.2'));assert(read('integration.js').includes('scene-presence.js?v=1.4.2'));
 console.log('PASS square speaker regression: reproduced soldier-to-farmer snapping, correct farmer/soldier/player bubbles in both orientations, shared paint/anchor geometry, three clear labels and one uniformed soldier');

@@ -12,7 +12,7 @@ const {launch,assert,fs,path}=require('./chapter3-test-utils.cjs');
  try{
   await h.page.addInitScript(({scope})=>{if(window===top&&!localStorage.getItem(scope+'uppdrag1700.side-adventures.v1'))localStorage.setItem(scope+'uppdrag1700.side-adventures.v1',JSON.stringify({v:1,chapters:{3:{wagon:'need-smith',wagonSeen:true,thief:'won',thiefSeen:true,witness:'heard',distance:3000,thiefDistance:600,history:[]}}}));},{scope:h.scope});
   await h.boot();f=h.frame;
-  assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.openWagon()),false);assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.openSmith()),false);assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.wagon),'need-smith');
+  assert.equal(await f.evaluate(()=>typeof UPPDRAG_CH3_PROVISIONS.shop),'function');assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.openSmith()),false);assert.equal(await f.evaluate(()=>UPPDRAG_EVENT_ENGINE.state.wagon),'need-smith');
   const before=await f.evaluate(()=>({m:localStorage.getItem('uppdrag1700.mastery.v1.ch3'),daler:UPPDRAG_CH3_PILOT.state.daler,apples:UPPDRAG_CH3_PILOT.state.apples}));
   await h.room('riksdag');await h.greet();await h.choose('cap');await h.choose('later');assert.equal(await f.evaluate(()=>UPPDRAG_CH3_SCENES.story.phase),0);
   await h.room('square');await h.greet();await h.choose('summary');assert.equal(await f.locator('#ch3Summary').isVisible(),true);assert.match(await f.locator('#ch3Summary').innerText(),/öppnade eld.*Många dödades/s);assert.equal(await f.locator('#adventureDialog').isVisible(),false);

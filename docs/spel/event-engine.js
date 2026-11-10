@@ -1,4 +1,4 @@
-/* Uppdrag 1700 – side-adventure engine v1.20.0.
+/* Uppdrag 1700 – side-adventure engine v1.21.0.
  * Single world-loop integration. Optional scenes, not knowledge assessment.
  * The per-chapter save is separate from the original pilot and recall saves.
  * The definitions below also reserve hooks for future chapters 9 and 10.
@@ -327,6 +327,7 @@ function finishWagon(){
  display('Vägen är fri','<p><b>Kusken:</b> ”Där lossnade hjulet! Tack för hjälpen. Nu ska jag köra försiktigt.”</p>');return true;
 }
 function showWagon(){
+ if(chapter===3)return window.UPPDRAG_CH3_PROVISIONS?.shop?.()||false;
  if(chapter===2){if(!nearActor('wagon'))return walkToEvent('wagon');speaker='wagon';display('Kusken vid Barnhuset','<p><b>Kusken:</b> ”Här lämnar jag bröd och ved. Siri tar emot inne på Barnhuset.”</p>');return true;}
  if(!allowed('wagon'))return false;if(!nearActor('wagon'))return walkToEvent('wagon');speaker='wagon';
  if(!state.wagonSeen){state.wagonSeen=true;record('wagon','discovered');}
@@ -407,8 +408,8 @@ function finishThief(caught,announce=true){
 function witnessAvailable(){return allowed('thief')&&state.thief!=='chasing'&&(state.thief!=='unseen'||recurrence.unclaimed>0);}
 function journalStatus(){return (chapter===5?(window.UPPDRAG_CH5_SCENES?.journalHTML?.()||''):chapter===4?(window.UPPDRAG_CH4_SCENES?.journalHTML?.()||''):chapter===3?(window.UPPDRAG_CH3_SCENES?.journalHTML?.()||''):chapter===2?'<p><b>Kusken:</b> Lämnar varor vid Barnhuset.</p>'+(window.UPPDRAG_CH2_BED?.journalHTML?.()||''):'<p><b>Vagnen vid herrgårdsvägen:</b> '+({unseen:'Inte upptäckt',inspected:'Undersökt – återvänd om du vill',deferred:'Du kan återvända', 'need-smith':'Sök smeden vid Verkstäderna',advice:'Återvänd till kusken',cleared:'Hjälpt, vägen är fri'}[state.wagon])+'</p>')+
  (allowed('thief')?'<p><b>Ficktjuven:</b> '+({unseen:state.thiefSeen?'Kan dyka upp igen':'Har inte visat sig',chasing:'Springer iväg med '+state.stolenAmount+' daler',won:'Du hann ikapp',lost:'Försvann med pengarna',ignored:'Avslutat'}[state.thief])+'</p>'+(witnessAvailable()?'<p><b>Barnet vid torget:</b> '+({unseen:'Går att prata med',cold:'Vill bli bemött lugnare',recovered:'Ni har pratat',heard:'Ni har pratat'}[state.witness])+'</p>':''):'');}
-function showJournal(){speaker='journal';const buttons=[...(window.UPPDRAG_ORCHARD?[['orchard','Äppelträdet vid Herrgården']]:[]),...(window.UPPDRAG_FISHING?.travel?[['fishing','Fiske vid vattnet'],...(window.UPPDRAG_FISHING.fishCount?[['fish-kitchen','Lämna fisken i köket']]:[])]:[]),['close','Tillbaka till spelet']];if(teacher){buttons.unshift(...(allowed('wagon')?[['demo-wagon','Testa vagnsblockad']]:[]),...(allowed('thief')?[['demo-thief','Testa ficktjuven']]:[]));}
- display('Sidoäventyr · kapitel '+chapter,'<p>De här händelserna är frivilliga. De kan lösas över flera möten och sparas separat från huvuduppdraget.</p><div class="ad-history">'+journalStatus()+(window.UPPDRAG_APPLE_THREATS?.journalHTML()||'')+(window.UPPDRAG_ORCHARD?.journalHTML?.()||'')+(window.UPPDRAG_FISHING?.journalHTML?.()||'')+'</div>'+(allowed('thief')?'<p>Ficktjuven kan ta halva plånboken när du har minst 3 daler. Hinner du ikapp och svarar rätt på minnesfrågan får du tillbaka hela summan. Kommer tjuven undan är pengarna förlorade. Tjuven kan återkomma efter nya intäkter och fortsatt gång. Samtal, hus och gömställen kan hjälpa dig undan.</p>':'')+(chapter===5?'<p class="ad-note">Från Kajen kan du segla till Marstrand. Fången väntar vid Carlsten och hamnarbetaren finns vid öns kaj.</p>':chapter===4?'<p class="ad-note">Brita har kokboken i Tryckeriet. Karin väntar i Bostadskvarteren.</p>':chapter===3?'<p class="ad-note">Gården finns i Bostadskvarteren. På gatan möter du människor och patruller på plats.</p>':chapter===2?'<p class="ad-note">Barnhuset ligger öster om bron. Karin finns i Bostadskvarteren, längre österut längs gatan.</p>':'<p class="ad-note">Vagnen finns på landsvägen mellan Verkstäderna och Herrgården. Om smeden behövs ligger Verkstäderna längre västerut. Resor och huvuduppdrag fortsätter som vanligt.</p>'),buttons);
+function showJournal(){speaker='journal';const buttons=[...(window.UPPDRAG_CH3_PROVISIONS?[['provisions','Proviant till bönderna']]:[]),...(window.UPPDRAG_ORCHARD?[['orchard','Äppelträdet vid Herrgården']]:[]),...(window.UPPDRAG_FISHING?.travel?[['fishing','Fiske vid vattnet'],...(window.UPPDRAG_FISHING.fishCount?[['fish-kitchen','Lämna fisken i köket']]:[])]:[]),['close','Tillbaka till spelet']];if(teacher){buttons.unshift(...(allowed('wagon')?[['demo-wagon','Testa vagnsblockad']]:[]),...(allowed('thief')?[['demo-thief','Testa ficktjuven']]:[]));}
+ display('Sidoäventyr · kapitel '+chapter,'<p>De här händelserna är frivilliga. De kan lösas över flera möten och sparas separat från huvuduppdraget.</p><div class="ad-history">'+journalStatus()+(window.UPPDRAG_APPLE_THREATS?.journalHTML()||'')+(window.UPPDRAG_ORCHARD?.journalHTML?.()||'')+(window.UPPDRAG_FISHING?.journalHTML?.()||'')+(window.UPPDRAG_CH3_PROVISIONS?.journalHTML?.()||'')+'</div>'+(allowed('thief')?'<p>Ficktjuven kan ta halva plånboken när du har minst 3 daler. Hinner du ikapp och svarar rätt på minnesfrågan får du tillbaka hela summan. Kommer tjuven undan är pengarna förlorade. Tjuven kan återkomma efter nya intäkter och fortsatt gång. Samtal, hus och gömställen kan hjälpa dig undan.</p>':'')+(chapter===5?'<p class="ad-note">Från Kajen kan du segla till Marstrand. Fången väntar vid Carlsten och hamnarbetaren finns vid öns kaj.</p>':chapter===4?'<p class="ad-note">Brita har kokboken i Tryckeriet. Karin väntar i Bostadskvarteren.</p>':chapter===3?'<p class="ad-note">Gården finns i Bostadskvarteren. På gatan möter du människor och patruller på plats.</p>':chapter===2?'<p class="ad-note">Barnhuset ligger öster om bron. Karin finns i Bostadskvarteren, längre österut längs gatan.</p>':'<p class="ad-note">Vagnen finns på landsvägen mellan Verkstäderna och Herrgården. Om smeden behövs ligger Verkstäderna längre västerut. Resor och huvuduppdrag fortsätter som vanligt.</p>'),buttons);
 }
 function updateJournalLabel(){if(chapter===5){journal.textContent='Brevet och gatan';return;}if(chapter===4){journal.textContent='Boken och gatan';return;}if(chapter===3){journal.textContent='Gården och gatan';return;}journal.textContent='Händelser'+(state.wagon!=='unseen'||state.thief!=='unseen'?' · ':'')+(state.wagon==='cleared'?'✓':state.wagon==='need-smith'?'!':'');}
 journal.addEventListener('click',showJournal);
@@ -427,6 +428,7 @@ function handleAction(code){
  if(code==='close'||code==='later'||code==='cold'){close();return;}
  if(code==='fishing'){close();window.UPPDRAG_FISHING?.travel();return;}
  if(code==='fish-kitchen'){close();window.UPPDRAG_FISHING?.travelKitchen();return;}
+ if(code==='provisions'){close();const p=window.UPPDRAG_CH3_PROVISIONS;if(p?.snapshot.carrying)p.travelSquare();else p?.travelWagon();return;}
  if(code==='orchard'){close();window.UPPDRAG_ORCHARD?.travel();return;}
  if(code==='demo-wagon'){close();showWagon();return;}
  if(code==='demo-thief'&&teacher){close();approach.reset();thiefPoint=null;state.thief='unseen';state.stolenDaler=false;state.stolenAmount=0;showThief();return;}
@@ -496,7 +498,7 @@ function tick(now,{region,player,activeRoom=null}={}){
  if(motion.phase==='contact'&&state.thief==='unseen')showThief();
 }
 const people={
- wagon:{name:'Kusken',color:'#88744f',role:'driver'},
+ wagon:{name:chapter===3?'Bonden':'Kusken',color:'#88744f',role:'driver'},
  smith:{name:'Smeden',color:'#6f756a',apron:true,role:'smith'},
  witness:{name:'Barnet',color:'#8c775d',role:'child'},
  thief:{name:'En förbipasserande',color:'#596458',role:'passerby'}
@@ -535,7 +537,7 @@ function drawWagon(ctx,now){const p=wagonPosition();
 function streetPeople(r){
  if(r?.id!=='main')return [];
  const result=[];
- if(allowed('wagon')||chapter===2)result.push({...driverPosition(),id:'event-driver',radius:18});
+ if(allowed('wagon')||chapter===2||chapter===3)result.push({...driverPosition(),id:'event-driver',radius:18});
  if(allowed('wagon')&&state.wagon==='need-smith')result.push({...smithAt,id:'event-smith',radius:18});
  if(witnessAvailable())result.push({...witnessAt,id:'event-witness',radius:15});
  // Physical contact is part of both the theft and the recovery. Keep it possible.
@@ -553,7 +555,7 @@ function conversation(){
 }
 function draw(ctx,{region,now=0}={}){if(!ctx||region?.id!=='main')return;
  matrix=ctx.getTransform();if(scene)positionSpeech();
- if(allowed('wagon')||chapter===2)drawWagon(ctx,now);
+ if(allowed('wagon')||chapter===2||chapter===3)drawWagon(ctx,now);
  if(allowed('wagon')&&state.wagon==='need-smith')drawPerson(ctx,'smith',smithAt,now);
  if(witnessAvailable())drawPerson(ctx,'witness',witnessAt,now,.78);
  if(thiefPoint){const paintThief=()=>{drawPerson(ctx,'thief',thiefPoint,now);if(state.thief==='chasing'){ctx.save();ctx.translate(thiefPoint.x,thiefPoint.y);ctx.rotate(thiefPoint.heading||0);ctx.fillStyle='#b59355';ctx.strokeStyle='#5a4430';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(1,18,6,7,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();}};if(!window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,thiefPoint.y,paintThief,"event-thief"))paintThief();}
@@ -573,7 +575,7 @@ function inWorld(e){if(!canvas||!matrix)return null;
 }
 function mapClick(e){if(lastRegion!=='main'||atRoom||scene||dialog.open||hasOtherDialogue())return false;
  const p=inWorld(e);if(!p)return false;
- if((allowed('wagon')||chapter===2)&&(Math.hypot(p.x-wagonPosition().x,p.y-wagonPosition().y)<75||Math.hypot(p.x-driverPosition().x,p.y-driverPosition().y)<30)){showWagon();return true;}
+ if((allowed('wagon')||chapter===2||chapter===3)&&(Math.hypot(p.x-wagonPosition().x,p.y-wagonPosition().y)<75||Math.hypot(p.x-driverPosition().x,p.y-driverPosition().y)<30)){showWagon();return true;}
  if(allowed('wagon')&&state.wagon==='need-smith'&&Math.hypot(p.x-smithAt.x,p.y-smithAt.y)<75){showSmith();return true;}
  if(witnessAvailable()&&Math.hypot(p.x-witnessAt.x,p.y-witnessAt.y)<75){showWitness();return true;}
  if(thiefPoint&&state.thief==='chasing'&&Math.hypot(p.x-thiefPoint.x,p.y-thiefPoint.y)<60){chaseFollowing=true;followThief(performance.now(),true);return true;}
@@ -598,7 +600,7 @@ function install(){const life=window.UPPDRAG_WORLD_LIFE;
  const keyboard=window.UPPDRAG_WORLD_KEYBOARD;
  if(keyboard&&typeof keyboard.tick==='function'){const old=keyboard.tick;keyboard.tick=function(){if(blocking)return;return old.apply(this,arguments);};}
 }
-const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,drawCover,speakRoom,people:streetPeople,get conversation(){return conversation();},get roomSpeaker(){return roomSpeech?lineSpeaker:null;},get roomVoice(){return roomSpeech?.voice||null;},get covers(){return coversFor(activeWorld).map(c=>({...c}));},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){recurrence.reset(wallet());state.nextAmbushDistance=0;pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;state.stolenAmount=0;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.20.0'};
+const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get wagonShopPoint(){return {...driverPosition(),region:'main'};},travelWagon:()=>walkToEvent('wagon'),get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,drawCover,speakRoom,people:streetPeople,get conversation(){return conversation();},get roomSpeaker(){return roomSpeech?lineSpeaker:null;},get roomVoice(){return roomSpeech?.voice||null;},get covers(){return coversFor(activeWorld).map(c=>({...c}));},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){recurrence.reset(wallet());state.nextAmbushDistance=0;pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;state.stolenAmount=0;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.21.0'};
 window.UPPDRAG_EVENT_ENGINE=api;
 api.register({id:'wagon-blockade',type:'sidequest',region:'main',chapters:[1,6,7,8,9,10],multiStop:true,nonBlocking:true});
 api.register({id:'pickpocket',type:'surprise',region:'main',chapters:[1,2,3,4,5,7,9,10],physicalChase:true,usesRetrieval:true,lossFraction:.5,minimumBalance:3,repeatAfterEarnings:true});

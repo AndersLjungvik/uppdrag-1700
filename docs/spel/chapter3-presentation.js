@@ -19,6 +19,10 @@ function source(name,text){
   edit('geometryForRoom:measure,drawMapPerson', 'geometryForRoom:measure,redraw(){lastPaint=-Infinity;drawPeople(performance.now());},drawRoomPerson(g,pos,who,now,speaking=false){puppets(g).side(...pos,who,false,now,speaking,false,false,0,0,null);},drawMapPerson');
   edit("quay:'Jos krigsbrev',print:'Brita tryckblad',archive:'Ruts bokhyllor'", "quay:'Resa till Marstrand',print:'Britas tryckblad',archive:'Ruts bokhyllor',palace:'Amiras kartblad',square:'Bönder och soldater',courtyard:'Den stängda gården',fort:'David och fästningsvakten'");
  }
+ if(name==='world-keyboard-ch3.js'){
+  edit('  function interact(){','  function interact(){\n    if(window.UPPDRAG_CH3_PROVISIONS?.interact?.())return true;');
+  edit('window.UPPDRAG_CH3_CITY_LIFE?.active);','window.UPPDRAG_CH3_CITY_LIFE?.active||window.UPPDRAG_CH3_PROVISIONS?.busy);');
+ }
  if(name==='chapter3-street-life.js'){
   edit("function drawFigure(ctx,a,now,scale=1){","function drawUprisingWeapon(ctx,a){\n if(a.role!=='farmer'||phase()!==2)return;\n ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.heading||0);\n paper(ctx,[[-24,-17],[39,-17],[39,-14],[-24,-14]],'#786247');\n const scythe=Math.round(a.x+a.y)%2===0;\n if(scythe)paper(ctx,[[35,-18],[49,-23],[60,-24],[55,-19],[41,-13],[35,-13]],'#a4ada3');\n else paper(ctx,[[37,-20],[56,-15.5],[37,-12]],'#a5afa6');\n paper(ctx,[[31,-18],[35,-18],[35,-13],[31,-13]],'#5f6862');ctx.restore();\n}\nfunction drawFigure(ctx,a,now,scale=1){");
   edit(" cap(ctx,a);ctx.restore();", " cap(ctx,a);drawUprisingWeapon(ctx,a);ctx.restore();");
@@ -27,10 +31,12 @@ function source(name,text){
   edit("const moving=cur===2?progress.moving:!reduced?.matches&&x>2038;", "const moving=cur===2?progress.moving:false;");
   edit(" if(a.id==='farmers'){\n  // Ragged", " if(a.id==='farmers'&&phase()===3){drawFigure(ctx,a,now);return;}\n if(a.id==='farmers'){\n  // Ragged");
   edit('const minY=9,maxY=Math.max(minY,layout.h-height-10);', 'const minY=9,maxY=Math.max(minY,layout.h-height-10-(window.UPPDRAG_CH3_SCENES?.patrolReplyHeight||0));');
+  edit('function next(){', 'function next(){\n if(window.UPPDRAG_CH3_SCENES?.patrolQuestionActive)return true;');
   edit('function open(actor){', 'function open(actor,providedLines=null){');
   edit('const sequence=story(source);', 'const sequence=providedLines||story(source);');
   edit("mode:startWithPlayer?'lines':'greeting'", "mode:(providedLines||startWithPlayer)?'lines':'greeting'");
   edit(" root.hidden=false;putSpeech(active,speaker.textContent);\n box.focus", " root.hidden=false;putSpeech(active,speaker.textContent);\n window.UPPDRAG_CH3_SCENES?.patrolReplies(active,lineIndex===lines.length-1);\n box.focus");
+  edit(' box.focus({preventScroll:true});return true;', ' if(!window.UPPDRAG_CH3_SCENES?.patrolQuestionActive)box.focus({preventScroll:true});return true;');
   edit(' active=null;lineIndex=0;arrivalCandidate=null;teaserHiddenUntil=now+1700;', ' active=null;lineIndex=0;arrivalCandidate=null;teaserHiddenUntil=now+1700;\n window.UPPDRAG_CH3_SCENES?.closePatrol();');
  }
  if(name==='more-room-ch3-pilot.js')edit('bed(g,bx,feet,188);bed(g,bx+222,feet,188);','bed(g,bx,feet,188);window.UPPDRAG_CH3_SCENES?.drawInheritedBed(g,bx,feet,188);bed(g,bx+222,feet,188);');
@@ -89,7 +95,7 @@ function install(){
   cut(g,0,-92,307,92,'#c5b79a');cut(g,15,-119,71,119,'#d0c2a4');cut(g,222,-119,71,119,'#c5b89c');
   cut(g,84,-116,139,116,'#d2c3a4');cut(g,10,-126,288,10,'#9c9f90');
   cut(g,6,-97,298,6,'#e0d2b2');cut(g,81,-121,146,6,'#e0d2b2');
-  windows(g,25,-109,4,4,14,23,7,12,'#9b9f91');windows(g,98,-104,7,4,17,24,7,12,'#9c9d8b');windows(g,235,-109,4,4,14,23,7,12,'#a0a18f');
+  windows(g,25,-109,3,3,19,30,8,13,'#9b9f91');windows(g,98,-104,5,3,24,31,8,13,'#9c9d8b');windows(g,235,-109,3,3,19,30,8,13,'#a0a18f');
   cut(g,142,-40,25,40,'#939786');line(g,[[7,-2],[300,-2]],'#b5ab90',3);g.restore();
  }
  function theatreExterior(g,x,feet,k){g.save();g.translate(x,feet);g.scale(k,k);
@@ -124,12 +130,12 @@ function install(){
   palaceExterior(g,tall?377:806,horizon-8,tall?.78:1.06);
   theatreExterior(g,tall?573:1107,horizon+7,tall?.68:.88);
   // Pale small houses, roof ridges and chimneys recede behind the church.
-  for(let i=0;i<9;i++){const x=W*.07+i*W*.103,ww=W*.089,hh=40+(i*17%38);cut(g,x,horizon-hh,ww,hh+25,['#b5ae97','#c3b297','#beb39b'][i%3]);poly(g,[[x-4,horizon-hh],[x+ww*.45,horizon-hh-22],[x+ww+5,horizon-hh]],'#969a8a');cut(g,x+ww*.7,horizon-hh-25,7,18,'#a79d88');}
+  for(let i=0;i<6;i++){const x=W*.035+i*W*.17,ww=W*.15,hh=40+(i*17%38);cut(g,x,horizon-hh,ww,hh+25,['#b5ae97','#c3b297','#beb39b'][i%3]);poly(g,[[x-4,horizon-hh],[x+ww*.45,horizon-hh-22],[x+ww+5,horizon-hh]],'#969a8a');cut(g,x+ww*.7,horizon-hh-25,7,18,'#a79d88');}
   const paving=g.createLinearGradient(0,horizon,0,H);paving.addColorStop(0,'#bab29a');paving.addColorStop(1,'#978e76');g.fillStyle=paving;g.fillRect(left,horizon,right-left,bottom-horizon);
   poly(g,[[vx-22,horizon],[vx+26,horizon],[W*.94,bottom],[W*.24,bottom]],'#c9bea1');
   // Rows and joints grow towards the camera and converge on one vanishing point.
   let row=0,previous=horizon;
-  for(let depth=13;horizon+depth<bottom+100;depth*=1.3){const y=horizon+depth,spacing=11+depth*.19;
+  for(let depth=22;horizon+depth<bottom+100;depth*=1.45){const y=horizon+depth,spacing=19+depth*.25;
    line(g,[[left,y],[right,y]],'#817c694d',.5+depth/H*1.2);
    for(let x=left-spacing+(row%2)*spacing*.5;x<right;x+=spacing){const k=(previous-horizon)/(y-horizon),px=vx+(x-vx)*k;line(g,[[px,previous],[x,y]],'#80796345',.45+depth/H);}
    row++;previous=y;

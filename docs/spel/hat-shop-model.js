@@ -3,9 +3,9 @@
 'use strict';
 const catalog=Object.freeze([
  {id:'plain',name:'Min gamla hatt',kind:'plain',color:'#466b70',price:0},
- {id:'green-cap',name:'Grön mössa',kind:'cap',color:'#62764b',price:2},
- {id:'red-cap',name:'Röd mössa',kind:'cap',color:'#9a5145',price:2},
- {id:'tricorn',name:'Svart trekantshatt',kind:'tricorn',color:'#393b38',price:4}
+ {id:'green-cap',name:'Grön mössa',kind:'cap',color:'#62764b',price:10},
+ {id:'red-cap',name:'Röd mössa',kind:'cap',color:'#9a5145',price:10},
+ {id:'tricorn',name:'Svart trekantshatt',kind:'tricorn',color:'#393b38',price:20}
 ].map(Object.freeze));
 const find=id=>catalog.find(item=>item.id===id);
 function create(raw={},hooks={}){
