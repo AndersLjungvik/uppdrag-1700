@@ -63,3 +63,15 @@ console.log('PASS other links retain their original scope and prerequisites');
  }
  console.log('PASS chapter 5 ending respects the classroom release limit');
 }
+
+{
+ const {fixture}=require('./mastery-apple-retry.cjs');
+ for(const limit of [0,4]){
+  const h=fixture(4,new Map(),limit),areas=h.m.snapshot().config.areas;
+  for(const level of ['learner','journeyman','master'])for(const area of areas){h.m.begin(area.id,level);h.m.pass(area.id,level);}
+  h.p.refresh();h.action('book');
+  assert.equal(h.modal.innerHTML.includes('chapter5-pilot.html'),limit!==4);
+  assert.equal(h.modal.innerHTML.includes('Kapitel 5 är öppet'),limit!==4);
+ }
+ console.log('PASS classroom chapter 4 ending keeps chapter 5 locked');
+}
