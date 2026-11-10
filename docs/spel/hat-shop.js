@@ -16,7 +16,10 @@ function source(name,text){
  if(/^meeting-ch[1-5]-pilot\.js$/.test(name)){
   edit("role='',headTilt=0,activity=null){","role='',headTilt=0,activity=null,headwear=null){");
   edit("who.role||'',headTilt,activity);ctx.restore();","who.role||'',headTilt,activity,who===CAST.player?window.UPPDRAG_HAT_SHOP?.wear:null);ctx.restore();");
-  edit("if(!woman){oval(-1,-301,47,9,color);poly([[-30,-303],[-15,-328],[15,-327],[28,-301]],color)}","if(!woman){if(headwear&&headwear.id!=='plain')window.UPPDRAG_HAT_SHOP.drawSideHat(ctx,headwear);else{oval(-1,-301,47,9,color);poly([[-30,-303],[-15,-328],[15,-327],[28,-301]],color)}}");
+  // The surrounding condition belongs to each NPC presentation. Patch only
+  // the shared default drawing, so David and the Caps can keep their own heads.
+  const plainHat="oval(-1,-301,47,9,color);poly([[-30,-303],[-15,-328],[15,-327],[28,-301]],color)";
+  edit(plainHat,"if(headwear&&headwear.id!=='plain')window.UPPDRAG_HAT_SHOP.drawSideHat(ctx,headwear);else{"+plainHat+"}");
   edit('  ctx.restore();\n}\nfunction limb(',"  if(who===CAST.player)window.UPPDRAG_HAT_SHOP?.drawMapHat(ctx);\n  ctx.restore();\n}\nfunction limb(");
  }
  if(/^world-keyboard(?:-ch\d+)?\.js$/.test(name)){

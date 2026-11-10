@@ -25,7 +25,8 @@ assert.equal(M.create(null).wear.id,'plain');assert.equal(M.create({owned:['plai
 console.log('PASS cosmetic transactions: physical presence, exact prices, insufficient funds, reentrant/repeated clicks, free outfit changes, validated saves');
 
 for(const chapter of [3,4,5]){
- const name='meeting-ch'+chapter+'-pilot.js',s=presence.source(name,S(name,read('_decoded/'+name)));new Function(s);
+ vm.runInContext(read('chapter'+chapter+'-presentation.js'),c);
+ const name='meeting-ch'+chapter+'-pilot.js',s=presence.source(name,S(name,c.window['UPPDRAG_CH'+chapter+'_PRESENTATION'].source(name,read('_decoded/'+name))));new Function(s);
  assert(s.includes('who===CAST.player?window.UPPDRAG_HAT_SHOP?.wear:null'));
  assert(s.includes('if(who===CAST.player)window.UPPDRAG_HAT_SHOP?.drawMapHat(ctx)'));
 }
@@ -91,7 +92,7 @@ for(const chapter of [1,2,3,4,5]){
  console.log('PASS real chapter '+chapter+': reachable stall, physical buy, saved wardrobe, social shelter, exact debit, remote purchase blocked, preserved questions/apples/stamps');
 }
 const integration=read('integration.js'),index=read('index.html');
-assert(index.includes('hat-shop.js?v=1.1.0'));assert(integration.includes("await get('hat-shop-model.js?v=1.0.0')"));
+assert(index.includes('hat-shop.js?v=2.24.1'));assert(integration.includes("await get('hat-shop-model.js?v=1.0.0')"));
 assert(integration.includes('const hatShop=[3,4,5].includes(ch)?'),'integration only installs the shop from chapter three');
 assert(integration.includes('if([3,4,5].includes(chapter))text=window.UPPDRAG_HAT_SHOP.source(name,text);'),'early chapters retain their original people renderers');
 assert(integration.includes("+hatShop+'\\n'"));assert(read('event-engine.js').includes('if(window.UPPDRAG_HAT_SHOP?.talking)return true;'));
