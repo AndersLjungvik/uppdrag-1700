@@ -1,4 +1,27 @@
-# Händelsesystem för Uppdrag 1700 · 1.5.2
+# Händelsesystem för Uppdrag 1700 · 2.19.0
+
+## Ficktjuven och barnet · 2.16.3
+
+Barnet återbetalar inte längre förlorade pengar. Pengarna återfås genom att spelaren hinner ikapp ficktjuven och svarar rätt på minnesfrågan. Om tjuven kommer undan, svaret blir fel eller jakten avbryts är summan förlorad. Den befintliga gränsen på halva plånboken och minst 3 daler före stölden lämnar pengar kvar. Barnet har ett vanligt samtal om vad som hände och kan hålla utkik; det finns ingen dold kö av återbetalningar via vänliga svar. Äldre förlustposter behålls som historik och betalas inte ut vid återbesök eller omladdning. Redan återlämnade pengar i äldre sparningar tas inte tillbaka. Huvudfrågor, äpplen och stämplar påverkas inte.
+
+`tests/witness-consequences.cjs` provar riktiga plånboks-, jakt- och vittnesfunktioner: lyckad jakt återbetalar exakt en gång, flykt bevarar förlusten, båda samtalsvalen och återbesök/omladdning ger ingen återbetalning, äldre poster kan inte användas som pengakälla och samtal kräver närvaro.
+
+## Äppelrisker · 2.12.0
+
+Hunden tillkommer i kapitel 3. Den vaktande tjuven tillkommer i kapitel 4, och därefter kan båda förekomma i fyran och femman. Kapitel 1–2 behåller den befintliga ficktjuven utan nya äppelhot. En hund får vittring på det burna äpplet och följer efter. En annan tjuv går fram från ett verkligt träd till en passage och bevakar den; han följer bara en kort sträcka runt sin plats. I fyrans första nya möte introduceras vakten före den redan bekanta hunden. Från kapitel 4 växlar de mellan möten. Hundens varning varar tre sekunder, vaktens två. Båda har en liten pappersmarkering med utropstecken, och hunden har en röd halsduk. Skydd i hus eller samtal, bruten sikt bakom ett träd och att hålla avstånd kan avvärja dem. De använder samma vägkontroll, målade hund/personer och markdjup som staden, utan att flytta kameran eller öppna en frågedialog på gatan.
+
+Båda tar **ett faktiskt äpple** vid kontakt. Det finns ingen återbetalning från jakten, barnet eller en självrapport. Ett nytt tjänas normalt genom den befintliga, fullständiga repetitionsomgången hos Rut i Arkivet. Från 2.17.2 finns också ett bonusäpple per kapitel vid Herrgården, efter fysisk flykt och korrekt återkallning; se ORCHARD.md. Att öppna Rut, avbryta eller svara fel ger inget nytt äpple. Frågor och bedömning hos Rut är oförändrade och använder det redan tillgängliga repetitionsunderlaget. Daler, klarade frågor, stämplar och berättelseföremål ändras inte av dessa två risker. Den tidigare ficktjuvens penningjakt är kvar separat.
+
+Efter förlust väntar nya äppelhot tills en ny Rut-omgång verkligen har gett ett äpple, eller kapitelns ännu inte hämtade Herrgårdsbonus tjänas efter minnesfrågan. Ett ännu inte ordentligt visat hot kan därefter introduceras efter 240 kartenheters gång, utan extra väntetid. Ett redan visat hot får en lugn period på 15 aktiva sekunder och 450 kartenheter. Att kort kika fram innan spelaren går in räknas inte som en färdig introduktion. Äldre väntetider kortas när en sparning öppnas; verkliga förluster, behovet av repetition, turordning och historik behålls.
+
+Den första introduktionen prioriteras framför nya ficktjuvsförsök. En pågående äldre händelse avslutas först, följd av ett enda kort mellanrum på tre sekunder och 120 kartenheter. Den tidigare motorn kunde kontinuerligt lägga till 20 nya sekunder medan en ficktjuv kikade fram, vilket sköt upp äppelmötet. Den förlängningen är borttagen. Hoten pausar under läsning, menyer och dolda flikar, och startar inte i lärarvyn, hus eller på öarna. Rut är fortsatt en trygg plats.
+
+Hunden kan komma fram vid ett faktiskt träd eller en framkomlig husentré. Vakten väljer en plats på den gångväg spelaren har valt, med hänsyn till hur långt det är kvar till målet, och placeras inom den närmare delen av kartbilden. Manuellt gående använder motsvarande sträcka framför spelaren. Varje ursprung och steg kontrolleras mot samma byggnads-/vattenkollision som tidigare. Inga figurer läggs inne i ett hus eller mitt ute på ett tomt fält.
+
+
+Takt, turordning, förluster och behov av repetition sparas kapitelvis under `uppdrag1700.apple-threats.v1`, innanför befintlig spel-/elev-/omspelningsnamnrymd. Ett avbrott avslutar det pågående mötet utan ny debitering; en redan förlorad resurs dras inte igen vid omladdning. Vanliga sparfilsexporter inkluderar nyckeln automatiskt. Elevlänkens gräns på ett äpple och kapitel 1–2 behålls.
+
+`npm run test:apple-threats` provar fysisk kontakt för båda, varningstid, vaktens begränsade förföljelse, flykt, skydd, väggar, paus, omladdning och ny återkomst efter faktisk repetitionssignal. Integrationsprovet använder den riktiga stadens vägnät, träd och kollisionskontroll samt den oförändrade återkallningsmotorn och kapitel 3–5:s befintliga belöningsväg. Avbruten, felaktig och avslutad Rut-omgång provas efter båda typernas resursförlust. Alla fem kapitels befintliga hundmålare anropas med den nya posen. Det ersätter inte elevtest av tempo eller svårighetsgrad.
 
 ## Varför
 
@@ -10,7 +33,7 @@ Det här systemet kompletterar den **befintliga** berättelsen och de tre återk
 
 **Ficktjuven:** Efter en längre sträcka av verklig förflyttning kan en tjuv synas nära spelaren på gatan. Spelaren väljer att jaga eller avstå. En enda kort repetitionsfråga från det befintliga materialet kan rädda en daler. Fel svar eller att avstå kan kosta **högst en daler**, aldrig ett helt kapitel eller en kunskapsstämpel. Händelsen inträffar högst en gång per relevant kapitel och sker inte automatiskt i lärarvyn. I kapitel 6 används den *tidigare* ficktjuvshändelsen, inte en andra tjuv.
 
-**Barnets vittnesmål:** Om ficktjuven har synts dyker ett vittne upp vid torget. Spelaren kan fråga lugnt eller kräva ett svar. Barnet minns bemötandet; en otrevlig första replik kan repareras vid återbesök. Vid vänligt samtal kan en tidigare förlorad daler hittas vid gränden och återlämnas. Dialogen är dramatik, inte en historisk källa och inte automatisk kunskapsbedömning.
+**Barnets vittnesmål:** Om ficktjuven har synts dyker ett vittne upp vid torget. Spelaren kan fråga lugnt eller kräva ett svar. Barnet minns bemötandet; en otrevlig första replik kan repareras vid återbesök. Ett vänligt samtal ger ett naturligt svar, utan att barnet hittar och återlämnar pengarna. Dialogen är dramatik, inte en historisk källa och inte automatisk kunskapsbedömning.
 
 ## Spelregler och tillgänglighet
 
@@ -40,3 +63,29 @@ Kusken, smeden, tjuven och barnet talar nu i **samma papperspratbubblor** som de
 Ficktjuvens förflyttningsgräns slumpas fram individuellt och sparas direkt; en omladdning kan därför inte slumpa om händelsen. Tjuven dyker fortfarande högst en gång per tillåtet kapitel; den kostar högst en daler och är aldrig obligatorisk. Kapitel 6 har fortfarande en enda äldre tjuvhändelse, och kapitel 3 och 8 får ingen extra ficktjuv. Vagnens samma grundsidoäventyr finns i kapitel 1–8 med kapitelspecifik inledning. **Det är alltså ännu inte en katalog av unika sidoäventyr per kapitel.** Kapitel 9–10 förbereds i katalogen men är inte spelbara.
 
 Mobilvy 390 px och bred vy 900 px har testats i Chromium: en replik i taget, vagnens två val, smedens uppdrag, tjuvens repetitionsalternativ och barnets följddialog. Den sammanfogade sidans öppning och sparning ska dessutom kontrolleras inför publicering. Riktigt iOS/Safari och variationen av elevsvar återstår att elevtesta.
+
+
+## Vaktens förvarning vid vanlig gång · 2.11.2
+
+Passagen väljs 590–800 kartenheter framför spelaren. Vid normal gång på 180 enheter per sekund finns då hela tresekundersvarningen kvar innan passagen korsas. Tidigare valdes den 125–300 enheter framför spelaren, så en fortsatt vanlig promenad hann passera medan vakten fortfarande var ofarlig. Vaktens observationsavstånd följer den längre placeringen; hundens avstånd och hastighet är oförändrade. Integrationsprovet går nu genom en verklig passage med normal gånghastighet, bekräftar varningen, exakt en äppelförlust och att vända tillbaka bevarar äpplet.
+
+Vilans tid pausas även när spelaren läser Ruts återkoppling inne i Arkivet. Skydd i hus och samtal avslutar först förföljelsen; därefter fryses klockan under läsning och dialog. Både modellprovet och provet med riktig Rut-belöning kontrollerar detta.
+
+
+## Första mötet på vanliga vägar · 2.12.0
+
+Första Rut-belöningen återställde tidigare 45 sekunders väntan och 700 kartenheters gång. Eftersom klockan pausade vid frågor och samtal kunde många normala arbetsbesök passera utan ett enda möte. De tidigare integrationstesterna nollställde väntan och sökte igenom alla vägar, vilket missade denna användarväg. Det nya synlighetsprovet använder standardvärden, signalen från den första Rut-belöningen och stadens riktiga ruttplanerare på vanliga resor mellan arbetsplatser. Det provar också att vakten ligger före målet på den valda vägen, att ett annat tjuvförsök inte kan skjuta upp mötet för alltid och att gamla sparningar blir spelbara utan radering.
+
+## Svarsalternativ hos ficktjuven · 2.13.0
+
+Svarsalternativen blandas nu med Fisher–Yates oberoende av valet av fråga. Den tidigare rotationen använde samma räknare som frågevalet och kunde koppla den valda frågan till rätt svar på första plats. Ordningen skapas en gång för jakten och behålls när frågan visas igen. Frågebank, facit och återbetalning ändras inte. `thief-choice-order.cjs` provar varierad rätt position för upprepade likadana frågor i kapitel 1–5 och oförändrade alternativ.
+
+
+## Fisket från kapitel 4 · 2.18.0
+
+Jo säljer ett bestående fiskespö för 10 daler vid Kajen från kapitel 4. Napp ger en redan tillgänglig minnesfråga med kort skrivsvar. Rätt svar ger fisk; fel svar ger återkoppling och övning hos Rut. Barnhusets kök betalar en daler per fisk för högst tre fiskar per kapitel. Därefter kan man fiska för repetition utan extra belöning. Inga äpplen eller stämplar delas ut. Båda klasslänkarna behåller kapitel 1–2 och visar inget fiske. Ett separat fyrans-replay erbjuder 12 testdaler en gång efter tydlig testintroduktion; det ändrar inga vanliga framsteg. Se FISHING.md.
+
+
+### Fiske på världskartan · 2.19.0
+
+Spöet köps hos Jo. Själva fisket är flyttat till tillgängliga stränder och kanalbankar på kartan. Klick på vatten ger en verklig gångväg till kanten; mellanslag eller Fiska kastar ut. Förflyttning avbryter kastet utan fisk. Befintligt spö, korg och leveranstak behålls. Äppelträdets stam och skylt är också flyttade helt norr om herrgårdsvägen. Elevlänkarnas kapitelgränser är oförändrade.

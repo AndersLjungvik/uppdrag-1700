@@ -1,0 +1,14 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const box={};vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../chapter2-quilt-puzzle.js'),'utf8'),box);
+const {covers}=box.UPPDRAG_CH2_QUILT;
+assert.equal(covers({}),false);
+assert.equal(covers({small:{x:300,y:140}}),false);
+assert.equal(covers({wide:{x:300,y:140}}),true);
+assert.equal(covers({left:{x:260,y:140},right:{x:340,y:140}}),true);
+assert.equal(covers({left:{x:250,y:140},right:{x:350,y:140}}),false,'a thin gap still leaves the tear open');
+assert.equal(covers({wide:{x:300,y:200}}),false,'also cover the upper edge');
+assert.equal(covers({wide:{x:500,y:140}}),false);
+assert.equal(covers({small:{x:300,y:140},bogus:{x:300,y:140}}),false);
+assert.equal(covers({wide:{x:NaN,y:140}}),false);
+assert.equal(covers({wide:{x:300,y:140,color:'any'}}),true,'colour never decides success');
+console.log('PASS quilt geometry: one broad or two narrow pieces, margins, gaps, small/offset pieces and colour independence');

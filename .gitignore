@@ -5,3 +5,5 @@ qa/
 .env.*
 
 output/
+
+docs/spel/_decoded/
