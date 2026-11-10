@@ -48,18 +48,18 @@ function supportingActors(p,tall){
   {...actor('Bonden med lien',tall?[365,866,.43]:[610,586,.47],'#927b5d','farmer-scythe'),label:false},
   {...actor('Bonden i grått',tall?[465,858,.43]:[760,584,.46],'#6f7561','farmer-staff'),label:false},
   {...actor('Bonden med piken',tall?[515,1006,.50]:[825,658,.53],'#9b8260','farmer-pike'),label:false},
-  {...actor('Soldaten till höger',tall?[687,956,.47]:[1144,659,.51],'#496b80','soldier-guard'),label:false},
-  {...actor('Soldaten längre bak',tall?[646,837,.42]:[1110,569,.44],'#405f76','soldier-guard'),label:false},
-  {...actor('Soldaten vid ledet',tall?[580,847,.42]:[990,558,.43],'#536f7c','soldier-guard'),label:false},
-  actor('Soldaten',tall?[615,935,.51]:[1010,639,.55],'#496b80','soldier-guard')
+  {...actor('Soldaten till höger',tall?[687,1000,.56]:[1110,693,.57],'#496b80','soldier-guard'),label:false},
+  {...actor('Soldaten längre bak',tall?[650,895,.46]:[1110,612,.49],'#405f76','soldier-guard'),label:false},
+  {...actor('Soldaten vid ledet',tall?[580,910,.47]:[1010,600,.48],'#536f7c','soldier-guard'),label:false},
+  actor('Soldaten',tall?[615,975,.54]:[1015,675,.56],'#496b80','soldier-guard')
  ];
  if(p==='riksdag')return [actor('Hatten',tall?[210,960,.7]:[410,680,.75],'#75604b','hat-party'),actor('Mössan',tall?[395,950,.7]:[590,675,.75],'#7b866b','cap-party')];
  if(p==='fort')return [actor('Fästningsvakten',tall?[365,965,.64]:[815,675,.85],'#687b82','soldier-guard')];
  if(p==='courtyard'){
-  const open=court.phase==='open';return [
-   actor('Bonden',open?(tall?[485,795,.54]:[875,535,.57]):(tall?[510,975,.67]:[395,690,.75]),'#8d7656','farmer-pike'),
-   actor('Den äldre bonden',open?(tall?[322,562,.70]:[760,440,.62]):(tall?[395,890,.50]:[630,695,.62]),'#79715a',open?'farmer-rest':'farmer-staff'),
-   actor('Den yngre bonden',open?(tall?[623,925,.50]:[1080,650,.62]):(tall?[640,920,.50]:[805,700,.61]),'#8b7960','farmer-scythe')
+  const open=court.phase==='open',Y=UPPDRAG_CH3_PRESENTATION.yardFrame(tall),at=(x,y,k)=>[Y.x+x*Y.sx,Y.y+y*Y.sy,k*Y.sx];return [
+   actor('Bonden',open?at(430,300,.55):(tall?[510,975,.67]:[395,690,.75]),'#8d7656','farmer-pike'),
+   actor('Den äldre bonden',open?at(270,240,66/112):(tall?[395,890,.63]:[630,695,.69]),'#79715a',open?'farmer-rest':'farmer-staff'),
+   actor('Den yngre bonden',tall?[635,930,.65]:[805,700,.70],'#8b7960','farmer-scythe')
   ];
  }
  return [];
@@ -240,11 +240,11 @@ function maybePatrol(){
  if(!bank.length)return false;
  const t=bank[(timeline.patrolCount||0)%bank.length],field=t.fields[0];challenge={actor,t,options:shuffledPatrolOptions(field.options),answer:field.answers[0]};
  timeline.patrolCount=(timeline.patrolCount||0)+1;timeline.lastPatrol=Date.now();timeline.nextPatrol=timeline.distance+750+(timeline.patrolCount%3)*130;saveStory();path=[];UPPDRAG_WORLD_KEYBOARD.clear();
- if(!city.open(actor,[['Soldaten','Ett ögonblick. Jag vill höra vad du har fått veta.'],['Soldaten',t.prompt]])){challenge=null;return false;}return true;
+ if(!city.open(actor,[['Soldaten','Ett ögonblick. Jag vill höra vad du har fått veta. Fel svar kan ge upp till två daler i böter.'],['Soldaten',t.prompt]])){challenge=null;return false;}return true;
 }
 function patrolReplies(actor,last){
  if(!challenge||actor.id!==challenge.actor.id||!last){patrolBar?.remove();patrolBar=null;return;}
- if(patrolBar)return;patrolBar=document.createElement('section');patrolBar.id='ch3PatrolReplies';patrolBar.setAttribute('role','group');patrolBar.setAttribute('aria-label','Du svarar patrullen');patrolBar.setAttribute('aria-labelledby','ch3PatrolHeading');patrolBar.tabIndex=-1;patrolBar.innerHTML='<h2 id="ch3PatrolHeading">Soldatens fråga</h2><p id="ch3PatrolQuestion"></p><p>Du har gott om tid. Välj ett svar när du är redo.</p><p id="ch3PatrolReadStatus" role="status"></p>';
+ if(patrolBar)return;patrolBar=document.createElement('section');patrolBar.id='ch3PatrolReplies';patrolBar.setAttribute('role','group');patrolBar.setAttribute('aria-label','Du svarar patrullen');patrolBar.setAttribute('aria-labelledby','ch3PatrolHeading');patrolBar.tabIndex=-1;patrolBar.innerHTML='<h2 id="ch3PatrolHeading">Soldatens fråga</h2><p id="ch3PatrolQuestion"></p><p>Fel svar kostar upp till <b>2 daler</b>. Du har gott om tid att läsa och lyssna. Du kan också gå vidare utan att svara.</p><p id="ch3PatrolReadStatus" role="status"></p>';
  patrolBar.querySelector('#ch3PatrolQuestion').textContent=challenge.t.prompt;
  const listen=document.createElement('button');listen.type='button';listen.textContent='Lyssna på frågan och svaren';listen.dataset.patrolListen='true';listen.onclick=()=>readPatrol();patrolBar.append(listen);
  document.body.dataset.patrolQuestion='true';
@@ -253,13 +253,15 @@ function patrolReplies(actor,last){
  }stage.append(patrolBar);patrolBar.focus({preventScroll:true});
 }
 function answerPatrol(index){
- if(!challenge)return;const q=challenge,skip=index===q.options.length,right=q.options[index]===q.answer;
+ if(!challenge||challenge.resolved||!Number.isInteger(index)||index<0||index>challenge.options.length)return;
+ const q=challenge,skip=index===q.options.length,right=q.options[index]===q.answer;q.resolved=true;
+ let fine=0;if(!right&&!skip){fine=Math.min(2,Math.max(0,Math.floor(Number(pilot.state.daler)||0)));if(fine){pilot.state.daler-=fine;pilot.persist();pilot.refresh?.();}}
  UPPDRAG_CH3_CITY_LIFE.close();
- const text=skip?'Gå vidare, då. Ta det lugnt på gatan.':right?'Det stämmer med vad jag har hört. Du kan gå vidare.':'Jag har fått den här uppgiften: '+q.answer.replace(/[.!?]+$/,'')+'. Du kan gå vidare.';
+ const text=skip?'Gå vidare, då. Ta det lugnt på gatan.':right?'Det stämmer med vad jag har hört. Du kan gå vidare.':'Jag har fått den här uppgiften: '+q.answer.replace(/[.!?]+$/,'')+'. '+(fine?'Du får böta '+fine+' daler. ':'Du har inga daler att betala med. ')+'Du kan gå vidare.';
  UPPDRAG_CH3_CITY_LIFE.open(q.actor,[['Soldaten',text]]);
 }
 function readPatrol(){
- if(!challenge)return false;const text=challenge.t.prompt+'. '+challenge.options.map((s,i)=>'Alternativ '+(i+1)+': '+s).join('. ');
+ if(!challenge)return false;const text=challenge.t.prompt+'. Fel svar kostar upp till två daler. Du kan också gå vidare utan att svara. '+challenge.options.map((s,i)=>'Alternativ '+(i+1)+': '+s).join('. ');
  const api=window.UPPDRAG_CH3_READING;
  if(api?.canSpeak)api.say(text);
  else if(window.speechSynthesis){window.speechSynthesis.cancel();const utter=new SpeechSynthesisUtterance(text);utter.lang='sv-SE';utter.rate=.85;window.speechSynthesis.speak(utter);}
@@ -281,7 +283,7 @@ window.UPPDRAG_CH3_SCENES={openRoom,travel,tick,drawProps,roomActors,personPose,
  get patrolQuestionActive(){return !!challenge&&!!patrolBar;},get busy(){return busy();},get story(){return copy(timeline);},get courtyard(){return copy(court);},
  get streetStep(){return timeline.seen.palace||timeline.seen.fort?9:timeline.afterUprising?7:timeline.phase>=1?3:1;},
  get patrolReplyHeight(){return patrolBar?.getBoundingClientRect().height||0;},
- journalHTML:()=>'<p><b>Den stängda gården:</b> '+goal()+'</p><p>Patruller och människor på gatan pratar med dig på plats. Deras minnesfrågor ger inga stämplar och kostar inget.</p>'};
+ journalHTML:()=>'<p><b>Den stängda gården:</b> '+goal()+'</p><p>Patrullerna i kapitel 3 kan ställa minnesfrågor. Fel svar kan kosta upp till 2 daler. Du får alltid läsa och lyssna i lugn och ro, och kan gå vidare utan att svara. Frågorna ger inga stämplar. I kapitel 4 är den här kontrollen borta.</p>'};
 engine.register({id:'ch3-closed-courtyard',type:'sidequest',chapters:[3],optional:true,usesKnowledgeStamps:false});
 engine.register({id:'ch3-street-patrol',type:'surprise',chapters:[3],optional:true,usesRetrieval:true,usesKnowledgeStamps:false});
 saveStory();saveCourt();
