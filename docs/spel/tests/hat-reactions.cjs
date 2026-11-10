@@ -46,7 +46,8 @@ function fixture(chapter,native=false){
  // Movement/scene geometry has separate regressions. Keep these fixtures on
  // the actual historical city logic, content, dialogue and nearby cooldowns.
  c.UPPDRAG_SCENE_PRESENCE={cityPose:a=>a,enqueue:()=>false,walking:false};
- vm.runInContext(source,c);
+ const reactions=c.UPPDRAG_HAT_REACTIONS;c.UPPDRAG_HAT_REACTIONS=undefined;
+ vm.runInContext(source,c);c.UPPDRAG_HAT_REACTIONS=reactions;
  const city=c['UPPDRAG_CH'+chapter+'_CITY_LIFE'],dialog=elements[0].querySelector('#ch3StreetDialogue'),words=dialog.querySelector('.ch3Words');
  const painter=new Proxy({},{get:(o,k)=>o[k]??(()=>{}),set:(o,k,v)=>(o[k]=v,true)});
  function draw(ms=0){now+=ms;city.draw(painter,{region:town,now,camera:{...c.player},layout:{w:390,h:740,scale:1},player:c.player});}
@@ -77,7 +78,7 @@ for(const chapter of [3,4,5]){
  console.log('PASS actual chapter '+chapter+': composed source adapters, preserved story, spoken comments, changed outfits, keyboard speech and pursuit priority');
 }
 const integration=read('integration.js'),index=read('index.html');
-assert(index.includes('hat-reactions.js?v=1.0.0'));assert(integration.includes("(await get('hat-reactions.js?v=1.0.0'))"));
+assert(index.includes('hat-reactions.js?v=1.0.1'));assert(integration.includes("(await get('hat-reactions.js?v=1.0.1'))"));
 assert(integration.includes('if([3,4,5].includes(chapter))text=window.UPPDRAG_HAT_REACTIONS.source(name,text);'));
 assert(read('orchard.js').includes("const ownerListening=city?.teaser==='orchard-noble'"));
 console.log('PASS integration installs reactions only where headwear already exists; original save namespaces and learning bank unchanged');
