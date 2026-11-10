@@ -57,7 +57,7 @@ function source(name,text){
  edit('function shortThought(actor){','function shortThought(actor){\n const reaction=window.UPPDRAG_HAT_REACTIONS.thought(actor);if(reaction)return reaction;');
  edit('return people(region).concat(ambientTargets(region));','return people(region).concat(ambientTargets(region),window.UPPDRAG_HAT_REACTIONS.people(region));');
  edit('return ambientTargets(region).find(a=>a.id===id)||null;','return ambientTargets(region).concat(window.UPPDRAG_HAT_REACTIONS.people(region)).find(a=>a.id===id)||null;');
- edit('const encounterCounts=new Map(),spokenRecently=new Map();','const encounterCounts=new Map(),spokenRecently=new Map();\nlet lastAppearance=window.UPPDRAG_HAT_REACTIONS.appearance();');
+ edit('const encounterCounts=new Map(),spokenRecently=new Map();','const encounterCounts=new Map(),spokenRecently=new Map();\nlet lastAppearance="plain";');
  edit('function updateNearby(region,player,now){\n if(!region||!player||active)return;',`function updateNearby(region,player,now){
  if(!region||!player||active)return;
  const appearance=window.UPPDRAG_HAT_REACTIONS.appearance();
@@ -68,5 +68,5 @@ function source(name,text){
  edit('spokenRecently.set(speakerActor.id,now)','spokenRecently.set(window.UPPDRAG_HAT_REACTIONS.key(speakerActor),now)');
  return text;
 }
-window.UPPDRAG_HAT_REACTIONS={appearance,key,reaction,story,thought,paused,people,source,version:'1.0.0'};
+window.UPPDRAG_HAT_REACTIONS={appearance,key,reaction,story,thought,paused,people,source,version:'1.0.1'};
 })();
