@@ -304,7 +304,7 @@ const reviewRewards={
 };
 recall=window.UPPDRAG_RECALL_ENGINE.attach({chapter:2,state:()=>s,runs,facts,modal,storage,current,location:locationKey,present,previousKeys:{1:previousKey},persist,drawHud,paint:paintCloseup,
  openArchive(){display('','quiz');},finished,close,goRut:goArchive,
- mastery:{hasPassed,available,renderStatus,recorded,pending,encountered,...reviewRewards,revise,practiceRetry:true,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();if(name==='practice-review'){practice();return true;}return false;}}
+ mastery:{hasPassed,available,renderStatus,recorded,pending,review,encountered,...reviewRewards,revise,practiceRetry:true,hint:()=>mastery.buyHint(area().id,level()).ok,action(name){if(name==='retry')return retry();if(name==='practice-review'){practice();return true;}return false;}}
 });
 // Import only complete, evidenced area attempts, in prerequisite order. Never infer
 // stamps from old chapter completion or from reading a model answer.

@@ -4,6 +4,11 @@
 (function(){
 'use strict';
 const rutHelpers=`
+ function practiceReview(t,u){
+  let h='<h2 class="rc-prompt">Svaret är sparat – visa din lärare</h2><p>Visa den här sidan för din lärare på samma enhet. Övningen ger ingen stämpel i provet.</p><p>'+escape(t.prompt)+'</p>';
+  t.fields.forEach((f,i)=>{h+='<div class="rc-field"><b>'+escape(f.label)+'</b><blockquote class="rc-own">'+escape(u.drafts[i])+'</blockquote></div>';});
+  return h+ASSESS.modelHTML(t)+'<div class="rc-actions">'+btn('revise','Fortsätt öva',true)+btn('go-rut','Till Rut')+'</div>';
+ }
  function rememberForRut(id){
   if(!b.mastery||!byId.has(id)||byId.get(id).chapter>chapter)return;
   const s=state();s.recallRutFocus=[id,...(Array.isArray(s.recallRutFocus)?s.recallRutFocus:[]).filter(x=>x!==id)];save();
@@ -52,19 +57,20 @@ function source(text){
   if(text.split(before).length!==2)throw Error('Minnesproven: ankaret matchar inte '+before.slice(0,65));
   text=text.replace(before,after);
  };
+ edit(" function review(t,u){", " function review(t,u){\n  if(u.practiceReviewShown)return practiceReview(t,u);");
  edit(" const save=()=>{b.persist();};", " const save=()=>{b.persist();};"+rutHelpers);
  edit("  const s=state(),t=byId.get(id);", "  if(b.mastery)return b.mastery.hasPassed(id);\n  const s=state(),t=byId.get(id);");
  edit(" function available(){\n  const s=state(),known=new Set();", " function available(){\n  if(b.mastery)return rutPool(b.mastery.available());\n  const s=state(),known=new Set();");
  edit("  const t=effectiveTask(),u=ui();if(!t||!u)return false;", "  if(!isDrill()&&b.mastery?.renderStatus())return true;\n  const t=effectiveTask(),u=ui();if(!t||!u)return false;\n  if(!isDrill())b.mastery?.encountered(t.id);");
  edit("   s.record.push(entry);", "   s.record.push(entry);\n   if(b.mastery){if(!entry.ok||t.rank===2&&!entry.independent)rememberForRut(t.id);else forgetRutFocus(t.id); }\n   b.mastery?.recorded(entry);");
  edit("  e?.preventDefault();const name=act.slice(3),s=state();ensure();", "  e?.preventDefault();const name=act.slice(3),s=state();ensure();\n  if(name==='rut-challenge'){enterArchive('challenge');return true;}\n  if(!isDrill()&&b.mastery?.action(name))return true;");
- edit("  }else if(name==='save-review'&&u.phase==='review'){", "  }else if(name==='save-review'&&u.phase==='review'){\n   if(b.mastery&&!isDrill()){b.mastery.pending(t,u);render();return true;}");
+ edit("  }else if(name==='save-review'&&u.phase==='review'){", "  }else if(name==='save-review'&&u.phase==='review'){\n   if(b.mastery&&!isDrill()){b.mastery.pending(t,u);if(b.mastery.review)b.mastery.review();else render();return true;}\n   if(isDrill()){const entries=s.recallPendingReview??=[];if(!entries.some(x=>x.id===t.id&&x.source==='practice'&&JSON.stringify(x.answer)===JSON.stringify(u.drafts)))entries.push({id:t.id,answer:u.drafts.slice(),at:new Date().toISOString(),source:'practice'});u.practiceReviewShown=true;save();render();return true;}");
  edit("return h+'<div class=\"rc-actions\">'+btn('revise'", "return h+'<div class=\"rc-actions\">'+(b.mastery?.practiceRetry&&!isDrill()?btn('practice-review','Öva och prova igen',true):'')+btn('revise'");
  edit("btn('revise','Bearbeta mitt svar',true)","(b.mastery&&!isDrill()?'<button type=\"button\" data-action=\"rc-revise\"'+(state().apples<1?' disabled':'')+'>Ändra mitt svar · 1 äpple</button>':btn('revise','Bearbeta mitt svar',true))");
- edit("  else if(name==='revise'&&u.phase==='review'){", "  else if(name==='revise'&&u.phase==='review'){\n    if(b.mastery&&!isDrill()){b.mastery.revise(t,u);return true;}");
+ edit("  else if(name==='revise'&&u.phase==='review'){", "  else if(name==='revise'&&u.phase==='review'){\n    if(b.mastery&&!isDrill()){b.mastery.revise(t,u);return true;}\n    u.practiceReviewShown=false;");
  edit("  return h+'<div class=\"rc-actions\">'", "  if(b.mastery&&!isDrill())h+='<p class=\"rc-note\">Ett nytt försök börjar från första frågan och kostar ett äpple. Du kan alltid öva gratis hos Rut.</p>';\n  return h+'<div class=\"rc-actions\">'");
  edit("  u.result=result;u.phase='review';save();render();", "   if(!isDrill())rememberForRut(t.id);\n   u.result=result;u.phase='review';save();render();");
- edit("  if(!isDrill())return t;", "  if(!isDrill())return t;\n  if(state().archiveActive&&state().archiveFocused?.includes(t.id)&&t.kind!=='tf')return {...t,kind:'fields'};");
+ edit("  if(!isDrill())return t;", "  if(!isDrill())return t;\n  if(state().archiveActive&&state().archiveFocused?.includes(t.id)&&t.kind!=='tf')return window.UPPDRAG_PROMPT_ALIGNMENT?.openTask(t)||{...t,kind:'fields'};");
  edit("    if(s.archiveActive)s.recallRutPassed[t.id]=true;", "    if(s.archiveActive){s.recallRutPassed[t.id]=true;forgetRutFocus(t.id);}");
  edit(' function enterArchive(){'," function enterArchive(mode='normal'){");
  edit("  ensure();const s=state(),pool=available();", "   ensure();const s=state();if(!s.archiveActive&&!s.materialReviewMode&&s.recallUI?.phase==='review')rememberForRut(mainTask()?.id);const pool=available(),challenge=mode==='challenge'?rutChallengePlan(pool):null;\n   if(mode==='challenge'&&!challenge){const u=ui();if(u)u.error='Möt minst tre olika ämnen först. Du kan alltid göra den vanliga repetitionen.';render();return false;}");

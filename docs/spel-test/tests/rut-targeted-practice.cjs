@@ -21,7 +21,7 @@ for(const ch of [1,2,3,4,5])for(const rank of [0,1,2]){
  p.persist();h=fixture(ch,h.memory);p=h.p;h.room('archive');assert.equal(p.enterArchive(),true);
  assert.equal(p.state.archiveList[0],id,'the specific missed task starts the round, before random known topics');
  assert.equal(p.recall.current.prompt,original.kind==='tf'?original.drill.prompt:original.prompt,'the full question is kept, with true/false knowledge as a recall question');
- if(original.kind!=='tf')assert.equal(p.recall.current.fields.length,original.fields.length,'all parts of an explanation are practised');
+ if(original.kind!=='tf')assert.equal(p.recall.current.fields.length,h.c.UPPDRAG_PROMPT_ALIGNMENT.openTask(original).fields.length,'all parts of an explanation are practised');
  assert(h.modal.innerHTML.includes('Vi börjar med det du vill öva mer på.'));
  const topic=original.chapter+'/'+original.topic;
  assert.equal(p.state.archiveList.filter(x=>{const q=h.c.UPPDRAG_RECALL_ENGINE.byId.get(x);return q.chapter+'/'+q.topic===topic;}).length,1,'a simpler same-topic question cannot replace or duplicate the focus');
