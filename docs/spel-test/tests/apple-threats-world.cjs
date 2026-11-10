@@ -44,6 +44,16 @@ function fixture(kind,chapter=1,options={}){
 }
 module.exports={fixture};
 if(require.main===module){
+for(const chapter of [3,4,5]){
+ const h=fixture('dog',chapter,{raw:{pacing:2,needsRut:true,orchardClaimed:true,seenKinds:['dog'],nextKind:'dog',nextDistance:0,quietMs:0}}),point={x:1010,y:705};
+ const kept=copy(h.state);h.c.UPPDRAG_ORCHARD={claimed:true,harvests:1};h.tick(point);assert(h.c.UPPDRAG_APPLE_THREATS.snapshot.state.needsRut);
+ h.c.UPPDRAG_ORCHARD.harvests=2;h.tick(point);const completed=h.c.UPPDRAG_APPLE_THREATS.snapshot.state;
+ assert.equal(completed.needsRut,false);assert.equal(completed.orchardHarvests,2);assert(completed.nextDistance-completed.distance>=239);if(completed.seenKinds.includes(completed.nextKind))assert(completed.quietMs>14900);assert.deepEqual(copy(h.state),kept,'harvest observation never edits answers, coins, apples or stamps');
+ const saved=JSON.parse(h.memory.get('uppdrag1700.apple-threats.v1')).chapters[chapter];assert.equal(saved.orchardHarvests,2);
+ const restored=fixture('dog',chapter,{raw:{...saved,needsRut:true,losses:2}});restored.c.UPPDRAG_ORCHARD={claimed:true,harvests:2};restored.tick(point);assert(restored.c.UPPDRAG_APPLE_THREATS.snapshot.state.needsRut,'restored old harvest cannot erase a later loss');
+ restored.c.UPPDRAG_ORCHARD.harvests=3;restored.tick(point);assert.equal(restored.c.UPPDRAG_APPLE_THREATS.snapshot.state.needsRut,false);assert.equal(restored.c.UPPDRAG_APPLE_THREATS.snapshot.state.orchardHarvests,3);
+ console.log('PASS chapter '+chapter+' orchard adapter: repeated harvest recovery, saved counter, unchanged real pilot and no reload recovery from old harvest');
+}
 for(const [kind,chapter] of [['dog',3],['dog',4],['guard',4],['dog',5],['guard',5]]){
  const h=fixture(kind,chapter),found=h.spawn(),a=found.encounter;
  assert.equal(a.kind,kind);assert(/^(tree-|door-)/.test(a.home.id),'real existing cover or doorway');assert(h.c.UPPDRAG_WORLD_KEYBOARD.clearSegment(h.c.testRegion,a.home,a.home,12));

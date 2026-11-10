@@ -12,7 +12,10 @@ function create(raw={},hooks={}){
  for(const entry of Array.isArray(raw.history)?raw.history:[])if(entry.outcome==='lost-apple'&&['dog','guard'].includes(entry.kind)&&!seenKinds.includes(entry.kind))seenKinds.push(entry.kind);
  const state={v:1,pacing:2,seenKinds,distance:bounded(raw.distance,1e8),nextDistance:bounded(raw.nextDistance,1e8,240),quietMs:bounded(raw.quietMs,60000),
   nextKind:kinds.includes(raw.nextKind)?raw.nextKind:kinds[0],encounters:bounded(raw.encounters,1e6),losses:bounded(raw.losses,1e6),
-  needsRut:raw.needsRut===true,orchardClaimed:raw.orchardClaimed===true,lossRound:bounded(raw.lossRound,1e6),lastCompletedRound:bounded(raw.lastCompletedRound,1e6),history:Array.isArray(raw.history)?raw.history.slice(-20):[]};
+  needsRut:raw.needsRut===true,orchardClaimed:raw.orchardClaimed===true,
+  orchardHarvests:Math.max(raw.orchardClaimed===true?1:0,Math.floor(bounded(raw.orchardHarvests,Number.MAX_SAFE_INTEGER))),
+  lossRound:bounded(raw.lossRound,1e6),lastCompletedRound:bounded(raw.lastCompletedRound,1e6),history:Array.isArray(raw.history)?raw.history.slice(-20):[]};
+ if(state.orchardHarvests>0)state.orchardClaimed=true;
  if(raw.pacing!==2){state.nextDistance=Math.min(state.nextDistance,state.distance+(seenKinds.includes(state.nextKind)?450:240));state.quietMs=Math.min(state.quietMs,seenKinds.includes(state.nextKind)?15000:0);}
  let active=null,lastTime=null,lastPlayer=null,lastRegion=null,saveAt=0,otherWasActive=false;
  const save=()=>hooks.save?.(JSON.parse(JSON.stringify(state)));
@@ -43,8 +46,11 @@ function create(raw={},hooks={}){
   const previous=lastPlayer,same=lastRegion===config.region;lastPlayer=copy(player);lastRegion=config.region;
   const moved=previous&&same?distance(previous,player):0;
   const completed=bounded(config.completedRound,1e6);
-  if(config.bonusClaimed===true&&!state.orchardClaimed){
-   state.orchardClaimed=true;
+  // Observe each completed harvest once. The legacy flag represents only the
+  // first one; reloading an already-seen harvest cannot erase a later loss.
+  const harvests=Number.isFinite(config.orchardHarvests)?Math.floor(bounded(config.orchardHarvests,Number.MAX_SAFE_INTEGER)):config.bonusClaimed===true?1:0;
+  if(harvests>state.orchardHarvests){
+   state.orchardHarvests=harvests;state.orchardClaimed=true;
    if(config.apples>0){const recovered=state.needsRut;state.needsRut=false;rest(!state.seenKinds.includes(state.nextKind));if(recovered)hooks.event?.('orchard','recovered');}
    save();
   }

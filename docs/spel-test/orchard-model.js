@@ -1,11 +1,12 @@
-/* One earned bonus per chapter. The carried fruit is not inventory until the
+/* Repeatable mischief. The carried fruit is not inventory until the
  * player escapes and recalls a known answer; a reload never completes a run. */
 (function(root){
 'use strict';
 const gap=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),point=p=>({x:p.x,y:p.y});
 function create(raw={},hooks={}){
  if(!raw||typeof raw!=='object')raw={};
- const state={v:1,claimed:raw.claimed===true,attempts:Math.max(0,Math.floor(Number(raw.attempts)||0)),lastTaskId:typeof raw.lastTaskId==='string'?raw.lastTaskId:'',
+ const harvests=Math.max(raw.claimed===true?1:0,Number.isSafeInteger(raw.harvests)&&raw.harvests>=0?raw.harvests:0);
+ const state={v:1,claimed:harvests>0,harvests,attempts:Math.max(0,Math.floor(Number(raw.attempts)||0)),lastTaskId:typeof raw.lastTaskId==='string'?raw.lastTaskId:'',
   cooldownMs:Math.max(raw.inProgress?5000:0,Math.min(30000,Number(raw.cooldownMs)||0)),inProgress:false,history:Array.isArray(raw.history)?raw.history.slice(-15):[]};
  let phase='idle',actor=null,home=null,lastSeen=null,route=[],walked=[],routeAt=0,lastTime=null,age=0,unseen=0,retreat=false,taskId='',result='',patrolIndex=0,patrolWait=0;
  const save=()=>hooks.save?.(JSON.parse(JSON.stringify(state)));
@@ -22,7 +23,7 @@ function create(raw={},hooks={}){
  function returning(){if(retreat)return;retreat=true;route=walked.slice().reverse();routeAt=0;if(actor)actor.moving=false;}
  function finish(outcome){phase='idle';state.inProgress=false;state.cooldownMs=outcome==='caught'?12000:5000;returning();record(outcome);}
  function begin(p,h,id){
-  if(state.claimed||state.cooldownMs>0||!['idle','feedback'].includes(phase)||retreat||!id)return false;
+  if(state.cooldownMs>0||!['idle','feedback'].includes(phase)||retreat||!id)return false;
   state.attempts++;state.inProgress=true;state.lastTaskId=taskId=id;home=point(h);actor=actor||{...home};if(!walked.length)walked=[point(actor)];actor.heading=Math.atan2(p.y-actor.y,p.x-actor.x);actor.moving=false;
   lastSeen=point(p);route=[];routeAt=0;age=unseen=0;phase='warning';result='';save();hooks.event?.('warning');return true;
  }
@@ -62,14 +63,15 @@ function create(raw={},hooks={}){
   return snapshot();
  }
  function submit(ok,answer=''){
-  if(phase!=='question'||state.claimed)return {ok:false,reason:'inactive'};
+  if(phase!=='question')return {ok:false,reason:'inactive'};
   phase='feedback';state.inProgress=false;
   if(ok){
-   // Reserve the chapter reward before touching inventory, so repeated actions
-   // or a restored question can never mint a second apple.
-   state.claimed=true;save();
+   // Reserve this run before touching inventory. Repeated actions, reentrant
+   // callbacks and reloading feedback cannot award the same harvest twice.
+   const previous={claimed:state.claimed,harvests:state.harvests,cooldownMs:state.cooldownMs};
+   state.claimed=true;state.harvests++;state.cooldownMs=20000;save();
    if(hooks.awardApple?.()===true){result='earned';record('earned',answer);return {ok:true,reason:'earned'};}
-   state.claimed=false;result='full';record('full',answer);return {ok:false,reason:'full'};
+   Object.assign(state,previous);result='full';record('full',answer);return {ok:false,reason:'full'};
   }
   state.cooldownMs=30000;result='practice';record('practice',answer);hooks.practice?.(taskId);return {ok:false,reason:'practice'};
  }
