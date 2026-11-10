@@ -181,7 +181,7 @@ function drawProps(g,p,tall,now,puppets){
  const speaking=engine.roomSpeaker;
  const person=(name,pos,color,extra={})=>puppets.side(...pos,{name,color,...extra},false,now,speaking===name,false,false,0,0,null);
  if(p==='riksdag'){person('Hatten',tall?[210,960,.7]:[410,680,.75],'#75604b',{role:'hat-party'});person('Mössan',tall?[395,950,.7]:[590,675,.75],'#7b866b',{role:'cap-party'});}
- if(p==='square'){person('Soldaten',tall?[568,931,.51]:[900,621,.53],'#687b82');if(!timeline.afterUprising)person('En bonde',tall?[337,797,.35]:[641,494,.32],'#8e795c');}
+ if(p==='square'){person('Soldaten',tall?[568,931,.51]:[900,621,.53],'#687b82');if(!timeline.afterUprising)person('En bonde',tall?[337,797,.35]:[641,494,.32],'#8e795c',{role:'farmer-scythe'});}
  if(p==='fort')person('Fästningsvakten',tall?[365,965,.64]:[815,675,.85],'#687b82');
  if(p==='courtyard'){
   person('Bonden',court.phase==='open'?(tall?[440,825,.57]:[850,535,.61]):(tall?[510,975,.67]:[395,690,.75]),'#8d7656');
