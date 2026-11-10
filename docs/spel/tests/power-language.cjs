@@ -10,6 +10,11 @@ const exact='kungens envälde upphörde och riksdagen och riksrådet fick ökat 
 assert.notEqual(before(E.byId.get('rc1-power-1'),[exact],E.checkField).status,'sufficient','reproduce the reported false negative');
 vm.runInThisContext(fs.readFileSync(path.join(root,'questions/power-language.js'),'utf8'));
 const accepted=[exact,
+ 'Kungen bestämde mindre och riksdagen mer.',
+ 'Drottningen styrde mindre och riksrådet styrde mer.',
+ 'Riksdagen bestämde mer och kungen mindre.',
+ 'Kungens rätt att styra ensam försvann. I stället var det riksdagen som bestämde det mesta.',
+ 'Kungen fick inte längre bestämma allt själv. Det blev riksdagen som fick mest att säga till om.',
  'Enväldet tog slut och riksdagen fick mer makt.',
  'Kungen fick mindre makt och riksdagen bestämde mer.',
  'Kungen bestämde inte själv längre. Riksdagen fick mer makt.',
@@ -33,6 +38,10 @@ const accepted=[exact,
  'Kungens makt var begränsad. Riksrådet fick utökat inflytande.'
 ];
 const notAccepted=[
+ 'Kungen bestämde mer och riksdagen mindre.',
+ 'Riksdagen bestämde mindre och kungen mer.',
+ 'Kungen bestämde inte mindre och riksdagen mer.',
+ 'Kungens rätt att styra ensam försvann inte. Riksdagen bestämde det mesta.',
  'Kungen fick mer makt och riksdagen mindre.',
  'Enväldet tog inte slut och riksdagen fick mer makt.',
  'Kungen kunde fortfarande bestämma ensam och riksdagen fick mer makt.',

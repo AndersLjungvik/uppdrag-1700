@@ -1,5 +1,5 @@
 /* 3.1.0: align each response field, feedback and requirement with its prompt.
- * This patch is only loaded by the separate teacher question test.
+ * Loaded by the integrated game as well as the teacher question test.
  * Recognition remains rule-based. Unknown content is review, not mastery.
  */
 (function(){
@@ -8,7 +8,25 @@ const A=window.UPPDRAG_RECALL_ASSESS, previousAssess=A.assess, previousDecorate=
 const norm=v=>A.norm(v).replace(/[^a-z0-9 ]/g,' ').trim().replace(/\s+/g,' ');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const split=v=>String(v).trim().replace(/[.!?]+$/,'').split(/\s*[,;\n&]+\s*|\s+(?:och|samt)\s+/i).map(norm).filter(Boolean);
+// Explicit spelling variants only: never fuzzy-correct meaning, negation,
+// dates or similar proper names. Keep the pupil's original text in the save.
+const typos=new Map(Object.entries({
+ riksdagen:['rikstagen','riksdagn','riksdgaen','rikdagen','risdagen'],
+ riksrådet:['riksrådett','riksrådte','rikrådet'],
+ kungen:['kungenn','kugnen'],drottningen:['drotningen','drottnigen'],
+ enväldet:['enväldett','enväldeet','envädet'],envälde:['envelde','envallde'],
+ bestämma:['bestäma','bestämmma','bästämma'],bestämde:['bestämmde','bestämdde'],
+ makt:['mackt','makkt'],inflytande:['inflytade','inflytandde','innflytande'],
+ minskade:['minskadde','minskde'],ökade:['ökadde'],
+ begränsad:['begrensad','begrännsad'],begränsades:['begrensades','begrännsades'],
+ handlade:['hanlade','hanndlade'],seglade:['segladde'],
+ porslin:['porselin','poslin','porslinn','porsilin'],siden:['sidenn','sidden'],
+ bönderna:['böndrena','bönderrna'],bönder:['bönnder'],
+ förlorade:['förloradde','fölorade'],straffarbete:['strafarbete','straffarbetee']
+}).flatMap(([word,variants])=>variants.map(variant=>[norm(variant),word])));
+function spelling(value){return String(value??'').replace(/[a-zåäö]+/gi,word=>typos.get(norm(word))||word);}
 function shortCheck(f,value,original){
+ value=spelling(value);
  const initial=original(f,value);
  if(initial!=='review'||!f.answers||f.options)return initial;
  let text=String(value).trim();
@@ -17,6 +35,15 @@ function shortCheck(f,value,original){
  text=text.replace(/^(?:det var|det är|hon hette|han hette|de hette|svaret är|landet var|en vara var|en produkt var|exempelvis|till exempel|bland annat)\s+/i,'');
  const alias=v=>f.answers.some(a=>norm(a)==='te')?String(v).replace(/\bthe\b/gi,'te'):String(v);
  text=alias(text);
+ // Country/product fields may contain a complete, affirmative sentence.
+ // Match the whole frame and then validate its entire object. Never extract
+ // a known word from a longer explanation, a negation or a mixed false list.
+ const country=f.answers.every(a=>['kina','asien'].includes(norm(a)));
+ const goods=f.answers.every(a=>['te','siden','porslin'].includes(norm(a)));
+ const framed=norm(text).match(country
+  ?/^(?:de|skeppen|fartygen|kompaniet|ostindiska kompaniet) (?:handlade med|seglade till|akte till) (.+)$/
+  :goods?/^(?:de|skeppen|fartygen|kompaniet|ostindiska kompaniet) (?:tog med sig|forde hem|tog hem|importerade) (.+)$/:/$a/);
+ if(framed)text=framed[1];
  const unframed=original(f,text);if(unframed!=='review')return unframed;
  const pieces=split(text);
  if(pieces.length<2||pieces.length>12)return 'review';
@@ -73,6 +100,7 @@ function status(details){
  return 'sufficient';
 }
 A.assess=function(t,drafts,original){
+ drafts=drafts.map(spelling);
  const check=(f,v)=>shortCheck(f,v,original);
  if(t.id==='rc3-david-2'&&!t.fields[0].answers){
   const details=[];const value=String(drafts[0]??''),s=norm(value);
@@ -115,6 +143,6 @@ function flow(source){
  for(const [a,b] of edits){if(!source.includes(a))throw Error('Frågeanpassningen passar inte denna version av motorn.');source=source.replace(a,b);}
  return source;
 }
-A.version+='-scope-3.1';window.UPPDRAG_PROMPT_ALIGNMENT={flow,shortCheck,version:'3.1.0'};
+A.version+='-scope-3.1';window.UPPDRAG_PROMPT_ALIGNMENT={flow,shortCheck,spelling,version:'3.1.0'};
 window.UPPDRAG_FRAGTEST_VERSION='3.1.0';
 })();
