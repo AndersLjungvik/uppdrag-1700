@@ -112,7 +112,7 @@ function book(){
  if(s.masteryMigrationNotice)h+='<p class="mb-note">Dina tidigare svar och resurser är bevarade. Stämplar har bara förts över där hela områdets prov kan styrkas. Övriga områden behöver kompletteras.</p>';
  h+='<p class="mb-note">Alla fyra lärlingsstämplar öppnar gesällproven. Alla fyra gesällstämplar öppnar mästarproven. Sidoäventyr ger inga provstämplar.</p>';
  const review=materialReviewProgress();h+='<p class="mb-note">Hos Rut: '+review.done+' av '+review.total+' ord och årtal från bok- och bedömningsmaterialet repeterade. Hos Amira och Rut kan du skriva bokens resonemang.</p>';
- if(!mastery.progressAllowed())h+='<p class="mb-note" role="status">Du kan besöka staden, men proven är låsta. Klara alla stämplar i kapitel 4 och tidigare kapitel först.</p>';
+ if(!mastery.progressAllowed())h+='<p class="mb-note" role="status">Det här kapitlet är låst. Klara alla stämplar i kapitel 4 och tidigare kapitel först.</p>';
  for(const a of areas){
   h+='<section class="mb-area"><h3>'+esc(a.name)+'</h3><p class="mb-note">'+esc(a.place+' · '+a.who)+'</p><div class="mb-stamps">';
   for(let r=0;r<3;r++){

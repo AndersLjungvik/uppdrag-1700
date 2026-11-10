@@ -115,7 +115,7 @@ function book(){
  if(!story.introduced&&!q.chapterComplete)h+='<p class="mb-note">Maja på Kaffehuset visar hur minnesboken fungerar. Du kan också gå direkt till ett område.</p><button data-mb="maja">Besök Maja</button>';
  if(s.masteryMigrationNotice)h+='<p class="mb-note">Dina svar, pengar och äpplen finns kvar. Stämplar som spelet kunde kontrollera finns också kvar. Gör de prov som återstår i minnesboken.</p>';
  h+='<p class="mb-note">Klara de tre lärlingsproven för att öppna gesällproven. Klara sedan gesällproven för att öppna mästarproven. Sidoäventyren ger inga stämplar.</p>';
- if(!mastery.progressAllowed())h+='<p class="mb-note" role="status">Du kan besöka staden, men proven är låsta. Klara alla stämplar i kapitel 1 och tidigare kapitel först.</p>';
+ if(!mastery.progressAllowed())h+='<p class="mb-note" role="status">Det här kapitlet är låst. Klara alla stämplar i kapitel 1 och tidigare kapitel först.</p>';
  for(const a of areas){
   h+='<section class="mb-area"><h3>'+esc(a.name)+'</h3><p class="mb-note">'+esc(a.place+' · '+a.who)+'</p><div class="mb-stamps">';
   for(let r=0;r<3;r++){
