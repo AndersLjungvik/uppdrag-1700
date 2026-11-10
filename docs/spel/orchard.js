@@ -107,7 +107,8 @@ function tick(now,cfg){
  lastNow=now;const g=geometry(cfg.region);if(!g){if(model.busy)model.cancel();notice.hidden=true;return;}
  const inRoom=!!cfg.activeRoom,city=window['UPPDRAG_CH'+chapter+'_CITY_LIFE'];
  const social=!!(window.UPPDRAG_LIVING_DIALOGUES?.active||city?.active||window.UPPDRAG_EVENT_ENGINE?.conversation);
- const paused=teacher||inRoom||social||!!window.UPPDRAG_MENU_OPEN?.()||document.hidden||dialog.open||!!pilot()?.studyBusy||!!document.querySelector('dialog[open]:not(#orchardQuestion),#ch1Modal:not([hidden])');
+ const ownerListening=city?.teaser==='orchard-noble';
+ const paused=teacher||inRoom||social||ownerListening||!!window.UPPDRAG_MENU_OPEN?.()||document.hidden||dialog.open||!!pilot()?.studyBusy||!!document.querySelector('dialog[open]:not(#orchardQuestion),#ch1Modal:not([hidden])');
  model.tick(now,cfg.player,{region:cfg.region.id,home:g.home,patrol:g.patrol,hidden:document.hidden,paused,shelter:inRoom||social,
   route:(a,b)=>route(cfg.region,a,b),clear:(a,b)=>clear(cfg.region,a,b),inSafe:gap(cfg.player,g.safe)<=g.safe.radius,
   canSee:(a,b)=>clear(cfg.region,a,b)&&!window.UPPDRAG_EVENT_APPROACH.blockedByCover(a,b,g.trees)

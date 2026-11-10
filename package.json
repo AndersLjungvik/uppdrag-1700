@@ -26,6 +26,7 @@
     "test:fishing": "node docs/spel/tests/fishing.cjs",
     "test:orchard": "node docs/spel/tests/orchard.cjs",
     "test:hat-shop": "node docs/spel/tests/hat-shop.cjs",
+    "test:hat-reactions": "node docs/spel/tests/hat-reactions.cjs",
     "test:class-links": "node docs/spel/tests/class-links.cjs",
     "test:chapter-one-only": "node docs/spel/tests/chapter-one-only-browser.cjs && node docs/spel/tests/chapter-one-apple-browser.cjs",
     "test:apple-threats": "node docs/spel/tests/apple-threats.cjs && node docs/spel/tests/apple-threats-world.cjs && node docs/spel/tests/apple-threats-visibility.cjs"
