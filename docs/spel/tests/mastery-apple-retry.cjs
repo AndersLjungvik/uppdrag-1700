@@ -6,10 +6,10 @@ class Element{
  constructor(){this.children=[];this.dataset={};this.hidden=false;this.innerHTML='';this.style={};this.events={};this.classList={add(){},remove(){},toggle(){}};}
  append(...n){this.children.push(...n);}setAttribute(){}focus(){}querySelector(){return null;}querySelectorAll(){return [];}addEventListener(n,f){this.events[n]=f;}
 }
-function fixture(ch,prior=new Map()){
+function fixture(ch,prior=new Map(),lessonLimit=ch<=2?2:0){
  const memory=new Map(prior),stage=new Element(),document={head:new Element(),body:new Element(),createElement:()=>new Element(),getElementById:()=>null};
  const c={document,stage,roomView:new Element(),roomFooter:new Element(),interior:null,region:{id:'main',buildings:[]},console,
-  __INTEGRATED_CHAPTER:ch,__UPPDRAG_LESSON_ONLY:ch<=2?2:0,addEventListener(){},setMessage(){},leaveInterior(){c.interior=null;},requestInterior(){},requestHarbour(){},
+  __INTEGRATED_CHAPTER:ch,__UPPDRAG_LESSON_ONLY:lessonLimit,addEventListener(){},setMessage(){},leaveInterior(){c.interior=null;},requestInterior(){},requestHarbour(){},
   localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v))}};c.window=c;vm.createContext(c);
  for(const name of ['recall-bank.js','recall-assessment.js'])vm.runInContext(scripts[name],c);
  for(const name of ['questions/fixes.js','questions/alignment.js','questions/power-language.js','mastery-recall-adapter.js','mastery-progression.js','mastery-review-recovery.js'])vm.runInContext(read(name),c);
