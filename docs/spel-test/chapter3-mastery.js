@@ -12,7 +12,7 @@ const areas=[
  {id:'parties',name:'Hattar och mössor',place:'Riksdagshuset',p:'riksdag',who:'Elin',slot:1,topics:['parties','bribes'],document:'protokollen om hattar och mössor'},
  {id:'war',name:'Krigets följder',place:'Slottet',p:'palace',who:'Amira',slot:2,topics:['war','successor'],document:'kartbladen och tronföljdsbeskedet'},
  {id:'uprising',name:'Böndernas protest',place:'Torget',p:'square',who:'Bonden',slot:3,topics:['uprising'],document:'anteckningen om Dalaupproret 1743'},
- {id:'david',name:'Lydnad och samvete',place:'Carlsten på Marstrand',p:'fort',who:'Fästningsvakten',slot:4,topics:['david'],document:'handlingen om Davids vägran och straff'}
+ {id:'david',name:'Lydnad och samvete',place:'Carlsten på Marstrand',p:'fort',who:'David',slot:4,topics:['david'],document:'handlingen om Davids vägran och straff'}
 ];
 const levels=['learner','journeyman','master'],labels=['Lärling','Gesäll','Mästare'];
 const allBank=window.UPPDRAG_RECALL_BANK.filter(t=>t.chapter<=3),bank=allBank.filter(t=>t.chapter===3);
