@@ -1,4 +1,4 @@
-# Elevlänkar · kapitel 1–2 · 2.19.0
+# Elevlänkar · kapitel 1–2 · 2.21.0
 
 ## Klassernas delade länkar · bekräftade 2026-11-09
 
@@ -82,3 +82,8 @@ Jo säljer ett bestående fiskespö för 10 daler vid Kajen från kapitel 4. Nap
 ### Fiske på världskartan · 2.19.0
 
 Spöet köps hos Jo. Själva fisket är flyttat till tillgängliga stränder och kanalbankar på kartan. Klick på vatten ger en verklig gångväg till kanten; mellanslag eller Fiska kastar ut. Förflyttning avbryter kastet utan fisk. Befintligt spö, korg och leveranstak behålls. Äppelträdets stam och skylt är också flyttade helt norr om herrgårdsvägen. Elevlänkarnas kapitelgränser är oförändrade.
+
+
+## Stora utmaningen hos Rut · 2.21.0
+
+De befintliga klasslänkarna får ett frivilligt val hos Rut: sex repetitionsuppgifter som fyller på till tre äpplen. Elevlägets tidigare förrådsgräns på ett höjs därför till tre. Den korta omgången behåller sin vanliga belöning på ett när fickan är tom. Stämplar, svar, granskning, sparnycklar och kapitelgränsen 1–2 bevaras. Reserven följer med till tvåan. Detaljer och verifiering: RUT_CHALLENGE.md. Äldre avsnitt i detta dokument beskriver den tidigare gränsen.

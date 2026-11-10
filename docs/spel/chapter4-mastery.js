@@ -278,7 +278,7 @@ window.UPPDRAG_CH4_PILOT={tick,go:book,close,scenes:runs,saveKey:storage,persist
  memoryChoices(){const l=mastery.summary().level;return areas.filter(a=>a.p===locationKey()&&status(a,l)!=='clear').map(a=>({id:a.id,label:'Pröva '+a.name.toLocaleLowerCase('sv')}));},
  memoryChoice:()=> 'Läs '+(hereArea()?.document||'anteckningen'),
  enterMemory(aid){if(chooseHere(locationKey(),aid))begin();},wantsMemoryThanks:()=>false,memoryThanks:()=>'',finishMemory:finished,
- wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> 'Vi övar på kapitel 1–3 och sådant du redan mött i fyran. Det kostar inget. En avslutad repetitionsomgång ger ett äpple.',enterArchive,enterMaterialReview,materialReviewProgress,goArchive,
+ wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> 'Vi övar på kapitel 1–3 och sådant du redan mött i fyran. Det kostar inget. En kort omgång ger ett äpple. Den stora utmaningen har sex uppgifter och kan fylla på fickan till tre äpplen.',enterArchive,enterMaterialReview,materialReviewProgress,goArchive,
  idleLine:()=> 'Välkommen tillbaka!',
  openBook:book,selectArea:select,get studyBusy(){return !modal.hidden||!!window.UPPDRAG_CH4_BOOKWORK?.busy;},
  get encounteredTaskIds(){return s.encountered.slice();},

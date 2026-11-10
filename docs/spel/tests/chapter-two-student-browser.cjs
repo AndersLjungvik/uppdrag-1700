@@ -44,7 +44,7 @@ const {installTeacherCode}=require('./teacher-review-test-utils.cjs');
   await menu();assert.equal(await h.page.locator('#chapterList button').nth(1).isEnabled(),true);const next=h.page.waitForURL(u=>u.searchParams.get('chapter')==='2',{waitUntil:'domcontentloaded'});await h.page.locator('#chapterList button').nth(1).click({noWaitAfter:true});await next;await loaded(2);
   assert.equal(await f.evaluate(()=>__UPPDRAG_LESSON_ONLY),2);assert.equal((await state()).s.daler,8);assert.equal((await state()).s.apples,1);
   assert.equal(await h.page.evaluate(({scope,key})=>localStorage.getItem(scope+key),{scope,key:keys[1]}),previous,'chapter-one progress is reused without copying or reset');
-  await f.evaluate(()=>{UPPDRAG_CH2_PILOT.state.apples=9;UPPDRAG_CH2_PILOT.persist();});assert.equal((await state()).s.apples,1);
+  await f.evaluate(()=>{UPPDRAG_CH2_PILOT.state.apples=9;UPPDRAG_CH2_PILOT.persist();});assert.equal((await state()).s.apples,3);
   trace('PASS old pupil save and real entry to chapter two');await seedLast(2);await boot();await start();const task=await f.evaluate(()=>UPPDRAG_CH2_PILOT.recall.current);
   for(let i=0;i<task.fields.length;i++)await f.locator('[data-rc-field="'+i+'"]').fill('Det här vill jag visa min lärare.');
   await tap('[data-action="rc-submit"]');await tap('[data-action="rc-save-review"]');await tap('[data-mb="review"]');
