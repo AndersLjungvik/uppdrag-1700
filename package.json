@@ -25,7 +25,7 @@
     "test:chapter-one-review": "node docs/spel/tests/teacher-review.cjs && node docs/spel/tests/chapter-one-review-browser.cjs",
     "test:chapter-two-student": "node docs/spel/tests/class-links.cjs && node docs/spel/tests/chapter-two-student-browser.cjs",
     "test:fishing": "node docs/spel/tests/fishing.cjs",
-    "test:orchard": "node docs/spel/tests/orchard.cjs",
+    "test:orchard": "node docs/spel/tests/orchard.cjs && node docs/spel/tests/orchard-return.cjs",
     "test:hat-shop": "node docs/spel/tests/hat-shop.cjs",
     "test:hat-reactions": "node docs/spel/tests/hat-reactions.cjs",
     "test:answer-language": "node docs/spel/tests/answer-language.cjs && node docs/spel/tests/power-language.cjs",
