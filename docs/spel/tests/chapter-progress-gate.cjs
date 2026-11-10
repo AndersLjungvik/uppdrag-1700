@@ -10,7 +10,7 @@ for(const ch of [2,3,4]){
  h.c.UPPDRAG_CHAPTER_PROGRESS_ALLOWED=()=>false;
  assert.equal(m.levelUnlocked('learner'),false);assert.equal(m.begin(a.id,'learner').ok,false);assert.equal(m.pass(a.id,'learner').ok,false);
  assert.equal(m.buyHint(a.id,'learner').ok,false);assert.equal(m.retryWithApple(a.id,'learner').ok,false);
- p.recall.action('rc-submit');assert(h.modal.innerHTML.includes('proven är låsta'));
+ p.recall.action('rc-submit');assert(h.modal.innerHTML.includes('kapitlet är låst'));
  assert(h.modal.innerHTML.includes('data-level="learner" class="mb-locked" disabled'));
  assert.equal(p.selectArea(a.id,'learner'),false);
  assert.deepEqual(copy({mastery:m.snapshot().state,record:p.state.record,apples:p.state.apples,daler:p.state.daler}),before,'the lock never removes saved answers, consumes resources or awards a stamp');

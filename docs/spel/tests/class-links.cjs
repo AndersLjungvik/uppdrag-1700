@@ -17,9 +17,9 @@ for(const [name,version] of [['6A','2.7.1'],['6B','2.9.0']]){
  const query='?only=1&chapter=1&v='+version;
  let h=boot(query);assert.equal(h.api.lessonLimit,4);assert.equal(h.api.prefix(),SCOPE);assert.equal(h.api.teacher,false);assert.equal(h.api.chapterTest,0);
  for(let chapter=1;chapter<=4;chapter++){
-  assert.equal(h.api.available(chapter),true,'all five chapters are available before any stamps');
-  assert((await h.api.access(chapter)).includes('authorized by the integration gate'),'the room prerequisite is bypassed too');
+  assert.equal(h.api.available(chapter),chapter===1,'later chapters cannot even be visited before the prerequisite');
  }
+ h.memory.set(SCOPE+firstKey,JSON.stringify({v:2,complete:true}));assert.equal(h.api.available(2),false,'a complete flag without real stamps cannot unlock a visit');h.memory.delete(SCOPE+firstKey);
  assert.equal(h.api.progressAllowed(1),true);assert.equal(h.api.progressAllowed(2),false);assert.equal(h.api.progressAllowed(4),false);
  assert.equal(h.api.read(firstKey),null,'opening chapters cannot generate an artificial completion');
  h.memory.set(SCOPE+firstKey,JSON.stringify({v:2,complete:false,daler:7,apples:2,record:[{id:'kept-answer',answer:['Mitt sparade svar']}],earned:{kept:true}}));
@@ -34,14 +34,18 @@ for(const [name,version] of [['6A','2.7.1'],['6B','2.9.0']]){
  }
  const replay=boot(query+'&replay=existing-round',h.memory);assert.equal(replay.api.lessonLimit,4);assert.equal(replay.api.prefix(),ROOT+'lesson.1.replay.existing-round.play.');
  const ordinary=boot('?chapter=1&v='+version,h.memory);assert.equal(ordinary.api.lessonLimit,0);assert.equal(ordinary.api.prefix(),ROOT+'play.');assert.equal(ordinary.api.available(2),false);
+ const keys=['',firstKey,'uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1'];
  const areasByChapter=[[],['start','law','trade'],['women','power','children'],['parties','war','uprising','david']];
  for(let ch=1;ch<=3;ch++){
   const areas=Object.fromEntries(areasByChapter[ch].map(id=>[id,Object.fromEntries(['learner','journeyman','master'].map(l=>[l,{status:'clear'}]))]));
   h.memory.set(SCOPE+'uppdrag1700.mastery.v1.ch'+ch,JSON.stringify({v:1,areas}));
-  assert.equal(h.api.progressAllowed(ch+1),true,'real stamps unlock the next chapter test');
+  const prior=JSON.parse(h.memory.get(SCOPE+keys[ch])||'{}');h.memory.set(SCOPE+keys[ch],JSON.stringify({...prior,v:2,complete:true}));
+  assert.equal(h.api.available(ch+1),true,'completing a chapter rewards access to the next environment');
+  assert.equal(h.api.progressAllowed(ch+1),true,'the same completion unlocks the next chapter test');
+  for(let later=ch+2;later<=4;later++)assert.equal(h.api.available(later),false,'no skipping undiscovered chapters');
  }
  assert.equal(h.api.available(5),false,'completing earlier chapters does not release chapter 5');
- console.log('PASS '+name+': four visitable chapters with sequential mastery, real source gate bypass, identical saves, canonical navigation/reload, replay preserved, chapters 5–10 blocked');
+ console.log('PASS '+name+': sequential chapter discovery and mastery, no skipping, identical saves, canonical navigation/reload, replay preserved, chapters 5–10 blocked');
 }
 for(const query of ['?only=1&chapter=1','?only=1&chapter=1&v=2.8.0','?only=1&chapter=1&v=2.15.0','?only=2&chapter=1']){
  const h=boot(query);assert.equal(h.api.available(2),false,'other links retain their original progression');
