@@ -64,6 +64,17 @@ class Element{
  querySelector(q){return q==='input'?this.input:q==='button'?this.button:null;}showModal(){this.open=true;}close(){this.open=false;}
  getBoundingClientRect(){return {left:0,top:0,width:1200,height:850};}
 }
+function chooseAnswer(dialog,task,right=true){
+ const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const answers=task.fields[0].answers.map(esc);
+ const buttons=[...dialog.innerHTML.matchAll(/data-orchard-answer="(\d+)">([^<]*)<\/button>/g)];
+ assert.equal(buttons.length,3,'exactly three visible choices');
+ assert(!/<input|<textarea|<form/.test(dialog.innerHTML),'no spelling-dependent input');
+ const matches=buttons.filter(b=>answers.includes(b[2]));assert.equal(matches.length,1,'one unambiguous correct choice');
+ const selected=buttons.find(b=>answers.includes(b[2])===right);assert(selected);
+ const press=()=>{for(const fn of dialog.events.click)fn({target:{closest:q=>q==='[data-orchard-answer]'?{dataset:{orchardAnswer:selected[1]}}:null}});};
+ press();return press;
+}
 for(const [chapter,mode] of [[1,'wrong'],...[1,2,3,4,5].map(ch=>[ch,'right'])]){
  const h=worldFixture('dog',chapter),real=pilotFixture(chapter),c=h.c,doc=c.document,elements=[],canvas=new Element('canvas'),oldGet=doc.getElementById;
  doc.getElementById=id=>id==='world'?canvas:oldGet(id);doc.createElement=tag=>{const e=new Element(tag);elements.push(e);return e;};
@@ -105,17 +116,15 @@ for(const [chapter,mode] of [[1,'wrong'],...[1,2,3,4,5].map(ch=>[ch,'right'])]){
  const selected=c.UPPDRAG_RECALL_BANK.find(t=>t.id===api.snapshot.taskId);assert(real.p.repetitionTaskIds.includes(selected.id));assert(selected.chapter<=chapter);
  if(mode==='wrong'){
   const higher=c.UPPDRAG_RECALL_BANK.find(t=>t.chapter===selected.chapter&&t.topic===selected.topic&&t.rank===2);assert(higher);
-  real.p.state.recallRutFocus=[higher.id];dialog.input.value='Jag vet inte';
-  for(const fn of dialog.events.submit)fn({preventDefault(){}});
+  real.p.state.recallRutFocus=[higher.id];chooseAnswer(dialog,selected,false);
   assert.equal(real.p.state.apples,0);assert.equal(api.claimed,false);assert.deepEqual(copy(real.p.state.recallRutFocus),[higher.id],'the original explanation keeps priority at Rut');
   assert.match(dialog.innerHTML,/Öva lite till/);assert.equal(api.snapshot.state.history.at(-1).outcome,'practice');
   assert.deepEqual(copy({daler:real.p.state.daler,record:real.p.state.record,earned:real.p.state.earned,review:real.p.state.reviewQueue}),kept);
   console.log('PASS real wrong-answer path: no apple or consumed quota, correct feedback, original higher-level Rut target preserved, no main-result changes');continue;
  }
- dialog.input.value=selected.fields[0].sample;
- for(const fn of dialog.events.submit)fn({preventDefault(){}});
- assert.equal(real.p.state.apples,1,'real chapter pilot receives one apple after correct free recall');assert(api.claimed);
- for(const fn of dialog.events.submit)fn({preventDefault(){}});assert.equal(real.p.state.apples,1);
+ const duplicate=chooseAnswer(dialog,selected);
+ assert.equal(real.p.state.apples,1,'real chapter pilot receives one apple after the correct choice');assert(api.claimed);
+ duplicate();assert.equal(real.p.state.apples,1);
  assert.deepEqual(copy({daler:real.p.state.daler,record:real.p.state.record,earned:real.p.state.earned,review:real.p.state.reviewQueue}),kept,'no main answer, coin, stamp or review changes');
  assert(JSON.parse(h.memory.get('uppdrag1700.orchard.v1')).chapters[chapter].claimed);
  assert.equal(api.harvests,1);for(const fn of dialog.events.cancel)fn({preventDefault(){}});c.player={...g.pick};
@@ -130,7 +139,7 @@ for(const [chapter,mode] of [[1,'wrong'],...[1,2,3,4,5].map(ch=>[ch,'right'])]){
  }
  assert.equal(api.snapshot.phase,'question','a later physical chase can also be escaped');assert.equal(real.p.state.apples,0,'a second escape still needs its own answer');
  const nextTask=c.UPPDRAG_RECALL_BANK.find(t=>t.id===api.snapshot.taskId);if(real.p.repetitionTaskIds.length>1)assert.notEqual(nextTask.id,selected.id,'vary the question when known alternatives exist');
- dialog.input.value=nextTask.fields[0].sample;for(const fn of dialog.events.submit)fn({preventDefault(){}});
+ chooseAnswer(dialog,nextTask);
  assert.equal(real.p.state.apples,1);assert.equal(api.harvests,2);assert.equal(JSON.parse(h.memory.get('uppdrag1700.orchard.v1')).chapters[chapter].harvests,2);
  assert.deepEqual(copy({daler:real.p.state.daler,record:real.p.state.record,earned:real.p.state.earned,review:real.p.state.reviewQueue}),kept,'repeated mischief preserves answers, coins, stamps and reviews');
  assert(!/ett per kapitel|bonusäpple är redan/i.test(api.journalHTML()));

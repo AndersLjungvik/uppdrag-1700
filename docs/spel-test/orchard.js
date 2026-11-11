@@ -7,7 +7,24 @@ function source(name,text){
  edit('  function activeDialogue(){\n    return !!(', '  function activeDialogue(){\n    return !!(window.UPPDRAG_ORCHARD?.blocking||');
  edit('  function interact(){','  function interact(){\n    if(window.UPPDRAG_ORCHARD?.blocking)return false;\n    if(window.UPPDRAG_ORCHARD?.interact())return true;');return text;
 }
-const api={source};window.UPPDRAG_ORCHARD=api;
+// Reuse the question bank's reviewed alternatives. The seven short chapter-5
+// review facts have no alternatives in the writing exercise, so supply them here.
+const EXTRA_CHOICES={
+ 'material5-sos-gustav-iii':['Gustav III','Karl XII','Gustav II Adolf'],
+ 'material5-sos-1772':['1772','1771','1809'],
+ 'material5-sos-1771':['1771','1772','1792'],
+ 'material5-sos-upplysning':['Upplysningen','Frihetstiden','Industrialismen'],
+ 'material5-sos-religionsfrihet':['Religionsfrihet','Tryckfrihet','Censur'],
+ 'material5-sos-tortyr':['Tortyr','Folkbokföring','Tryckfrihet'],
+ 'material5-sos-judar-katoliker':['Judar och katoliker','Protestanter och ortodoxa','Judar och muslimer']
+};
+const norm=v=>String(v??'').normalize('NFC').trim().toLocaleLowerCase('sv');
+function choicesFor(t){
+ const f=t?.fields?.[0],options=[...new Set((f?.options||EXTRA_CHOICES[t?.id]||[]).filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim()))];
+ const answers=new Set((f?.answers||[]).map(norm));
+ return options.length===3&&options.filter(v=>answers.has(norm(v))).length===1?options:null;
+}
+const api={source,choicesFor};window.UPPDRAG_ORCHARD=api;
 const chapter=Number(window.__INTEGRATED_CHAPTER),stage=typeof document==='undefined'?null:document.getElementById('stage');
 if(!stage||![1,2,3,4,5].includes(chapter))return;
 const teacher=new URLSearchParams(window.__UPPDRAG_QUERY||location.search).get('preview')==='1',KEY='uppdrag1700.orchard.v1';
@@ -17,7 +34,7 @@ const pilot=()=>window['UPPDRAG_CH'+chapter+'_PILOT'],world=()=>typeof region===
 const gap=(a,b)=>a&&b?Math.hypot(a.x-b.x,a.y-b.y):Infinity;
 const clear=(r,a,b,radius=12)=>!!window.UPPDRAG_WORLD_KEYBOARD?.clearSegment?.(r,a,b,radius);
 const route=(r,a,b,radius=12)=>window.UPPDRAG_EVENT_APPROACH.routeBetween(r,a,b,id=>navigationPoint(r,id),(p,q)=>clear(r,p,q,radius));
-const cache=new WeakMap();let matrix=null,pendingRoute=null,task=null,noticeUntil=0,lastNow=0,previousNotice='',feedback='';
+const cache=new WeakMap();let matrix=null,pendingRoute=null,task=null,answerChoices=[],noticeUntil=0,lastNow=0,previousNotice='',feedback='';
 function geometry(r=world()){
  if(r?.id!=='main')return null;if(cache.has(r))return cache.get(r);
  const entry=navigationPoint(r,'manor'),trees=window.UPPDRAG_PAPER?.getTrees(r)||[];let found=null;
@@ -38,7 +55,7 @@ function geometry(r=world()){
 }
 const outside=()=>world()?.id==='main'&&!interior&&!sailing&&!voyage;
 const otherBusy=()=>!!(window.UPPDRAG_MENU_OPEN?.()||pilot()?.studyBusy||window.UPPDRAG_MEETINGS?.state?.talking||window.UPPDRAG_LIVING_DIALOGUES?.active||window['UPPDRAG_CH'+chapter+'_CITY_LIFE']?.active||window.UPPDRAG_STORY_WORK?.busy||window.UPPDRAG_EVENT_ENGINE?.busy||window.UPPDRAG_EVENT_ENGINE?.approach?.point||window.UPPDRAG_APPLE_THREATS?.point||window.UPPDRAG_HAT_SHOP?.busy||document.querySelector('dialog[open]:not(#orchardQuestion),#ch1Modal:not([hidden])'));
-function pool(){const ids=new Set(pilot()?.repetitionTaskIds||[]);return (window.UPPDRAG_RECALL_BANK||[]).filter(t=>ids.has(t.id)&&t.chapter<=chapter&&t.rank===0&&t.kind==='fields'&&t.fields?.length===1&&t.fields[0].answers?.length);}
+function pool(){const ids=new Set(pilot()?.repetitionTaskIds||[]);return (window.UPPDRAG_RECALL_BANK||[]).filter(t=>ids.has(t.id)&&t.chapter<=chapter&&t.rank===0&&t.kind==='fields'&&t.fields?.length===1&&choicesFor(t));}
 function notify(text){previousNotice=text;noticeUntil=lastNow+6500;}
 const model=window.UPPDRAG_ORCHARD_MODEL.create(store.chapters[chapter],{
  save(s){store.chapters[chapter]=s;try{localStorage.setItem(KEY,JSON.stringify(store));}catch{}},
@@ -51,7 +68,7 @@ const model=window.UPPDRAG_ORCHARD_MODEL.create(store.chapters[chapter],{
 });
 const style=document.createElement('style');style.textContent=`
 #orchardNotice{position:absolute;left:10px;bottom:12px;z-index:28;max-width:min(370px,calc(100% - 20px));padding:12px 15px;background:#fff6e4ed;color:#382f25;border:1px solid #9b835c;border-radius:9px;font:14px/1.45 system-ui}#orchardNotice strong{display:block;font:600 18px Georgia;margin-bottom:5px}
-#orchardQuestion{width:min(570px,calc(100% - 24px));max-height:88dvh;overflow:auto;padding:24px;border:1px solid #967f5b;border-radius:12px;background:#fff7e9;color:#382f25;font:16px/1.5 system-ui}#orchardQuestion::backdrop{background:#28251b80}#orchardQuestion h2{font:600 27px Georgia;margin:0 0 12px}#orchardQuestion label{display:block;margin:16px 0 6px;font-weight:600}#orchardQuestion input{width:100%;box-sizing:border-box;padding:12px;font:18px system-ui;border:1px solid #9b835c;border-radius:6px}#orchardQuestion button{min-height:44px;padding:10px 15px;margin:13px 7px 0 0;background:#436b5c;color:white;border:1px solid #436b5c;border-radius:6px;font:16px system-ui;cursor:pointer}#orchardQuestion button.secondary{background:#fffaf0;color:#382f25}#orchardQuestion :focus-visible{outline:3px solid #286472;outline-offset:2px}#orchardQuestion .orchard-note{font-size:14px;color:#665b49}
+#orchardQuestion{width:min(570px,calc(100% - 24px));max-height:88dvh;overflow:auto;padding:24px;border:1px solid #967f5b;border-radius:12px;background:#fff7e9;color:#382f25;font:16px/1.5 system-ui}#orchardQuestion::backdrop{background:#28251b80}#orchardQuestion h2{font:600 27px Georgia;margin:0 0 12px}#orchardQuestion button{min-height:44px;padding:10px 15px;margin:13px 7px 0 0;background:#436b5c;color:white;border:1px solid #436b5c;border-radius:6px;font:16px system-ui;cursor:pointer}#orchardQuestion button.secondary{background:#fffaf0;color:#382f25}#orchardQuestion :focus-visible{outline:3px solid #286472;outline-offset:2px}#orchardQuestion .orchard-note{font-size:14px;color:#665b49}#orchardQuestion .orchard-choices{display:grid;gap:10px;margin:16px 0}#orchardQuestion .orchard-choices button{width:100%;margin:0;text-align:left;white-space:normal;overflow-wrap:anywhere;background:#fffaf0;color:#382f25;border-color:#9b835c}
 `;document.head.append(style);
 const notice=document.createElement('section');notice.id='orchardNotice';notice.hidden=true;notice.setAttribute('aria-label','Äppelträdet vid herrgården');
 const title=document.createElement('strong'),copy=document.createElement('div');title.textContent='Äppelträdet';notice.append(title,copy);stage.append(notice);
@@ -70,6 +87,8 @@ function pick(){
  if(clear(world(),safe,safe,24)&&route(world(),playerPoint(),safe,24)?.length)g.safe=safe;
  task=choices[Math.floor(Math.random()*choices.length)];
  if(!model.begin(playerPoint(),g.home,task.id)){notify(s.retreat?'Vänta tills adelsmannen har gått tillbaka.':'Vänta '+Math.max(1,Math.ceil(s.state.cooldownMs/1000))+' sekunder innan du försöker igen.');return true;}
+ answerChoices=choicesFor(task);
+ for(let i=answerChoices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[answerChoices[i],answerChoices[j]]=[answerChoices[j],answerChoices[i]];}
  stop(false);document.getElementById('world')?.focus?.({preventScroll:true});return true;
 }
 function travel(){
@@ -88,20 +107,17 @@ function hide(){
 function close(){if(dialog.open)dialog.close();model.close();feedback='';document.getElementById('world')?.focus?.({preventScroll:true});}
 function openQuestion(){
  if(dialog.open||!task||otherBusy()||document.hidden)return;stop();feedback='';
- dialog.innerHTML='<h2 id="orchardTitle">Du kom undan!</h2><p>Svara på minnesfrågan för att få behålla äpplet.</p><form><label for="orchardAnswer">'+esc(task.prompt)+'</label><input id="orchardAnswer" name="answer" maxlength="240" autocomplete="off" required><p class="orchard-note">Du har mött frågan tidigare. Ett kort eget svar räcker.</p><button type="submit">Svara</button><button type="button" class="secondary" data-orchard-close>Lämna äpplet</button></form>';
- dialog.showModal();dialog.querySelector('input')?.focus({preventScroll:true});
+ dialog.innerHTML='<h2 id="orchardTitle">Du kom undan!</h2><p>Välj rätt svar för att få behålla äpplet.</p><p><strong>'+esc(task.prompt)+'</strong></p><div class="orchard-choices">'+answerChoices.map((value,index)=>'<button type="button" data-orchard-answer="'+index+'">'+esc(value)+'</button>').join('')+'</div><p class="orchard-note">Du har mött frågan tidigare. Klicka på ett av de tre alternativen.</p><button type="button" class="secondary" data-orchard-close>Lämna äpplet</button>';
+ dialog.showModal();dialog.querySelector('button')?.focus({preventScroll:true});
 }
-dialog.addEventListener('submit',event=>{
- event.preventDefault();if(model.snapshot().phase!=='question'||!task)return;
- const value=dialog.querySelector('input').value.trim();if(!value)return;
- const field={...task.fields[0]};delete field.options;
- const check=window.UPPDRAG_RECALL_ENGINE.checkField;
- const verdict=window.UPPDRAG_PROMPT_ALIGNMENT.shortCheck(field,value,check),result=model.submit(verdict==='correct',value);
- const success=result.ok,known=verdict==='correct';feedback=result.reason;
- dialog.innerHTML='<h2 id="orchardTitle">'+(success?'Ett äpple!':known?'Du har redan ett äpple':'Öva lite till')+'</h2><p>'+(success?'Rätt! Du får behålla äpplet. Det finns nu i din ficka.':known?'Du får ha ett äpple åt gången här. Kom tillbaka när fickan är tom.':(verdict==='review'?'Jag kunde inte känna igen svaret.':'Inte riktigt.')+' Ett exempel på rätt svar är <strong>'+esc(field.sample||field.answers[0])+'</strong>. Öva på frågan hos Rut och försök igen senare.')+'</p><p class="orchard-note">'+(success?'Du kan busa igen när fickan är tom. Vänta minst 20 sekunder och låt adelsmannen gå tillbaka. Varje nytt äpple kräver en ny jakt och en minnesfråga.':'Inget äpple har lagts till. Du kan försöka igen senare.')+'</p><button type="button" data-orchard-close>Till spelet</button>';
+function answer(index){
+ if(model.snapshot().phase!=='question'||!task||!Number.isInteger(index)||index<0||index>=answerChoices.length)return;
+ const field=task.fields[0],value=answerChoices[index],known=field.answers.some(v=>norm(v)===norm(value));
+ const result=model.submit(known,value),success=result.ok;feedback=result.reason;
+ dialog.innerHTML='<h2 id="orchardTitle">'+(success?'Ett äpple!':known?'Du har redan ett äpple':'Öva lite till')+'</h2><p>'+(success?'Rätt! Du får behålla äpplet. Det finns nu i din ficka.':known?'Du får ha ett äpple åt gången här. Kom tillbaka när fickan är tom.':'Inte riktigt. Rätt svar är <strong>'+esc(answerChoices.find(v=>field.answers.some(a=>norm(a)===norm(v))))+'</strong>. Öva på frågan hos Rut och försök igen senare.')+'</p><p class="orchard-note">'+(success?'Du kan busa igen när fickan är tom. Vänta minst 20 sekunder och låt adelsmannen gå tillbaka. Varje nytt äpple kräver en ny jakt och en minnesfråga.':'Inget äpple har lagts till. Du kan försöka igen senare.')+'</p><button type="button" data-orchard-close>Till spelet</button>';
  dialog.querySelector('button')?.focus({preventScroll:true});
-});
-dialog.addEventListener('click',event=>{if(event.target.closest('[data-orchard-close]'))close();});dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
+}
+dialog.addEventListener('click',event=>{if(event.target.closest('[data-orchard-close]')){close();return;}const selected=event.target.closest('[data-orchard-answer]');if(selected)answer(Number(selected.dataset.orchardAnswer));});dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
 function tick(now,cfg){
  lastNow=now;const g=geometry(cfg.region);if(!g){if(model.busy)model.cancel();notice.hidden=true;return;}
  const inRoom=!!cfg.activeRoom,city=window['UPPDRAG_CH'+chapter+'_CITY_LIFE'];
