@@ -9,7 +9,7 @@ const firstKey='uppdrag1700.ch1-real-world.20261019.v11';
 function boot(query,memory=new Map()){
  const nodes=new Map(),document={getElementById:id=>{if(!nodes.has(id))nodes.set(id,{});return nodes.get(id);}};
  const c={document,location:{search:query},URLSearchParams,console,UPPDRAG_AMBIENT_UI:{install(){}},localStorage:{getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,String(v)),removeItem:k=>memory.delete(k)}};
- c.window=c;vm.createContext(c);vm.runInContext(preamble+sourceFn+bridge+'\nwindow.test={lessonLimit,teacher,chapterTest,available,progressAllowed,prefix,read,write,bridge,access(ch){chapter=ch;return source("chapter-access-pilot.js");}};',c);
+ c.window=c;vm.createContext(c);vm.runInContext(preamble+sourceFn+bridge+'\nwindow.test={lessonLimit,teacher,chapterTest,available,progressAllowed,initialChapter,prefix,read,write,bridge,access(ch){chapter=ch;return source("chapter-access-pilot.js");}};',c);
  return {api:c.test,memory};
 }
 (async()=>{
@@ -17,16 +17,16 @@ for(const [name,version] of [['6A','2.7.1'],['6B','2.9.0']]){
  const query='?only=1&chapter=1&v='+version;
  let h=boot(query);assert.equal(h.api.lessonLimit,4);assert.equal(h.api.prefix(),SCOPE);assert.equal(h.api.teacher,false);assert.equal(h.api.chapterTest,0);
  for(let chapter=1;chapter<=4;chapter++){
-  assert.equal(h.api.available(chapter),chapter===1,'later chapters cannot even be visited before the prerequisite');
+  assert.equal(h.api.available(chapter),true,'pupils can visit every released chapter without prerequisites');
  }
- h.memory.set(SCOPE+firstKey,JSON.stringify({v:2,complete:true}));assert.equal(h.api.available(2),false,'a complete flag without real stamps cannot unlock a visit');h.memory.delete(SCOPE+firstKey);
- assert.equal(h.api.progressAllowed(1),true);assert.equal(h.api.progressAllowed(2),false);assert.equal(h.api.progressAllowed(4),false);
+ h.memory.set(SCOPE+firstKey,JSON.stringify({v:2,complete:true}));assert.equal(h.api.available(2),true,'chapter access does not depend on completion flags');h.memory.delete(SCOPE+firstKey);
+ assert.equal(h.api.progressAllowed(1),true);assert.equal(h.api.progressAllowed(2),true);assert.equal(h.api.progressAllowed(4),true);
  assert.equal(h.api.read(firstKey),null,'opening chapters cannot generate an artificial completion');
  h.memory.set(SCOPE+firstKey,JSON.stringify({v:2,complete:false,daler:7,apples:2,record:[{id:'kept-answer',answer:['Mitt sparade svar']}],earned:{kept:true}}));
  h.memory.set(SCOPE+'uppdrag1700.mastery.v1.ch1',JSON.stringify({v:1,areas:{start:{learner:{status:'clear'},journeyman:{status:'pending'}}},history:[{kept:true}]}));
  const saved=Array.from(h.memory.entries());h=boot(query,h.memory);assert.deepEqual(Array.from(h.memory.entries()),saved,'all written answers, stamps, pending reviews and resources remain identical');
  for(let chapter=5;chapter<=10;chapter++)assert.equal(h.api.available(chapter),false);
- for(const invalid of [0,11])assert.equal(h.api.available(invalid),false);
+ for(const invalid of [0,11,1.5,NaN,'2'])assert.equal(h.api.available(invalid),false);
  assert(h.api.bridge(1).includes('window.__UPPDRAG_LESSON_ONLY=4;'));
  const tampered=boot(query+'&teacher=1&testChapter=5',h.memory);assert.equal(tampered.api.teacher,false);assert.equal(tampered.api.chapterTest,0);assert.equal(tampered.api.available(5),false);
  for(const only of [2,4,5]){
@@ -40,9 +40,9 @@ for(const [name,version] of [['6A','2.7.1'],['6B','2.9.0']]){
   const areas=Object.fromEntries(areasByChapter[ch].map(id=>[id,Object.fromEntries(['learner','journeyman','master'].map(l=>[l,{status:'clear'}]))]));
   h.memory.set(SCOPE+'uppdrag1700.mastery.v1.ch'+ch,JSON.stringify({v:1,areas}));
   const prior=JSON.parse(h.memory.get(SCOPE+keys[ch])||'{}');h.memory.set(SCOPE+keys[ch],JSON.stringify({...prior,v:2,complete:true}));
-  assert.equal(h.api.available(ch+1),true,'completing a chapter rewards access to the next environment');
-  assert.equal(h.api.progressAllowed(ch+1),true,'the same completion unlocks the next chapter test');
-  for(let later=ch+2;later<=4;later++)assert.equal(h.api.available(later),false,'no skipping undiscovered chapters');
+  assert.equal(h.api.available(ch+1),true,'completed chapters do not restrict chapter choice');
+  assert.equal(h.api.progressAllowed(ch+1),true,'tests in the selected chapter remain available');
+  for(let later=ch+2;later<=4;later++)assert.equal(h.api.available(later),true,'later released chapters remain freely selectable');
  }
  assert.equal(h.api.available(5),false,'completing earlier chapters does not release chapter 5');
  // Simulate already saved classroom work from before a code update. Reopen
@@ -58,7 +58,7 @@ for(const [name,version] of [['6A','2.7.1'],['6B','2.9.0']]){
  priorRound.set(SCOPE+'lastChapter','4');const beforeUpdate=Array.from(priorRound.entries());
  const preservedKeys=beforeUpdate.map(([key])=>key.slice(SCOPE.length));
  for(const reopen of [query,'?only=4&chapter=4&v='+version,query]){
-  const restored=boot(reopen,priorRound);assert.equal(restored.api.prefix(),SCOPE);
+  const restored=boot(reopen,priorRound);assert.equal(restored.api.prefix(),SCOPE);assert.equal(restored.api.initialChapter(),4,'the original classroom bookmark resumes the saved chapter');
   for(const key of preservedKeys)assert.equal(restored.api.read(key),priorRound.get(SCOPE+key),name+' reads the same saved chapter data after update/reload');
   assert.deepEqual(Array.from(priorRound.entries()),beforeUpdate,name+' update/reload preserves every saved byte across chapters 1–4');
  }
@@ -68,7 +68,7 @@ for(const [name,version] of [['6A','2.7.1'],['6B','2.9.0']]){
   assert.deepEqual(Array.from(priorRound.entries()),beforeUpdate,'a denied chapter request cannot alter the ordinary save');
  }
  console.log('PASS '+name+' saved classroom update: all four chapter answers, drafts, review records, resources and stamps byte-preserved; chapters 5–10 denied even with forced chapter/test/teacher/replay parameters');
- console.log('PASS '+name+': sequential chapter discovery and mastery, no skipping, identical saves, canonical navigation/reload, replay preserved, chapters 5–10 blocked');
+ console.log('PASS '+name+': free choice of four chapters without fabricated mastery, identical saves, canonical navigation/reload, replay preserved, chapters 5–10 blocked');
 }
 for(const query of ['?only=1&chapter=1','?only=1&chapter=1&v=2.8.0','?only=1&chapter=1&v=2.15.0','?only=2&chapter=1']){
  const h=boot(query);assert.equal(h.api.available(2),false,'other links retain their original progression');

@@ -1,4 +1,4 @@
-# Elevlänkar · kapitel 1–2 · 2.21.0
+# Elevlänkar · fritt kapitelval 1–4 · 2.29.0
 
 ## Klassernas delade länkar · bekräftade 2026-11-09
 
@@ -6,12 +6,16 @@ Anders har delat två olika elevlänkar, en till varje klass. Det är avsiktligt
 
 | Klass | Delad länk | Kapitelåtkomst |
 | --- | --- | --- |
-| 6A | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.7.1 | Kapitel 1–2; tvåan efter klar etta |
-| 6B | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.9.0 | Kapitel 1–2; tvåan efter klar etta |
+| 6A | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.7.1 | Fritt val mellan kapitel 1–4 |
+| 6B | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.9.0 | Fritt val mellan kapitel 1–4 |
 
-Länkarna skiljer sig i `v`-parametern och använder samma publicerade `spel-test/`-ingång. På Anders uttryckliga begäran 2026-11-09 öppnar de två registrerade klasslänkarna nu kapitel 1–2, trots att deras ursprungliga adresser innehåller `only=1`. Kapitel 2 kräver fortfarande ettans nio stämplar; kapitel 3–10 är spärrade. Andra länkar för enbart kapitel 1 behåller sin gräns. `v` väljer inte ett historiskt kodpaket och ingår inte i sparningens prefix. Framsteg är lokala per webbläsare och finns kvar när klasslänkarna får tillgång till tvåan.
+Från 2026-11-11 väljer eleverna fritt mellan de släppta kapitlen 1–4 via den synliga knappen **Välj kapitel**, utan krav på tidigare kapitels stämplar. Första öppningen visar kapitelvalet. Kapitel 5 och senare behåller sin särskilda publiceringsspärr, enligt det tidigare beslutet. Äldre avsnitt nedan beskriver historiska funktioner och kapitelgränser.
 
-Vid framtida uppdateringar: kontrollera båda klasslänkarna, deras kapitelgränser och sparningar. Dokumentets övriga länkar för kapitel 1–2 är tillgängliga alternativ, inte belägg för att de har delats med någon av klasserna. Behåll de delade adresserna. Fler kapitel än de godkända 1–2 öppnas först på uttrycklig begäran.
+Båda klasslänkarna behåller exakt samma `lesson.1.`-sparning. Kapitelval skriver inga konstgjorda svar, godkännanden eller stämplar. Lärling–gesäll–mästare inom ett kapitel kräver fortfarande kapitlets egna prestationer. Sparade svar, utkast, granskningsärenden, stämplar och resurser läses från de befintliga kapitelnycklarna.
+
+De ursprungliga bokmärkena med `only=1&chapter=1` återupptar nu elevens senast spelade kapitel. Menyns egna kapitelval är uttryckliga och respekteras. Eleven kan börja om det aktuella kapitlet i en separat omgång och återvända till sina ordinarie framsteg. Andra länkar som uttryckligen gäller bara ett eller två kapitel behåller sin tidigare begränsning.
+
+`node docs/spel-test/tests/class-links.cjs` och `node docs/spel-test/tests/free-chapter-choice.cjs` kontrollerar båda delade länkarna, direktstart utan föregående kapitel, verklig provstart, oförändrad nivåprogression inom kapitlet, byte och återbesök med sparade svar/stämplar, senaste kapitel, samt spärren för kapitel 5–10.
 
 Länken `?only=1&chapter=1&v=2.8.0` öppnar Frihetstiden i en elevvy med enbart kapitel 1. Menyn visar bara ettan. Senare kapitel förblir otillgängliga även när alla ettans nio stämplar är klara. Avslutningen och minnesboken erbjuder då ingen fortsättning till tvåan. Lärarvyn finns inte i denna elevvy.
 
