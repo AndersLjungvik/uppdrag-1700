@@ -26,12 +26,18 @@ function source(name,text){
   edit('window.UPPDRAG_CH3_CITY_LIFE?.active);','window.UPPDRAG_CH3_CITY_LIFE?.active||window.UPPDRAG_CH3_PROVISIONS?.busy);');
  }
  if(name==='chapter3-street-life.js'){
-  edit("function drawFigure(ctx,a,now,scale=1){","function drawUprisingWeapon(ctx,a){\n if(a.role!=='farmer'||phase()!==2)return;\n ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.heading||0);\n paper(ctx,[[-24,-17],[39,-17],[39,-14],[-24,-14]],'#786247');\n const scythe=Math.round(a.x+a.y)%2===0;\n if(scythe)paper(ctx,[[35,-18],[49,-23],[60,-24],[55,-19],[41,-13],[35,-13]],'#a4ada3');\n else paper(ctx,[[37,-20],[56,-15.5],[37,-12]],'#a5afa6');\n paper(ctx,[[31,-18],[35,-18],[35,-13],[31,-13]],'#5f6862');ctx.restore();\n}\nfunction drawFigure(ctx,a,now,scale=1){");
+  edit("function drawFigure(ctx,a,now,scale=1){","function drawUprisingWeapon(ctx,a){\n if(a.role!=='farmer'||phase()!==2)return;\n ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.heading||0);\n paper(ctx,[[-24,-17],[39,-17],[39,-14],[-24,-14]],'#786247');\n // Weapon type belongs to the marcher, never to the current map pixel.\n const scythe=a.polearm==='scythe';\n if(scythe)paper(ctx,[[35,-18],[49,-23],[60,-24],[55,-19],[41,-13],[35,-13]],'#a4ada3');\n else paper(ctx,[[37,-20],[56,-15.5],[37,-12]],'#a5afa6');\n paper(ctx,[[31,-18],[35,-18],[35,-13],[31,-13]],'#5f6862');ctx.restore();\n}\nfunction drawFigure(ctx,a,now,scale=1){");
   edit(" cap(ctx,a);ctx.restore();", " cap(ctx,a);drawUprisingWeapon(ctx,a);ctx.restore();");
   edit("function step(){const state=window.UPPDRAG_CH3_PILOT?.state;", "function step(){if(window.UPPDRAG_CH3_SCENES)return window.UPPDRAG_CH3_SCENES.streetStep;const state=window.UPPDRAG_CH3_PILOT?.state;");
   edit("const x=cur===2?2448-410*progress.fraction:Math.max(2038,phase3FarmerX-t*.009);", "const x=cur===2?2448-410*progress.fraction:2038;");
   edit("const moving=cur===2?progress.moving:!reduced?.matches&&x>2038;", "const moving=cur===2?progress.moving:false;");
   edit(" if(a.id==='farmers'){\n  // Ragged", " if(a.id==='farmers'&&phase()===3){drawFigure(ctx,a,now);return;}\n if(a.id==='farmers'){\n  // Ragged");
+  // Keep each polearm rigidly attached to the same hand and heading. Only
+  // the existing walking feet/hands animate; no extra sticks appear/disappear.
+  edit('  const elapsed=Math.max(0,now-enteredAt);\n  const figures=', '  const figures=');
+  edit("    const excited=!reduced?.matches&&Math.sin(elapsed/540+j*1.8)>-.25;\n    const shake=excited?Math.sin(elapsed/170+j)*3:0;\n    const follower={...a,x:a.x+dx+shake,y:a.y+dy+(excited?Math.sin(elapsed/230+j)*2:0),\n      heading:Math.PI+(excited?Math.sin(elapsed/530+j)*.24:0),", "    const follower={...a,x:a.x+dx,y:a.y+dy,\n      heading:a.heading,polearm:j%2?'scythe':'pike',");
+  edit("    if(excited){\n      const sx=follower.x+Math.cos(j*2)*8,sy=follower.y-10;\n      paper(ctx,[[sx-1,sy-17],[sx+2,sy-17],[sx+5,sy+7],[sx+1,sy+8]],'#72563d');\n    }\n", '');
+  edit("  if(a.crowdShouting)paper(ctx,[[a.x-3,a.y-17],[a.x+1,a.y-17],[a.x+15,a.y+2],[a.x+11,a.y+5]],'#5e4c3b');\n", '');
   edit('const minY=9,maxY=Math.max(minY,layout.h-height-10);', 'const minY=9,maxY=Math.max(minY,layout.h-height-10-(window.UPPDRAG_CH3_SCENES?.patrolReplyHeight||0));');
   edit('function next(){', 'function next(){\n if(window.UPPDRAG_CH3_SCENES?.patrolQuestionActive)return true;');
   edit('function open(actor){', 'function open(actor,providedLines=null){');
