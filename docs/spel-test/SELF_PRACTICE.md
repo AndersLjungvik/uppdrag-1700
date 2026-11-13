@@ -1,4 +1,4 @@
-# Independent classroom practice · 2.31.0
+# Independent classroom practice · 2.31.1
 
 The existing 6A/6B links (versions 2.7.1 and 2.9.0) and `only=4` default to
 independent practice. Chapters 1–4 remain freely selectable; 5–10 stay closed.
@@ -39,3 +39,6 @@ limit. Assessed-mode regressions run explicitly with `practice=0`.
 `tests/language-consistency.cjs` covers 35 real-task spelling variants across
 chapters 1–4, reordered clauses, reversed power, swapped scientists, negation,
 dates and preservation of original drafts.
+
+The parent readiness handshake accepts assessment 3.2.0. Its actual callback
+is executed against all four chapter engines by the language regression.

@@ -119,7 +119,7 @@ A.decorate=function(bank){
   if(t.id==='rc2-mother-1'){t.fields[0].sample='kvinnan kunde få böter.';t.fields[1].sample='att kvinnan kunde utsättas för offentlig skam.';}
   // Short-field feedback has ONLY the sample belonging to that field.
   t.responseScope=t.fields.every(f=>f.answers)?'facts':'mixed-or-explanation';
-  t.alignmentVersion='3.1.0';
+  t.alignmentVersion='3.2.0';
  }
 };
 function status(details){

@@ -1,5 +1,5 @@
 'use strict';
-const assert=require('node:assert/strict'),{fixture}=require('./mastery-apple-retry.cjs');
+const assert=require('node:assert/strict'),fs=require('fs'),path=require('path'),vm=require('vm'),{fixture}=require('./mastery-apple-retry.cjs');
 const variants={riksdagen:'riksdgaen',kungen:'kugnen',adeln:'adlen',hustru:'husstru',föräldralösa:'föräldralössa',fattiga:'fattiiga',arbeta:'arbetta',barnhus:'barnhuss',vägrade:'vägrde',skjuta:'skjutta',bönderna:'böndrena',förlorade:'fölorade',straffarbete:'straffabete',prästen:'presten',katekesen:'katekessen',tryckfrihet:'tryckfrighet',offentlighetsprincipen:'offentlighetsprinsipen',temperatur:'tempratur',Celsius:'Celcius',Scheele:'Schele',potatis:'pottatis',brännvin:'bränvin'};
 for(const ch of [1,2,3,4]){
  const h=fixture(ch,new Map(),4,{selfPractice:true}),A=h.c.UPPDRAG_RECALL_ASSESS,E=h.c.UPPDRAG_RECALL_ENGINE;let checked=0;
@@ -25,3 +25,15 @@ for(const ch of [1,2,3,4]){
  const L=h.c.UPPDRAG_PROMPT_ALIGNMENT;for(const text of ['1743 1734 1719','inte aldrig ingen ej','Karl Carl Adolf Fredrik Fredrika','Kina Kinna te det'])assert.equal(L.language(text),text,'dates, negations and ambiguous short names are never silently corrected');
 }
 console.log('PASS shared clause order: actor/fact connections and negations retained; reversed power and swapped scientists never pass');
+// Execute the real parent readiness callback against the actual assessment
+// engine, so a language-version change cannot leave the game at “loading”.
+const integration=fs.readFileSync(path.join(__dirname,'../integration.js'),'utf8');
+const callback=integration.slice(integration.indexOf('window.integratedReady='),integration.indexOf('function updateMenu(){'));
+for(const chapter of [1,2,3,4]){
+ const {c}=fixture(chapter,new Map(),4,{selfPractice:true}),nodes=new Map();
+ Object.assign(c,{serial:1,ready:false,teacher:false,lessonLimit:4,selfPractice:true,replayId:'',chapterTest:0,URL,history:{replaceState(){}},write(){},updateMenu(){},showError(message){throw Error(message);},$:id=>{if(!nodes.has(id))nodes.set(id,{});return nodes.get(id);}});
+ c.document.baseURI='https://example.test/spel-test/?only=4';c.frame={contentWindow:c,hidden:true,focus(){}};
+ vm.runInContext(callback,c);c.integratedReady(1,chapter);assert(c.ready);assert.equal(c.frame.hidden,false);assert.equal(nodes.get('intro').hidden,true);assert(nodes.get('status').textContent.includes('Självträning'));
+ c.UPPDRAG_FRAGTEST_VERSION='wrong';assert.throws(()=>c.integratedReady(1,chapter),/frågedelen/);
+}
+console.log('PASS actual parent readiness: assessment version 3.2 is accepted in chapters 1–4, wrong versions still rejected');
