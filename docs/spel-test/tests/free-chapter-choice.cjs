@@ -7,6 +7,9 @@ const sourceFn=source.slice(source.indexOf('async function source(name){'),sourc
 const ROOT='uppdrag1700.integrated.20261023.v1.',SCOPE=ROOT+'lesson.1.play.';
 const keys=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1'];
 function boot(query,memory=new Map()){
+ // Exercise chapter choice in the retained assessed round as well as the
+ // default practice round, which has its own complete progression regression.
+ query+='&practice=0';
  const c={document:{getElementById:()=>({})},location:{search:query},URLSearchParams,console,UPPDRAG_AMBIENT_UI:{install(){}},localStorage:{getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,String(v)),removeItem:k=>memory.delete(k)}};
  c.window=c;vm.createContext(c);vm.runInContext(preamble+sourceFn+'\nwindow.test={available,progressAllowed,initialChapter,async access(ch){chapter=ch;return source("chapter-access-pilot.js");}};',c);return c.test;
 }

@@ -3,7 +3,7 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.30.0',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='2.31.0',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -14,15 +14,24 @@ const requestedLessonLimit=['1','2','4','5'].includes(params.get('only'))?Math.m
 const classLessonLimit=['2.7.1','2.9.0'].includes(params.get('v'))?4:0;
 const lessonLimit=requestedLessonLimit?Math.max(requestedLessonLimit,classLessonLimit):0;
 const freeChapterChoice=lessonLimit===4;
+const selfPractice=freeChapterChoice&&params.get('practice')!=='0'||!lessonLimit&&params.get('practice')==='1';
 const chapterTest=!lessonLimit&&replayId&&[2,3,4,5].includes(Number(params.get('testChapter')))?Number(params.get('testChapter')):0;
 let frame=$('game');
 let teacher=!lessonLimit&&params.get('teacher')==='1',chapter=1,serial=0,ready=false,durable=true,payload;
 window.UPPDRAG_AMBIENT_UI.install({storageKey:ROOT+'ambient.preferences.v1',getFrame:()=>frame,isReady:()=>ready});
-const prefix=()=>ROOT+(lessonLimit?'lesson.1.':'')+(replayId?'replay.'+replayId+'.':'')+(teacher?'teacher.':'play.');
+const prefix=(practice=selfPractice)=>ROOT+(practice?'self-practice.':'')+(lessonLimit?'lesson.1.':'')+(replayId?'replay.'+replayId+'.':'')+(teacher?'teacher.':'play.');
 try{localStorage.setItem(ROOT+'probe','1');localStorage.removeItem(ROOT+'probe');}catch{durable=false;}
 function warning(){ $('storageWarning').hidden=durable; }
 function read(k,scope=prefix()){const full=scope+k;try{return durable?(localStorage.getItem(full)??memory.get(full)??null):(memory.get(full)??null);}catch{durable=false;warning();return memory.get(full)??null;}}
 function write(k,v,scope=prefix()){const full=scope+k;memory.set(full,String(v));try{if(durable)localStorage.setItem(full,String(v));}catch{durable=false;warning();}if($('menu')?.open)updateMenu();}
+function seedPractice(){
+ if(!selfPractice||read('uppdrag1700.self-practice.seed.v1'))return;
+ const original=prefix(false),copy=new Map();
+ for(const[k,v]of memory)if(k.startsWith(original))copy.set(k.slice(original.length),v);
+ try{if(durable)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k?.startsWith(original))copy.set(k.slice(original.length),localStorage.getItem(k));}}catch{durable=false;warning();}
+ for(const[k,v]of copy)write(k,v);write('uppdrag1700.self-practice.seed.v1','1');
+}
+seedPractice();
 function bindStore(){const frameScope=prefix();window.integratedStore={getItem:k=>read(k,frameScope),setItem:(k,v)=>write(k,v,frameScope),removeItem(k){memory.delete(frameScope+k);try{if(durable)localStorage.removeItem(frameScope+k);}catch{durable=false;warning();}if($('menu')?.open)updateMenu();}};}bindStore();
 function saved(ch){try{return JSON.parse(read(KEYS[ch])||'null');}catch{return null;}}
 function masteryComplete(ch){
@@ -80,13 +89,13 @@ function appleDogSource(text){
 }
 async function source(name){
  if((chapterTest||freeChapterChoice)&&chapter<=5&&available(chapter)&&name==='chapter-access-pilot.js')return '/* Chapter access is authorized by the integration gate. */';
- if(chapter===5&&name==='chapter5-pilot.js')return get('chapter5-mastery.js?v=2.22.2');
+ if(chapter===5&&name==='chapter5-pilot.js')return practiceSource('chapter5-mastery.js',await get('chapter5-mastery.js?v=2.22.2'));
  if(chapter===5&&name==='chapter5-marstrand-letter.js')return get('chapter5-letter.js?v=2.6.0');
- if(chapter===4&&name==='chapter4-pilot.js')return get('chapter4-mastery.js?v=2.22.3');
+ if(chapter===4&&name==='chapter4-pilot.js')return practiceSource('chapter4-mastery.js',await get('chapter4-mastery.js?v=2.22.3'));
  if(chapter===4&&name==='chapter4-sidequest.js')return get('chapter4-cookbook.js?v=2.4.0');
- if(chapter===3&&name==='chapter3-pilot.js')return get('chapter3-mastery.js?v=2.24.2');
- if(chapter===2&&name==='chapter2-pilot.js')return get('chapter2-mastery.js?v=2.22.2');
- if(chapter===1&&name==='chapter1-pilot.js')return get('chapter1-mastery.js?v=2.22.2');
+ if(chapter===3&&name==='chapter3-pilot.js')return practiceSource('chapter3-mastery.js',await get('chapter3-mastery.js?v=2.24.2'));
+ if(chapter===2&&name==='chapter2-pilot.js')return practiceSource('chapter2-mastery.js',await get('chapter2-mastery.js?v=2.22.2'));
+ if(chapter===1&&name==='chapter1-pilot.js')return practiceSource('chapter1-mastery.js',await get('chapter1-mastery.js?v=2.22.2'));
  let text;
  if(payload.extra[name]!==undefined)text=payload.extra[name];
  else if(payload.questions[name]!==undefined)text=payload.questions[name];
@@ -147,8 +156,9 @@ async function source(name){
  if([3,4,5].includes(chapter))text=window.UPPDRAG_HAT_REACTIONS.source(name,text);
  if([4,5].includes(chapter))text=window.UPPDRAG_FISHING.source(name,text);
  if([1,2,3,4,5].includes(chapter)){text=window.UPPDRAG_ORCHARD.source(name,text);text=window.UPPDRAG_SCENE_PRESENCE.source(name,text);}
- return text;
+ return practiceSource(name,text);
 }
+function practiceSource(name,text){return selfPractice?window.UPPDRAG_SELF_PRACTICE.source(name,text):text;}
 const safe=s=>s.replace(/<\/script/gi,'<\\/script');
 const query=s=>s.replace(/new URLSearchParams\(location\.search\)/g,'new URLSearchParams(window.__UPPDRAG_QUERY||location.search)');
 function script(code,attrs=''){return '<script'+attrs+'>'+safe(code)+'\n</scr'+'ipt>';}
@@ -164,6 +174,7 @@ window.addEventListener('error',e=>parent.integratedError(String(e.message||'Ok�
 window.addEventListener('unhandledrejection',e=>parent.integratedError(String(e.reason?.message||e.reason)));
 document.addEventListener('click',e=>{const a=e.target.closest?.('a[href]'),m=a?.getAttribute('href')?.match(/chapter(\\d+)-pilot\\.html/);if(m){e.preventDefault();e.stopPropagation();parent.openIntegratedChapter(Number(m[1]));}},true);
 window.__UPPDRAG_LESSON_ONLY=${lessonLimit};
+window.__UPPDRAG_SELF_PRACTICE=${selfPractice};
 window.UPPDRAG_CHAPTER_PROGRESS_ALLOWED=()=>parent.integratedMasteryAllowed(${chapter});
 window.__UPPDRAG_FISHING_TEST=${!lessonLimit&&chapterTest===4&&params.get('fiske')==='test'};
 window.__INTEGRATED_CHAPTER=${chapter};window.__INTEGRATED_VERSION=${JSON.stringify(VERSION)};window.__INTEGRATED_SERIAL=${id};`;}
@@ -199,8 +210,10 @@ async function makePage(ch,id){
   if(name==='chapter8-pilot.js')code=code.replace('<h2>Kapitel 8 avklarat!</h2>','<h2>Kapitel 8 avklarat!</h2><p><a href="chapter9-pilot.html">Fortsätt till kapitel 9 →</a></p>');
   if(name==='chapter8-pilot.js')code=code.replace("+'<button class=\"primary\" data-action=\"restart\">Börja om äventyret</button>'","+'<p><a href=\"chapter9-pilot.html\">Fortsätt till kapitel 9 →</a></p><button class=\"primary\" data-action=\"restart\">Börja om äventyret</button>'");
   if(name==='recall-assessment.js'){code+='\n'+payload.fixes+'\n'+payload.alignment+'\n'+payload.powerLanguage;if(ch===4)code+='\n'+await get('questions/chapter4-material.js?v=2.4.0')+'\n'+await get('questions/chapter4-review.js?v=2.4.0');if(ch===5)code+='\n'+await get('questions/chapter5-material.js?v=2.6.0')+'\n'+await get('questions/chapter5-review.js?v=2.6.0');}
+  if(name==='recall-assessment.js')code+='\nwindow.UPPDRAG_PROMPT_ALIGNMENT.install();';
   if(name==='chapter7-content.js')code+='\n'+await get('chapter7-war-rule-fix.js?v=1.3.1');
   if(name==='recall-flow.js')code=`{const s=document.createElement('script');s.textContent=${[1,2].includes(ch)?'UPPDRAG_PUPIL_LANGUAGE.flow(UPPDRAG_PROMPT_ALIGNMENT.flow('+JSON.stringify(code)+'))':'UPPDRAG_PROMPT_ALIGNMENT.flow('+JSON.stringify(code)+')'}.replaceAll('maxlength="120"','maxlength="240"').replaceAll('maxlength="600"','maxlength="4000"');document.head.append(s);}`;
+  if(selfPractice&&name==='recall-flow.js')code=code.replace('document.head.append(s);','s.textContent=UPPDRAG_SELF_PRACTICE.copy(s.textContent);document.head.append(s);');
   if(ch>=9&&name==='recall-flow.js')code=code.replace('document.head.append(s);','s.textContent=s.textContent.replace("Kontrollera svaren i rutorna","Jämför och spara ditt svar").replace("Att läsa exemplet är träning. Ett självständigt svar ska senare ges utan exemplet. En fråga om ett namn eller en vara kräver fortfarande bara den uppgiften.","Jämför med exemplet, men behåll dina egna ord. Öppna resonemang sparas för granskning utan automatisk mästarstämpel.");document.head.append(s);');
   return script(code,m[1]+m[3]);
  }));
@@ -208,7 +221,7 @@ async function makePage(ch,id){
  const masteryModule=await get('mastery-progression.js?v=2.22.1');
  const reviewRecovery=[1,2,3,4,5].includes(ch)?await get('mastery-review-recovery.js?v=1.0.1'):'';
  const classroom=[1,2].includes(ch)?(await get('pupil-language.js?v=1.0.0'))+'\n'+(await get('teacher-review.js?v=1.0.1')):'';
- const presence=[1,2,3,4,5].includes(ch)?await get('scene-presence.js?v=1.5.0'):'';
+ const presence=([1,2,3,4,5].includes(ch)?await get('scene-presence.js?v=1.5.0'):'')+(selfPractice?'\n'+await get('self-practice.js?v=1.0.0'):'');
  const staging=(await source('room-staging.js'))+'\n'+(await source('room-life.js'));
  const styles=`<style>header small,header .chapterBack{display:none}header h1{font-size:clamp(13px,2.6vw,20px)}#ch1Modal textarea{min-height:100px}#ch1Modal .rc-tools button{min-height:44px}#ch1Modal .rc-own{overflow-wrap:anywhere}#ch1Modal .ch1Sheet{overscroll-behavior:contain}</style>`;
  page=page.replace('<head>','<head><base href="'+new URL('../demo3/',document.baseURI).href+'">'+script(bridge(id)+'\n'+classroom+'\n'+staging+'\n'+presence+([1,2,3,4,5].includes(ch)?'\n'+masteryModule+'\n'+reviewRecovery:''))+styles);
@@ -239,7 +252,7 @@ window.integratedReady=(id,ch)=>{
  if(!p?.recall||w.UPPDRAG_FRAGTEST_VERSION!=='3.1.0'){showError('Den nya frågedelen kunde inte kopplas till kapitlet.');return;}
  ready=true;frame.hidden=false;$('intro').hidden=true;write('lastChapter',ch);
  const url=new URL(document.baseURI);url.searchParams.set('chapter',ch);teacher?url.searchParams.set('teacher','1'):url.searchParams.delete('teacher');if(lessonLimit){url.searchParams.set('only',String(lessonLimit));url.searchParams.delete('testChapter');}try{history.replaceState(null,'',url);}catch{}
- $('status').textContent=(lessonLimit?'Kapitel '+ch+' · Elevversion':'Kapitel '+ch+' av 10')+(replayId?' · Omspelning':'')+(teacher?' · Lärarvy':chapterTest?' · Separat kapitelprov':'');
+ $('status').textContent=(lessonLimit?'Kapitel '+ch+(selfPractice?' · Självträning':' · Elevversion'):'Kapitel '+ch+' av 10')+(selfPractice&&!lessonLimit?' · Självträning':'')+(replayId?' · Omspelning':'')+(teacher?' · Lärarvy':chapterTest?' · Separat kapitelprov':'');
  if(teacher){const rooms=w.listStagingRooms();$('roomChoice').replaceChildren();for(const item of [{key:'town',region:'main',label:'Staden · översikt'},...rooms]){const opt=document.createElement('option');opt.value=item.region+':'+item.key;opt.textContent=(item.group?item.group+' · ':'')+item.label;$('roomChoice').append(opt);}}
  updateMenu();frame.focus();
 };
@@ -248,7 +261,7 @@ function updateMenu(){
  $('replayNote').textContent=replayId?'Du spelar en separat omgång. Dina framsteg från den ordinarie omgången finns kvar.':'Börja om det här kapitlet i en ny omgång. Dina nuvarande framsteg finns kvar.';
  $('teacherTools').hidden=!teacher;$('toggleTeacher').textContent=teacher?'Till vanlig spelgång':'Öppna lärarvy';
  $('teacherSettings').hidden=!!lessonLimit;$('toggleTeacher').disabled=!!lessonLimit;$('returnOriginal').textContent=lessonLimit?'Till min sparade omgång':'Till ordinarie omgång';
- $('chapterIntro').textContent=lessonLimit?(freeChapterChoice?'Välj vilket kapitel du vill spela: 1–4. Du behöver inte klara tidigare kapitel. Dina svar och stämplar sparas i varje kapitel.':lessonLimit===1?'Här spelar du kapitel 1: Frihetstiden.':'Här spelar du kapitel 1 och 2. Klara ettan för att öppna tvåan.'):'Kapitel 1–10 finns i det sammanfogade spelet. Slutkapitlen är nya lärarprototyper.';
+ $('chapterIntro').textContent=selfPractice?'Självträning: svara, jämför med exempel och fortsätt utan lärargodkännande. Träningsstämplarna sparas separat. Din tidigare spelomgång finns kvar. Välj fritt mellan kapitel 1–4.':lessonLimit?(freeChapterChoice?'Välj vilket kapitel du vill spela: 1–4. Du behöver inte klara tidigare kapitel. Dina svar och stämplar sparas i varje kapitel.':lessonLimit===1?'Här spelar du kapitel 1: Frihetstiden.':'Här spelar du kapitel 1 och 2. Klara ettan för att öppna tvåan.'):'Kapitel 1–10 finns i det sammanfogade spelet. Slutkapitlen är nya lärarprototyper.';
  const list=$('chapterList');list.replaceChildren();TITLES.forEach((title,i)=>{if(lessonLimit&&i>=lessonLimit)return;const ch=i+1,button=document.createElement('button'),label=document.createElement('span'),state=document.createElement('small');label.textContent=ch+'. '+title;button.append(label,state);button.disabled=ch>10||!available(ch);state.textContent=ch>10?'Återstår':([1,2,3,4,5].includes(ch)?masteryComplete(ch):saved(ch)?.complete)?'Avklarat':ch===chapter?'Här är du':available(ch)?'Öppna':'Låst';button.onclick=()=>{$('menu').close();openIntegratedChapter(ch);};list.append(button);});
 }
 function showMenu(){updateMenu();if(!$('menu').open)$('menu').showModal();}
@@ -261,16 +274,17 @@ $('returnOriginal').onclick=()=>{const url=new URL(document.baseURI);url.searchP
 $('toggleTeacher').onclick=()=>{if(lessonLimit)return;teacher=!teacher;updateMenu();$('menu').close();const last=Number(read('lastChapter'))||1;openIntegratedChapter(available(last)?last:1);};
 $('visitRoom').onclick=()=>{if(lessonLimit||!teacher||!ready)return;const [region,key]=$('roomChoice').value.split(':');$('menu').close();if(!frame.contentWindow.visitStagingRoom(key,region))showError('Miljön kunde inte öppnas.');};
 function entries(){const result={};for(const [k,v] of memory)if(k.startsWith(prefix()))result[k.slice(prefix().length)]=v;try{if(durable)for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith(prefix()))result[k.slice(prefix().length)]=localStorage.getItem(k);}}catch{durable=false;warning();}return result;}
-$('exportSave').onclick=()=>{const data={format:'uppdrag1700-integrated-save',version:1,teacher,created:new Date().toISOString(),entries:entries()},url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='uppdrag1700-'+(teacher?'lararvy':'aventyr')+'-sparning.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+$('exportSave').onclick=()=>{const data={format:'uppdrag1700-integrated-save',version:1,mode:selfPractice?'self-practice':'assessed',teacher,created:new Date().toISOString(),entries:entries()},url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='uppdrag1700-'+(teacher?'lararvy':'aventyr')+'-sparning.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 $('importSave').onclick=()=>$('saveFile').click();$('saveFile').onchange=async()=>{
- try{const f=$('saveFile').files[0];if(!f)return;if(f.size>5000000)throw Error('Sparfilen är för stor.');const data=JSON.parse(await f.text());if(data.format!=='uppdrag1700-integrated-save'||data.version!==1||data.teacher!==teacher||!data.entries||Array.isArray(data.entries))throw Error('Sparfilen hör inte till denna spelvy.');for(const [k,v]of Object.entries(data.entries)){if((k!=='lastChapter'&&!k.startsWith('uppdrag1700.'))||typeof v!=='string')throw Error('Ogiltig sparfil.');}if(!confirm('Läsa in kopian i denna spelvy? Nuvarande svar i kopian ersätts. Äldre spel påverkas inte.'))return;for(const[k,v]of Object.entries(data.entries))write(k,v);$('menu').close();const imported=Number(read('lastChapter'))||1;openIntegratedChapter(available(imported)?imported:1);
+ try{const f=$('saveFile').files[0];if(!f)return;if(f.size>5000000)throw Error('Sparfilen är för stor.');const data=JSON.parse(await f.text());if(!selfPractice&&data.mode==='self-practice')throw Error('Träningskopian ska läsas in i självträningen.');if(data.format!=='uppdrag1700-integrated-save'||data.version!==1||data.teacher!==teacher||!data.entries||Array.isArray(data.entries))throw Error('Sparfilen hör inte till denna spelvy.');for(const [k,v]of Object.entries(data.entries)){if((k!=='lastChapter'&&!k.startsWith('uppdrag1700.'))||typeof v!=='string')throw Error('Ogiltig sparfil.');}if(!confirm('Läsa in kopian i denna spelvy? Nuvarande svar i kopian ersätts. Äldre spel påverkas inte.'))return;for(const[k,v]of Object.entries(data.entries))write(k,v);$('menu').close();const imported=Number(read('lastChapter'))||1;openIntegratedChapter(available(imported)?imported:1);
  }catch(e){showError(e.message);}finally{$('saveFile').value='';}
 };
 async function boot(){
  warning();updateMenu();if(!window.DecompressionStream||!crypto.subtle)throw Error('Öppna äventyret i en uppdaterad webbläsare via HTTPS.');
- const [delta,q,fixes,alignment,powerLanguage,inspector]=await Promise.all([unzip('deltas.json.gz'),unzip('questions/snapshot.json.gz'),get('questions/fixes.js'),get('questions/alignment.js?v=2.21.1'),get('questions/power-language.js?v=2.20.2'),lessonLimit?Promise.resolve(''):get('inspector.js')]);
+ const [delta,q,fixes,alignment,powerLanguage,inspector]=await Promise.all([unzip('deltas.json.gz'),unzip('questions/snapshot.json.gz'),get('questions/fixes.js'),get('questions/alignment.js?v=2.31.0'),get('questions/power-language.js?v=2.31.0'),lessonLimit?Promise.resolve(''):get('inspector.js')]);
  payload={...delta,questions:q.scripts,fixes,alignment,powerLanguage,inspector};
- if(lessonLimit){document.querySelector('.badge').textContent='Elevversion · '+(lessonLimit===1?'kapitel 1':'kapitel 1–'+lessonLimit);$('intro').querySelector('h1').textContent=lessonLimit===1?'Uppdrag 1700 · Frihetstiden':'Uppdrag 1700 · Kapitel 1–'+lessonLimit;$('intro').querySelector('p').textContent=(freeChapterChoice?'Välj kapitel med knappen Välj kapitel.':lessonLimit===1?'Spela kapitel 1.':'Lås upp kapitel 1–'+lessonLimit+' genom att klara tidigare kapitel.')+' Dina framsteg sparas i den här webbläsaren.';}
+ if(lessonLimit){document.querySelector('.badge').textContent=(selfPractice?'Självträning · ':'Elevversion · ')+(lessonLimit===1?'kapitel 1':'kapitel 1–'+lessonLimit);$('intro').querySelector('h1').textContent=lessonLimit===1?'Uppdrag 1700 · Frihetstiden':'Uppdrag 1700 · Kapitel 1–'+lessonLimit;$('intro').querySelector('p').textContent=(freeChapterChoice?'Välj kapitel med knappen Välj kapitel.':lessonLimit===1?'Spela kapitel 1.':'Lås upp kapitel 1–'+lessonLimit+' genom att klara tidigare kapitel.')+' Dina framsteg sparas i den här webbläsaren.';}
+ if(selfPractice&&!lessonLimit)document.querySelector('.badge').textContent='Självträning · version '+VERSION;
  const chooseAtStart=freeChapterChoice&&!read('lastChapter');
  await openIntegratedChapter(initialChapter());if(chooseAtStart)showMenu();
 }

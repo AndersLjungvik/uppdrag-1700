@@ -55,7 +55,7 @@ function contradiction(c){
 }
 A.assess=function(t,drafts,shortCheck){
  if(t.chapter!==1||t.topic!=='power'||t.rank===0||t.fields[0].answers)return previous(t,drafts,shortCheck);
- const value=window.UPPDRAG_PROMPT_ALIGNMENT.spelling(drafts[0]);
+ const value=window.UPPDRAG_PROMPT_ALIGNMENT.language(drafts[0]);
  if(!A.isMeaningful(value))return previous(t,drafts,shortCheck);
  const s=clean(value),clauses=parts(s);
  const coupled=clauses.some(shared)||shared(s);

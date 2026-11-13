@@ -7,6 +7,9 @@ const sourceFn=source.slice(source.indexOf('async function source(name){'),sourc
 const ROOT='uppdrag1700.integrated.20261023.v1.',SCOPE=ROOT+'lesson.1.play.';
 const firstKey='uppdrag1700.ch1-real-world.20261019.v11';
 function boot(query,memory=new Map()){
+ // Keep the original assessed-round contract covered explicitly. The default
+ // independent-practice bookmarks and migration are tested in self-practice.cjs.
+ query+='&practice=0';
  const nodes=new Map(),document={getElementById:id=>{if(!nodes.has(id))nodes.set(id,{});return nodes.get(id);}};
  const c={document,location:{search:query},URLSearchParams,console,UPPDRAG_AMBIENT_UI:{install(){}},localStorage:{getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,String(v)),removeItem:k=>memory.delete(k)}};
  c.window=c;vm.createContext(c);vm.runInContext(preamble+sourceFn+bridge+'\nwindow.test={lessonLimit,teacher,chapterTest,available,progressAllowed,initialChapter,prefix,read,write,bridge,access(ch){chapter=ch;return source("chapter-access-pilot.js");}};',c);

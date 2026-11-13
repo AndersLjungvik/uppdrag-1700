@@ -1,4 +1,4 @@
-/* 3.1.0: align each response field, feedback and requirement with its prompt.
+/* 3.2.0: shared spelling and clause-order support, plus prompt alignment.
  * Loaded by the integrated game as well as the teacher question test.
  * Recognition remains rule-based. Unknown content is review, not mastery.
  */
@@ -22,9 +22,26 @@ const typos=new Map(Object.entries({
  handlade:['hanlade','hanndlade'],seglade:['segladde'],
  porslin:['porselin','poslin','porslinn','porsilin'],siden:['sidenn','sidden'],
  bönderna:['böndrena','bönderrna'],bönder:['bönnder'],
- förlorade:['förloradde','fölorade'],straffarbete:['strafarbete','straffarbetee']
+ förlorade:['förloradde','fölorade'],straffarbete:['strafarbete','straffarbetee','straffabete','straffarbet'],
+ adeln:['addeln','adlen'],hustru:['husstru'],föräldrar:['föräldar','förädrar'],
+ föräldralösa:['föreldralösa','föräldralössa'],fattiga:['fattia','fattiiga'],arbeta:['arbetta','arbta'],
+ barnhus:['barnhuss'],vägrade:['vägrde','vägrrade'],skjuta:['skjutta'],upproret:['uproret','upprroret'],
+ marscherade:['marcherade','marscheraade'],ryssland:['rysland','rysslnad'],england:['engalnd','englannd'],
+ prästen:['prässten','presten'],katekesen:['kattekesen','katekessen','katekesenn'],
+ tryckfrihet:['tryckfrihett','tryckfrighet','tryckfrhet'],
+ offentlighetsprincipen:['offentlighetsprinsipen','offentlighetsprincippen','offenlighetsprincipen'],
+ temperatur:['tempratur','temperratur'],termometer:['termommeter','termometter'],
+ celsius:['celcius'],scheele:['schele','sceele'],potatis:['pottatis','potattis'],brännvin:['bränvin','brännvinn']
 }).flatMap(([word,variants])=>variants.map(variant=>[norm(variant),word])));
 function spelling(value){return String(value??'').replace(/[a-zåäö]+/gi,word=>typos.get(norm(word))||word);}
+function language(value){
+ // Reorder two affirmative Swedish object-first constructions. Every word,
+ // actor, negation and number is retained; this is never a bag-of-words match.
+ return spelling(value).split(/([.!?;\n]+)/).map(clause=>clause
+  .replace(/\b(mer|mindre|större|begränsad) (makt|inflytande) (fick|hade|har) (riksdagen|riksrådet|kungen|drottningen|regenten|adeln|bönderna)\b/gi,(_,amount,power,verb,actor)=>actor+' '+verb+' '+amount+' '+power)
+  .replace(/^(\s*)(växter(?:na)?(?: och djur(?:en)?)?|djur(?:en)?(?: och växter(?:na)?)?|syre(?:t)?|(?:en )?(?:temperaturskala|termometer|skala för temperatur)) (upptäckte|fann|hittade|ordnade|delade|sorterade|klassificerade|gjorde|skapade|utvecklade) (Linné|Linne|Celsius|Scheele)\b(.*)$/i,(_,space,object,verb,actor,rest)=>space+actor+' '+verb+rest+' '+object)
+ ).join('');
+}
 function shortCheck(f,value,original){
  value=spelling(value);
  const initial=original(f,value);
@@ -160,7 +177,7 @@ function assessOpen(t,drafts,check){
  return {status:status(details),details};
 }
 A.assess=function(t,drafts,original){
- drafts=drafts.map(spelling);
+ drafts=drafts.map(language);
  const check=(f,v)=>shortCheck(f,v,original);
  if(t.openResponse&&openFields[t.id])return assessOpen(t,drafts,check);
  if(t.id==='rc3-david-2'&&!t.fields[0].answers){
@@ -204,6 +221,11 @@ function flow(source){
  for(const [a,b] of edits){if(!source.includes(a))throw Error('Frågeanpassningen passar inte denna version av motorn.');source=source.replace(a,b);}
  return source;
 }
-A.version+='-scope-3.1';window.UPPDRAG_PROMPT_ALIGNMENT={flow,shortCheck,spelling,openTask,version:'3.1.0'};
-window.UPPDRAG_FRAGTEST_VERSION='3.1.0';
+let installed=false;
+function install(){
+ if(installed)return;installed=true;const assess=A.assess;
+ A.assess=(task,drafts,check)=>assess(task,drafts.map(language),check);
+}
+A.version+='-scope-3.2';window.UPPDRAG_PROMPT_ALIGNMENT={flow,shortCheck,spelling,language,install,openTask,version:'3.2.0'};
+window.UPPDRAG_FRAGTEST_VERSION='3.2.0';
 })();

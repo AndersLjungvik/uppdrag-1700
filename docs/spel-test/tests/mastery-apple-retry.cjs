@@ -6,7 +6,7 @@ class Element{
  constructor(){this.children=[];this.dataset={};this.hidden=false;this.innerHTML='';this.style={};this.events={};this.classList={add(){},remove(){},toggle(){}};}
  append(...n){this.children.push(...n);}setAttribute(){}focus(){}querySelector(){return null;}querySelectorAll(){return [];}addEventListener(n,f){this.events[n]=f;}
 }
-function fixture(ch,prior=new Map(),lessonLimit=ch<=2?2:0){
+function fixture(ch,prior=new Map(),lessonLimit=ch<=2?2:0,options={}){
  const memory=new Map(prior),stage=new Element(),document={head:new Element(),body:new Element(),createElement:()=>new Element(),getElementById:()=>null};
  const c={document,stage,roomView:new Element(),roomFooter:new Element(),interior:null,region:{id:'main',buildings:[]},console,
   __INTEGRATED_CHAPTER:ch,__UPPDRAG_LESSON_ONLY:lessonLimit,addEventListener(){},setMessage(){},leaveInterior(){c.interior=null;},requestInterior(){},requestHarbour(){},
@@ -14,8 +14,9 @@ function fixture(ch,prior=new Map(),lessonLimit=ch<=2?2:0){
  for(const name of ['recall-bank.js','recall-assessment.js'])vm.runInContext(scripts[name],c);
  for(const name of ['questions/fixes.js','questions/alignment.js','questions/power-language.js','gameplay-tuning.js','mastery-recall-adapter.js','mastery-progression.js','mastery-review-recovery.js'])vm.runInContext(read(name),c);
  if(ch>=4)for(const suffix of ['material','review'])vm.runInContext(read('questions/chapter'+ch+'-'+suffix+'.js'),c);
- vm.runInContext(c.UPPDRAG_MASTERY_RECALL.source(c.UPPDRAG_GAMEPLAY_TUNING.source('recall-flow.js',scripts['recall-flow.js'])),c);
- vm.runInContext(read('chapter'+ch+'-mastery.js'),c);
+ let flow=c.UPPDRAG_MASTERY_RECALL.source(c.UPPDRAG_GAMEPLAY_TUNING.source('recall-flow.js',scripts['recall-flow.js'])),pilot=read('chapter'+ch+'-mastery.js');
+ if(options.selfPractice){c.UPPDRAG_PROMPT_ALIGNMENT.install();vm.runInContext(read('self-practice.js'),c);flow=c.UPPDRAG_SELF_PRACTICE.source('recall-flow.js',flow);pilot=c.UPPDRAG_SELF_PRACTICE.source('chapter'+ch+'-mastery.js',pilot);flow=c.UPPDRAG_PROMPT_ALIGNMENT.flow(flow);if(ch<=2){vm.runInContext(read('pupil-language.js'),c);flow=c.UPPDRAG_PUPIL_LANGUAGE.flow(flow);}flow=c.UPPDRAG_SELF_PRACTICE.copy(flow);}
+ vm.runInContext(flow,c);vm.runInContext(pilot,c);
  const p=c['UPPDRAG_CH'+ch+'_PILOT'],modal=stage.children.find(x=>x.id==='ch1Modal');
  function action(name){modal.events.click({target:{closest:sel=>sel==='[data-mb]'?{dataset:{mb:name}}:null}});}
  function room(place){c.interior={kind:place,name:({archive:'Arkivet',church:'Kyrkan',barnhus:'Barnhuset',palace:'Slottet',riksdag:'Riksdagshuset',cafe:'Kaffehuset'})[place]||place};}
