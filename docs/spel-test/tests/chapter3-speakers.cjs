@@ -43,5 +43,5 @@ for(const speaking of ['Bonden','Soldaten','Du']){
  Object.assign(c,{g,a:{side(...args){painted.push({y:args[1],actor:args[3],speaking:args[6]});}},geometry:squareGeometry,poses:squareGeometry.poses,CAST:{player:{name:'Du'}},c:squareGeometry.c,now:0,speaker:speaking});
  vm.runInContext('{'+paint+'}',c);assert.equal(painted.length,10);assert.equal(painted.filter(a=>a.actor.name==='Soldaten').length,1);assert.equal(painted.filter(a=>a.actor.role==='soldier-guard').length,4);assert(painted.every((a,i)=>!i||a.y>=painted[i-1].y),'all people share one depth order');assert(painted.filter(a=>a.speaking).every(a=>a.actor.name===speaking));assert.deepEqual(labels,['Du','Bonden','Soldaten']);
 }
-assert(read('index.html').includes('scene-presence.js?v=1.4.2'));assert(read('integration.js').includes('scene-presence.js?v=1.4.2'));
+assert(read('index.html').includes('scene-presence.js?v=1.5.0'));assert(read('integration.js').includes('scene-presence.js?v=1.5.0'));
 console.log('PASS square groups: five farmers face four uniformed soldiers, separated in both orientations, every person painted once in depth order, correct speaker anchors and three clear speaking-role labels');

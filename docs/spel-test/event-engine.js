@@ -1,4 +1,4 @@
-/* Uppdrag 1700 – side-adventure engine v1.21.0.
+/* Uppdrag 1700 – side-adventure engine v1.21.1.
  * Single world-loop integration. Optional scenes, not knowledge assessment.
  * The per-chapter save is separate from the original pilot and recall saves.
  * The definitions below also reserve hooks for future chapters 9 and 10.
@@ -68,7 +68,7 @@ let scene=null,blocking=false,last=null,thiefPoint=null,matrix=null,lastRegion=n
   if(state.thief!=='unseen'||!approach.deter('noticed'))return false;
   state.nextAmbushDistance=state.distance+280;record('thief','evaded-noticed');shout('Varför följer du efter mig?');return true;
  }
- let speaker='wagon',lineSpeaker='',lastSpeechSignature='',turns=[],turnIndex=0,turnChoices=[],activeChallenge=null;
+ let speaker='wagon',lineSpeaker='',lastSpeechSignature='',lastSpeechInputs='',lastSpeechContent=null,turns=[],turnIndex=0,turnChoices=[],activeChallenge=null;
 const allowed=(kind)=>{
   if(kind==='wagon')return chapter>=1&&chapter<=10&&![2,3,4,5].includes(chapter);
   if(kind==='thief')return chapter!==6&&chapter!==8; // ch6 has a pre-existing thief; no double penalties.
@@ -197,10 +197,11 @@ const replies=document.createElement('section');replies.id='adventureReplies';re
    if(!dialog.open||!(dialog.classList.contains('ad-event-speech')||dialog.classList.contains('ad-event-question')))return;
    const sr=stage.getBoundingClientRect(),cr=canvas?.getBoundingClientRect();
    if(!sr.width||!sr.height)return;
-   const p=worldAnchor();let anchor={x:sr.width*.52,y:sr.height*.52};
+   const p=worldAnchor();let anchor={x:sr.width*.52,y:sr.height*.52},roomGeometry='';
    if(roomSpeech){
      const geo=window.UPPDRAG_MEETINGS?.geometryForRoom?.();
      if(!geo||interior?.kind!==roomSpeech.room)return close();
+     roomGeometry=JSON.stringify([interior.kind,geo.left,geo.top,geo.w,geo.h,geo.p,geo.poses,geo.visitorPose,(window.UPPDRAG_CH3_SCENES?.roomActors?.(geo)||[]).map(a=>a.pos)]);
      const pose=roomSpeech.pose?.(lineSpeaker,geo)||geo.poses[lineSpeaker==='Du'?0:1]||geo.poses[0];
      anchor={x:geo.left+geo.p.x+pose[0]*geo.p.scale,y:geo.top+geo.p.y+(pose[1]-305*pose[2])*geo.p.scale};
    }else if(cr?.width&&cr?.height&&canvas.width&&canvas.height&&matrix){
@@ -221,6 +222,12 @@ const replies=document.createElement('section');replies.id='adventureReplies';re
    const movableReplies=roomSpeech&&!!window.UPPDRAG_CH5_SCENES;
    const bottom=replies.hidden||movableReplies?sr.height-8:Math.max(48,replies.getBoundingClientRect().top-sr.top-12);
    const width=Math.min(sr.width-16,Math.max(230,Math.min(365,sr.width*.85)));
+   // A stationary conversation must not remeasure three bubble widths and
+   // force layout every animation tick. New lines, moving people, replies,
+   // viewport changes and explicit invalidation still place the paper anew.
+   const inputs=[roomGeometry,sr.width,sr.height,anchor.x,anchor.y,bottom,width,dialog.className,dialog.textContent].join('|');
+   if(roomSpeech&&lastSpeechSignature&&inputs===lastSpeechInputs&&lastSpeechContent===dialog.firstElementChild)return;
+   lastSpeechInputs=inputs;
    dialog.style.width=width+'px';dialog.style.maxHeight=Math.max(40,bottom-8)+'px';
    const height=Math.min(bottom-8,dialog.getBoundingClientRect().height),minX=8,minY=8;
    const clamp=(v,lo,hi)=>Math.max(lo,Math.min(Math.max(lo,hi),v));
@@ -233,6 +240,7 @@ const replies=document.createElement('section');replies.id='adventureReplies';re
    const coversHead=b=>anchor.x>=b.x-8&&anchor.x<=b.x+b.w+8&&anchor.y>=b.y-12&&anchor.y<=b.y+b.h+12;
    options.sort((a,b)=>Number(coversHead(a))-Number(coversHead(b))||Math.hypot(a.x+a.w/2-anchor.x,a.y+a.h/2-anchor.y)-Math.hypot(b.x+b.w/2-anchor.x,b.y+b.h/2-anchor.y));
    const placed=window.UPPDRAG_SCENE_PRESENCE?.speech(tail,{box:options[0],tip:anchor});
+   lastSpeechContent=dialog.firstElementChild;
    const box=placed?.box||options[0],tip=placed?.tip||anchor,signature=[box.x,box.y,box.w,box.h,anchor.x,anchor.y].map(x=>Math.round(x)).join(':');
    if(signature===lastSpeechSignature)return;
    lastSpeechSignature=signature;
@@ -243,6 +251,7 @@ const replies=document.createElement('section');replies.id='adventureReplies';re
    }
  }
  new ResizeObserver(()=>{lastSpeechSignature='';positionSpeech();}).observe(stage);
+ document.fonts?.addEventListener('loadingdone',()=>{lastSpeechSignature='';positionSpeech();});
  
 const actions=(items)=>'<div class="ad-actions">'+items.map(([code,label,second])=>`<button type="button" data-adventure="${code}"${second?' class="secondary"':''}>${esc(label)}</button>`).join('')+'</div>';
  // A speech bubble contains only its speaker's utterance. Player replies are
@@ -600,7 +609,7 @@ function install(){const life=window.UPPDRAG_WORLD_LIFE;
  const keyboard=window.UPPDRAG_WORLD_KEYBOARD;
  if(keyboard&&typeof keyboard.tick==='function'){const old=keyboard.tick;keyboard.tick=function(){if(blocking)return;return old.apply(this,arguments);};}
 }
-const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get wagonShopPoint(){return {...driverPosition(),region:'main'};},travelWagon:()=>walkToEvent('wagon'),get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,drawCover,speakRoom,people:streetPeople,get conversation(){return conversation();},get roomSpeaker(){return roomSpeech?lineSpeaker:null;},get roomVoice(){return roomSpeech?.voice||null;},get covers(){return coversFor(activeWorld).map(c=>({...c}));},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){recurrence.reset(wallet());state.nextAmbushDistance=0;pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;state.stolenAmount=0;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.21.0'};
+const api={get blocking(){return blocking;},get busy(){return !!scene||state.thief==='chasing';},get chapter(){return chapter;},get wagonShopPoint(){return {...driverPosition(),region:'main'};},travelWagon:()=>walkToEvent('wagon'),get state(){return JSON.parse(JSON.stringify(state));},get approach(){return approach.snapshot();},get registry(){return Array.from(catalog.values()).map(x=>({...x}));},register(def){if(!def||typeof def.id!=='string'||!/^[a-z][a-z0-9-]{2,48}$/.test(def.id)||catalog.has(def.id))return false;catalog.set(def.id,Object.freeze({...def}));return true;},handleKeydown,drawCover,speakRoom,people:streetPeople,get conversation(){return conversation();},get roomSpeaker(){return roomSpeech?lineSpeaker:null;},get roomVoice(){return roomSpeech?.voice||null;},get covers(){return coversFor(activeWorld).map(c=>({...c}));},openJournal:showJournal,openWagon:showWagon,openSmith:showSmith,openThief:showThief,openWitness:showWitness,resetChapterEvents(){recurrence.reset(wallet());state.nextAmbushDistance=0;pendingEvent=null;chaseQuestion=null;calloutLeft=0;callout.hidden=true;calloutTail.setAttribute('hidden','');state.wagon='unseen';state.wagonSeen=false;state.wagonShoulder=false;state.thief='unseen';state.thiefSeen=false;state.stolenDaler=false;state.stolenAmount=0;chaseFollowing=false;chaseButton.hidden=true;delete document.body.dataset.adventureChase;state.witness='unseen';state.distance=0;state.history=[];approach.reset();thiefPoint=null;save();},version:'1.21.1'};
 window.UPPDRAG_EVENT_ENGINE=api;
 api.register({id:'wagon-blockade',type:'sidequest',region:'main',chapters:[1,6,7,8,9,10],multiStop:true,nonBlocking:true});
 api.register({id:'pickpocket',type:'surprise',region:'main',chapters:[1,2,3,4,5,7,9,10],physicalChase:true,usesRetrieval:true,lossFraction:.5,minimumBalance:3,repeatAfterEarnings:true});

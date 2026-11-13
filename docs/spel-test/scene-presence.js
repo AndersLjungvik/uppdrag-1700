@@ -48,9 +48,25 @@ function walkStep(from,goal,length,bodies,staticStep=()=>true,memory=new Map()){
  return {...from};
 }
 let collecting=false,flushing=false,queue=[],baseMatrix=null,lastOrder=[],installed=false;
-function enqueue(ctx,y,paint,id='person'){
+function onScreen(ctx,p,radius=40){
+ if(!p||!ctx.canvas?.width||!ctx.canvas?.height)return true;
+ const m=ctx.getTransform(),x=m.a*p.x+m.c*p.y+m.e,y=m.b*p.x+m.d*p.y+m.f;
+ const rx=radius*(Math.abs(m.a)+Math.abs(m.c)),ry=radius*(Math.abs(m.b)+Math.abs(m.d));
+ return x+rx>=0&&y+ry>=0&&x-rx<=ctx.canvas.width&&y-ry<=ctx.canvas.height;
+}
+function enqueue(ctx,y,paint,id='person',position=null){
  if(!collecting||flushing)return false;const m=ctx.getTransform(),alpha=ctx.globalAlpha;
+ // Skip painting only. Off-screen people still walk, yield and take part in
+ // encounters. Crowds get enough margin for every follower and long polearm.
+ if(position&&!onScreen(ctx,position,['farmers','soldiers','dalarna'].includes(id)?190:48))return true;
  queue.push({y,id,paint(){ctx.save();try{ctx.setTransform(m);ctx.globalAlpha=alpha;paint();}finally{ctx.restore();}}});return true;
+}
+function drawMapLayer(ctx,image,camera,layout){
+ const scale=layout.scale,w=image.width,h=image.height;
+ if(!(scale>0&&w>0&&h>0)){ctx.drawImage(image,0,0);return;}
+ const x=Math.max(0,Math.floor(camera.x-layout.w/(2*scale))-1),y=Math.max(0,Math.floor(camera.y-layout.h/(2*scale))-1);
+ const right=Math.min(w,Math.ceil(camera.x+layout.w/(2*scale))+1),bottom=Math.min(h,Math.ceil(camera.y+layout.h/(2*scale))+1);
+ if(right>x&&bottom>y)ctx.drawImage(image,x,y,right-x,bottom-y,x,y,right-x,bottom-y);
 }
 function begin(ctx){queue=[];collecting=true;baseMatrix=ctx.getTransform();}
 function flush(){
@@ -217,10 +233,58 @@ function conversationBusy(owner){
  const event=window.UPPDRAG_EVENT_ENGINE,eventTalking=event?.blocking||event?.busy&&event?.state?.thief!=='chasing';
  return !!((owner!=='city'&&city?.active)||(owner!=='living'&&window.UPPDRAG_LIVING_DIALOGUES?.active)||(owner!=='meeting'&&window.UPPDRAG_MEETINGS?.state?.talking)||(owner!=='event'&&eventTalking)||window.UPPDRAG_CH3_PROVISIONS?.busy||window.UPPDRAG_CH3_SCENES?.busy||window.UPPDRAG_STORY_WORK?.busy||window.UPPDRAG_HAT_SHOP?.busy||window.UPPDRAG_ORCHARD?.busy||window.UPPDRAG_APPLE_THREATS?.busy||window.UPPDRAG_FISHING?.busy||window.UPPDRAG_MENU_OPEN?.()||window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_PILOT']?.studyBusy);
 }
+function cacheRoomCloseups(){
+ const art=window.UPPDRAG_ROOM_ART;if(typeof art?.renderMemoryCloseup!=='function')return;
+ const original=art.renderMemoryCloseup,images=new Map(),limit=24*1024*1024;let bytes=0;
+ const clear=()=>{images.clear();bytes=0;};
+ for(const name of ['uppdrag-paper-fibres-ready','uppdrag-room-material-ready'])window.addEventListener?.(name,clear);
+ art.renderMemoryCloseup=function(canvas,kind){
+  const bounds=canvas.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2),paper=window.UPPDRAG_PAPER_FIBRES;
+  if(!bounds.width||!bounds.height)return original.call(this,canvas,kind);
+  // These are the unchanged desk/room paintings behind successive questions.
+  // Retain their exact pixels, including the original size and paper material.
+  const key=[kind,bounds.width,bounds.height,d,paper?.revision||0,!!paper?.loaded,!!art.originalLoaded].join('|'),hit=images.get(key);
+  if(hit){
+   if(canvas.width!==hit.canvas.width)canvas.width=hit.canvas.width;if(canvas.height!==hit.canvas.height)canvas.height=hit.canvas.height;
+   const g=canvas.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,canvas.width,canvas.height);g.drawImage(hit.canvas,0,0);
+   images.delete(key);images.set(key,hit);return hit.result;
+  }
+  const result=original.call(this,canvas,kind),size=canvas.width*canvas.height*4;
+  if(!result||!size||size>limit)return result;
+  const copy=document.createElement('canvas');copy.width=canvas.width;copy.height=canvas.height;copy.getContext('2d').drawImage(canvas,0,0);
+  while(images.size&&(bytes+size>limit||images.size>=2)){const oldest=images.keys().next().value;bytes-=images.get(oldest).bytes;images.delete(oldest);}
+  images.set(key,{canvas:copy,result,bytes:size});bytes+=size;return result;
+ };
+}
 function install(){
- if(installed)return;installed=true;const meetings=window.UPPDRAG_MEETINGS;if(!meetings)return;
+ if(installed)return;installed=true;cacheRoomCloseups();const meetings=window.UPPDRAG_MEETINGS;if(!meetings)return;
  const original=meetings.drawMapPerson;
- meetings.drawMapPerson=function(ctx,pos,who,now){if(enqueue(ctx,mapDepth(ctx,pos),()=>original.call(this,ctx,pos,who,now),who.id||who.name||who.role||'person'))return;return original.apply(this,arguments);};
+ const sprites=new Map(),motion=window.matchMedia?.('(prefers-reduced-motion: reduce)');let materialRevision='',scratch=null;
+ function paint(ctx,pos,who,now){
+  if(!who)return original.call(meetings,ctx,pos,who,now);
+  // Cache the existing paper drawing at double resolution. Rotation and
+  // position stay continuous; sixteen small walking poses retain the gait.
+  const paper=window.UPPDRAG_PAPER_FIBRES,revision=String(paper?.revision||0)+'/'+!!paper?.loaded;
+  if(revision!==materialRevision){sprites.clear();materialRevision=revision;}
+  if(typeof document==='undefined'||!document.createElement||who.name==='Du')return original.call(meetings,ctx,pos,who,now);
+  const time=pos.animationTime??now,walking=!!pos.moving&&!motion?.matches;
+  const phase=walking?Math.round(((time/190)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)*16/(Math.PI*2))%16:-1;
+  const key=[who.color,!!who.woman,!!who.apron,who.role||'',phase].join('|');let sprite=sprites.get(key);
+  if(!sprite){
+   sprite=document.createElement('canvas');if(typeof sprite.getContext!=='function')return original.call(meetings,ctx,pos,who,now);
+   sprite.width=sprite.height=128;const destination=sprite.getContext('2d');if(!destination)return original.call(meetings,ctx,pos,who,now);
+   // One shared painter also reuses its paper patterns and grain. A separate
+   // painter per walking pose would rebuild those expensive materials.
+   if(!scratch){scratch=document.createElement('canvas');scratch.width=scratch.height=128;}
+   const g=scratch.getContext('2d');if(!g)return original.call(meetings,ctx,pos,who,now);
+   g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,128,128);g.setTransform(2,0,0,2,64,64);const at=phase<0?0:phase*Math.PI*2/16*190;
+   original.call(meetings,g,{...pos,x:0,y:0,heading:0,moving:walking,animationTime:at},who,at);
+   destination.drawImage(scratch,0,0);
+   if(sprites.size>=256)sprites.delete(sprites.keys().next().value);sprites.set(key,sprite);
+  }
+  ctx.save();ctx.translate(pos.x,pos.y);ctx.rotate(Number.isFinite(pos.heading)?pos.heading:0);ctx.drawImage(sprite,-32,-32,64,64);ctx.restore();
+ }
+ meetings.drawMapPerson=function(ctx,pos,who,now){if(enqueue(ctx,mapDepth(ctx,pos),()=>paint(ctx,pos,who,now),who.id||who.name||who.role||'person',pos))return;return paint(ctx,pos,who,now);};
 }
 function source(name,text){
  const edit=(a,b)=>{if(text.split(a).length!==2)throw Error('Scennärvaro: ankaret matchar inte '+name+': '+a.slice(0,55));text=text.replace(a,b);};
@@ -241,6 +305,12 @@ function source(name,text){
   edit('    cancelPersonArrival();drag=null;follow=true;canvas.focus({preventScroll:true});',"    cancelPersonArrival();window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.releaseHold?.();if(typeof pendingStreetChat!=='undefined')pendingStreetChat=null;drag=null;follow=true;canvas.focus({preventScroll:true});");
  }
  if(/^world-life(?:-ch[345])?\.js$/.test(name)){
+  edit('  function drawPaddock(ctx, time, still) {',"  const paddockView={x:(Math.min(...PADDOCK.map(p=>p[0]))+Math.max(...PADDOCK.map(p=>p[0])))/2,y:(Math.min(...PADDOCK.map(p=>p[1]))+Math.max(...PADDOCK.map(p=>p[1])))/2};\n  const paddockRadius=Math.max(...PADDOCK.map(p=>Math.hypot(p[0]-paddockView.x,p[1]-paddockView.y)))+60;\n  function drawPaddock(ctx, time, still) {\n    if(window.UPPDRAG_SCENE_PRESENCE&&!UPPDRAG_SCENE_PRESENCE.onScreen(ctx,paddockView,paddockRadius))return;");
+  edit('  function drawHen(ctx, hen, time, still) {','  function drawHen(ctx, hen, time, still) {\n    if(window.UPPDRAG_SCENE_PRESENCE&&!UPPDRAG_SCENE_PRESENCE.onScreen(ctx,hen,48))return;');
+  // Dogs update their paths and collision reactions above this point even
+  // when invisible. Only their subsequent paper drawing is skipped.
+  edit('    const stride = !still && pose.moving ?', '    if(window.UPPDRAG_SCENE_PRESENCE&&!UPPDRAG_SCENE_PRESENCE.onScreen(ctx,pose,64))return;\n    const stride = !still && pose.moving ?');
+  edit('    for (const person of people(region).sort((a,b) => a.y-b.y)) {','    for (const person of people(region).sort((a,b) => a.y-b.y)) {\n      if(window.UPPDRAG_SCENE_PRESENCE&&!UPPDRAG_SCENE_PRESENCE.onScreen(ctx,person,100))continue;');
   const population=text.includes('const activePopulation=population(region);')?'activePopulation':'population(region)';
   const hook='    window.UPPDRAG_SCENE_PRESENCE?.yieldCitizens(region,'+population+',delta,player,!!activeRoom,advance,now);';
   if(text.includes('    yieldFor(region,activePopulation,delta);'))edit('    yieldFor(region,activePopulation,delta);',hook);
@@ -255,12 +325,13 @@ function source(name,text){
   edit("   if(active.mode==='greeting'&&now-openedAt>=850){\n     active.mode='lines';showLine();\n   }else{root.hidden=false;putSpeech(active,speaker.textContent);}", "   root.hidden=false;putSpeech(active,speaker.textContent);");
   edit('function position(actor,now=performance.now()){','function nativePosition(actor,now=performance.now()){');
   edit('function people(region){',"function position(actor,now=performance.now()){const p=nativePosition(actor,now);return window.UPPDRAG_SCENE_PRESENCE?.cityPose(p,REGIONS[actor.region],now,active?.id===actor.id||teaser?.id===actor.id||pendingHold?.id===actor.id)||p;}\nfunction people(region){");
-  edit('function drawGroup(ctx,a,now){','function drawGroup(ctx,a,now){\n if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,a.y,()=>drawGroup(ctx,a,now),a.id))return;');
+  edit('function drawGroup(ctx,a,now){','function drawGroup(ctx,a,now){\n if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(ctx,a.y,()=>drawGroup(ctx,a,now),a.id,a))return;');
   edit('function updateNearby(region,player,now){\n if(!region||!player||active)return;','function updateNearby(region,player,now){\n if(!region||!player||active)return;\n if(window.UPPDRAG_SCENE_PRESENCE?.walking||window.UPPDRAG_SCENE_PRESENCE?.conversationBusy?.("city")){stopTeaser(now);arrivalCandidate=null;hideBubble();return;}');
  }
  if(/^meeting-ch[1-5]-pilot\.js$/.test(name)){
+  edit('  function drawPeople(now){', "  function drawPeople(now){\n    if(roomView.style.visibility==='hidden'||document.hidden||window.UPPDRAG_MENU_OPEN?.()){lastPaint=-Infinity;return;}");
   edit('  function startTalk(){', "  function startTalk(){\n    if(window.UPPDRAG_SCENE_PRESENCE?.conversationBusy?.('meeting'))return false;");
-  edit('  function drawMapPlayer(g,pos,route,now){','  function drawMapPlayer(g,pos,route,now){\n    if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(g,pos.y,()=>drawMapPlayer(g,pos,route,now),"player"))return;');
+  edit('  function drawMapPlayer(g,pos,route,now){','  function drawMapPlayer(g,pos,route,now){\n    if(window.UPPDRAG_SCENE_PRESENCE?.enqueue(g,pos.y,()=>drawMapPlayer(g,pos,route,now),"player",pos))return;');
   edit('    puppets(g).map(pos.x,pos.y,mapHeading,!!goal,now,CAST.player);','    const view=window.UPPDRAG_SCENE_PRESENCE?.playerPose(pos,route,mapHeading,now);if(view)mapHeading=view.heading;\n    puppets(g).map(pos.x,pos.y,mapHeading,view?view.moving:!!goal,now,CAST.player);');
  }
  if(['world-street-pilot.js','world-classic-pilot.js'].includes(name)){
@@ -272,7 +343,8 @@ function source(name,text){
    edit('   path=next;follow=true;pendingStreetChat=found.id;','   path=next;pendingStreetChat=found.id;');
   }
   edit('cancelPersonArrival();pendingRoom=null;const next=routeAlongRoads(region.map.get(id));',"cancelPersonArrival();window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.releaseHold?.();if(typeof pendingStreetChat!=='undefined')pendingStreetChat=null;pendingRoom=null;const next=routeAlongRoads(region.map.get(id));");
-  edit('ctx.drawImage(layer(region),0,0);','ctx.drawImage(layer(region),0,0);window.UPPDRAG_SCENE_PRESENCE?.begin(ctx);');
+  edit('ctx.drawImage(layer(region),0,0);','if(window.UPPDRAG_SCENE_PRESENCE)window.UPPDRAG_SCENE_PRESENCE.drawMapLayer(ctx,layer(region),camera,layout);else ctx.drawImage(layer(region),0,0);window.UPPDRAG_SCENE_PRESENCE?.begin(ctx);');
+  edit('function animate(now){','function animate(now){if(document.hidden||window.UPPDRAG_MENU_OPEN?.()){last=now;requestAnimationFrame(animate);return;}');
   if(name==='world-street-pilot.js')edit('ctx.globalAlpha=.77;','ctx.globalAlpha=1;');
   edit('window.UPPDRAG_EVENT_ENGINE?.drawCover(ctx,region);','');
   edit('if(sailing){','window.UPPDRAG_SCENE_PRESENCE?.flush();window.UPPDRAG_EVENT_ENGINE?.drawCover(ctx,region);if(sailing){');
@@ -281,5 +353,5 @@ function source(name,text){
  }
  return text;
 }
-window.UPPDRAG_SCENE_PRESENCE={footRadius:FOOT_RADIUS,source,install,conversationBusy,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get talking(){return !!(window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.active||window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_EVENT_ENGINE?.blocking);},get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.4.2'};
+window.UPPDRAG_SCENE_PRESENCE={footRadius:FOOT_RADIUS,source,install,onScreen,drawMapLayer,conversationBusy,bubbleLayout,walkStep,bodyStep,advance,yieldCitizens,cityPose,yieldGoal,turn,partner,playerPose,enqueue,begin,flush,speech,actors,sceneGeometry,get talking(){return !!(window['UPPDRAG_CH'+window.__INTEGRATED_CHAPTER+'_CITY_LIFE']?.active||window.UPPDRAG_LIVING_DIALOGUES?.active||window.UPPDRAG_EVENT_ENGINE?.blocking);},get walking(){return !!walkingIntent&&performance.now()-walkingIntent.at<300;},get lastOrder(){return lastOrder.slice();},get playerView(){return playerView?{...playerView}:null;},version:'1.5.0'};
 })();
