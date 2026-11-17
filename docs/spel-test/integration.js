@@ -3,7 +3,7 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.31.1',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='2.32.0',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
@@ -89,7 +89,7 @@ function appleDogSource(text){
 }
 async function source(name){
  if((chapterTest||freeChapterChoice)&&chapter<=5&&available(chapter)&&name==='chapter-access-pilot.js')return '/* Chapter access is authorized by the integration gate. */';
- if(chapter===5&&name==='chapter5-pilot.js')return practiceSource('chapter5-mastery.js',await get('chapter5-mastery.js?v=2.22.2'));
+ if(chapter===5&&name==='chapter5-pilot.js')return practiceSource('chapter5-mastery.js',await get('chapter5-mastery.js?v=2.32.0'));
  if(chapter===5&&name==='chapter5-marstrand-letter.js')return get('chapter5-letter.js?v=2.6.0');
  if(chapter===4&&name==='chapter4-pilot.js')return practiceSource('chapter4-mastery.js',await get('chapter4-mastery.js?v=2.22.3'));
  if(chapter===4&&name==='chapter4-sidequest.js')return get('chapter4-cookbook.js?v=2.4.0');
@@ -211,7 +211,7 @@ async function makePage(ch,id){
   if(name==='chapter8-pilot.js')code=code.replace("+'<button class=\"primary\" data-action=\"restart\">Börja om äventyret</button>'","+'<p><a href=\"chapter9-pilot.html\">Fortsätt till kapitel 9 →</a></p><button class=\"primary\" data-action=\"restart\">Börja om äventyret</button>'");
   if(name==='recall-assessment.js'){code+='\n'+payload.fixes+'\n'+payload.alignment+'\n'+payload.powerLanguage;if(ch===4)code+='\n'+await get('questions/chapter4-material.js?v=2.4.0')+'\n'+await get('questions/chapter4-review.js?v=2.4.0');if(ch===5)code+='\n'+await get('questions/chapter5-material.js?v=2.6.0')+'\n'+await get('questions/chapter5-review.js?v=2.6.0');}
   if(name==='recall-assessment.js')code+='\nwindow.UPPDRAG_PROMPT_ALIGNMENT.install();';
-  if(name==='chapter7-content.js')code+='\n'+await get('chapter7-war-rule-fix.js?v=1.3.1');
+  if(name==='chapter7-content.js')code+='\n'+await get('chapter7-war-rule-fix.js?v=1.3.1')+'\n'+await get('chapter7-manus-fix.js?v=1.0.0');
   if(name==='recall-flow.js')code=`{const s=document.createElement('script');s.textContent=${[1,2].includes(ch)?'UPPDRAG_PUPIL_LANGUAGE.flow(UPPDRAG_PROMPT_ALIGNMENT.flow('+JSON.stringify(code)+'))':'UPPDRAG_PROMPT_ALIGNMENT.flow('+JSON.stringify(code)+')'}.replaceAll('maxlength="120"','maxlength="240"').replaceAll('maxlength="600"','maxlength="4000"');document.head.append(s);}`;
   if(selfPractice&&name==='recall-flow.js')code=code.replace('document.head.append(s);','s.textContent=UPPDRAG_SELF_PRACTICE.copy(s.textContent);document.head.append(s);');
   if(ch>=9&&name==='recall-flow.js')code=code.replace('document.head.append(s);','s.textContent=s.textContent.replace("Kontrollera svaren i rutorna","Jämför och spara ditt svar").replace("Att läsa exemplet är träning. Ett självständigt svar ska senare ges utan exemplet. En fråga om ett namn eller en vara kräver fortfarande bara den uppgiften.","Jämför med exemplet, men behåll dina egna ord. Öppna resonemang sparas för granskning utan automatisk mästarstämpel.");document.head.append(s);');
@@ -229,7 +229,7 @@ async function makePage(ch,id){
  // Chapters 1 and 2 configure mastery before their pilots; later chapters opt in later.
  // Optional, save-compatible side adventures are installed after existing scripts.
  const eventModule=ch<=10?(await get('event-approach.js?v=1.7.0'))+'\n'+(await get('event-recurrence.js?v=1.1.0'))+'\n'+(await get('event-engine.js?v=1.21.1'))+([3,4,5].includes(ch)?'\n'+(await get('apple-threats-model.js?v=1.2.1'))+'\n'+(await get('apple-threats.js?v=1.2.1')):''):'';
- const chapterPresentation=ch===5?(await get('chapter5-presentation.js?v=2.6.0'))+'\n'+(await get('chapter5-scenes.js?v=2.6.0'))+'\n'+(await get('chapter5-bookwork.js?v=2.6.0')):ch===4?(await get('chapter4-presentation.js?v=2.4.2'))+'\n'+(await get('chapter4-scenes.js?v=2.4.0'))+'\n'+(await get('chapter4-bookwork.js?v=2.4.0')):ch===3?(await get('chapter3-presentation.js?v=2.29.2'))+'\n'+(await get('chapter3-courtyard-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter3-scenes.js?v=2.27.0')):ch===2?(await get('chapter2-presentation.js?v=2.1.1'))+'\n'+(await get('chapter2-quilt-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter2-sidequest.js?v=1.0.0')):'';
+ const chapterPresentation=ch===5?(await get('chapter5-presentation.js?v=2.6.0'))+'\n'+(await get('chapter5-protocol.js?v=1.0.0'))+'\n'+(await get('chapter5-scenes.js?v=2.32.0'))+'\n'+(await get('chapter5-bookwork.js?v=2.6.0')):ch===4?(await get('chapter4-presentation.js?v=2.4.2'))+'\n'+(await get('chapter4-scenes.js?v=2.4.0'))+'\n'+(await get('chapter4-bookwork.js?v=2.4.0')):ch===3?(await get('chapter3-presentation.js?v=2.29.2'))+'\n'+(await get('chapter3-courtyard-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter3-scenes.js?v=2.27.0')):ch===2?(await get('chapter2-presentation.js?v=2.1.1'))+'\n'+(await get('chapter2-quilt-puzzle.js?v=1.0.0'))+'\n'+(await get('chapter2-sidequest.js?v=1.0.0')):'';
  const ambientScene=await get('ambient-scene.js?v=1.1.0');
  const orchard=[1,2,3,4,5].includes(ch)?(await get('orchard-model.js?v=1.2.0'))+'\n'+(await get('orchard.js?v=1.3.0')):'';
  const hatShop=[3,4,5].includes(ch)?(await get('hat-shop-model.js?v=1.1.0'))+'\n'+(await get('hat-shop.js?v=2.24.1'))+'\n'+(await get('hat-reactions.js?v=1.0.1')):'';
