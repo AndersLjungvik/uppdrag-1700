@@ -41,6 +41,32 @@ function patchChapterSix(name,source){
 function patchRecall(name,source){
  if(name!=='recall-flow.js')return source;
  source=once(name,source,
+`function shuffled(xs,seed){
+ let n=2166136261;for(const c of String(seed)){n^=c.charCodeAt(0);n=Math.imul(n,16777619)>>>0;}
+ const out=xs.slice();for(let i=out.length-1;i>0;i--){n=(Math.imul(n,1664525)+1013904223)>>>0;const j=n%(i+1);[out[i],out[j]]=[out[j],out[i]];}
+ return out;
+}`,
+`function shuffled(xs){
+ const out=xs.slice();for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]];}return out;
+}
+function optionOrder(options,u,key){
+ const orders=u.optionOrders??={},saved=orders[key];
+ if(!Array.isArray(saved)||JSON.stringify(saved.slice().sort())!==JSON.stringify(options.slice().sort()))orders[key]=shuffled(options);
+ return orders[key];
+}`);
+ source=once(name,source,"shuffled(f.options,u.key+'|'+ix)","optionOrder(f.options,u,ix)");
+ source=once(name,source,
+" function variant(t){return t.variants?.[(state().recallAttempt||0)%t.variants.length];}",
+` function variant(t){
+  if(!t.variants?.length)return undefined;const u=ui();
+  if(!Number.isInteger(u.variantIndex)||!t.variants[u.variantIndex])u.variantIndex=u.tf!==null?(state().recallAttempt||0)%t.variants.length:Math.floor(Math.random()*t.variants.length);
+  return t.variants[u.variantIndex];
+ }`);
+ source=once(name,source,"btn('tf-true','Sant')+btn('tf-false','Falskt')","optionOrder(['tf-true','tf-false'],u,'truth-buttons').map(action=>btn(action,action==='tf-true'?'Sant':'Falskt')).join('')");
+ source=once(name,source,
+"   const text=t.prompt+' '+(variant(t)?.text||'')+' '+t.fields.map(f=>f.label).join('. ');",
+"   const text=t.prompt+' '+(t.kind==='tf'&&!isDrill()?(variant(t)?.text||''):'')+' '+t.fields.map((f,i)=>f.label+(t.rank===0&&f.options&&!isDrill()?'. '+optionOrder(f.options,u,i).map((value,j)=>'Alternativ '+(j+1)+': '+value).join('. '):'')).join('. ');");
+ source=once(name,source,
 `return h+'<div class="rc-actions">'+btn('revise','Bearbeta mitt svar',true)+btn('save-review','Spara för lärargranskning')+btn('go-rut','Öva hos Rut')+'</div>';`,
 `return h+'<div class="rc-actions">'+btn('revise','Bearbeta mitt svar',true)+btn('save-review',t.chapter===6?'Spara svaret och gå vidare':'Spara för lärargranskning')+btn('go-rut','Öva hos Rut')+'</div>';`);
  source=once(name,source,
@@ -68,5 +94,5 @@ function patchRecall(name,source){
  return source;
 }
 function source(name,text){return patchRecall(name,patchChapterSix(name,patchRoom(name,text)));}
-window.UPPDRAG_GAMEPLAY_TUNING={source,version:'1.2.2'};
+window.UPPDRAG_GAMEPLAY_TUNING={source,version:'1.3.0'};
 })();
