@@ -16,14 +16,14 @@ function boot(query,memory=new Map()){
 (async()=>{
 for(const version of ['2.7.1','2.9.0']){
  const query='?only=1&chapter=1&v='+version,memory=new Map(),api=boot(query,memory);
- for(const ch of [4,2,3,1]){
+ for(const ch of [5,4,2,3,1]){
   assert.equal(api.available(ch),true);assert.equal(api.progressAllowed(ch),true);
   assert.match(await api.access(ch),/authorized/,'the legacy inner lock must also be removed');
  }
  assert.equal(memory.size,0,'choosing access never creates previous results');
  // Enter each actual chapter engine with no previous chapter or fake stamps.
- for(const ch of [2,3,4]){
-  const h=fixture(ch,new Map(),4),m=h.m,p=h.p,a=m.snapshot().config.areas[0];
+ for(const ch of [2,3,4,5]){
+  const h=fixture(ch,new Map(),5),m=h.m,p=h.p,a=m.snapshot().config.areas[0];
   h.c.UPPDRAG_CHAPTER_PROGRESS_ALLOWED=()=>api.progressAllowed(ch);
   assert.equal(m.levelUnlocked('learner'),true);
   assert.equal(m.levelUnlocked('journeyman'),false);assert.equal(m.levelUnlocked('master'),false);
@@ -34,7 +34,7 @@ for(const version of ['2.7.1','2.9.0']){
   assert.equal(p.state.complete,false,'visiting is not completion');
   assert.equal(p.state.record.length,0,'an unsubmitted draft is not an assessed answer');
   const taskId=p.recall.current.id,before=JSON.parse(JSON.stringify(p.state));
-  const restored=fixture(ch,h.memory,4);restored.c.UPPDRAG_CHAPTER_PROGRESS_ALLOWED=()=>api.progressAllowed(ch);
+  const restored=fixture(ch,h.memory,5);restored.c.UPPDRAG_CHAPTER_PROGRESS_ALLOWED=()=>api.progressAllowed(ch);
   restored.room(a.p);restored.p.selectArea(a.id,'learner');restored.p.enterMemory();
   assert.equal(restored.p.recall.current.id,taskId);
   assert.equal(restored.p.recall.ui.drafts[0],draft,'chapter switching resumes the unfinished answer');
@@ -47,9 +47,9 @@ for(const version of ['2.7.1','2.9.0']){
  memory.set(SCOPE+'lastChapter','4');assert.equal(boot(query,memory).initialChapter(),4);
  assert.equal(boot('?only=4&chapter=1&v='+version,memory).initialChapter(),1);
  assert.equal(boot('?only=4&chapter=3&v='+version,memory).initialChapter(),3);
- assert.equal(boot('?only=4&chapter=5&v='+version,memory).initialChapter(),1);
- memory.set(SCOPE+'lastChapter','5');assert.equal(boot(query,memory).initialChapter(),1);
- for(const ch of [5,6,7,8,9,10])assert.equal(api.available(ch),false);
- console.log('PASS '+version+': direct real quizzes in chapters 2–4, draft/resume/resources, no invented completion, within-chapter levels, bookmark resume and release cap');
+ assert.equal(boot('?only=5&chapter=5&v='+version,memory).initialChapter(),5);
+ memory.set(SCOPE+'lastChapter','5');assert.equal(boot(query,memory).initialChapter(),5);
+ for(const ch of [6,7,8,9,10])assert.equal(api.available(ch),false);
+ console.log('PASS '+version+': direct real quizzes in chapters 2–5, draft/resume/resources, no invented completion, within-chapter levels, bookmark resume and release cap');
 }
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -3,17 +3,17 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.32.0',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='2.33.0',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
 const replayId=/^[a-z0-9-]{1,48}$/i.test(params.get('replay')||'')?params.get('replay'):'';
-const requestedLessonLimit=['1','2','4','5'].includes(params.get('only'))?Math.min(4,Number(params.get('only'))):0;
-// Release free choice among chapters 1–4 on the existing class bookmarks. Keep the original
+const requestedLessonLimit=['1','2','4','5'].includes(params.get('only'))?Number(params.get('only')):0;
+// Release free choice among chapters 1–5 on the existing class bookmarks. Keep the original
 // save prefix; access never fabricates completion or mastery stamps.
-const classLessonLimit=['2.7.1','2.9.0'].includes(params.get('v'))?4:0;
+const classLessonLimit=['2.7.1','2.9.0'].includes(params.get('v'))?5:0;
 const lessonLimit=requestedLessonLimit?Math.max(requestedLessonLimit,classLessonLimit):0;
-const freeChapterChoice=lessonLimit===4;
+const freeChapterChoice=lessonLimit>=4;
 const selfPractice=freeChapterChoice&&params.get('practice')!=='0'||!lessonLimit&&params.get('practice')==='1';
 const chapterTest=!lessonLimit&&replayId&&[2,3,4,5].includes(Number(params.get('testChapter')))?Number(params.get('testChapter')):0;
 let frame=$('game');
@@ -240,7 +240,7 @@ async function makePage(ch,id){
 }
 window.openIntegratedChapter=async function(ch){
  if(!Number.isInteger(ch)||ch<1||ch>10){showError('Välj ett kapitel mellan 1 och 10.');return false;}
- if(!available(ch)){showError(lessonLimit&&ch>lessonLimit?(lessonLimit===4?'Välj fritt bland kapitel 1–4. Kapitel 5 och senare är inte öppna i den här elevversionen.':lessonLimit===1?'Den här elevlänken gäller bara kapitel 1.':'Den här elevlänken gäller kapitel 1 och 2.'):'Avsluta först kapitel '+(ch-1)+'. Tidigare kapitel går att besöka igen.');return false;}
+ if(!available(ch)){showError(lessonLimit&&ch>lessonLimit?(freeChapterChoice?'Välj fritt bland kapitel 1–'+lessonLimit+'. Senare kapitel är inte öppna i den här elevversionen.':lessonLimit===1?'Den här elevlänken gäller bara kapitel 1.':'Den här elevlänken gäller kapitel 1 och 2.'):'Avsluta först kapitel '+(ch-1)+'. Tidigare kapitel går att besöka igen.');return false;}
  if(ready&&durable){const url=new URL(document.baseURI);url.searchParams.set('chapter',ch);teacher?url.searchParams.set('teacher','1'):url.searchParams.delete('teacher');if(window.__INTEGRATION_TEST_NAVIGATE)window.__INTEGRATION_TEST_NAVIGATE(url.href);else location.assign(url.href);return true;}
  bindStore();const id=++serial;ready=false;chapter=ch;$('error').hidden=true;$('status').textContent='Laddar kapitel '+ch+' …';if(!frame.srcdoc)$('intro').hidden=false;
  try{
@@ -261,7 +261,7 @@ function updateMenu(){
  $('replayNote').textContent=replayId?'Du spelar en separat omgång. Dina framsteg från den ordinarie omgången finns kvar.':'Börja om det här kapitlet i en ny omgång. Dina nuvarande framsteg finns kvar.';
  $('teacherTools').hidden=!teacher;$('toggleTeacher').textContent=teacher?'Till vanlig spelgång':'Öppna lärarvy';
  $('teacherSettings').hidden=!!lessonLimit;$('toggleTeacher').disabled=!!lessonLimit;$('returnOriginal').textContent=lessonLimit?'Till min sparade omgång':'Till ordinarie omgång';
- $('chapterIntro').textContent=selfPractice?'Självträning: svara, jämför med exempel och fortsätt utan lärargodkännande. Träningsstämplarna sparas separat. Din tidigare spelomgång finns kvar. Välj fritt mellan kapitel 1–4.':lessonLimit?(freeChapterChoice?'Välj vilket kapitel du vill spela: 1–4. Du behöver inte klara tidigare kapitel. Dina svar och stämplar sparas i varje kapitel.':lessonLimit===1?'Här spelar du kapitel 1: Frihetstiden.':'Här spelar du kapitel 1 och 2. Klara ettan för att öppna tvåan.'):'Kapitel 1–10 finns i det sammanfogade spelet. Slutkapitlen är nya lärarprototyper.';
+ $('chapterIntro').textContent=selfPractice?'Självträning: svara, jämför med exempel och fortsätt utan lärargodkännande. Träningsstämplarna sparas separat. Din tidigare spelomgång finns kvar.'+(freeChapterChoice?' Välj fritt mellan kapitel 1–'+lessonLimit+'.':''):lessonLimit?(freeChapterChoice?'Välj vilket kapitel du vill spela: 1–'+lessonLimit+'. Du behöver inte klara tidigare kapitel. Dina svar och stämplar sparas i varje kapitel.':lessonLimit===1?'Här spelar du kapitel 1: Frihetstiden.':'Här spelar du kapitel 1 och 2. Klara ettan för att öppna tvåan.'):'Kapitel 1–10 finns i det sammanfogade spelet. Slutkapitlen är nya lärarprototyper.';
  const list=$('chapterList');list.replaceChildren();TITLES.forEach((title,i)=>{if(lessonLimit&&i>=lessonLimit)return;const ch=i+1,button=document.createElement('button'),label=document.createElement('span'),state=document.createElement('small');label.textContent=ch+'. '+title;button.append(label,state);button.disabled=ch>10||!available(ch);state.textContent=ch>10?'Återstår':([1,2,3,4,5].includes(ch)?masteryComplete(ch):saved(ch)?.complete)?'Avklarat':ch===chapter?'Här är du':available(ch)?'Öppna':'Låst';button.onclick=()=>{$('menu').close();openIntegratedChapter(ch);};list.append(button);});
 }
 function showMenu(){updateMenu();if(!$('menu').open)$('menu').showModal();}

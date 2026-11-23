@@ -1,6 +1,6 @@
 # Kapitel 5 Elins protokoll
 
-Version 2.32.0 den 17 november 2026. Frågemanuset för kapitel 5 till 10 är antaget som innehållsgrund: 153 uppgifter med 210 svarsfält. Byggordningen finns i KAPITEL5_10_BYGGPLAN.md.
+Utvecklad i version 2.32.0 den 17 november 2026. Släppt för elevrepetition i version 2.33.0 den 23 november 2026. Frågemanuset för kapitel 5 till 10 är antaget som innehållsgrund: 153 uppgifter med 210 svarsfält. Byggordningen finns i KAPITEL5_10_BYGGPLAN.md.
 
 Elins uppdrag är den första spelbara referensen i femmans fortsatta utveckling. Maja behöver ett daterat protokoll. I Riksdagshuset öppnar spelaren handlingarna från 1771 och 1772, läser dem och lägger dem i tidsföljd. Dokumentarbetet ger inga poäng eller kunskapsstämplar. De två befintliga maktfrågorna på varje nivå används sedan i den vanliga frågedelen.
 
@@ -18,4 +18,4 @@ Den lokala hanterade förhandsvisningen rapporterade en avvikande grundfilskontr
 
 ## Nästa del
 
-Amiras, Britas och Olofs uppdrag utvecklas vidare utifrån samma antagna frågebank. Elevlänkarna för kapitel 1 till 4 ändras inte av denna lärarförhandsvisning.
+Amiras, Britas och Olofs uppdrag utvecklas vidare utifrån samma antagna frågebank. Elevlänkarnas befintliga adresser öppnar nu kapitel 1 till 5 med fritt kapitelval och självträning. Kapitel 6 till 10 är fortsatt spärrade i elevvyn. De fyra kunskapsområdena och deras 15 huvuduppgifter kan repeteras redan nu; Amiras, Britas och Olofs utökade berättelser återstår.
