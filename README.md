@@ -1,5 +1,18 @@
 # Uppdrag 1700 · Pappersstaden
 
+## Aktuell elevversion · 2.33.0 · 23 november 2026
+
+Den aktuella elevversionen ligger på **`/spel-test/`**. Kapitel 1–5 är öppna för fritt val och självträning. Kapitel 5, Gustavianska tiden, innehåller 15 bokkopplade huvuduppgifter på tre nivåer, repetition hos Rut och Elins daterade protokoll. Självträning kräver inget lärargodkännande. Träningsstämplar och den tidigare bedömda omgången sparas separat.
+
+| Klass | Befintlig elevlänk |
+| --- | --- |
+| 6A | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.7.1 |
+| 6B | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.9.0 |
+
+Båda länkarna öppnar den aktuella koden och behåller samma sparnycklar. Välj **5. Gustavianska tiden** med knappen **Välj kapitel**. Kapitel 6–10 är fortsatt prototyper utanför elevlänkarna. Berättelserna kring Amira, Brita och Olof kan utvecklas vidare utan att stoppa repetitionsfrågorna. Se [elevlänkarnas status](docs/spel-test/CHAPTER_ONE_STUDENT_LINK.md) och [kapitel 5:s protokoll](docs/spel-test/CHAPTER5_PROTOCOL.md).
+
+Avsnitten nedan dokumenterar tidigare utvecklingsversioner och adresser.
+
 ## Kapitel 5 – Gustavianska tiden (lärarförhandsvisning, 20 oktober 2026)
 
 [Provspela kapitel 5](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter5-pilot.html?v=2&preview=1). Den vanliga länken [kapitel 5](https://andersljungvik.github.io/uppdrag-1700/demo3/chapter5-pilot.html?v=2) kräver att eleven har avslutat kapitel 4 i **samma webbläsare**. Kapitel 2–4 har nu också lokala spärrar som kräver föregående kapitel; repetitioner bakåt är tillåtna. `preview=1` är en utvecklingsgenväg och **inte säker lärarinloggning**. Använd inte fristående förhandsvisningslänkar som elevdistribution innan en autentiserad klassvis upplåsning finns.
