@@ -1,15 +1,15 @@
 # Uppdrag 1700 · Pappersstaden
 
-## Aktuell elevversion · 2.33.0 · 23 november 2026
+## Aktuell elevversion · 2.35.0 · 26 november 2026
 
-Den aktuella elevversionen ligger på **`/spel-test/`**. Kapitel 1–5 är öppna för fritt val och självträning. Kapitel 5, Gustavianska tiden, innehåller 15 bokkopplade huvuduppgifter på tre nivåer, repetition hos Rut och Elins daterade protokoll. Självträning kräver inget lärargodkännande. Träningsstämplar och den tidigare bedömda omgången sparas separat.
+Den aktuella elevversionen ligger på **`/spel-test/`**. Kapitel 1–6 är öppna för fritt val och självträning. Kapitel 5, Gustavianska tiden, innehåller 15 bokkopplade huvuduppgifter på tre nivåer, repetition hos Rut och Elins daterade protokoll. Självträning kräver inget lärargodkännande. Träningsstämplar och den tidigare bedömda omgången sparas separat.
 
 | Klass | Befintlig elevlänk |
 | --- | --- |
 | 6A | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.7.1 |
 | 6B | https://andersljungvik.github.io/uppdrag-1700/spel-test/?only=1&chapter=1&v=2.9.0 |
 
-Båda länkarna öppnar den aktuella koden och behåller samma sparnycklar. Välj **5. Gustavianska tiden** med knappen **Välj kapitel**. Kapitel 6–10 är fortsatt prototyper utanför elevlänkarna. Berättelserna kring Amira, Brita och Olof kan utvecklas vidare utan att stoppa repetitionsfrågorna. Se [elevlänkarnas status](docs/spel-test/CHAPTER_ONE_STUDENT_LINK.md) och [kapitel 5:s protokoll](docs/spel-test/CHAPTER5_PROTOCOL.md).
+Båda länkarna öppnar den aktuella koden och behåller samma sparnycklar. Välj **6. Livet på landet och i staden** med knappen **Välj kapitel**. Sexan innehåller brevet till Sigrid, bykartorna, 36 frågor på tre nivåer och slutleveransen av sidan till Maja. Vid ett öppet svar kan eleven jämföra och fortsätta själv; jämförelsen sparas som träning. Kapitel 7–10 är fortsatt prototyper utanför elevlänkarna. Se [elevlänkarnas status](docs/spel-test/CHAPTER_ONE_STUDENT_LINK.md) och [kapitel 6](docs/spel-test/CHAPTER6.md).
 
 Avsnitten nedan dokumenterar tidigare utvecklingsversioner och adresser.
 

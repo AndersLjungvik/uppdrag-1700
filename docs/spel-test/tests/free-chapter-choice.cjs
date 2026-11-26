@@ -16,7 +16,7 @@ function boot(query,memory=new Map()){
 (async()=>{
 for(const version of ['2.7.1','2.9.0']){
  const query='?only=1&chapter=1&v='+version,memory=new Map(),api=boot(query,memory);
- for(const ch of [5,4,2,3,1]){
+ for(const ch of [6,5,4,2,3,1]){
   assert.equal(api.available(ch),true);assert.equal(api.progressAllowed(ch),true);
   assert.match(await api.access(ch),/authorized/,'the legacy inner lock must also be removed');
  }
@@ -49,7 +49,7 @@ for(const version of ['2.7.1','2.9.0']){
  assert.equal(boot('?only=4&chapter=3&v='+version,memory).initialChapter(),3);
  assert.equal(boot('?only=5&chapter=5&v='+version,memory).initialChapter(),5);
  memory.set(SCOPE+'lastChapter','5');assert.equal(boot(query,memory).initialChapter(),5);
- for(const ch of [6,7,8,9,10])assert.equal(api.available(ch),false);
+ for(const ch of [7,8,9,10])assert.equal(api.available(ch),false);
  console.log('PASS '+version+': direct real quizzes in chapters 2–5, draft/resume/resources, no invented completion, within-chapter levels, bookmark resume and release cap');
 }
 })().catch(e=>{console.error(e);process.exitCode=1;});

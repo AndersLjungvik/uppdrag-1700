@@ -6,6 +6,9 @@ async function build(source,get){
  const extra={},base=await source('chapter5-pilot.html');
  let html=base.replaceAll('Kapitel 5','Kapitel 6').replaceAll('KAPITEL 5','KAPITEL 6').replaceAll('Gustavianska tiden','Livet på landet och i staden').replaceAll('GUSTAVIANSKA TIDEN','LIVET PÅ LANDET OCH I STADEN').replaceAll('chapter5Gate','chapter6Gate').replaceAll('chapter5Locked','chapter6Locked').replaceAll('chapter5Preview','chapter6Preview');
  html=html.replaceAll('kapitel 4','kapitel 5').replaceAll('Kapitel 4</a>','Kapitel 5</a>').replaceAll('chapter4-pilot.html','chapter5-pilot.html').replace("const prior='uppdrag1700.ch4-real-world.20261020.v1'","const prior='uppdrag1700.ch5-real-world.20261020.v1'");
+ // The outer integration gate authorizes free classroom chapter choice. Keep
+ // the old prerequisite for standalone or otherwise unauthorized openings.
+ html=replace(html,'if(!complete&&!preview){','if(!complete&&!preview&&!window.UPPDRAG_CHAPTER_PROGRESS_ALLOWED?.()){');
  for(const name of ['meeting-ch5-pilot','world-life-ch5','world-keyboard-ch5','chapter5-pilot','chapter5-street-life']){
   const target=name.replace('ch5','ch6').replace('chapter5','chapter6');
   html=html.replaceAll(name+'.js',target+'.js');
@@ -66,5 +69,5 @@ async function build(source,get){
  extra['chapter6-street-events.js']=await get('chapter6-street-events.js?v=1.2.1');
  return extra;
 }
-window.UPPDRAG_CH6_BUILD={build,version:'1.2.1'};
+window.UPPDRAG_CH6_BUILD={build,version:'1.3.0'};
 })();
