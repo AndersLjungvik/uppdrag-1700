@@ -1,0 +1,34 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const sandbox={};vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../event-recurrence.js'),'utf8'),sandbox);
+const {theftAmount}=sandbox.UPPDRAG_EVENT_RECURRENCE;
+const create=(state,balance)=>sandbox.UPPDRAG_EVENT_RECURRENCE.create(state,balance,()=>.5);
+for(const [balance,loss]of [[0,0],[1,0],[2,0],[3,2],[4,2],[10,5],[11,6],[100,50]])assert.equal(theftAmount(balance),loss);
+for(let balance=3;balance<=100;balance++)assert(theftAmount(balance)>1&&theftAmount(balance)<balance);
+let state={thief:'unseen',distance:1600},r=create(state,8);
+r.start();r.ownWallet(4);state.thief='lost';r.finish(true,1600,4);
+assert.equal(r.unclaimed,4);assert.equal(r.nextClaim,4);r.advance(40000);
+assert.equal(r.ready(3000,4),false,'time and travel cannot replace real earnings');
+assert.equal(r.claim(1),false,'an incorrect refund amount cannot consume a purse');
+assert.equal(r.claim(4),true);r.ownWallet(8);r.observe(8);
+assert.equal(r.ready(3000,8),false,'the full refund is not new income');assert.equal(r.claim(),false,'each purse is returned once');
+r.observe(9);assert.equal(r.ready(2199,9),false);assert.equal(r.ready(2300,9),true);
+r.start();r.ownWallet(4);state.thief='chasing';state.distance=2300;
+assert.equal(state.recurrence.earned,false);
+r.observe(5);r.ownWallet(10);state.thief='won';r.finish(false,2300,0);
+assert.equal(r.ready(3100,10),false);r.advance(39000);assert.equal(r.ready(3100,10),false);r.advance(1000);assert.equal(r.ready(3100,10),true);
+const saved=JSON.parse(JSON.stringify(state));r=create(saved,10);assert.equal(r.ready(3100,10),true);
+state=saved;r.start();state.thief='lost';r.finish(true,3100,5);r.ownWallet(5);
+r.advance(50000);assert.equal(r.ready(5000,5),false);r.observe(6);assert(r.ready(5000,6));r.start();state.thief='lost';r.finish(true,5000,3);
+assert.equal(r.unclaimed,8);assert.equal(r.nextClaim,5);assert(r.claim(5));assert.equal(r.unclaimed,3);assert.equal(r.nextClaim,3);assert(r.claim(3));assert.equal(r.claim(),false);
+// Active-chase reload migrates the exact amount, not one coin or two copies.
+const interrupted={thief:'lost',stolenAmount:7,stolenDaler:true,distance:2000};r=create(interrupted,6);
+assert.equal(r.unclaimed,7);assert.equal(interrupted.stolenAmount,0);assert.equal(interrupted.stolenDaler,false);r=create(interrupted,6);assert.equal(r.unclaimed,7);
+assert(r.claim(7));r.ownWallet(13);assert.equal(r.observe(13),false);r.advance(50000);assert.equal(r.ready(5000,13),false);
+// Old one-daler saves keep their real individual coins and pacing.
+const legacy={thief:'lost',thiefSeen:true,stolenDaler:true,distance:2000,recurrence:{v:1,wallet:2,unclaimed:2,rest:12000,nextDistance:2600,earned:false,encounters:2}};
+r=create(legacy,2);assert.equal(r.unclaimed,3);assert.equal(r.nextClaim,1);assert.equal(legacy.stolenDaler,false);assert.equal(legacy.recurrence.rest,12000);r=create(legacy,2);assert.equal(r.unclaimed,3);
+assert(r.claim(1));assert(r.claim(1));assert(r.claim(1));assert.equal(r.claim(),false);
+r.finish(true,5000,0);assert.equal(r.unclaimed,0,'zero-value demonstrations cannot mint money');
+r.observe(3);r.advance(50000);assert.equal(r.ready(10000,2),false,'a small purse is left alone');
+r.reset(2);assert.equal(r.unclaimed,0);assert.equal(r.encounters,0);
+console.log('PASS stakes and recurring thief: half-purse losses, playing balance, exact single-use refunds, mixed pending purses, earnings/rest/travel, legacy migration and reload');
