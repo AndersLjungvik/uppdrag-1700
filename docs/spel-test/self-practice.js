@@ -42,11 +42,16 @@ function soloContinue(revise=false){
 function source(name,text){
  const edit=(a,b)=>{if(text.split(a).length!==2)throw Error('Självträning: ankaret matchar inte '+name+': '+a.slice(0,65));text=text.replace(a,b);};
  if(name==='recall-flow.js'){
+  edit('  const s=state(),t=byId.get(id);',"  const s=state(),t=byId.get(id);\n  if(chapter===6&&s.record.some(x=>x.version===VERSION&&x.step===s.step&&x.trial===s.trial&&x.id===id&&x.assessment==='self-checked-practice'))return true;");
   edit(' const save=()=>{b.persist();};',' const save=()=>{b.persist();};'+flowHelpers);
   edit(' function review(t,u){',' function review(t,u){\n  return soloReview(t,u);');
   edit("  e?.preventDefault();const name=act.slice(3),s=state();ensure();", "  e?.preventDefault();const name=act.slice(3),s=state();ensure();\n  if(name==='practice-next')return soloNext();\n  if(name==='practice-revise'){const u=ui();if(u?.phase==='review'){u.phase='question';u.error='';u.hint=true;save();render();}return true;}");
   edit("   const title=", "   const title=result.status==='self'?'Jämförelsen är sparad som träning':");
   edit("   if(u.result.status!=='right'){", "   if(!['right','self'].includes(u.result.status)){");
+ }
+ if(name==='chapter6-pilot.js'){
+  edit('r.id===f&&r.step===s.step&&r.trial===s.trial&&r.ok',"r.id===f&&r.step===s.step&&r.trial===s.trial&&(r.ok||r.assessment==='self-checked-practice')");
+  text=text.replaceAll('Du har återställt minnena!','Du har tränat klart kapitlet!').replaceAll("right+' rätta återkallningar på '+tries+' försök. '","right+' automatiskt igenkända svar och '+s.record.filter(x=>x.practised).length+' jämförda svar. '");
  }
  const match=name.match(/^chapter([1-5])-mastery\.js$/);
  if(match){
@@ -67,5 +72,5 @@ function copy(text){
  for(const before of ['Detta svar är tränat med stöd. Det är sparat, men räknas inte som en självständig mästarförklaring.','Du har fått hjälp med svaret. För en mästarstämpel behöver du sedan svara utan hjälp.'])text=text.replaceAll(before,'Du tränade med stöd. Fortsätt till nästa fråga när du är redo.');
  return text;
 }
-window.UPPDRAG_SELF_PRACTICE={source,copy,version:'1.0.0'};
+window.UPPDRAG_SELF_PRACTICE={source,copy,version:'1.1.0'};
 })();

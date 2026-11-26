@@ -1,7 +1,7 @@
-# Independent classroom practice · 2.31.1
+# Independent classroom practice · 2.35.0
 
 The existing 6A/6B links (versions 2.7.1 and 2.9.0) and `only=4` default to
-independent practice. Chapters 1–4 remain freely selectable; 5–10 stay closed.
+independent practice. Chapters 1–6 are freely selectable; 7–10 stay closed.
 Objective answers retain the existing automatic checks. An unmatched open
 answer shows the pupil's answer, criteria and example, then lets the pupil edit
 for free or choose “Jag har jämfört – fortsätt”. No teacher code is required.
@@ -42,3 +42,5 @@ dates and preservation of original drafts.
 
 The parent readiness handshake accepts assessment 3.2.0. Its actual callback
 is executed against all four chapter engines by the language regression.
+
+Chapter six retains its existing sequential 36-question, 12-visit story. Its generated controller preserves completed comparison-only visits on reload. Explicit comparisons count towards practice progress with `ok: false`, `assessment: self-checked-practice` and `independent: false`; they never become teacher approval. The map comparison still precedes Sigrid’s first questions, and the finished page must still be delivered to Maja in the cafe. `tests/chapter6-classroom.cjs` covers both original bookmarks, all 36 questions, eight comparisons, reload, final physical delivery, earlier saved answers and the retained assessed mode.

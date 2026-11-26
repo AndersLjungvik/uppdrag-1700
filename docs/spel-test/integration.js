@@ -3,19 +3,19 @@
  * against SHA-256 before application; offsets count Unicode code points.
  */
 'use strict';
-const $=id=>document.getElementById(id),VERSION='2.33.0',ROOT='uppdrag1700.integrated.20261023.v1.';
+const $=id=>document.getElementById(id),VERSION='2.35.0',ROOT='uppdrag1700.integrated.20261023.v1.';
 const TITLES=['Frihetstiden','Fria och ofria','Krig eller fred?','Nya tider, nya tankar','Gustavianska tiden','Livet på landet och i staden','Ska Sverige bli en stormakt igen?','Skottet på maskeraden','Striden om Finland','Hur kan vi veta något om 1700-talets Sverige?'];
 const KEYS=['','uppdrag1700.ch1-real-world.20261019.v11','uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1','uppdrag1700.ch4-real-world.20261020.v1','uppdrag1700.ch5-real-world.20261020.v1','uppdrag1700.ch6-real-world.20261023.v1','uppdrag1700.ch7-real-world.20261026.v1','uppdrag1700.ch8-real-world.20261026.v1','uppdrag1700.ch9-real-world.20261027.v1','uppdrag1700.ch10-real-world.20261027.v1'];
 const params=new URLSearchParams(window.__INTEGRATION_TEST_QUERY||location.search),cache=new Map(),memory=new Map();
 const replayId=/^[a-z0-9-]{1,48}$/i.test(params.get('replay')||'')?params.get('replay'):'';
-const requestedLessonLimit=['1','2','4','5'].includes(params.get('only'))?Number(params.get('only')):0;
-// Release free choice among chapters 1–5 on the existing class bookmarks. Keep the original
+const requestedLessonLimit=['1','2','4','5','6'].includes(params.get('only'))?Number(params.get('only')):0;
+// Release free choice among chapters 1–6 on the existing class bookmarks. Keep the original
 // save prefix; access never fabricates completion or mastery stamps.
-const classLessonLimit=['2.7.1','2.9.0'].includes(params.get('v'))?5:0;
+const classLessonLimit=['2.7.1','2.9.0'].includes(params.get('v'))?6:0;
 const lessonLimit=requestedLessonLimit?Math.max(requestedLessonLimit,classLessonLimit):0;
 const freeChapterChoice=lessonLimit>=4;
 const selfPractice=freeChapterChoice&&params.get('practice')!=='0'||!lessonLimit&&params.get('practice')==='1';
-const chapterTest=!lessonLimit&&replayId&&[2,3,4,5].includes(Number(params.get('testChapter')))?Number(params.get('testChapter')):0;
+const chapterTest=!lessonLimit&&replayId&&[2,3,4,5,6].includes(Number(params.get('testChapter')))?Number(params.get('testChapter')):0;
 let frame=$('game');
 let teacher=!lessonLimit&&params.get('teacher')==='1',chapter=1,serial=0,ready=false,durable=true,payload;
 window.UPPDRAG_AMBIENT_UI.install({storageKey:ROOT+'ambient.preferences.v1',getFrame:()=>frame,isReady:()=>ready});
@@ -88,7 +88,7 @@ function appleDogSource(text){
  return text.replace(exports,exports+"drawAppleDog(ctx,pose,time,region){drawDog(ctx,{pose,color:'#998268',patch:'#e0d2b3',lastTurn:Infinity},time,motion.matches,region,[]);},");
 }
 async function source(name){
- if((chapterTest||freeChapterChoice)&&chapter<=5&&available(chapter)&&name==='chapter-access-pilot.js')return '/* Chapter access is authorized by the integration gate. */';
+ if((chapterTest||freeChapterChoice)&&chapter<=6&&available(chapter)&&name==='chapter-access-pilot.js')return '/* Chapter access is authorized by the integration gate. */';
  if(chapter===5&&name==='chapter5-pilot.js')return practiceSource('chapter5-mastery.js',await get('chapter5-mastery.js?v=2.32.0'));
  if(chapter===5&&name==='chapter5-marstrand-letter.js')return get('chapter5-letter.js?v=2.6.0');
  if(chapter===4&&name==='chapter4-pilot.js')return practiceSource('chapter4-mastery.js',await get('chapter4-mastery.js?v=2.22.3'));
@@ -221,7 +221,7 @@ async function makePage(ch,id){
  const masteryModule=await get('mastery-progression.js?v=2.22.1');
  const reviewRecovery=[1,2,3,4,5].includes(ch)?await get('mastery-review-recovery.js?v=1.0.1'):'';
  const classroom=[1,2].includes(ch)?(await get('pupil-language.js?v=1.0.0'))+'\n'+(await get('teacher-review.js?v=1.0.1')):'';
- const presence=([1,2,3,4,5].includes(ch)?await get('scene-presence.js?v=1.5.0'):'')+(selfPractice?'\n'+await get('self-practice.js?v=1.0.0'):'');
+ const presence=([1,2,3,4,5].includes(ch)?await get('scene-presence.js?v=1.5.0'):'')+(selfPractice?'\n'+await get('self-practice.js?v=1.1.0'):'');
  const staging=(await source('room-staging.js'))+'\n'+(await source('room-life.js'));
  const styles=`<style>header small,header .chapterBack{display:none}header h1{font-size:clamp(13px,2.6vw,20px)}#ch1Modal textarea{min-height:100px}#ch1Modal .rc-tools button{min-height:44px}#ch1Modal .rc-own{overflow-wrap:anywhere}#ch1Modal .ch1Sheet{overscroll-behavior:contain}</style>`;
  page=page.replace('<head>','<head><base href="'+new URL('../demo3/',document.baseURI).href+'">'+script(bridge(id)+'\n'+classroom+'\n'+staging+'\n'+presence+([1,2,3,4,5].includes(ch)?'\n'+masteryModule+'\n'+reviewRecovery:''))+styles);

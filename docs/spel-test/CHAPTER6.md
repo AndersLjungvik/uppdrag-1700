@@ -1,6 +1,16 @@
 # Kapitel 6: Livet på landet och i staden
 
-Version 1.2.0, 26 oktober 2026. Byggt vidare i det sammanfogade äventyret, inte en fristående frågesida.
+Släppt i elevversion 2.35.0, 26 november 2026. Byggt vidare i det sammanfogade äventyret. Äldre avsnitt nedan beskriver prototypens ursprungliga regler.
+
+Båda befintliga klasslänkarna för 6A och 6B öppnar nu kapitel 1–6 för fritt val och självträning. Inget tidigare kapitel behöver markeras klart. Kapitel 7–10 är stängda i elevvyn. Sexans 36 huvuduppgifter, brev, kartjämförelse, 12 arbetsbesök och slutleverans är bevarade.
+
+Eleven kan bearbeta ett öppet svar gratis eller jämföra med exemplet och fortsätta. Jämförelsen loggas som `self-checked-practice`, med `ok: false` och `independent: false`. Den räknas för träningens fortsättning, aldrig som lärargodkännande. Självträningen och den tidigare bedömda omgången behåller skilda sparningar.
+
+Kontroller vid släppet: 255 rättningsfall; hela sexans kedja med 36 frågor, 12 arbetsbesök, åtta självjämförelser, omladdning och faktisk plats för slutleveransen i det genererade kapitlets kontrollkod. Befintliga tester för klasslänkar, fri kapitelåtkomst, självträning, språk och händelsemotor passerar. I webbläsaren har elevens kapitelval, direktstart utan tidigare klarflaggor, gång till Maja, brevuppdragets start och kartorna i boken kontrollerats. En separat QA-sida serverar exakta grundfiler eftersom den lokala förhandsvisningen annars lägger till HTML; kontrollsummeskyddet behålls. Fysisk iPhone/Safari ingår inte i denna kontroll.
+
+Kör `node docs/spel-test/tests/chapter6-classroom.cjs` för klassrumsflödet.
+
+## Tidigare utvecklingshistorik
 
 ## Spelgång
 

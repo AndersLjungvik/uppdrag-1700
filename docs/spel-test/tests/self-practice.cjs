@@ -13,7 +13,7 @@ for(const version of ['2.7.1','2.9.0']){
  for(const[k,v]of before){assert.equal(saved.get(k),v);assert.equal(saved.get(practice+k.slice(original.length)),v,'first practice copies every saved value exactly');}
  a.write('uppdrag1700.answer','{"draft":"Ny träning"}');const updated=[...saved];const b=boot('?only=4&chapter=4&v='+version,saved);assert.equal(b.read('uppdrag1700.answer'),'{"draft":"Ny träning"}');assert.deepEqual([...saved],updated,'reload never overwrites newer practice');
  for(const[k,v]of before)assert.equal(saved.get(k),v,'practice writes never change the assessed save');
- for(let chapter=6;chapter<=10;chapter++)assert.equal(b.available(chapter),false);
+ for(let chapter=7;chapter<=10;chapter++)assert.equal(b.available(chapter),false);
  const ordinary=boot('?chapter=1',saved);assert.equal(ordinary.selfPractice,false);assert.equal(ordinary.prefix(),ROOT+'play.');
 }
 for(const ch of [1,2,3,4,5]){
@@ -43,4 +43,4 @@ for(const ch of [1,2,3,4,5]){
  assert(run.p.state.record.some(e=>e.assessment==='self-checked-practice'||e.support),'real responses still retain support information');
  console.log('PASS self practice chapter '+ch+': saved review unblocked, no code, free editing, duplicate protection, every real area and level completed with explicit answer provenance');
 }
-console.log('PASS class bookmarks: isolated one-time copy, exact original saves, practice reload and chapters 6–10 remain closed');
+console.log('PASS class bookmarks: isolated one-time copy, exact original saves, practice reload and chapters 7–10 remain closed');

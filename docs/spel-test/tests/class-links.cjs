@@ -18,8 +18,8 @@ function boot(query,memory=new Map()){
 (async()=>{
 for(const [name,version] of [['6A','2.7.1'],['6B','2.9.0']]){
  const query='?only=1&chapter=1&v='+version;
- let h=boot(query);assert.equal(h.api.lessonLimit,5);assert.equal(h.api.prefix(),SCOPE);assert.equal(h.api.teacher,false);assert.equal(h.api.chapterTest,0);
- for(let chapter=1;chapter<=5;chapter++){
+ let h=boot(query);assert.equal(h.api.lessonLimit,6);assert.equal(h.api.prefix(),SCOPE);assert.equal(h.api.teacher,false);assert.equal(h.api.chapterTest,0);
+ for(let chapter=1;chapter<=6;chapter++){
   assert.equal(h.api.available(chapter),true,'pupils can visit every released chapter without prerequisites');
  }
  h.memory.set(SCOPE+firstKey,JSON.stringify({v:2,complete:true}));assert.equal(h.api.available(2),true,'chapter access does not depend on completion flags');h.memory.delete(SCOPE+firstKey);
@@ -28,14 +28,14 @@ for(const [name,version] of [['6A','2.7.1'],['6B','2.9.0']]){
  h.memory.set(SCOPE+firstKey,JSON.stringify({v:2,complete:false,daler:7,apples:2,record:[{id:'kept-answer',answer:['Mitt sparade svar']}],earned:{kept:true}}));
  h.memory.set(SCOPE+'uppdrag1700.mastery.v1.ch1',JSON.stringify({v:1,areas:{start:{learner:{status:'clear'},journeyman:{status:'pending'}}},history:[{kept:true}]}));
  const saved=Array.from(h.memory.entries());h=boot(query,h.memory);assert.deepEqual(Array.from(h.memory.entries()),saved,'all written answers, stamps, pending reviews and resources remain identical');
- for(let chapter=6;chapter<=10;chapter++)assert.equal(h.api.available(chapter),false);
+ for(let chapter=7;chapter<=10;chapter++)assert.equal(h.api.available(chapter),false);
  for(const invalid of [0,11,1.5,NaN,'2'])assert.equal(h.api.available(invalid),false);
- assert(h.api.bridge(1).includes('window.__UPPDRAG_LESSON_ONLY=5;'));
- const tampered=boot(query+'&teacher=1&testChapter=6',h.memory);assert.equal(tampered.api.teacher,false);assert.equal(tampered.api.chapterTest,0);assert.equal(tampered.api.available(6),false);
- for(const only of [2,4,5]){
-  const canonical=boot('?only='+only+'&chapter=5&v='+version,h.memory);assert.equal(canonical.api.lessonLimit,5);assert.equal(canonical.api.prefix(),SCOPE);assert.equal(canonical.api.read(firstKey),h.api.read(firstKey));
+ assert(h.api.bridge(1).includes('window.__UPPDRAG_LESSON_ONLY=6;'));
+ const tampered=boot(query+'&teacher=1&testChapter=6',h.memory);assert.equal(tampered.api.teacher,false);assert.equal(tampered.api.chapterTest,0);assert.equal(tampered.api.available(6),true);
+ for(const only of [2,4,5,6]){
+  const canonical=boot('?only='+only+'&chapter=5&v='+version,h.memory);assert.equal(canonical.api.lessonLimit,6);assert.equal(canonical.api.prefix(),SCOPE);assert.equal(canonical.api.read(firstKey),h.api.read(firstKey));
  }
- const replay=boot(query+'&replay=existing-round',h.memory);assert.equal(replay.api.lessonLimit,5);assert.equal(replay.api.prefix(),ROOT+'lesson.1.replay.existing-round.play.');
+ const replay=boot(query+'&replay=existing-round',h.memory);assert.equal(replay.api.lessonLimit,6);assert.equal(replay.api.prefix(),ROOT+'lesson.1.replay.existing-round.play.');
  const ordinary=boot('?chapter=1&v='+version,h.memory);assert.equal(ordinary.api.lessonLimit,0);assert.equal(ordinary.api.prefix(),ROOT+'play.');assert.equal(ordinary.api.available(2),false);
  const keys=['',firstKey,'uppdrag1700.ch2-real-world.20261019.v1','uppdrag1700.ch3-real-world.20261019.v1'];
  const areasByChapter=[[],['start','law','trade'],['women','power','children'],['parties','war','uprising','david']];
@@ -47,7 +47,7 @@ for(const [name,version] of [['6A','2.7.1'],['6B','2.9.0']]){
   assert.equal(h.api.progressAllowed(ch+1),true,'tests in the selected chapter remain available');
   for(let later=ch+2;later<=4;later++)assert.equal(h.api.available(later),true,'later released chapters remain freely selectable');
  }
- assert.equal(h.api.available(6),false,'completing earlier chapters does not release chapter 6');
+ assert.equal(h.api.available(7),false,'completing earlier chapters does not release chapter 7');
  // Simulate already saved classroom work from before a code update. Reopen
  // the exact distributed URL and its canonical chapter-four URL without
  // rewriting any answer, unfinished draft, teacher review or earned stamp.
@@ -65,13 +65,13 @@ for(const [name,version] of [['6A','2.7.1'],['6B','2.9.0']]){
   for(const key of preservedKeys)assert.equal(restored.api.read(key),priorRound.get(SCOPE+key),name+' reads the same saved chapter data after update/reload');
   assert.deepEqual(Array.from(priorRound.entries()),beforeUpdate,name+' update/reload preserves every saved byte across chapters 1–4');
  }
- for(let denied=6;denied<=10;denied++)for(const extra of ['','&teacher=1&testChapter='+denied,'&teacher=1&testChapter='+denied+'&replay=forced-later']){
+ for(let denied=7;denied<=10;denied++)for(const extra of ['','&teacher=1&testChapter='+denied,'&teacher=1&testChapter='+denied+'&replay=forced-later']){
   const forced=boot('?only=1&chapter='+denied+'&v='+version+extra,priorRound);
   assert.equal(forced.api.teacher,false);assert.equal(forced.api.chapterTest,0);assert.equal(forced.api.available(denied),false);assert.equal(forced.api.progressAllowed(denied),false,'class query parameters cannot release chapter '+denied);
   assert.deepEqual(Array.from(priorRound.entries()),beforeUpdate,'a denied chapter request cannot alter the ordinary save');
  }
- console.log('PASS '+name+' saved classroom update: all four chapter answers, drafts, review records, resources and stamps byte-preserved; chapters 6–10 denied even with forced chapter/test/teacher/replay parameters');
- console.log('PASS '+name+': free choice of five chapters without fabricated mastery, identical saves, canonical navigation/reload, replay preserved, chapters 6–10 blocked');
+ console.log('PASS '+name+' saved classroom update: all four chapter answers, drafts, review records, resources and stamps byte-preserved; chapters 7–10 denied even with forced chapter/test/teacher/replay parameters');
+ console.log('PASS '+name+': free choice of six chapters without fabricated mastery, identical saves, canonical navigation/reload, replay preserved, chapters 7–10 blocked');
 }
 for(const query of ['?only=1&chapter=1','?only=1&chapter=1&v=2.8.0','?only=1&chapter=1&v=2.15.0','?only=2&chapter=1']){
  const h=boot(query);assert.equal(h.api.available(2),false,'other links retain their original progression');
@@ -88,11 +88,11 @@ console.log('PASS direct chapter-five links preserve the class save scope; expli
 // A completed fifth chapter must not advertise an unreleased sixth chapter.
 {
  const {fixture}=require('./mastery-apple-retry.cjs');
- for(const limit of [0,5]){
+ for(const limit of [0,5,6]){
   const h=fixture(5,new Map(),limit),areas=h.m.snapshot().config.areas;
   for(const level of ['learner','journeyman','master'])for(const area of areas){h.m.begin(area.id,level);h.m.pass(area.id,level);}
   h.p.refresh();h.action('book');
-  assert.equal(h.modal.innerHTML.includes('chapter6-pilot.html'),limit!==5,'only ordinary unrestricted games offer chapter 6 after completion');
+  assert.equal(h.modal.innerHTML.includes('chapter6-pilot.html'),limit!==5,'chapter six is available after completion in unrestricted and six-chapter classroom modes');
  }
  console.log('PASS chapter 5 ending respects the classroom release limit');
 }
