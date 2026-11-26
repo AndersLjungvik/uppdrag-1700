@@ -18,4 +18,4 @@ Den lokala hanterade förhandsvisningen rapporterade en avvikande grundfilskontr
 
 ## Nästa del
 
-Amiras, Britas och Olofs uppdrag utvecklas vidare utifrån samma antagna frågebank. Elevlänkarnas befintliga adresser öppnar nu kapitel 1 till 5 med fritt kapitelval och självträning. Kapitel 6 till 10 är fortsatt spärrade i elevvyn. De fyra kunskapsområdena och deras 15 huvuduppgifter kan repeteras redan nu; Amiras, Britas och Olofs utökade berättelser återstår.
+Den sammanhängande anslagskedjan med Amiras, Britas och Olofs underlag är förberedd i utvecklingsversion 2.34.0 enligt det godkända uppdragsmanuset. Se CHAPTER5_ROYAL_NOTICE.md. Elins protokoll finns kvar som ett separat läsbart dokument. Elevlänkarnas befintliga adresser öppnar kapitel 1 till 5 med fritt kapitelval och självträning. Kapitel 6 till 10 är fortsatt spärrade i elevvyn. Den publicerade elevversionen är fortfarande 2.33.0 tills ändringen publiceras.

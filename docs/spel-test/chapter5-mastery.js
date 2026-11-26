@@ -108,6 +108,7 @@ function book(){
  window.UPPDRAG_CH5_CITY_LIFE?.suspend();
  returnFocus=document.activeElement;const q=mastery.summary();
  let h=top('Din minnesbok')+'<p>'+(q.chapterComplete?'Alla fyra mästarstämplar är klara. Kapitel 6 är öppet.':q.label+': '+q.done+' av 4 områden klara. Välj ordning mellan områdena.')+'</p>';
+ if(window.UPPDRAG_CH5_ROYAL_NOTICE)h+='<section class="mb-area"><h3>Det nya kungliga anslaget</h3>'+window.UPPDRAG_CH5_ROYAL_NOTICE.journalHTML()+'<button class="primary" data-mb="royalNext">Gå till nästa steg i berättelsen</button></section>';
  if(window.UPPDRAG_CH5_PROTOCOL)h+='<section class="mb-area"><h3>Elins protokoll</h3>'+window.UPPDRAG_CH5_PROTOCOL.journalHTML()+'<button data-mb="protocol">'+(locationKey()==='riksdag'||locationKey()==='cafe'&&window.UPPDRAG_CH5_PROTOCOL.status().delivered?'Läs protokollet':'Besök Elin och protokollet')+'</button></section>';
  if(!story.introduced&&!q.chapterComplete)h+='<p class="mb-note">Maja på Kaffehuset visar hur minnesboken fungerar. Du kan också gå direkt till ett område.</p><button data-mb="maja">Besök Maja</button>';
  if(s.masteryMigrationNotice)h+='<p class="mb-note">Dina tidigare svar och resurser är bevarade. Stämplar har bara förts över där hela områdets prov kan styrkas. Övriga områden behöver kompletteras.</p>';
@@ -283,7 +284,7 @@ window.UPPDRAG_CH5_PILOT={tick,go:book,close,scenes:runs,saveKey:storage,persist
  enterMemory(aid){if(chooseHere(locationKey(),aid))begin();},wantsMemoryThanks:()=>false,memoryThanks:()=>'',finishMemory:finished,
  wantsArchiveMeeting:p=>p==='archive',archiveHello:()=> 'Vi övar på kapitel 1–4 och sådant du redan mött i femman. Det kostar inget. En kort omgång ger ett äpple. Den stora utmaningen har sex uppgifter och kan fylla på fickan till tre äpplen.',enterArchive,enterMaterialReview,materialReviewProgress,goArchive,
  idleLine:()=> 'Välkommen tillbaka!',
- openBook:book,selectArea:select,get studyBusy(){return !modal.hidden||!!window.UPPDRAG_CH5_BOOKWORK?.busy||!!window.UPPDRAG_CH5_PROTOCOL?.busy;},
+ openBook:book,selectArea:select,get studyBusy(){return !modal.hidden||!!window.UPPDRAG_CH5_BOOKWORK?.busy||!!window.UPPDRAG_CH5_PROTOCOL?.busy||!!window.UPPDRAG_CH5_ROYAL_NOTICE?.busy;},
  get encounteredTaskIds(){return s.encountered.slice();},
  get repetitionTaskIds(){const ids=new Set(available(false));const topics=new Set(allBank.filter(t=>ids.has(t.id)).map(t=>t.chapter+'/'+t.topic));return allBank.filter(t=>t.rank===0&&topics.has(t.chapter+'/'+t.topic)&&(!t.reviewOnly||t.chapter<5||(s.recallRutLog||[]).some(x=>x.id===t.id))).map(t=>t.id);}
 };
@@ -291,6 +292,7 @@ function action(e){
  const button=e.target.closest('[data-mb]');if(!button)return;const name=button.dataset.mb;
  if(name==='close')close();else if(name==='book')book();else if(name==='select')select(button.dataset.area,button.dataset.level);
  else if(name==='protocol'){const here=locationKey();close();if(here==='riksdag'||here==='cafe'&&window.UPPDRAG_CH5_PROTOCOL?.status().delivered)window.UPPDRAG_CH5_PROTOCOL?.open();else goPlace('riksdag');}
+ else if(name==='royalNext'){const next=window.UPPDRAG_CH5_ROYAL_NOTICE?.status();if(next){close();if(locationKey()===next.place)window.UPPDRAG_CH5_SCENES.openRoom(next.place);else goPlace(next.place);}}
  else if(name==='travel')goPlace(area().p);else if(name==='begin')begin();else if(name==='rut')goArchive();else if(name==='maja')goPlace('cafe');
  else if(name==='retry')retry();else if(name==='review')review();else if(name==='approve')approve();else if(name==='revise')revise();
 }
@@ -300,5 +302,5 @@ modal.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.s
  const els=[...modal.querySelectorAll('button:not([disabled]),a[href],input,textarea')],first=els[0],last=els.at(-1);
  if(e.shiftKey&&(document.activeElement===first||document.activeElement===modal)){e.preventDefault();last?.focus();}else if(!e.shiftKey&&(document.activeElement===last||document.activeElement===modal)){e.preventDefault();first?.focus();}
  }else recall.key(e);});
-drawHud();setMessage('Gustavianska tiden','Besök Elin, Amira, Brita och Olof. På Marstrand väntar ett brev som behöver komma till hamnen.');
+drawHud();setMessage('Gustavianska tiden','Brita i Tryckeriet behöver rätta ett gammalt anslag. Minnesboken visar nästa steg och vad du redan har gjort.');
 })();

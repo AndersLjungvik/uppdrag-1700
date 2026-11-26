@@ -1,6 +1,6 @@
 # Byggplan för kapitel 5 till 10
 
-Uppdaterad 17 november 2026. Användaren har godkänt det samlade frågemanuset som innehållsgrund. Vi bygger vidare kapitelvis med början i kapitel 5 och använder den aktuella sammanfogade spelversionen.
+Uppdaterad 26 november 2026. Användaren har godkänt det samlade frågemanuset som innehållsgrund. Vi bygger vidare på det befintliga uppdragsmanuset och de antagna frågorna, kapitelvis med början i kapitel 5, i den aktuella sammanfogade spelversionen.
 
 ## Antaget frågeunderlag
 
@@ -30,7 +30,9 @@ Ett kungligt besked blir kapitlets genomgående ärende. Spelaren granskar och r
 
 Elins första kompletta uppdrag finns som spelbar referens i version 2.32.0: möte och beställning, två daterade handlingar, de antagna frågorna, återkoppling och fysisk leverans av protokollet till Maja. Lärling, gesäll och mästare utvecklar samma kunskapsområde. Dokumentarbete och kunskapsresultat sparas separat. Se CHAPTER5_PROTOCOL.md.
 
-Referensen räknas som klar när spelaren förstår nästa handling, kan slutföra uppdraget i rätt rum, pausa och återuppta sitt svar samt möta följden i ett återbesök. Därefter byggs Amiras, Britas och Olofs delar ut efter samma fungerande struktur. Kapitlets huvudkedja färdigställs före fler sidoäventyr.
+Referensen räknas som klar när spelaren förstår nästa handling, kan slutföra uppdraget i rätt rum, pausa och återuppta sitt svar samt möta följden i ett återbesök. Kapitlets huvudkedja färdigställs före fler sidoäventyr.
+
+Version 2.34.0 är nu förberedd för granskning med den sammanhängande anslagskedjan från det godkända uppdragsmanuset: Britas beställning, det äldre bladet hos Maja, jämförelsen 1772, Jos senare besked, Amiras/Britas/Olofs underlag, rättelse och leverans till Maja. De antagna frågorna är bevarade. Minnesboken visar stegen och nästa plats. Se CHAPTER5_ROYAL_NOTICE.md för omfattning och kontrollstatus. Detta är utvecklingsstatus; den publicerade elevversionen är fortsatt 2.33.0.
 
 ## Regler som följer med
 

@@ -23,7 +23,7 @@ const css=document.createElement('style');css.textContent=`
 let lastRoom=null,travelTarget=null,noticeUntil=0;
 const room=()=>interior&&!voyage?(interior.outdoor?'quay':interior.kind):null;
 const idle=()=>!engine.busy&&!pilot.studyBusy&&!UPPDRAG_MEETINGS.state.talking&&!UPPDRAG_CH5_CITY_LIFE.active&&!voyage;
-function stamp(p){time.textContent=dates[p]||'Samtal i staden · dramatiserade repliker';time.hidden=!p;}
+function stamp(p){time.textContent=p==='quay'&&window.UPPDRAG_CH5_ROYAL_NOTICE?.state.accepted?'Senare under Gustav III:s regeringstid · besked och resor':dates[p]||'Samtal i staden · dramatiserade repliker';time.hidden=!p;}
 function speak(lines,choices=[],action=()=>{}){
  if(!interior||!idle())return false;
  UPPDRAG_CH3_NPC_MOTION?.approach(performance.now());
@@ -41,6 +41,8 @@ function openRoom(p){
  if(['marstrandQuay','colonyQuay'].includes(p))p='quay';
  if(room()!==p||!idle())return false;
  stamp(p);const first=!story.seen[p];story.seen[p]=true;save();
+ const royal=window.UPPDRAG_CH5_ROYAL_NOTICE?.conversation(p,speak);
+ if(royal)return speak(royal.lines,royal.choices,royal.action);
  if(p==='cafe'){
   const protocol=window.UPPDRAG_CH5_PROTOCOL,state=protocol?.status();
   if(state?.ready)return speak([['Maja','Du har Elins protokoll med dig. Är både händelserna och förklaringen kontrollerade?'],['Du','Ja. Kungabytet och maktbytet har skilts åt och fått rätt årtal.'],['Maja','Då kan jag låta gästerna läsa det. Vill du lämna det här?']],[['deliverProtocol','Här är det färdiga protokollet.'],['later','Jag behåller det en stund till.']],a=>{if(a==='deliverProtocol'&&room()==='cafe'&&protocol.deliver())speak([['Maja','Tack! Protokollet ligger nu här för gästerna att läsa.'],['Du','Betyder mer kungamakt att allt annat också förändrades?'],['Maja','Amira har ett brev om de nya lagarna. Brita och Olof har andra erfarenheter. Fråga dem också.']],[['protocol','Läs protokollet.'],['later','Jag går vidare.']],next=>{if(next==='protocol')protocol.open();});});
@@ -112,11 +114,12 @@ function drawInheritedBed(g,x,feet,w){
  g.restore();
 }
 function tick(){
+ window.UPPDRAG_CH5_ROYAL_NOTICE?.tick();
  if(pilot.studyBusy||engine.busy)UPPDRAG_CH5_CITY_LIFE.suspend();
  else if(UPPDRAG_CH5_CITY_LIFE.active&&(!interior&&path.length||!!interior))UPPDRAG_CH5_CITY_LIFE.close();
  continueTravel();
  if(lastRoom!==interior){lastRoom=interior;stamp(room());streetDate(null);}
  if(!notice.hidden&&performance.now()>noticeUntil)notice.hidden=true;
 }
-window.UPPDRAG_CH5_SCENES={openRoom,travel,tick,streetDate,goal,letterChanged,positionReplies,drawInheritedBed,get inheritedFeast(){return readPrior('uppdrag1700.ch4-cajsa-cookbook.20261020.v1').phase==='feast';},get busy(){return !!window.UPPDRAG_CH5_BOOKWORK?.busy||!!window.UPPDRAG_CH5_PROTOCOL?.busy;},journalHTML:()=>'<p><b>Brevet från Carlsten:</b> '+goal()+'</p><p>Frivillig, fiktiv berättelse. Brevet påverkar inga provstämplar eller pengar.</p>'};
+window.UPPDRAG_CH5_SCENES={openRoom,travel,tick,streetDate,goal,letterChanged,positionReplies,drawInheritedBed,get inheritedFeast(){return readPrior('uppdrag1700.ch4-cajsa-cookbook.20261020.v1').phase==='feast';},get busy(){return !!window.UPPDRAG_CH5_BOOKWORK?.busy||!!window.UPPDRAG_CH5_PROTOCOL?.busy||!!window.UPPDRAG_CH5_ROYAL_NOTICE?.busy;},journalHTML:()=>'<p><b>Brevet från Carlsten:</b> '+goal()+'</p><p>Frivillig, fiktiv berättelse. Brevet påverkar inga provstämplar eller pengar.</p>'};
 })();
